@@ -3,12 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
 
-Future<void> _pumpApp(WidgetTester tester, {Size size = const Size(360, 800)}) async {
+Future<void> _pumpApp(
+  WidgetTester tester, {
+  Size size = const Size(360, 800),
+  bool tapContinue = true,
+}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
   await tester.pumpAndSettle();
+  if (tapContinue && find.text('Continue').evaluate().isNotEmpty) {
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+  }
 }
 
 Future<void> _tap(WidgetTester tester, Finder f) async {
@@ -25,14 +33,14 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
 void main() {
   testWidgets('home shows both modules', (tester) async {
     await _pumpApp(tester);
-    expect(find.text('Respiratory Distress'), findsOneWidget);
-    expect(find.text('Retinopathy of Prematurity'), findsOneWidget);
+    expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
+    expect(find.text('Retinopathy of Prematurity (ROP)'), findsOneWidget);
   });
 
   testWidgets('RD: GA 30 + grunting → START CPAP + caffeine in the bar',
       (tester) async {
     await _pumpApp(tester);
-    await _tap(tester, find.text('Respiratory Distress'));
+    await _tap(tester, find.text('Respiratory Distress in Neonates'));
 
     await _tap(tester, find.text('Grunting'));
     await tester.enterText(
@@ -45,7 +53,7 @@ void main() {
 
   testWidgets('RD: GA 37, all SAS grade 0 → nasal O₂', (tester) async {
     await _pumpApp(tester);
-    await _tap(tester, find.text('Respiratory Distress'));
+    await _tap(tester, find.text('Respiratory Distress in Neonates'));
 
     await _tap(tester, find.text('Nasal flaring'));
     await tester.enterText(
@@ -75,7 +83,7 @@ void main() {
   testWidgets('ROP wizard walks through all steps without errors',
       (tester) async {
     await _pumpApp(tester);
-    await _tap(tester, find.text('Retinopathy of Prematurity'));
+    await _tap(tester, find.text('Retinopathy of Prematurity (ROP)'));
 
     await tester.enterText(
         find.widgetWithText(TextField, 'Gestational age'), '30');
@@ -96,7 +104,7 @@ void main() {
   testWidgets('ROP findings: Zone II stage 3 + plus → treatment-requiring',
       (tester) async {
     await _pumpApp(tester);
-    await _tap(tester, find.text('Retinopathy of Prematurity'));
+    await _tap(tester, find.text('Retinopathy of Prematurity (ROP)'));
     await _tap(tester, find.text('4. Findings'));
 
     final scroll = find.byType(Scrollable).last;
@@ -113,14 +121,20 @@ void main() {
   testWidgets('tablet layout renders side-by-side without overflow',
       (tester) async {
     await _pumpApp(tester, size: const Size(1280, 800));
-    await _tap(tester, find.text('Respiratory Distress'));
+    await _tap(tester, find.text('Respiratory Distress in Neonates'));
     expect(find.text('Recommendation pending'), findsOneWidget);
   });
 
   testWidgets('renders at 360x640 small phone without overflow', (tester) async {
-    await _pumpApp(tester, size: const Size(360, 640));
+    await _pumpApp(tester, size: const Size(360, 640), tapContinue: false);
     // Landing page
-    expect(find.textContaining('SRHU'), findsOneWidget);
+    expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
+    expect(find.text('Continue'), findsOneWidget);
+
+    // Tap Continue to navigate to Home
+    await _tap(tester, find.text('Continue'));
+    expect(find.textContaining('SRHU STW'), findsOneWidget);
+    expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
     expect(find.text('Get Started →'), findsNWidgets(2));
 
     // Open RD directly via Get Started button
@@ -133,17 +147,21 @@ void main() {
 
     // Open Home via Home icon in RD screen
     await _tap(tester, find.byIcon(Icons.home_outlined));
-    expect(find.text('Neonatal STW'), findsOneWidget);
-    expect(find.text('Respiratory Distress'), findsWidgets);
+    expect(find.textContaining('SRHU STW'), findsOneWidget);
+    expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
   });
 
   testWidgets('renders at 412x915 standard phone without overflow', (tester) async {
-    await _pumpApp(tester, size: const Size(412, 915));
-    expect(find.textContaining('SRHU'), findsOneWidget);
+    await _pumpApp(tester, size: const Size(412, 915), tapContinue: false);
+    expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
+    expect(find.text('Continue'), findsOneWidget);
+
+    await _tap(tester, find.text('Continue'));
+    expect(find.textContaining('SRHU STW'), findsOneWidget);
     expect(find.text('Get Started →'), findsNWidgets(2));
     await _tap(tester, find.text('Get Started →').first);
     expect(find.text('Signs of respiratory distress'), findsOneWidget);
     await _tap(tester, find.byIcon(Icons.home_outlined));
-    expect(find.text('Neonatal STW'), findsOneWidget);
+    expect(find.textContaining('SRHU STW'), findsOneWidget);
   });
 }

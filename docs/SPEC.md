@@ -27,25 +27,36 @@ Recommendations are advisory. The STW disclaimer is shown on every screen and in
 ## 2. Screens
 
 ```
-Landing (SRHU STW) ─┬─ Respiratory Distress ─┬─ Assess (diagnose → gestation → SAS → initial plan)
-                       │                        ├─ Reassess (support, PEEP/FiO₂/SpO₂, repeat SAS → next step)
-                       │                        └─ Reference (DOs/DON'Ts, algorithm, KPIs, abbreviations, Source PDF)
-                       ├─ ROP Screening ──────── wizard: 1 Eligibility → 2 Timing → 3 Prepare → 4 Findings → 5 Follow-up
-                       │                         (+ Reference, Source PDF)
-                       ├─ References ─────────── 2 original STW PDF cards + in-app pinch-zoom viewer + cited sources
-                       ├─ Disclaimer (bottom sheet)
-                       └─ Home ───────────────── Current baby card & module overview (via app bar Home icon)
+```
+Launch ─► Landing Screen (Poster image + "Clinical guidance for newborn care" + "Continue")
+             │
+             ▼
+         Home Screen (SRHU Logo + Hero + 2 Service Cards + Disclaimer + References)
+             ├─► Respiratory Distress in Neonates ─┬─ Assess (diagnose → gestation → SAS → initial plan)
+             │                                     ├─ Reassess (support, PEEP/FiO₂/SpO₂, repeat SAS → next step)
+             │                                     └─ Reference (DOs/DON'Ts, algorithm, KPIs, abbreviations)
+             ├─► Retinopathy of Prematurity (ROP) ─ wizard: 1 Eligibility → 2 Timing → 3 Prepare → 4 Findings → 5 Follow-up
+             │                                      (+ Reference)
+             ├─► References ─────────────────────── 2 original STW PDF cards + in-app pinch-zoom viewer + cited sources
+             └─► Disclaimer (modal bottom sheet)
 ```
 
-**Landing page ("SRHU STW").** Single-screen entry point designed without scrolling to fit screens from 320x568 up to 412x915 and tablets:
-- **Brand Row:** Free SRHU logo (`assets/images/logo212.png`, 36-40 px, no box/border), "SRHU" (blue) + "STW" (navy) title, and "Based on ICMR / DHR Standard Treatment Workflows" subtitle.
-- **Hero:** Soft blue-white wave bottom edge (`_HeroWaveClipper`), headline "Better Care for Every New Beginning", gradient-blended baby newborn photo with gentle breathing and floating heart animations.
-- **Module Cards:** Side-by-side cards with press animation for "Respiratory Distress in Neonates" (lungs image/badge, direct blue "Get Started →" button) and "Retinopathy of Prematurity (ROP)" (eye image/badge, direct pink "Get Started →" button).
-- **Feature Row:** 4 trust indicators ("Based on STW Workflows", "Guideline-Aligned", "For Medical Students & Doctors", "Practical Clinical Support"), hidden automatically on compact screens <680 px high.
-- **Footer:** Handwritten motto "Small Steps, Brighter Tomorrows" with heart ribbon doodle, alongside tappable text links for "Disclaimer" (bottom sheet) and "References".
-- **Home Access:** The existing Home screen remains accessible via the Home icon in both modules' app bars.
+**1. Landing Screen (first screen on launch).** Single-screen entry point designed without scrolling:
+- **Portrait Poster Image:** Top edge-to-edge photo poster (`assets/images/landingpageimage.png`) with a soft white gradient fade along its bottom edge blending into the white text area.
+- **Copy:** Centred headline "Clinical guidance for newborn care" (Poppins SemiBold, navy `#0B2A5B`) followed by "Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows." (Inter 13 sp, muted).
+- **Action:** Full-width primary "Continue" button (min height 52 px, primary blue `#1F5FBF`, Poppins SemiBold 15 sp) fixed in SafeArea bottom area. Tapping navigates to Home screen (`context.go('/home')`).
+- **Logo:** No logo is shown on this screen.
 
-**Home.** Two module cards, each showing a one-line live status. Below them is the **Current baby** card: GA weeks + days, birth weight, date of birth. Both modules share these details, so they are entered once.
+**2. Home Screen ("SRHU STW").** Hub screen designed without scrolling to fit screens from 320x568 up to 412x915 and tablets:
+- **Top Brand Row:** Pinned top-left free SRHU logo (`assets/images/logo212.png`, 40-44 px, no box, no border, no shadow), "SRHU" (blue) + "STW" (navy) title, and "Based on ICMR / DHR Standard Treatment Workflows" subtitle (max 2 lines, fully visible).
+- **Hero Section:** Soft blue-white wave bottom edge (`_HeroWaveClipper`), headline "Better Care for Every New Beginning", fully visible subtitle "Guidance from the ICMR / DHR Standard Treatment Workflows for newborn care, right at your fingertips.", and 25% larger `assets/images/hu.png` with 20 px rounded corners and a soft left-edge fade blending into the hero background.
+- **Service Cards (Vertical Blocks):**
+  - "Respiratory Distress in Neonates": Icon badge (`Icons.air`), full title (Poppins SemiBold 15-16 sp, max 2 lines, never truncated), description, full-width 50 px "Get Started →" button (primary blue), and direct "View source PDF →" link.
+  - "Retinopathy of Prematurity (ROP)": Icon badge (`Icons.visibility_outlined`), full title (Poppins SemiBold 15-16 sp, max 2 lines, never truncated), description, full-width 50 px "Get Started →" button (mid blue), and direct "View source PDF →" link.
+  - Tapping anywhere on a card also navigates to its module.
+- **Feature Row:** 3 trust indicators ("Based on STW Workflows", "Guideline-Aligned", "For Medical Students & Doctors"), hidden automatically on compact screens <680 px high.
+- **Footer:** Handwritten motto "Small Steps, Brighter Tomorrows" with heart ribbon doodle, alongside tappable text links for "Disclaimer" (modal bottom sheet) and "References" (`/references`).
+- **Back Navigation:** Pressing system back on Home exits the app (does not return to Landing).
 
 **Phones:** a sticky **recommendation bar** at the bottom always shows the current advice; tap it for the full detail. **Tablets (≥900 px):** the form is on the left and the live result on the right.
 
@@ -166,10 +177,9 @@ The app bundles the two official ICMR/DHR Standard Treatment Workflow PDFs as of
   - "Sources cited in the STWs" section documenting the verbatim external clinical guidelines referenced in the source workflows (NNF India CPGs, MoHFW RBSK Universal Eye Screening).
   - Official STW disclaimer.
 - **Entry Points:**
-  - Landing screen: secondary "References & Source STW PDFs" link.
-  - Home screen: "References & STW Documents" navigation card and app bar action.
-  - Respiratory Distress module: "Source PDF" action in app bar and direct "View PDF" card in the Reference tab.
-  - ROP module: "Source PDF" action in app bar and direct "View PDF" card in the Reference screen.
+  - Home screen: "References" footer link to `/references`, plus direct "View source PDF →" links on each service card.
+  - Dedicated References screen (`/references`): summary cards for each workflow with direct "View PDF" buttons and cited sources.
+  - Note: "Source PDF" actions were removed from inside RD and ROP modules to keep modules focused on clinical workflow execution.
 - **In-App PDF Viewer (`/pdf-viewer`):**
   - Full-screen high-fidelity rendering powered by `pdfx` (offline asset rendering).
   - Smooth pinch-to-zoom, double-tap zoom, and scrolling for dense one-page poster readability.

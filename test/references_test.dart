@@ -180,9 +180,9 @@ void main() {
     expect(find.text('References'), findsOneWidget);
   });
 
-  testWidgets('Landing page contains References link and navigates correctly',
+  testWidgets('Home screen contains References link and navigates correctly',
       (tester) async {
-    await tester.pumpWidget(_buildTestApp(initialLocation: '/'));
+    await tester.pumpWidget(_buildTestApp(initialLocation: '/home'));
     await tester.pumpAndSettle();
 
     final refLink = find.text('References');
@@ -192,34 +192,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('References'), findsOneWidget);
-    expect(find.text('Sources cited in the STWs'), findsOneWidget);
+    expect(find.text('Original Standard Treatment Workflows'), findsOneWidget);
   });
 
-  testWidgets('Home screen contains References card and navigates correctly',
+  testWidgets('Home screen contains View source PDF links',
       (tester) async {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/home'));
     await tester.pumpAndSettle();
 
-    final homeRefCard = find.text('References & STW Documents');
-    expect(homeRefCard, findsOneWidget);
+    final pdfLinks = find.text('View source PDF →');
+    expect(pdfLinks, findsNWidgets(2));
 
-    await tester.ensureVisible(homeRefCard);
-    await tester.tap(homeRefCard);
-    await tester.pumpAndSettle();
-
-    expect(find.text('References'), findsOneWidget);
-    expect(find.text('Original Standard Treatment Workflows'), findsOneWidget);
-  });
-
-  testWidgets('RD screen Source PDF button navigates to RD PDF viewer',
-      (tester) async {
-    await tester.pumpWidget(_buildTestApp(initialLocation: '/rd'));
-    await tester.pumpAndSettle();
-
-    final sourcePdfButton = find.text('Source PDF');
-    expect(sourcePdfButton, findsOneWidget);
-
-    await tester.tap(sourcePdfButton);
+    await tester.tap(pdfLinks.first);
     await tester.pumpAndSettle();
 
     expect(find.byType(PdfViewerScreen), findsOneWidget);
@@ -229,21 +213,19 @@ void main() {
     );
   });
 
-  testWidgets('ROP screen Source PDF button navigates to ROP PDF viewer',
+  testWidgets('RD screen has no Source PDF button',
+      (tester) async {
+    await tester.pumpWidget(_buildTestApp(initialLocation: '/rd'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Source PDF'), findsNothing);
+  });
+
+  testWidgets('ROP screen has no Source PDF button',
       (tester) async {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/rop'));
     await tester.pumpAndSettle();
 
-    final sourcePdfButton = find.text('Source PDF');
-    expect(sourcePdfButton, findsOneWidget);
-
-    await tester.tap(sourcePdfButton);
-    await tester.pumpAndSettle();
-
-    expect(find.byType(PdfViewerScreen), findsOneWidget);
-    expect(
-      find.text('Mock PDF Viewer: Retinopathy of Prematurity (ROP)'),
-      findsOneWidget,
-    );
+    expect(find.text('Source PDF'), findsNothing);
   });
 }

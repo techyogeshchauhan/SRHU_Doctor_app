@@ -43,34 +43,6 @@ class RopScreen extends ConsumerWidget {
           ),
           Semantics(
             button: true,
-            label: 'Open Retinopathy of Prematurity STW PDF',
-            child: TextButton.icon(
-              style: TextButton.styleFrom(
-                foregroundColor: AppTheme.accentRop,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                minimumSize: const Size(48, 48),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
-              label: const Text(
-                'Source PDF',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              onPressed: () => context.push(
-                '/pdf-viewer',
-                extra: {
-                  'path': 'assets/pdfs/retinopathy_of_prematurity_stw.pdf',
-                  'title': 'Retinopathy of Prematurity (ROP)',
-                },
-              ),
-            ),
-          ),
-          Semantics(
-            button: true,
             label: 'ROP reference',
             child: IconButton(
               tooltip: 'ROP reference',
@@ -251,78 +223,9 @@ class RopReferenceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('ROP reference')),
-      body: ReferenceView(
+      body: const ReferenceView(
         sections: ropReference,
         links: ropRelatedLinks,
-        header: [
-          Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppTheme.accentRop.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.picture_as_pdf_outlined,
-                      color: AppTheme.accentRop,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Original STW PDF poster',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          'Official ICMR / DHR workflow poster',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            color: Color(0xFF64748B),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Semantics(
-                    button: true,
-                    label: 'Open Retinopathy of Prematurity STW PDF',
-                    child: FilledButton.icon(
-                      onPressed: () => context.push(
-                        '/pdf-viewer',
-                        extra: {
-                          'path': 'assets/pdfs/retinopathy_of_prematurity_stw.pdf',
-                          'title': 'Retinopathy of Prematurity (ROP)',
-                        },
-                      ),
-                      icon: const Icon(Icons.visibility_outlined, size: 16),
-                      label: const Text('View PDF'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppTheme.accentRop,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(96, 44),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

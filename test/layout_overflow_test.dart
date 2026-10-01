@@ -37,13 +37,22 @@ void main() {
       await _pumpWith(tester, size: size);
 
       // 1. Landing Screen
-      expect(find.textContaining('SRHU'), findsOneWidget);
+      expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
+      expect(find.text('Continue'), findsOneWidget);
+      await _tap(tester, find.text('Continue'));
+
+      // 2. Home Screen
       expect(find.textContaining('SRHU STW'), findsOneWidget);
+      expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
+      expect(find.text('Retinopathy of Prematurity (ROP)'), findsOneWidget);
       expect(find.text('Get Started →'), findsNWidgets(2));
 
-      // Direct RD launch from landing card
-      await _tap(tester, find.text('Respiratory Distress'));
+      // Direct RD launch from home card
+      await _tap(tester, find.text('Respiratory Distress in Neonates'));
       expect(find.text('Signs of respiratory distress'), findsOneWidget);
+
+      // Verify no "Source PDF" in RD module
+      expect(find.text('Source PDF'), findsNothing);
 
       // Test tabs in RD
       await _tap(tester, find.text('Reassess'));
@@ -52,15 +61,16 @@ void main() {
       await _tap(tester, find.text('Reference'));
       expect(find.text('DOs'), findsOneWidget);
 
-      // Return to landing screen
-      final navigator =
-          tester.state<NavigatorState>(find.byType(Navigator).first);
-      navigator.pop();
-      await tester.pumpAndSettle();
+      // Return to home screen via Home icon
+      await _tap(tester, find.byIcon(Icons.home_outlined));
+      expect(find.textContaining('SRHU STW'), findsOneWidget);
 
-      // Direct ROP launch from landing card
-      await _tap(tester, find.text('Retinopathy of Prematurity'));
+      // Direct ROP launch from home card
+      await _tap(tester, find.text('Retinopathy of Prematurity (ROP)'));
       expect(find.text('Step 1 of 5: Eligibility'), findsOneWidget);
+
+      // Verify no "Source PDF" in ROP module
+      expect(find.text('Source PDF'), findsNothing);
 
       // Walk all 5 steps
       for (final nextLabel in [
@@ -77,18 +87,9 @@ void main() {
       await _tap(tester, find.text('Back'));
       expect(find.text('Step 4 of 5: Findings'), findsOneWidget);
 
-      // Pop back
-      navigator.pop();
-      await tester.pumpAndSettle();
-
-      // Open Home screen via module's home icon
-      await _tap(tester, find.text('Get Started →').first);
+      // Return to home screen via Home icon
       await _tap(tester, find.byIcon(Icons.home_outlined));
-      expect(find.text('Neonatal STW'), findsOneWidget);
-
-      // Open About screen
-      await _tap(tester, find.byIcon(Icons.info_outline));
-      expect(find.text('About'), findsOneWidget);
+      expect(find.textContaining('SRHU STW'), findsOneWidget);
     });
   }
 }

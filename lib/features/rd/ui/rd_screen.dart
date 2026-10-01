@@ -73,34 +73,6 @@ class _RdScreenState extends ConsumerState<RdScreen>
           ),
           Semantics(
             button: true,
-            label: 'Open Respiratory Distress STW PDF',
-            child: TextButton.icon(
-              style: TextButton.styleFrom(
-                foregroundColor: AppTheme.accentRd,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                minimumSize: const Size(48, 48),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
-              label: const Text(
-                'Source PDF',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              onPressed: () => context.push(
-                '/pdf-viewer',
-                extra: {
-                  'path': 'assets/pdfs/respiratory_distress_neonates_stw.pdf',
-                  'title': 'Respiratory Distress in Neonates',
-                },
-              ),
-            ),
-          ),
-          Semantics(
-            button: true,
             label: 'Clear RD assessment',
             child: IconButton(
               tooltip: 'Clear RD assessment',
@@ -120,81 +92,12 @@ class _RdScreenState extends ConsumerState<RdScreen>
       ),
       body: TabBarView(
         controller: _tabs,
-        children: [
-          const _AssessTab(),
-          const _ReassessTab(),
+        children: const [
+          _AssessTab(),
+          _ReassessTab(),
           ReferenceView(
             sections: rdReference,
             links: rdRelatedLinks,
-            header: [
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppTheme.accentRd.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.picture_as_pdf_outlined,
-                          color: AppTheme.accentRd,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Original STW PDF poster',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              'Official ICMR / DHR workflow poster',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Semantics(
-                        button: true,
-                        label: 'Open Respiratory Distress STW PDF',
-                        child: FilledButton.icon(
-                          onPressed: () => context.push(
-                            '/pdf-viewer',
-                            extra: {
-                              'path': 'assets/pdfs/respiratory_distress_neonates_stw.pdf',
-                              'title': 'Respiratory Distress in Neonates',
-                            },
-                          ),
-                          icon: const Icon(Icons.visibility_outlined, size: 16),
-                          label: const Text('View PDF'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppTheme.accentRd,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(96, 44),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
