@@ -27,7 +27,7 @@ Recommendations are advisory. The STW disclaimer is shown on every screen and in
 ## 2. Screens
 
 ```
-Launch ─► Landing Screen (Poster image + "Clinical guidance for newborn care" + "Continue")
+Launch ─► Landing Screen (Partner logos: ICMR featured, then SRHU, AIIMS Delhi, PGIMER, GMCH + "Clinical guidance for newborn care" + "Continue")
              │
              ▼
          Home Screen (SRHU Logo + Hero + "Neonatal Care Workflows" card + Disclaimer + References)
@@ -50,10 +50,10 @@ Launch ─► Landing Screen (Poster image + "Clinical guidance for newborn care
 **Condition selection.** All 14 topics are listed in this order: Triage, Thermal Care, KMC, Fluids & Feeds, Respiratory Distress, ANCS, Sepsis, Hypoglycemia, Jaundice, Seizures, HIE, Transport, ROP, Discharge & Follow-up. Each has a status chip. Only Respiratory Distress and ROP are **Available**; the other 12 are **Coming soon** and carry no clinical content until their approved STW is added. Selected conditions run in that canonical order. GA, birth weight and DOB are asked once, and only when a selected workflow uses them. Back from the first workflow step returns to the selection with the ticks kept. Removing a condition clears its recorded data, so it cannot appear in the summary.
 
 **1. Landing Screen (first screen on launch).** Single-screen entry point designed without scrolling:
-- **Portrait Poster Image:** Top edge-to-edge photo poster (`assets/images/landingpageimage.png`) with a soft white gradient fade along its bottom edge blending into the white text area.
+- **Partner Logos (top):** Shown first, in this order: **ICMR** as a larger featured card (tinted border, full name always shown), then **SRHU, AIIMS Delhi, PGIMER, GMCH** in one equal-height row, followed by "Trusted By Leading Medical & Research Institutions". There is no poster image.
 - **Copy:** Centred headline "Clinical guidance for newborn care" (Poppins SemiBold, navy `#0B2A5B`) followed by "Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows." (Inter 13 sp, muted).
 - **Action:** Full-width primary "Continue" button (min height 52 px, primary blue `#1F5FBF`, Poppins SemiBold 15 sp) fixed in SafeArea bottom area. Tapping navigates to Home screen (`context.go('/home')`).
-- **Logo:** No logo is shown on this screen.
+- **Logo:** Partner logos lead the screen (see above); the "STW Neo" wordmark is shown without a second ICMR logo.
 
 **2. Home Screen ("SRHU STW").** Hub screen designed without scrolling to fit screens from 320x568 up to 412x915 and tablets:
 - **Top Brand Row:** Pinned top-left free SRHU logo (`assets/images/logo212.png`, 40-44 px, no box, no border, no shadow), "SRHU" (blue) + "STW" (navy) title, and "Based on ICMR / DHR Standard Treatment Workflows" subtitle (max 2 lines, fully visible).

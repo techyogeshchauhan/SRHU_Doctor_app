@@ -106,7 +106,8 @@ void main() {
           var overflowErrors = errors.where((e) =>
               e.exceptionAsString().contains('A RenderFlex overflowed by'));
           expect(overflowErrors, isEmpty,
-              reason: 'Landing should have zero overflow at ${size.width}x${size.height}');
+              reason:
+                  'Landing should have zero overflow at ${size.width}x${size.height}');
 
           // Navigate to Home screen
           await tester.tap(find.text('Continue'));
@@ -121,14 +122,16 @@ void main() {
           overflowErrors = errors.where((e) =>
               e.exceptionAsString().contains('A RenderFlex overflowed by'));
           expect(overflowErrors, isEmpty,
-              reason: 'Home should have zero overflow at ${size.width}x${size.height}');
+              reason:
+                  'Home should have zero overflow at ${size.width}x${size.height}');
         } finally {
           FlutterError.onError = oldHandler;
         }
       });
     }
 
-    testWidgets('Disclaimer opens modal bottom sheet with advisory text on Home',
+    testWidgets(
+        'Disclaimer opens modal bottom sheet with advisory text on Home',
         (tester) async {
       await _pumpAppAt(tester, size: const Size(360, 640));
       await tester.tap(find.text('Continue'));
@@ -155,10 +158,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('References'), findsOneWidget);
-      expect(find.text('Original Standard Treatment Workflows'), findsOneWidget);
+      expect(
+          find.text('Original Standard Treatment Workflows'), findsOneWidget);
     });
 
-    testWidgets('Landing and Home screens accommodate large text scale without overflow',
+    testWidgets(
+        'Landing and Home screens accommodate large text scale without overflow',
         (tester) async {
       final errors = <FlutterErrorDetails>[];
       final oldHandler = FlutterError.onError;
@@ -188,7 +193,8 @@ void main() {
       }
     });
 
-    testWidgets('Home layout adheres to hero sizing, card spacing, and button height rules',
+    testWidgets(
+        'Home layout adheres to hero sizing, card spacing, and button height rules',
         (tester) async {
       await _pumpAppAt(tester, size: const Size(360, 640));
       await tester.tap(find.text('Continue'));
@@ -226,7 +232,8 @@ void main() {
       expect(shaderMask, findsOneWidget);
 
       // 2. Button is at least 48 px (and 50 px on 360x640)
-      final getStartedButton = find.widgetWithText(FilledButton, 'Get Started →');
+      final getStartedButton =
+          find.widgetWithText(FilledButton, 'Get Started →');
       expect(getStartedButton, findsOneWidget);
       expect(
         tester.getSize(getStartedButton).height,
@@ -237,7 +244,8 @@ void main() {
       expect(find.byType(Spacer), findsNothing);
     });
 
-    testWidgets('Landing displays all 5 institutional partners with accessible semantics',
+    testWidgets(
+        'Landing displays all 5 institutional partners with accessible semantics',
         (tester) async {
       await _pumpAppAt(tester, size: const Size(1024, 768));
 
@@ -270,7 +278,8 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.bySemanticsLabel('All India Institute of Medical Sciences Delhi Logo'),
+        find.bySemanticsLabel(
+            'All India Institute of Medical Sciences Delhi Logo'),
         findsOneWidget,
       );
       expect(
@@ -284,17 +293,40 @@ void main() {
         findsOneWidget,
       );
 
-      // Verify desktop layout has all 5 in one row (equal Y coordinates)
+      // ICMR is featured first, above the other four
       final icmrCenter = tester.getCenter(find.text('ICMR'));
       final srhuCenter = tester.getCenter(find.text('SRHU'));
       final aiimsCenter = tester.getCenter(find.text('AIIMS Delhi'));
       final pgiCenter = tester.getCenter(find.text('PGIMER'));
       final gmchCenter = tester.getCenter(find.text('GMCH'));
 
-      expect(icmrCenter.dy, equals(srhuCenter.dy));
+      expect(icmrCenter.dy, lessThan(srhuCenter.dy));
+
+      // SRHU, AIIMS Delhi, PGIMER, GMCH share one row, left to right
       expect(srhuCenter.dy, equals(aiimsCenter.dy));
       expect(aiimsCenter.dy, equals(pgiCenter.dy));
       expect(pgiCenter.dy, equals(gmchCenter.dy));
+      expect(srhuCenter.dx, lessThan(aiimsCenter.dx));
+      expect(aiimsCenter.dx, lessThan(pgiCenter.dx));
+      expect(pgiCenter.dx, lessThan(gmchCenter.dx));
+
+      // ICMR logo is larger than the other partner logos
+      final icmrLogo = tester.getSize(find
+          .bySemanticsLabel('Indian Council of Medical Research (ICMR) Logo'));
+      final srhuLogo = tester.getSize(
+          find.bySemanticsLabel('Swami Rama Himalayan University (SRHU) Logo'));
+      expect(icmrLogo.height, greaterThan(srhuLogo.height));
+
+      // Partner logos sit at the top of the screen; the poster image is gone
+      expect(icmrCenter.dy, lessThan(768 / 3));
+      expect(
+        find.byWidgetPredicate((w) =>
+            w is Image &&
+            w.image is AssetImage &&
+            (w.image as AssetImage).assetName ==
+                'assets/images/landingpageimage.png'),
+        findsNothing,
+      );
     });
 
     testWidgets('Header displays ICMR logo on Home, RD, and ROP screens',
@@ -329,5 +361,3 @@ void main() {
     });
   });
 }
-
-

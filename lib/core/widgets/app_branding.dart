@@ -19,6 +19,7 @@ class StwNeoBrand extends StatelessWidget {
     this.mainAxisSize = MainAxisSize.min,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.showLogo = true,
   });
 
   final String? subtitle;
@@ -30,6 +31,9 @@ class StwNeoBrand extends StatelessWidget {
   final MainAxisAlignment mainAxisAlignment;
   final CrossAxisAlignment crossAxisAlignment;
 
+  /// False where the ICMR logo is already shown nearby (landing page).
+  final bool showLogo;
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -37,63 +41,65 @@ class StwNeoBrand extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment,
       children: [
-        Image.asset(
-          'assets/images/icmr_logo.png',
-          semanticLabel: 'STW Neo ICMR Logo',
-          height: logoHeight,
-          fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-        ),
+        if (showLogo) ...[
+          Image.asset(
+            'assets/images/icmr_logo.png',
+            semanticLabel: 'STW Neo ICMR Logo',
+            height: logoHeight,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          ),
           const SizedBox(width: 8),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'STW',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: titleSize,
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.primaryNavy,
-                          letterSpacing: -0.3,
-                        ),
+        ],
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'STW',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: titleSize,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.primaryNavy,
+                        letterSpacing: -0.3,
                       ),
-                      TextSpan(
-                        text: ' Neo',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: titleSize,
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.primaryBlue,
-                          letterSpacing: -0.3,
-                        ),
+                    ),
+                    TextSpan(
+                      text: ' Neo',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: titleSize,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.primaryBlue,
+                        letterSpacing: -0.3,
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+              if (subtitle != null) ...[
+                Text(
+                  subtitle!,
+                  maxLines: subtitleMaxLines,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: subtitleSize,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.mutedText,
+                    height: 1.15,
                   ),
                 ),
-                if (subtitle != null) ...[
-                  Text(
-                    subtitle!,
-                    maxLines: subtitleMaxLines,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: subtitleSize,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.mutedText,
-                      height: 1.15,
-                    ),
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
-        ],
-      );
+        ),
+      ],
+    );
   }
 }

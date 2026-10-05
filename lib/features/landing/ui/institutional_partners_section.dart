@@ -56,13 +56,13 @@ const List<InstitutionPartner> kInstitutionalPartners = [
     shortName: 'GMCH',
     fullName: 'Government Medical College & Hospital, Chandigarh',
     assetPath: 'assets/images/GMCH chandigrah.png',
-    semanticsLabel:
-        'Government Medical College and Hospital Chandigarh Logo',
+    semanticsLabel: 'Government Medical College and Hospital Chandigarh Logo',
   ),
 ];
 
-/// Professional "Institutional / Research Partners" section displayed on the
-/// landing page to establish medical and research credibility in the first screen.
+/// Partner logos shown at the top of the landing page, in the order of
+/// [kInstitutionalPartners]: ICMR first as a larger featured card (STW
+/// author), then SRHU, AIIMS Delhi, PGIMER and GMCH in one row.
 class InstitutionalPartnersSection extends StatelessWidget {
   const InstitutionalPartnersSection({
     super.key,
@@ -75,104 +75,78 @@ class InstitutionalPartnersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Section Header
-        Text(
-          'Trusted By Leading Medical & Research Institutions',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: isCompact ? 11.5 : 13.5,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryNavy,
-            letterSpacing: -0.2,
-            height: 1.2,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          'Developed with support, expertise, and collaboration from leading medical and research institutions.',
-          textAlign: TextAlign.center,
-          maxLines: isCompact ? 1 : 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: isCompact ? 9.5 : 11.0,
-            fontWeight: FontWeight.w400,
-            color: AppTheme.mutedText,
-            height: 1.25,
-          ),
-        ),
-        SizedBox(height: isCompact ? 8 : 12),
+    final featured = kInstitutionalPartners.first;
+    final others = kInstitutionalPartners.skip(1).toList();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 700;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ICMR, featured
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: _PartnerCard(
+                  partner: featured,
+                  isDesktop: isDesktop,
+                  isCompact: isCompact,
+                  featured: true,
+                ),
+              ),
+            ),
+            SizedBox(height: isCompact ? 6 : 8),
 
-        // Partner Cards Responsive Grid/Row
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            final isDesktop = width >= 700;
-
-            if (isDesktop) {
-              // Desktop: Exactly 5 equal-width logo cards in ONE horizontal row
-              return Row(
+            // SRHU, AIIMS Delhi, PGIMER, GMCH
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (int i = 0; i < kInstitutionalPartners.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 8),
+                  for (int i = 0; i < others.length; i++) ...[
+                    if (i > 0) SizedBox(width: isDesktop ? 8 : 6),
                     Expanded(
                       child: _PartnerCard(
-                        partner: kInstitutionalPartners[i],
-                        isDesktop: true,
+                        partner: others[i],
+                        isDesktop: isDesktop,
                         isCompact: isCompact,
                       ),
                     ),
                   ],
                 ],
-              );
-            } else {
-              // Mobile / Tablet: 3 + 2 balanced layout
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Row 1: ICMR, SRHU, AIIMS Delhi
-                  Row(
-                    children: [
-                      for (int i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 6),
-                        Expanded(
-                          child: _PartnerCard(
-                            partner: kInstitutionalPartners[i],
-                            isDesktop: false,
-                            isCompact: isCompact,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  // Row 2: PGIMER, GMCH (balanced width)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (int i = 3; i < 5; i++) ...[
-                        if (i > 3) const SizedBox(width: 6),
-                        Expanded(
-                          child: _PartnerCard(
-                            partner: kInstitutionalPartners[i],
-                            isDesktop: false,
-                            isCompact: isCompact,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              );
-            }
-          },
-        ),
-      ],
+              ),
+            ),
+            SizedBox(height: isCompact ? 6 : 10),
+
+            Text(
+              'Trusted By Leading Medical & Research Institutions',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: isCompact ? 11.5 : 13.5,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryNavy,
+                letterSpacing: -0.2,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              'Developed with support, expertise, and collaboration from leading medical and research institutions.',
+              textAlign: TextAlign.center,
+              maxLines: isCompact ? 1 : 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: isCompact ? 9.5 : 11.0,
+                fontWeight: FontWeight.w400,
+                color: AppTheme.mutedText,
+                height: 1.25,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -184,11 +158,15 @@ class _PartnerCard extends StatefulWidget {
     required this.partner,
     required this.isDesktop,
     required this.isCompact,
+    this.featured = false,
   });
 
   final InstitutionPartner partner;
   final bool isDesktop;
   final bool isCompact;
+
+  /// Larger logo, tinted border and full name always shown (ICMR).
+  final bool featured;
 
   @override
   State<_PartnerCard> createState() => _PartnerCardState();
@@ -203,13 +181,17 @@ class _PartnerCardState extends State<_PartnerCard> {
     final isDesktop = widget.isDesktop;
     final isCompact = widget.isCompact;
 
-    final logoHeight = isDesktop
-        ? 34.0
-        : (isCompact ? 24.0 : 28.0);
-    final cardPaddingVertical = isDesktop
-        ? 8.0
-        : (isCompact ? 5.0 : 6.0);
-    final cardPaddingHorizontal = isDesktop ? 6.0 : 4.0;
+    final featured = widget.featured;
+
+    final logoHeight = featured
+        ? (isDesktop ? 110.0 : (isCompact ? 72.0 : 92.0))
+        : (isDesktop ? 52.0 : (isCompact ? 34.0 : 42.0));
+    final cardPaddingVertical = featured
+        ? (isCompact ? 8.0 : 10.0)
+        : (isDesktop ? 8.0 : (isCompact ? 5.0 : 6.0));
+    final cardPaddingHorizontal = featured ? 12.0 : (isDesktop ? 6.0 : 4.0);
+    final restingBorder =
+        featured ? const Color(0x731F5FBF) : const Color(0xFFE2E8F0);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -226,13 +208,11 @@ class _PartnerCardState extends State<_PartnerCard> {
             horizontal: cardPaddingHorizontal,
           ),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
+            color: featured ? const Color(0xFFF5F9FF) : Colors.white,
+            borderRadius: BorderRadius.circular(featured ? 14 : 10),
             border: Border.all(
-              color: _isHovered
-                  ? const Color(0x731F5FBF)
-                  : const Color(0xFFE2E8F0),
-              width: 1.0,
+              color: _isHovered ? const Color(0x731F5FBF) : restingBorder,
+              width: featured ? 1.4 : 1.0,
             ),
             boxShadow: [
               BoxShadow(
@@ -275,44 +255,45 @@ class _PartnerCardState extends State<_PartnerCard> {
               ),
               SizedBox(height: isCompact ? 3 : 4),
 
-                // Short Name
+              // Short Name
+              Text(
+                p.shortName,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: featured
+                      ? (isCompact ? 12.0 : 13.0)
+                      : (isDesktop ? 11.0 : (isCompact ? 9.5 : 10.5)),
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.primaryNavy,
+                  letterSpacing: -0.1,
+                  height: 1.15,
+                ),
+              ),
+
+              // Full Name (featured card, and every card on desktop)
+              if (featured || isDesktop) ...[
+                const SizedBox(height: 1),
                 Text(
-                  p.shortName,
+                  p.fullName,
                   textAlign: TextAlign.center,
-                  maxLines: 1,
+                  maxLines: featured ? 1 : 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: isDesktop ? 11.0 : (isCompact ? 9.5 : 10.5),
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryNavy,
-                    letterSpacing: -0.1,
+                    fontFamily: 'Inter',
+                    fontSize: featured ? (isCompact ? 9.5 : 10.5) : 9.0,
+                    fontWeight: FontWeight.w400,
+                    color: AppTheme.mutedText,
                     height: 1.15,
                   ),
                 ),
-
-                // Full Name (displayed on desktop and standard tablet/mobile)
-                if (!isCompact || isDesktop) ...[
-                  const SizedBox(height: 1),
-                  Text(
-                    p.fullName,
-                    textAlign: TextAlign.center,
-                    maxLines: isDesktop ? 2 : 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: isDesktop ? 9.0 : 8.5,
-                      fontWeight: FontWeight.w400,
-                      color: AppTheme.mutedText,
-                      height: 1.15,
-                    ),
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }
-
