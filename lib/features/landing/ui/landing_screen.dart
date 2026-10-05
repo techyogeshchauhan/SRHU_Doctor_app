@@ -94,6 +94,7 @@ class _LandingScreenState extends State<LandingScreen>
                               children: [
                                 StwNeoBrand(
                                   showLogo: false,
+                                  showTitle: true,
                                   titleSize:
                                       isVeryShort ? 20 : (isCompact ? 24 : 28),
                                   mainAxisAlignment: MainAxisAlignment.center,

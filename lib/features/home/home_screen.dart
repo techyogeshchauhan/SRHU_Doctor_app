@@ -306,13 +306,13 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// 1. Top Brand Row with primary ICMR logo and "STW Neo" branding
+  /// 1. Top Brand Row with the primary ICMR logo and guideline note
   Widget _buildBrandRow({required bool isShort}) {
     return StwNeoBrand(
-      logoHeight: isShort ? 32 : 38,
-      titleSize: isShort ? 18 : 21,
+      logoHeight: isShort ? 44 : 52,
+      stacked: false,
       subtitleSize: 11,
-      subtitleMaxLines: 2,
+      subtitleMaxLines: 3,
       subtitle: 'Based on ICMR / DHR Standard Treatment Workflows',
       mainAxisSize: MainAxisSize.max,
     );

@@ -49,7 +49,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // 2. Home Screen checks
-        expect(find.textContaining('STW Neo'), findsOneWidget);
+        expect(find.text('Neonatal Care Workflows'), findsOneWidget);
 
         // Single workflow entry card
         expect(find.text('Neonatal Care Workflows'), findsOneWidget);
@@ -337,14 +337,14 @@ void main() {
 
       // Home Screen header has ICMR logo
       expect(
-        find.bySemanticsLabel('STW Neo ICMR Logo'),
+        find.bySemanticsLabel('ICMR Logo'),
         findsOneWidget,
       );
 
       // Navigate to Respiratory Distress module
       await openModuleFromHome(tester, 'Respiratory Distress');
       expect(
-        find.bySemanticsLabel('STW Neo ICMR Logo'),
+        find.bySemanticsLabel('ICMR Logo'),
         findsOneWidget,
       );
 
@@ -355,7 +355,7 @@ void main() {
       // Navigate to ROP module
       await openModuleFromHome(tester, 'ROP');
       expect(
-        find.bySemanticsLabel('STW Neo ICMR Logo'),
+        find.bySemanticsLabel('ICMR Logo'),
         findsOneWidget,
       );
     });

@@ -44,7 +44,7 @@ void main() {
       await _tap(tester, find.text('Continue'));
 
       // 2. Home Screen
-      expect(find.textContaining('STW Neo'), findsOneWidget);
+      expect(find.text('Neonatal Care Workflows'), findsOneWidget);
       expect(find.text('Neonatal Care Workflows'), findsOneWidget);
       expect(find.text('Get Started →'), findsOneWidget);
 
@@ -65,7 +65,7 @@ void main() {
 
       // Return to home screen via Home icon
       await _tap(tester, find.byIcon(Icons.home_outlined));
-      expect(find.textContaining('STW Neo'), findsOneWidget);
+      expect(find.text('Neonatal Care Workflows'), findsOneWidget);
 
       // ROP launch via condition selection
       await openModuleFromHome(tester, 'ROP');
@@ -91,7 +91,7 @@ void main() {
 
       // Return to home screen via Home icon
       await _tap(tester, find.byIcon(Icons.home_outlined));
-      expect(find.textContaining('STW Neo'), findsOneWidget);
+      expect(find.text('Neonatal Care Workflows'), findsOneWidget);
     });
   }
 }

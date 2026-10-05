@@ -155,7 +155,7 @@ void main() {
 
     // Tap Continue to navigate to Home
     await _tap(tester, find.text('Continue'));
-    expect(find.textContaining('STW Neo'), findsOneWidget);
+    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
     expect(find.text('Get Started →'), findsOneWidget);
 
     // Open RD via condition selection
@@ -168,7 +168,6 @@ void main() {
 
     // Open Home via Home icon in RD screen
     await _tap(tester, find.byIcon(Icons.home_outlined));
-    expect(find.textContaining('STW Neo'), findsOneWidget);
     expect(find.text('Neonatal Care Workflows'), findsOneWidget);
   });
 
@@ -178,11 +177,11 @@ void main() {
     expect(find.text('Continue'), findsOneWidget);
 
     await _tap(tester, find.text('Continue'));
-    expect(find.textContaining('STW Neo'), findsOneWidget);
+    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
     expect(find.text('Get Started →'), findsOneWidget);
     await openModuleFromHome(tester, 'Respiratory Distress');
     expect(find.text('Signs of respiratory distress'), findsOneWidget);
     await _tap(tester, find.byIcon(Icons.home_outlined));
-    expect(find.textContaining('STW Neo'), findsOneWidget);
+    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
   });
 }

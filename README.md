@@ -98,7 +98,7 @@ neonatal_stw/
 │   │   ├── theme.dart                     # AppTheme colours, typography, design tokens
 │   │   ├── config/                        # App configuration
 │   │   └── widgets/
-│   │       └── app_branding.dart          # Reusable StwNeoBrand widget (ICMR logo + "STW Neo")
+│   │       └── app_branding.dart          # Reusable StwNeoBrand header (ICMR logo + screen name; "STW Neo" wordmark on Landing only)
 │   ├── features/
 │   │   ├── condition_selection/           # 14-condition checklist
 │   │   │   ├── domain/neonatal_condition.dart     # NeonatalCondition enum + ConditionDefinition registry

@@ -56,7 +56,8 @@ Launch ─► Landing Screen (Partner logos: ICMR featured, then SRHU, AIIMS Del
 - **Logo:** Partner logos lead the screen (see above); the "STW Neo" wordmark is shown without a second ICMR logo.
 
 **2. Home Screen ("SRHU STW").** Hub screen designed without scrolling to fit screens from 320x568 up to 412x915 and tablets:
-- **Top Brand Row:** Pinned top-left free SRHU logo (`assets/images/logo212.png`, 40-44 px, no box, no border, no shadow), "SRHU" (blue) + "STW" (navy) title, and "Based on ICMR / DHR Standard Treatment Workflows" subtitle (max 2 lines, fully visible).
+- **Top Brand Row:** ICMR logo (`assets/images/icmr_logo.png`, 44-52 px tall) with "Based on ICMR / DHR Standard Treatment Workflows" beside it (up to 3 lines, fully visible). No "STW Neo" wordmark.
+- **Screen headers (all screens after Landing):** ICMR logo (36 px tall, scales down on narrow app bars) with the screen name underneath (e.g. "Respiratory Distress", "ROP Screening"). The "STW Neo" wordmark appears only on the Landing screen.
 - **Hero Section:** Soft blue-white wave bottom edge (`_HeroWaveClipper`), headline "Better Care for Every New Beginning", fully visible subtitle "Guidance from the ICMR / DHR Standard Treatment Workflows for newborn care, right at your fingertips.", and 25% larger `assets/images/hu.png` with 20 px rounded corners and a soft left-edge fade blending into the hero background.
 - **Workflow Card:** "Neonatal Care Workflows" with icon badge (`Icons.checklist_rtl`), description "Select one or more conditions/topics to start.", a full-width 50 px "Get Started →" button (primary blue) that opens `/conditions`, and a "View source PDFs →" link to `/references`. Tapping anywhere on the card also opens `/conditions`.
 - **Feature Row:** 3 trust indicators ("Based on STW Workflows", "Guideline-Aligned", "For Medical Students & Doctors"), hidden automatically on compact screens <680 px high.
