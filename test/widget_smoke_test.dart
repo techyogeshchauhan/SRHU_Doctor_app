@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
+import 'package:neonatal_stw/features/rop/ui/rop_screen.dart';
+
+import 'test_helpers.dart';
 
 Future<void> _pumpApp(
   WidgetTester tester, {
@@ -31,16 +34,16 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
 }
 
 void main() {
-  testWidgets('home shows both modules', (tester) async {
+  testWidgets('home shows the workflow entry card', (tester) async {
     await _pumpApp(tester);
-    expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
-    expect(find.text('Retinopathy of Prematurity (ROP)'), findsOneWidget);
+    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
+    expect(find.text('Get Started →'), findsOneWidget);
   });
 
   testWidgets('RD: GA 30 + grunting → START CPAP + caffeine in the bar',
       (tester) async {
     await _pumpApp(tester);
-    await _tap(tester, find.text('Respiratory Distress in Neonates'));
+    await openModuleFromHome(tester, 'Respiratory Distress');
 
     await _tap(tester, find.text('Grunting'));
     await tester.enterText(
@@ -53,7 +56,7 @@ void main() {
 
   testWidgets('RD: GA 37, all SAS grade 0 → nasal O₂', (tester) async {
     await _pumpApp(tester);
-    await _tap(tester, find.text('Respiratory Distress in Neonates'));
+    await openModuleFromHome(tester, 'Respiratory Distress');
 
     await _tap(tester, find.text('Nasal flaring'));
     await tester.enterText(
@@ -83,12 +86,20 @@ void main() {
   testWidgets('ROP wizard walks through all steps without errors',
       (tester) async {
     await _pumpApp(tester);
-    await _tap(tester, find.text('Retinopathy of Prematurity (ROP)'));
+    await openModuleFromHome(tester, 'ROP');
 
     await tester.enterText(
         find.widgetWithText(TextField, 'Gestational age'), '30');
     await tester.pumpAndSettle();
-    expect(find.text('SCREEN FOR ROP', skipOffstage: false), findsOneWidget);
+    // Scoped to the ROP screen: the workflow step beneath it also shows
+    // the eligibility result.
+    expect(
+        find.descendant(
+          of: find.byType(RopScreen, skipOffstage: false),
+          matching: find.text('SCREEN FOR ROP', skipOffstage: false),
+          skipOffstage: false,
+        ),
+        findsOneWidget);
 
     for (final next in ['Next: Timing', 'Next: Prepare', 'Next: Findings',
         'Next: Follow-up']) {
@@ -104,7 +115,7 @@ void main() {
   testWidgets('ROP findings: Zone II stage 3 + plus → treatment-requiring',
       (tester) async {
     await _pumpApp(tester);
-    await _tap(tester, find.text('Retinopathy of Prematurity (ROP)'));
+    await openModuleFromHome(tester, 'ROP');
     await _tap(tester, find.text('4. Findings'));
 
     final scroll = find.byType(Scrollable).last;
@@ -132,7 +143,7 @@ void main() {
   testWidgets('tablet layout renders side-by-side without overflow',
       (tester) async {
     await _pumpApp(tester, size: const Size(1280, 800));
-    await _tap(tester, find.text('Respiratory Distress in Neonates'));
+    await openModuleFromHome(tester, 'Respiratory Distress');
     expect(find.text('Recommendation pending'), findsOneWidget);
   });
 
@@ -145,11 +156,10 @@ void main() {
     // Tap Continue to navigate to Home
     await _tap(tester, find.text('Continue'));
     expect(find.textContaining('STW Neo'), findsOneWidget);
-    expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
-    expect(find.text('Get Started →'), findsNWidgets(2));
+    expect(find.text('Get Started →'), findsOneWidget);
 
-    // Open RD directly via Get Started button
-    await _tap(tester, find.text('Get Started →').first);
+    // Open RD via condition selection
+    await openModuleFromHome(tester, 'Respiratory Distress');
     expect(find.text('Signs of respiratory distress'), findsOneWidget);
 
     // Switch to Reassess tab
@@ -159,7 +169,7 @@ void main() {
     // Open Home via Home icon in RD screen
     await _tap(tester, find.byIcon(Icons.home_outlined));
     expect(find.textContaining('STW Neo'), findsOneWidget);
-    expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
+    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
   });
 
   testWidgets('renders at 412x915 standard phone without overflow', (tester) async {
@@ -169,8 +179,8 @@ void main() {
 
     await _tap(tester, find.text('Continue'));
     expect(find.textContaining('STW Neo'), findsOneWidget);
-    expect(find.text('Get Started →'), findsNWidgets(2));
-    await _tap(tester, find.text('Get Started →').first);
+    expect(find.text('Get Started →'), findsOneWidget);
+    await openModuleFromHome(tester, 'Respiratory Distress');
     expect(find.text('Signs of respiratory distress'), findsOneWidget);
     await _tap(tester, find.byIcon(Icons.home_outlined));
     expect(find.textContaining('STW Neo'), findsOneWidget);

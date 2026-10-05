@@ -266,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         SizedBox(height: gapHeroToCards),
 
-                        // 3. Two Vertical Module Cards (sit directly below hero with fixed 16-20 px spacing)
+                        // 3. Workflow entry card (sits directly below hero with fixed 16-20 px spacing)
                         FadeTransition(
                           opacity: _cardsFade,
                           child: SlideTransition(
@@ -457,36 +457,21 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// 3. Two Vertical Module Cards with full service titles and 50 px Get Started buttons
+  /// 3. Single entry card: opens the multi-condition selection screen
   Widget _buildCardsColumn({
     required bool isShort,
     required bool isVeryShort,
   }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _ModuleVerticalCard(
-          title: 'Respiratory Distress in Neonates',
-          description: 'Assessment and management workflow as per ICMR/DHR STW.',
-          badgeIcon: Icons.air,
-          buttonColor: AppTheme.primaryBlue,
-          pdfPath: 'assets/pdfs/respiratory_distress_neonates_stw.pdf',
-          onTap: () => context.push('/rd'),
-          isShort: isShort,
-          isVeryShort: isVeryShort,
-        ),
-        SizedBox(height: isVeryShort ? 8 : 12),
-        _ModuleVerticalCard(
-          title: 'Retinopathy of Prematurity (ROP)',
-          description: 'Screening and follow-up workflow as per ICMR/DHR STW.',
-          badgeIcon: Icons.visibility_outlined,
-          buttonColor: AppTheme.midBlue,
-          pdfPath: 'assets/pdfs/retinopathy_of_prematurity_stw.pdf',
-          onTap: () => context.push('/rop'),
-          isShort: isShort,
-          isVeryShort: isVeryShort,
-        ),
-      ],
+    return _ModuleVerticalCard(
+      title: 'Neonatal Care Workflows',
+      description: 'Select one or more conditions/topics to start.',
+      badgeIcon: Icons.checklist_rtl,
+      buttonColor: AppTheme.primaryBlue,
+      linkLabel: 'View source PDFs →',
+      onLinkTap: () => context.push('/references'),
+      onTap: () => context.push('/conditions'),
+      isShort: isShort,
+      isVeryShort: isVeryShort,
     );
   }
 
@@ -630,7 +615,8 @@ class _ModuleVerticalCard extends StatefulWidget {
   final String description;
   final IconData badgeIcon;
   final Color buttonColor;
-  final String pdfPath;
+  final String linkLabel;
+  final VoidCallback onLinkTap;
   final VoidCallback onTap;
   final bool isShort;
   final bool isVeryShort;
@@ -640,7 +626,8 @@ class _ModuleVerticalCard extends StatefulWidget {
     required this.description,
     required this.badgeIcon,
     required this.buttonColor,
-    required this.pdfPath,
+    required this.linkLabel,
+    required this.onLinkTap,
     required this.onTap,
     required this.isShort,
     required this.isVeryShort,
@@ -773,26 +760,20 @@ class _ModuleVerticalCardState extends State<_ModuleVerticalCard> {
                       ),
                     ),
 
-                    // Small "View source PDF →" text link under button
+                    // Small secondary text link under button
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           InkWell(
-                            onTap: () => context.push(
-                              '/pdf-viewer',
-                              extra: {
-                                'path': widget.pdfPath,
-                                'title': widget.title,
-                              },
-                            ),
+                            onTap: widget.onLinkTap,
                             borderRadius: BorderRadius.circular(4),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 4, vertical: 2),
                               child: Text(
-                                'View source PDF →',
+                                widget.linkLabel,
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: 11,

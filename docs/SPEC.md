@@ -27,19 +27,27 @@ Recommendations are advisory. The STW disclaimer is shown on every screen and in
 ## 2. Screens
 
 ```
-```
 Launch ─► Landing Screen (Poster image + "Clinical guidance for newborn care" + "Continue")
              │
              ▼
-         Home Screen (SRHU Logo + Hero + 2 Service Cards + Disclaimer + References)
-             ├─► Respiratory Distress in Neonates ─┬─ Assess (diagnose → gestation → SAS → initial plan)
-             │                                     ├─ Reassess (support, PEEP/FiO₂/SpO₂, repeat SAS → next step)
-             │                                     └─ Reference (DOs/DON'Ts, algorithm, KPIs, abbreviations)
-             ├─► Retinopathy of Prematurity (ROP) ─ wizard: 1 Eligibility → 2 Timing → 3 Prepare → 4 Findings → 5 Follow-up
-             │                                      (+ Reference)
+         Home Screen (SRHU Logo + Hero + "Neonatal Care Workflows" card + Disclaimer + References)
+             ├─► Select Conditions (/conditions) ── 14 checkboxes, "Selected: N", Continue (disabled at 0)
+             │        │
+             │        ▼
+             │   Clinical Workflow (/workflow) ── Baby details → each selected condition → Summary
+             │        ├─ Respiratory Distress ─ "Open … workflow" ─► RD module (/rd)
+             │        │       Assess (diagnose → gestation → SAS → initial plan)
+             │        │       Reassess (support, PEEP/FiO₂/SpO₂, repeat SAS → next step)
+             │        │       Reference (DOs/DON'Ts, algorithm, KPIs, abbreviations)
+             │        ├─ ROP ─ "Open … workflow" ─► ROP module (/rop)
+             │        │       wizard: 1 Eligibility → 2 Timing → 3 Prepare → 4 Findings → 5 Follow-up (+ Reference)
+             │        ├─ other 12 conditions ─ placeholder: "Clinical workflow content will be added from the corresponding approved STW."
+             │        └─ Clinical Assessment Summary (RD plan + reassessment, ROP results + discharge text; copy/share)
              ├─► References ─────────────────────── 2 original STW PDF cards + in-app pinch-zoom viewer + cited sources
              └─► Disclaimer (modal bottom sheet)
 ```
+
+**Condition selection.** All 14 topics are listed in this order: Triage, Thermal Care, KMC, Fluids & Feeds, Respiratory Distress, ANCS, Sepsis, Hypoglycemia, Jaundice, Seizures, HIE, Transport, ROP, Discharge & Follow-up. Each has a status chip. Only Respiratory Distress and ROP are **Available**; the other 12 are **Coming soon** and carry no clinical content until their approved STW is added. Selected conditions run in that canonical order. GA, birth weight and DOB are asked once, and only when a selected workflow uses them. Back from the first workflow step returns to the selection with the ticks kept. Removing a condition clears its recorded data, so it cannot appear in the summary.
 
 **1. Landing Screen (first screen on launch).** Single-screen entry point designed without scrolling:
 - **Portrait Poster Image:** Top edge-to-edge photo poster (`assets/images/landingpageimage.png`) with a soft white gradient fade along its bottom edge blending into the white text area.
@@ -50,10 +58,7 @@ Launch ─► Landing Screen (Poster image + "Clinical guidance for newborn care
 **2. Home Screen ("SRHU STW").** Hub screen designed without scrolling to fit screens from 320x568 up to 412x915 and tablets:
 - **Top Brand Row:** Pinned top-left free SRHU logo (`assets/images/logo212.png`, 40-44 px, no box, no border, no shadow), "SRHU" (blue) + "STW" (navy) title, and "Based on ICMR / DHR Standard Treatment Workflows" subtitle (max 2 lines, fully visible).
 - **Hero Section:** Soft blue-white wave bottom edge (`_HeroWaveClipper`), headline "Better Care for Every New Beginning", fully visible subtitle "Guidance from the ICMR / DHR Standard Treatment Workflows for newborn care, right at your fingertips.", and 25% larger `assets/images/hu.png` with 20 px rounded corners and a soft left-edge fade blending into the hero background.
-- **Service Cards (Vertical Blocks):**
-  - "Respiratory Distress in Neonates": Icon badge (`Icons.air`), full title (Poppins SemiBold 15-16 sp, max 2 lines, never truncated), description, full-width 50 px "Get Started →" button (primary blue), and direct "View source PDF →" link.
-  - "Retinopathy of Prematurity (ROP)": Icon badge (`Icons.visibility_outlined`), full title (Poppins SemiBold 15-16 sp, max 2 lines, never truncated), description, full-width 50 px "Get Started →" button (mid blue), and direct "View source PDF →" link.
-  - Tapping anywhere on a card also navigates to its module.
+- **Workflow Card:** "Neonatal Care Workflows" with icon badge (`Icons.checklist_rtl`), description "Select one or more conditions/topics to start.", a full-width 50 px "Get Started →" button (primary blue) that opens `/conditions`, and a "View source PDFs →" link to `/references`. Tapping anywhere on the card also opens `/conditions`.
 - **Feature Row:** 3 trust indicators ("Based on STW Workflows", "Guideline-Aligned", "For Medical Students & Doctors"), hidden automatically on compact screens <680 px high.
 - **Footer:** Handwritten motto "Small Steps, Brighter Tomorrows" with heart ribbon doodle, alongside tappable text links for "Disclaimer" (modal bottom sheet) and "References" (`/references`).
 - **Back Navigation:** Pressing system back on Home exits the app (does not return to Landing).
@@ -177,7 +182,7 @@ The app bundles the two official ICMR/DHR Standard Treatment Workflow PDFs as of
   - "Sources cited in the STWs" section documenting the verbatim external clinical guidelines referenced in the source workflows (NNF India CPGs, MoHFW RBSK Universal Eye Screening).
   - Official STW disclaimer.
 - **Entry Points:**
-  - Home screen: "References" footer link to `/references`, plus direct "View source PDF →" links on each service card.
+  - Home screen: "References" footer link to `/references`, plus a "View source PDFs →" link on the workflow card (also to `/references`).
   - Dedicated References screen (`/references`): summary cards for each workflow with direct "View PDF" buttons and cited sources.
   - Note: "Source PDF" actions were removed from inside RD and ROP modules to keep modules focused on clinical workflow execution.
 - **In-App PDF Viewer (`/pdf-viewer`):**

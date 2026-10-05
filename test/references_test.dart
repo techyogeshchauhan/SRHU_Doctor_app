@@ -195,22 +195,19 @@ void main() {
     expect(find.text('Original Standard Treatment Workflows'), findsOneWidget);
   });
 
-  testWidgets('Home screen contains View source PDF links',
+  testWidgets('Home screen View source PDFs link opens References',
       (tester) async {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/home'));
     await tester.pumpAndSettle();
 
-    final pdfLinks = find.text('View source PDF →');
-    expect(pdfLinks, findsNWidgets(2));
+    final pdfLink = find.text('View source PDFs →');
+    expect(pdfLink, findsOneWidget);
 
-    await tester.tap(pdfLinks.first);
+    await tester.tap(pdfLink);
     await tester.pumpAndSettle();
 
-    expect(find.byType(PdfViewerScreen), findsOneWidget);
-    expect(
-      find.text('Mock PDF Viewer: Respiratory Distress in Neonates'),
-      findsOneWidget,
-    );
+    expect(find.byType(ReferencesScreen), findsOneWidget);
+    expect(find.text('Original Standard Treatment Workflows'), findsOneWidget);
   });
 
   testWidgets('RD screen has no Source PDF button',

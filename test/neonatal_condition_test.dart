@@ -1,0 +1,58 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
+
+void main() {
+  test('all 14 conditions exist, each with one definition', () {
+    expect(NeonatalCondition.values, hasLength(14));
+    expect(conditionDefinitions, hasLength(14));
+    expect(
+      conditionDefinitions.map((d) => d.id).toList(),
+      NeonatalCondition.values,
+    );
+  });
+
+  test('ids are unique', () {
+    final ids = conditionDefinitions.map((d) => d.id).toList();
+    expect(ids.toSet(), hasLength(ids.length));
+  });
+
+  test('display names are exact and in order', () {
+    expect(conditionDefinitions.map((d) => d.title).toList(), [
+      'Triage',
+      'Thermal Care',
+      'KMC',
+      'Fluids & Feeds',
+      'Respiratory Distress',
+      'ANCS',
+      'Sepsis',
+      'Hypoglycemia',
+      'Jaundice',
+      'Seizures',
+      'HIE',
+      'Transport',
+      'ROP',
+      'Discharge & Follow-up',
+    ]);
+  });
+
+  test('only RD and ROP are implemented; others carry no description', () {
+    final implemented = {
+      for (final d in conditionDefinitions)
+        if (d.implemented) d.id,
+    };
+    expect(implemented, {
+      NeonatalCondition.respiratoryDistress,
+      NeonatalCondition.rop,
+    });
+    for (final d in conditionDefinitions) {
+      if (!d.implemented) {
+        expect(d.description, isNull, reason: d.title);
+        expect(d.status, ConditionStatus.comingSoon);
+      }
+    }
+  });
+
+  test('definitionOf looks up by id', () {
+    expect(definitionOf(NeonatalCondition.hie).title, 'HIE');
+  });
+}

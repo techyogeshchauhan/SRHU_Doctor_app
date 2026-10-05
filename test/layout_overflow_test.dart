@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
 
+import 'test_helpers.dart';
+
 Future<void> _pumpWith(
   WidgetTester tester, {
   required Size size,
@@ -43,12 +45,11 @@ void main() {
 
       // 2. Home Screen
       expect(find.textContaining('STW Neo'), findsOneWidget);
-      expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
-      expect(find.text('Retinopathy of Prematurity (ROP)'), findsOneWidget);
-      expect(find.text('Get Started →'), findsNWidgets(2));
+      expect(find.text('Neonatal Care Workflows'), findsOneWidget);
+      expect(find.text('Get Started →'), findsOneWidget);
 
-      // Direct RD launch from home card
-      await _tap(tester, find.text('Respiratory Distress in Neonates'));
+      // RD launch via condition selection
+      await openModuleFromHome(tester, 'Respiratory Distress');
       expect(find.text('Signs of respiratory distress'), findsOneWidget);
 
       // Verify no "Source PDF" in RD module
@@ -66,8 +67,8 @@ void main() {
       await _tap(tester, find.byIcon(Icons.home_outlined));
       expect(find.textContaining('STW Neo'), findsOneWidget);
 
-      // Direct ROP launch from home card
-      await _tap(tester, find.text('Retinopathy of Prematurity (ROP)'));
+      // ROP launch via condition selection
+      await openModuleFromHome(tester, 'ROP');
       expect(find.text('Step 1 of 5: Eligibility'), findsOneWidget);
 
       // Verify no "Source PDF" in ROP module

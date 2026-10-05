@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
 
+import 'test_helpers.dart';
+
 Future<void> _pumpAppAt(
   WidgetTester tester, {
   required Size size,
@@ -49,23 +51,12 @@ void main() {
         // 2. Home Screen checks
         expect(find.textContaining('STW Neo'), findsOneWidget);
 
-        // Full service names (exact text)
-        expect(
-          find.text('Respiratory Distress in Neonates'),
-          findsOneWidget,
-        );
-        expect(
-          find.text('Retinopathy of Prematurity (ROP)'),
-          findsOneWidget,
-        );
+        // Single workflow entry card
+        expect(find.text('Neonatal Care Workflows'), findsOneWidget);
+        expect(find.text('Get Started →'), findsOneWidget);
 
-        // Two Get Started buttons
-        final getStartedButtons = find.text('Get Started →');
-        expect(getStartedButtons, findsNWidgets(2));
-
-        // Tapping first button navigates to Respiratory Distress module
-        await tester.tap(getStartedButtons.first);
-        await tester.pumpAndSettle();
+        // Selecting Respiratory Distress opens the RD module
+        await openModuleFromHome(tester, 'Respiratory Distress');
         expect(find.text('Signs of respiratory distress'), findsOneWidget);
 
         // Verify no "Source PDF" in RD module
@@ -75,9 +66,8 @@ void main() {
         await tester.tap(find.byIcon(Icons.home_outlined));
         await tester.pumpAndSettle();
 
-        // Tapping second button navigates to Retinopathy of Prematurity module
-        await tester.tap(find.text('Get Started →').last);
-        await tester.pumpAndSettle();
+        // Selecting ROP opens the ROP module
+        await openModuleFromHome(tester, 'ROP');
         expect(find.text('Step 1 of 5: Eligibility'), findsOneWidget);
 
         // Verify no "Source PDF" in ROP module
@@ -124,7 +114,7 @@ void main() {
 
           // Home screen fits
           expect(find.byType(SingleChildScrollView), findsNothing);
-          expect(find.text('Get Started →'), findsNWidgets(2));
+          expect(find.text('Get Started →'), findsOneWidget);
           expect(find.text('Disclaimer'), findsOneWidget);
           expect(find.text('References'), findsOneWidget);
 
@@ -235,13 +225,13 @@ void main() {
       );
       expect(shaderMask, findsOneWidget);
 
-      // 2. Buttons are at least 48 px (and 50 px on 360x640)
-      final getStartedButtons = find.widgetWithText(FilledButton, 'Get Started →');
-      expect(getStartedButtons, findsNWidgets(2));
-      for (int i = 0; i < 2; i++) {
-        final btnSize = tester.getSize(getStartedButtons.at(i));
-        expect(btnSize.height, greaterThanOrEqualTo(48.0));
-      }
+      // 2. Button is at least 48 px (and 50 px on 360x640)
+      final getStartedButton = find.widgetWithText(FilledButton, 'Get Started →');
+      expect(getStartedButton, findsOneWidget);
+      expect(
+        tester.getSize(getStartedButton).height,
+        greaterThanOrEqualTo(48.0),
+      );
 
       // 3. No Spacer in Home column
       expect(find.byType(Spacer), findsNothing);
@@ -320,8 +310,7 @@ void main() {
       );
 
       // Navigate to Respiratory Distress module
-      await tester.tap(find.text('Get Started →').first);
-      await tester.pumpAndSettle();
+      await openModuleFromHome(tester, 'Respiratory Distress');
       expect(
         find.bySemanticsLabel('STW Neo ICMR Logo'),
         findsOneWidget,
@@ -332,8 +321,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to ROP module
-      await tester.tap(find.text('Get Started →').last);
-      await tester.pumpAndSettle();
+      await openModuleFromHome(tester, 'ROP');
       expect(
         find.bySemanticsLabel('STW Neo ICMR Logo'),
         findsOneWidget,

@@ -11,6 +11,23 @@ The app digitises the paper-based STW algorithms into an interactive, step-by-st
 
 ## What Does It Do?
 
+### Multi-condition workflow
+
+From Home, **Get Started** opens a checklist of 14 neonatal conditions / care areas: Triage, Thermal Care, KMC, Fluids & Feeds, Respiratory Distress, ANCS, Sepsis, Hypoglycemia, Jaundice, Seizures, HIE, Transport, ROP, Discharge & Follow-up. The clinician ticks one or more and taps **Continue**. The app then builds one combined workflow:
+
+```
+Baby details (GA, birth weight, DOB — asked once, only what the selected workflows need)
+  → each selected condition, in the order above
+  → Clinical Assessment Summary (copy / share)
+```
+
+| Status | Conditions | Behaviour |
+|---|---|---|
+| **Available** | Respiratory Distress, ROP | Opens the existing RD / ROP module described below; the summary reuses its results |
+| **Coming soon** | the other 12 | Selectable, but shows only *"Clinical workflow content will be added from the corresponding approved STW."* No clinical questions or recommendations are generated |
+
+Going back to the selection keeps the ticks. Removing a condition discards anything recorded for it, so it cannot appear in the summary.
+
 ### Respiratory Distress (RD) Module
 
 | Step | What the clinician does | What the app does |
@@ -33,6 +50,7 @@ The app digitises the paper-based STW algorithms into an interactive, step-by-st
 ### Additional Features
 
 - **Institutional Partners Section** — Landing page displays the 5 collaborating institutions (ICMR, SRHU, AIIMS Delhi, PGIMER, GMCH) with their logos
+- **Adding a new STW** — add its questions as a `QuestionnaireWorkflow` (or a dedicated module) in `workflowFor()` and mark the condition `available` in `conditionDefinitions`; the selection screen, orchestration and summary need no changes
 - **Source PDF Viewer** — Embedded viewer for the original STW documents directly within the app
 - **References Screen** — Quick access to both STW source PDFs
 - **Clinical Disclaimer** — Full DHR/ICMR advisory disclaimer accessible from the home screen
@@ -82,6 +100,17 @@ neonatal_stw/
 │   │   └── widgets/
 │   │       └── app_branding.dart          # Reusable StwNeoBrand widget (ICMR logo + "STW Neo")
 │   ├── features/
+│   │   ├── condition_selection/           # 14-condition checklist
+│   │   │   ├── domain/neonatal_condition.dart     # NeonatalCondition enum + ConditionDefinition registry
+│   │   │   ├── state/condition_selection_controller.dart
+│   │   │   └── ui/condition_selection_screen.dart # /conditions
+│   │   ├── clinical_workflow/             # Orchestrates the selected conditions
+│   │   │   ├── domain/
+│   │   │   │   ├── workflow_definition.dart   # workflowFor() registry, buildWorkflowPlan()
+│   │   │   │   ├── clinical_question.dart     # Data-driven questions + ShowWhen branching (for future STWs)
+│   │   │   │   └── combined_summary.dart      # Plain-text combined summary
+│   │   │   ├── state/workflow_controller.dart # Plan, current step, answers; prunes removed conditions
+│   │   │   └── ui/                            # /workflow: steps, module launch, placeholders, summary
 │   │   ├── landing/ui/
 │   │   │   ├── landing_screen.dart                # Landing / splash screen
 │   │   │   └── institutional_partners_section.dart # 5 partner logos + names
@@ -117,6 +146,10 @@ neonatal_stw/
 │   │   └── landing/                       # Landing page assets
 │   └── pdfs/                              # Original STW PDFs (RD & ROP)
 ├── test/
+│   ├── neonatal_condition_test.dart       # 14-condition model
+│   ├── condition_selection_test.dart      # Selection controller
+│   ├── workflow_plan_test.dart            # Orchestration, pruning, questionnaire branching
+│   ├── condition_flow_widget_test.dart    # Selection → workflow → summary widget flow
 │   ├── rd_rules_test.dart                 # Unit tests for RD decision logic
 │   ├── rop_rules_test.dart                # Unit tests for ROP decision logic
 │   ├── sas_test.dart                      # Unit tests for SAS scoring

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/theme.dart';
+import 'features/clinical_workflow/ui/workflow_screen.dart';
+import 'features/condition_selection/ui/condition_selection_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/landing/ui/landing_screen.dart';
 import 'features/rd/ui/rd_screen.dart';
@@ -35,6 +37,11 @@ GoRouter buildRouter() => GoRouter(
             },
           ),
         ),
+        GoRoute(
+          path: '/conditions',
+          builder: (_, __) => const ConditionSelectionScreen(),
+        ),
+        GoRoute(path: '/workflow', builder: (_, __) => const WorkflowScreen()),
         GoRoute(path: '/rd', builder: (_, __) => const RdScreen()),
         GoRoute(path: '/rop', builder: (_, __) => const RopScreen()),
         GoRoute(
