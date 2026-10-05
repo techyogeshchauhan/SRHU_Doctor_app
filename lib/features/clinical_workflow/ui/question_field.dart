@@ -16,7 +16,6 @@ class QuestionField extends StatelessWidget {
     required this.isRequired,
     required this.today,
     required this.onChanged,
-    this.sharedWith = const [],
   });
 
   final ClinicalQuestion question;
@@ -27,9 +26,6 @@ class QuestionField extends StatelessWidget {
   final bool isRequired;
   final DateTime today;
   final ValueChanged<Object?> onChanged;
-
-  /// Titles of the selected topics that share this question (2+).
-  final List<String> sharedWith;
 
   @override
   Widget build(BuildContext context) {
@@ -123,14 +119,6 @@ class QuestionField extends StatelessWidget {
           const SizedBox(height: 6),
         ],
         input,
-        if (sharedWith.length > 1)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              'Asked once, used by: ${sharedWith.join(' · ')}',
-              style: text.bodySmall?.copyWith(color: AppTheme.mutedText),
-            ),
-          ),
       ],
     );
   }

@@ -227,6 +227,10 @@ class _QuestionPage extends ConsumerWidget {
     final engine = ref.read(assessmentEngineProvider);
     final info = engine.groupInfo(ctx.selected, group);
     final questions = engine.pageQuestions(ctx, group);
+    final sharedBy = {
+      for (final rq in questions)
+        if (rq.isShared) ...rq.topics,
+    };
 
     return SectionCard(
       title: info?.title ?? group,
@@ -234,6 +238,18 @@ class _QuestionPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (sharedBy.length > 1)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: AlertBanner(
+                tone: Tone.info,
+                text: 'Answered once and used by: '
+                    '${[
+                  for (final c in NeonatalCondition.values)
+                    if (sharedBy.contains(c)) definitionOf(c).title,
+                ].join(' · ')}',
+              ),
+            ),
           for (final rq in questions)
             Padding(
               padding: const EdgeInsets.only(bottom: 14),
@@ -244,9 +260,6 @@ class _QuestionPage extends ConsumerWidget {
                 value: ctx.answers[rq.question.variable],
                 isRequired: engine.isRequired(rq, ctx),
                 today: ctx.today,
-                sharedWith: [
-                  for (final t in rq.topics) definitionOf(t).title,
-                ],
                 onChanged: (v) => n.answer(rq.id, v),
               ),
             ),

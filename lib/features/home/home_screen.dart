@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../content/stw_content.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_branding.dart';
+import '../condition_selection/domain/neonatal_condition.dart';
 
 /// Redesigned Home Screen matching the clean White + Blue SRHU-inspired aesthetic.
 ///
@@ -26,8 +27,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late final AnimationController _entranceCtrl = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 700),
@@ -225,14 +225,12 @@ class _HomeScreenState extends State<HomeScreen>
                   final height = constraints.maxHeight;
                   final isShort = height < 680;
                   final isVeryShort = height < 580;
-                  final showFeatureRow = height >= 760;
+                  final showFeatureRow = height >= 680;
 
-                  // Hero height: grows up to ~38% of screen height, shrinking on small heights
+                  // Hero height: grows up to ~40% of screen height, shrinking on small heights
                   final maxHeroHeight = isVeryShort
-                      ? 118.0
-                      : (isShort
-                          ? 155.0
-                          : (height * 0.38).clamp(180.0, 260.0));
+                      ? 165.0
+                      : (isShort ? 205.0 : (height * 0.40).clamp(220.0, 320.0));
 
                   final gapHeroToCards =
                       isVeryShort ? 12.0 : (isShort ? 16.0 : 18.0);
@@ -254,7 +252,8 @@ class _HomeScreenState extends State<HomeScreen>
                         // 2. Hero Section (increased hu.png by ~20-25%, 20 px rounded corners, soft left fade)
                         Flexible(
                           child: ConstrainedBox(
-                            constraints: BoxConstraints(maxHeight: maxHeroHeight),
+                            constraints:
+                                BoxConstraints(maxHeight: maxHeroHeight),
                             child: FadeTransition(
                               opacity: _heroFade,
                               child: _buildHeroSection(
@@ -349,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             // Left: Headline and fully visible subtitle (never truncated)
             Expanded(
-              flex: isVeryShort ? 5 : 5,
+              flex: 6,
               child: LayoutBuilder(
                 builder: (context, colConstraints) {
                   return FittedBox(
@@ -362,10 +361,11 @@ class _HomeScreenState extends State<HomeScreen>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Better Care for\nEvery New\nBeginning',
+                            'Better Care for Every New Beginning',
                             style: TextStyle(
                               fontFamily: 'Poppins',
-                              fontSize: isVeryShort ? 14.5 : (isShort ? 16.5 : 19.0),
+                              fontSize:
+                                  isVeryShort ? 14.5 : (isShort ? 16.5 : 19.0),
                               fontWeight: FontWeight.w700,
                               height: 1.15,
                               color: AppTheme.primaryNavy,
@@ -375,10 +375,10 @@ class _HomeScreenState extends State<HomeScreen>
                           SizedBox(height: isVeryShort ? 3 : 5),
                           Text(
                             'Guidance from the ICMR / DHR Standard Treatment Workflows for newborn care, right at your fingertips.',
-                            maxLines: 4,
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: isVeryShort ? 10.5 : (isShort ? 11.5 : 12.0),
+                              fontSize:
+                                  isVeryShort ? 10.5 : (isShort ? 11.5 : 12.0),
                               height: 1.25,
                               color: AppTheme.mutedText,
                             ),
@@ -394,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen>
 
             // Right: hu.png increased by ~20-25%, 20 px rounded corners, soft fade on left edge
             Expanded(
-              flex: isVeryShort ? 5 : 8,
+              flex: 5,
               child: Align(
                 alignment: Alignment.bottomRight,
                 child: AnimatedBuilder(
@@ -469,6 +469,7 @@ class _HomeScreenState extends State<HomeScreen>
       buttonColor: AppTheme.primaryBlue,
       linkLabel: 'View source PDFs →',
       onLinkTap: () => context.push('/references'),
+      extra: const _TopicAvailability(),
       onTap: () => context.push('/conditions'),
       isShort: isShort,
       isVeryShort: isVeryShort,
@@ -556,8 +557,8 @@ class _HomeScreenState extends State<HomeScreen>
                         onTap: () => _showDisclaimerSheet(context),
                         borderRadius: BorderRadius.circular(4),
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 4),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                           child: Text(
                             'Disclaimer',
                             style: TextStyle(
@@ -584,8 +585,8 @@ class _HomeScreenState extends State<HomeScreen>
                         onTap: () => context.push('/references'),
                         borderRadius: BorderRadius.circular(4),
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 4),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                           child: Text(
                             'References',
                             style: TextStyle(
@@ -618,6 +619,9 @@ class _ModuleVerticalCard extends StatefulWidget {
   final String linkLabel;
   final VoidCallback onLinkTap;
   final VoidCallback onTap;
+
+  /// Optional content between the description and the button.
+  final Widget? extra;
   final bool isShort;
   final bool isVeryShort;
 
@@ -629,6 +633,7 @@ class _ModuleVerticalCard extends StatefulWidget {
     required this.linkLabel,
     required this.onLinkTap,
     required this.onTap,
+    this.extra,
     required this.isShort,
     required this.isVeryShort,
   });
@@ -710,7 +715,9 @@ class _ModuleVerticalCardState extends State<_ModuleVerticalCard> {
                             maxLines: 2,
                             style: TextStyle(
                               fontFamily: 'Poppins',
-                              fontSize: widget.isVeryShort ? 13.5 : (widget.isShort ? 14.5 : 15.5),
+                              fontSize: widget.isVeryShort
+                                  ? 13.5
+                                  : (widget.isShort ? 14.5 : 15.5),
                               fontWeight: FontWeight.w600,
                               color: AppTheme.primaryNavy,
                               height: 1.2,
@@ -732,7 +739,13 @@ class _ModuleVerticalCardState extends State<_ModuleVerticalCard> {
                         color: AppTheme.mutedText,
                       ),
                     ),
-                    SizedBox(height: widget.isVeryShort ? 6 : (widget.isShort ? 8 : 10)),
+                    if (widget.extra != null) ...[
+                      SizedBox(height: widget.isVeryShort ? 6 : 8),
+                      widget.extra!,
+                    ],
+                    SizedBox(
+                        height:
+                            widget.isVeryShort ? 6 : (widget.isShort ? 8 : 10)),
 
                     // Row 3: Full-width "Get Started →" filled button (min height 50 px, 48 on ultra-compact)
                     SizedBox(
@@ -1008,6 +1021,59 @@ class AboutScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// "Available now" topics and how many await their approved STW.
+class _TopicAvailability extends StatelessWidget {
+  const _TopicAvailability();
+
+  @override
+  Widget build(BuildContext context) {
+    final available = [
+      for (final d in conditionDefinitions)
+        if (d.implemented) d.title,
+    ];
+    final pending = conditionDefinitions.length - available.length;
+    Widget pill(String text, {required bool ok}) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: ok ? const Color(0xFFDCFCE7) : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                ok ? Icons.check_circle : Icons.schedule,
+                size: 13,
+                color: ok ? const Color(0xFF14532D) : AppTheme.mutedText,
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: ok ? const Color(0xFF14532D) : AppTheme.mutedText,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+    return Wrap(
+      spacing: 6,
+      runSpacing: 4,
+      children: [
+        for (final t in available) pill(t, ok: true),
+        pill('$pending more coming soon', ok: false),
+      ],
     );
   }
 }

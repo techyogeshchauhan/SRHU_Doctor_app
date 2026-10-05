@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
+import 'package:neonatal_stw/features/condition_selection/ui/condition_selection_screen.dart';
 
 import 'test_helpers.dart';
 
@@ -21,15 +22,14 @@ Future<void> _pumpToSelection(
 
 Future<void> _select(WidgetTester tester, List<String> titles) async {
   for (final t in titles) {
-    await tapVisible(tester, find.widgetWithText(CheckboxListTile, t));
+    await tapVisible(tester, find.widgetWithText(TopicSelectTile, t));
   }
   await tapVisible(tester, find.text('Continue'));
 }
 
 bool _checked(WidgetTester tester, String title) => tester
-    .widget<CheckboxListTile>(
-        find.widgetWithText(CheckboxListTile, title).first)
-    .value!;
+    .widget<TopicSelectTile>(find.widgetWithText(TopicSelectTile, title))
+    .selected;
 
 FilledButton _button(WidgetTester tester, String label) => tester.widget(
     find.ancestor(of: find.text(label), matching: find.byType(FilledButton)));
@@ -48,16 +48,20 @@ void main() {
   testWidgets('selection lists all 14 topics; Continue disabled at 0',
       (tester) async {
     await _pumpToSelection(tester);
+    expect(find.text('Available now'), findsOneWidget);
+    expect(find.text('Awaiting approved STW'), findsOneWidget);
+    // Each topic has its own checkbox.
+    expect(find.byType(Checkbox, skipOffstage: false), findsNWidgets(14));
     expect(find.text('Selected: 0'), findsOneWidget);
     expect(_button(tester, 'Continue').onPressed, isNull);
     for (final d in conditionDefinitions) {
       await tester.scrollUntilVisible(
-        find.widgetWithText(CheckboxListTile, d.title),
+        find.widgetWithText(TopicSelectTile, d.title),
         100,
         scrollable: find.byType(Scrollable).first,
       );
     }
-    await tapVisible(tester, find.widgetWithText(CheckboxListTile, 'Sepsis'));
+    await tapVisible(tester, find.widgetWithText(TopicSelectTile, 'Sepsis'));
     expect(find.text('Selected: 1'), findsOneWidget);
     expect(_button(tester, 'Continue').onPressed, isNotNull);
   });
@@ -69,8 +73,9 @@ void main() {
 
     // Shared baby details first, asked once for both workflows.
     expect(find.text('Baby details'), findsOneWidget);
-    expect(find.text('Asked once, used by: Respiratory Distress · ROP'),
-        findsWidgets);
+    expect(
+        find.text('Answered once and used by: Respiratory Distress · ROP'),
+        findsOneWidget);
     await tapVisible(tester, find.text('GA known'));
     expect(
         find.widgetWithText(TextField, 'Gestational age (completed weeks) *'),
@@ -81,7 +86,12 @@ void main() {
 
     // GA 32 makes the baby ROP-eligible, so DOB appears on the same page.
     expect(find.text('Date of birth *'), findsOneWidget);
-    await tapVisible(tester, find.text('Date of birth *'));
+    await tapVisible(
+        tester,
+        find.ancestor(
+          of: find.text('Date of birth *'),
+          matching: find.byType(InputDecorator),
+        ));
     await tapVisible(tester, find.text('OK'));
     await _continue(tester);
 
@@ -145,7 +155,7 @@ void main() {
     expect(_checked(tester, 'Respiratory Distress'), isTrue);
     expect(_checked(tester, 'ROP'), isTrue);
 
-    await tapVisible(tester, find.widgetWithText(CheckboxListTile, 'ROP'));
+    await tapVisible(tester, find.widgetWithText(TopicSelectTile, 'ROP'));
     await _continue(tester);
     // RD alone starts with its own criteria; GA only if RD is present.
     expect(find.text('Signs of respiratory distress'), findsOneWidget);

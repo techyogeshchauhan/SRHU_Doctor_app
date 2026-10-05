@@ -17,7 +17,7 @@ const dobKey = 'dob';
 const babyGroup = QuestionGroup(
   'baby',
   'Baby details',
-  subtitle: 'Asked once and shared by the selected workflows. Not saved.',
+  subtitle: 'Not saved — cleared when the app is closed.',
   questionOrder: [gaKnownKey, gaWeeksKey, gaDaysKey, birthWeightKey, dobKey],
 );
 
