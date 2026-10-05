@@ -24,6 +24,9 @@ enum RdSign {
 /// "Presence of ANY ONE" of the signs.
 bool meetsRdCriteria(Set<RdSign> signs) => signs.isNotEmpty;
 
+/// "RR >60/min": a measured RR above this counts as the sign.
+const int rrThresholdPerMin = 60;
+
 // ---------------------------------------------------------------------------
 // Gestation
 // ---------------------------------------------------------------------------
@@ -96,7 +99,15 @@ enum RespSupport {
   final String label;
 }
 
-enum CaffeineAdvice { indicated, notIndicated, confirmGa }
+enum CaffeineAdvice {
+  indicated('Start caffeine citrate (<34 weeks requiring respiratory '
+      'support).'),
+  notIndicated('Caffeine: not indicated (GA ≥34 weeks).'),
+  confirmGa('Start caffeine citrate if GA is <34 weeks.');
+
+  const CaffeineAdvice(this.text);
+  final String text;
+}
 
 enum FeedingAdvice {
   directBreastfeed('Direct breastfeed (mild distress, stable).'),

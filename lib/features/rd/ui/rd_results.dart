@@ -62,15 +62,7 @@ class RdPlanView extends StatelessWidget {
           title: initialTitle(result),
           actions: [
             ...p.supportActions,
-            switch (p.caffeine) {
-              CaffeineAdvice.indicated =>
-                'Start caffeine citrate (<34 weeks requiring respiratory '
-                    'support).',
-              CaffeineAdvice.confirmGa =>
-                'Start caffeine citrate if GA is <34 weeks.',
-              CaffeineAdvice.notIndicated =>
-                'Caffeine: not indicated (GA ≥34 weeks).',
-            },
+            p.caffeine.text,
             'Reassess frequently: clinical status, SAS, SpO₂, FiO₂ '
                 'requirement (Reassess tab).',
           ],

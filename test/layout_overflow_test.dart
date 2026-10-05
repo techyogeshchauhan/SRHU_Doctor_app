@@ -49,7 +49,7 @@ void main() {
       expect(find.text('Get Started →'), findsOneWidget);
 
       // RD launch via condition selection
-      await openModuleFromHome(tester, 'Respiratory Distress');
+      await openStandaloneModule(tester, '/rd');
       expect(find.text('Signs of respiratory distress'), findsOneWidget);
 
       // Verify no "Source PDF" in RD module
@@ -68,7 +68,7 @@ void main() {
       expect(find.text('Neonatal Care Workflows'), findsOneWidget);
 
       // ROP launch via condition selection
-      await openModuleFromHome(tester, 'ROP');
+      await openStandaloneModule(tester, '/rop');
       expect(find.text('Step 1 of 5: Eligibility'), findsOneWidget);
 
       // Verify no "Source PDF" in ROP module

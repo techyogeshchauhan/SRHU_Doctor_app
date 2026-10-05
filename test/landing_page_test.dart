@@ -56,7 +56,7 @@ void main() {
         expect(find.text('Get Started →'), findsOneWidget);
 
         // Selecting Respiratory Distress opens the RD module
-        await openModuleFromHome(tester, 'Respiratory Distress');
+        await openStandaloneModule(tester, '/rd');
         expect(find.text('Signs of respiratory distress'), findsOneWidget);
 
         // Verify no "Source PDF" in RD module
@@ -67,7 +67,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Selecting ROP opens the ROP module
-        await openModuleFromHome(tester, 'ROP');
+        await openStandaloneModule(tester, '/rop');
         expect(find.text('Step 1 of 5: Eligibility'), findsOneWidget);
 
         // Verify no "Source PDF" in ROP module
@@ -342,7 +342,7 @@ void main() {
       );
 
       // Navigate to Respiratory Distress module
-      await openModuleFromHome(tester, 'Respiratory Distress');
+      await openStandaloneModule(tester, '/rd');
       expect(
         find.bySemanticsLabel('ICMR Logo'),
         findsOneWidget,
@@ -353,7 +353,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to ROP module
-      await openModuleFromHome(tester, 'ROP');
+      await openStandaloneModule(tester, '/rop');
       expect(
         find.bySemanticsLabel('ICMR Logo'),
         findsOneWidget,

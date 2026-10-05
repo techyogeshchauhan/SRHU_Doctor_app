@@ -1,40 +1,130 @@
-/// Plain-text combined summary for copy/share. Pure Dart.
+/// Combined assessment summary across all selected topics. Pure Dart.
 ///
-/// Sections carry text already produced by each condition's own engine; this
-/// only lays them out.
+/// Lists only findings produced by STW rules. Selecting a topic is never
+/// presented as a diagnosis; topics without an approved STW show the
+/// pending message and no recommendations.
 library;
 
-class SummarySection {
-  const SummarySection({required this.title, required this.lines});
-
-  final String title;
-  final List<String> lines;
-}
+import '../../condition_selection/domain/neonatal_condition.dart';
+import 'assessment_context.dart';
+import 'assessment_engine.dart';
+import 'clinical_finding.dart';
+import 'shared_questions.dart';
+import 'source_reference.dart';
+import 'workflow_definition.dart';
 
 const combinedSummaryAdvisory =
     'Advisory clinical decision support based on the configured ICMR/DHR STW '
     'content. Management of an individual patient is decided by the '
     'treating physician.';
 
-String buildCombinedSummary({
-  required String babyLine,
-  required List<String> selectedTitles,
-  required List<SummarySection> sections,
-}) {
-  final b = StringBuffer()
-    ..writeln('CLINICAL ASSESSMENT SUMMARY')
-    ..writeln(babyLine)
-    ..writeln('Selected: ${selectedTitles.join(', ')}');
-  for (final s in sections) {
+const noFindingsText = 'No STW pathway triggered by the answers recorded.';
+
+class TopicSummary {
+  const TopicSummary({
+    required this.topic,
+    required this.available,
+    required this.findings,
+    this.source,
+    this.dischargeCard,
+  });
+
+  final NeonatalCondition topic;
+  final bool available;
+  final List<ClinicalFinding> findings;
+  final SourceReference? source;
+
+  /// ROP discharge-card text (existing `buildRopSummary` output).
+  final String? dischargeCard;
+
+  String get title => definitionOf(topic).title;
+}
+
+class CombinedAssessmentSummary {
+  const CombinedAssessmentSummary({
+    required this.babyLine,
+    required this.selectedTitles,
+    required this.answered,
+    required this.applicable,
+    required this.topics,
+  });
+
+  factory CombinedAssessmentSummary.from(
+    ClinicalAssessmentContext ctx, {
+    AssessmentEngine engine = const AssessmentEngine(),
+  }) {
+    final (answered, applicable) = engine.progress(ctx);
+    return CombinedAssessmentSummary(
+      babyLine: describeBabyLine(ctx),
+      selectedTitles: [
+        for (final c in NeonatalCondition.values)
+          if (ctx.selected.contains(c)) definitionOf(c).title,
+      ],
+      answered: answered,
+      applicable: applicable,
+      topics: [
+        for (final c in NeonatalCondition.values)
+          if (ctx.selected.contains(c))
+            switch (engine.lookup(c)) {
+              StwWorkflow(:final source, :final recordTextKey) => TopicSummary(
+                  topic: c,
+                  available: true,
+                  findings: ctx.findingsFor(c),
+                  source: source,
+                  dischargeCard: recordTextKey == null
+                      ? null
+                      : ctx.valueOf(recordTextKey) as String?,
+                ),
+              PendingWorkflow() => TopicSummary(
+                  topic: c,
+                  available: false,
+                  findings: const [],
+                ),
+            },
+      ],
+    );
+  }
+
+  final String babyLine;
+  final List<String> selectedTitles;
+  final int answered;
+  final int applicable;
+  final List<TopicSummary> topics;
+
+  String toPlainText() {
+    final b = StringBuffer()
+      ..writeln('CLINICAL ASSESSMENT SUMMARY')
+      ..writeln('Baby: $babyLine')
+      ..writeln('Topics assessed: ${selectedTitles.join(', ')}')
+      ..writeln('Questions answered: $answered of $applicable applicable');
+    for (final t in topics) {
+      b
+        ..writeln()
+        ..writeln('— ${t.title.toUpperCase()} —');
+      if (!t.available) {
+        b.writeln(pendingStwMessage);
+        continue;
+      }
+      if (t.findings.isEmpty) b.writeln(noFindingsText);
+      for (final f in t.findings) {
+        b.writeln('[${f.category.label}] ${f.title}');
+        for (final a in f.actions) {
+          b.writeln('  • $a');
+        }
+        for (final w in f.why) {
+          b.writeln('  Why: $w');
+        }
+      }
+      if (t.dischargeCard != null) {
+        b
+          ..writeln()
+          ..writeln(t.dischargeCard);
+      }
+      if (t.source != null) b.writeln('Source: ${t.source!.citation}');
+    }
     b
       ..writeln()
-      ..writeln('— ${s.title.toUpperCase()} —');
-    for (final l in s.lines) {
-      b.writeln(l);
-    }
+      ..writeln(combinedSummaryAdvisory);
+    return b.toString().trimRight();
   }
-  b
-    ..writeln()
-    ..writeln(combinedSummaryAdvisory);
-  return b.toString().trimRight();
 }

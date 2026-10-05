@@ -11,22 +11,35 @@ The app digitises the paper-based STW algorithms into an interactive, step-by-st
 
 ## What Does It Do?
 
-### Multi-condition workflow
+### Dynamic clinical assessment
 
-From Home, **Get Started** opens a checklist of 14 neonatal conditions / care areas: Triage, Thermal Care, KMC, Fluids & Feeds, Respiratory Distress, ANCS, Sepsis, Hypoglycemia, Jaundice, Seizures, HIE, Transport, ROP, Discharge & Follow-up. The clinician ticks one or more and taps **Continue**. The app then builds one combined workflow:
+From Home, **Get Started** opens a checklist of 14 neonatal topics: Triage, Thermal Care, KMC, Fluids & Feeds, Respiratory Distress, ANCS, Sepsis, Hypoglycemia, Jaundice, Seizures, HIE, Transport, ROP, Discharge & Follow-up. The clinician ticks one or more and taps **Continue**.
+
+Selecting a topic means "assess this workflow", **not** "the baby has this condition". Findings come only from STW rules applied to the answers.
 
 ```
-Baby details (GA, birth weight, DOB — asked once, only what the selected workflows need)
-  → each selected condition, in the order above
-  → Clinical Assessment Summary (copy / share)
+14-topic selection
+  → ClinicalAssessmentContext (selected topics, answers, derived variables, findings, completed questions)
+  → question resolver: questions of the selected workflows, de-duplicated by id (shared ones first)
+  → visibility conditions (AND / OR / NOT, ==, !=, >, >=, <, <=, IN, CONTAINS, EXISTS, finding(...))
+  → answer → derived variables (existing rd_rules / sas / rop_rules functions) → rule engine → findings
+  → questions activated or skipped; answers to questions that no longer apply are dropped
+  → repeat until no applicable unanswered question remains
+  → combined Clinical Assessment Summary (copy / share)
 ```
 
-| Status | Conditions | Behaviour |
+- **Shared questions are asked once.** With RD + ROP, gestational age and birth weight appear once on the *Baby details* page and both workflows use the same answers.
+- **Questions are skipped when irrelevant.** No RD signs → no GA/SAS/support questions for RD. Not eligible for ROP screening → no timing, examination or eye questions.
+- **Several findings can coexist**, e.g. *Respiratory distress criteria met*, *START CPAP*, *Screening eligible — SCREEN FOR ROP*.
+- **Removing a topic** drops its questions, answers and findings; answers to shared questions still used by other topics are kept.
+- **Every question, rule and finding carries its STW source** (document, ICMR/DHR, August 2026, section). Rules that apply an ambiguous STW line are marked *Requires clinical review*.
+
+| Status | Topics | Behaviour |
 |---|---|---|
-| **Available** | Respiratory Distress, ROP | Opens the existing RD / ROP module described below; the summary reuses its results |
-| **Coming soon** | the other 12 | Selectable, but shows only *"Clinical workflow content will be added from the corresponding approved STW."* No clinical questions or recommendations are generated |
+| **Available** | Respiratory Distress, ROP | Questions and rules from the approved STWs, delegated to the existing validated engines |
+| **Coming soon** | the other 12 | Selectable; shows *"Clinical workflow content requires the corresponding approved STW."* No questions, rules or recommendations |
 
-Going back to the selection keeps the ticks. Removing a condition discards anything recorded for it, so it cannot appear in the summary.
+The standalone RD and ROP screens described below are still in the app (routes `/rd`, `/rop`) but are no longer linked from the assessment flow.
 
 ### Respiratory Distress (RD) Module
 
@@ -50,7 +63,7 @@ Going back to the selection keeps the ticks. Removing a condition discards anyth
 ### Additional Features
 
 - **Institutional Partners Section** — Landing page displays the 5 collaborating institutions (ICMR, SRHU, AIIMS Delhi, PGIMER, GMCH) with their logos
-- **Adding a new STW** — add its questions as a `QuestionnaireWorkflow` (or a dedicated module) in `workflowFor()` and mark the condition `available` in `conditionDefinitions`; the selection screen, orchestration and summary need no changes
+- **Adding a new STW** — define its questions, variables and rules as a `StwWorkflow` (see `rd_workflow.dart`), register it in `workflowFor()` and mark the topic `available` in `conditionDefinitions`; the selection screen, engine and summary need no changes
 - **Source PDF Viewer** — Embedded viewer for the original STW documents directly within the app
 - **References Screen** — Quick access to both STW source PDFs
 - **Clinical Disclaimer** — Full DHR/ICMR advisory disclaimer accessible from the home screen
@@ -104,13 +117,21 @@ neonatal_stw/
 │   │   │   ├── domain/neonatal_condition.dart     # NeonatalCondition enum + ConditionDefinition registry
 │   │   │   ├── state/condition_selection_controller.dart
 │   │   │   └── ui/condition_selection_screen.dart # /conditions
-│   │   ├── clinical_workflow/             # Orchestrates the selected conditions
-│   │   │   ├── domain/
-│   │   │   │   ├── workflow_definition.dart   # workflowFor() registry, buildWorkflowPlan()
-│   │   │   │   ├── clinical_question.dart     # Data-driven questions + ShowWhen branching (for future STWs)
-│   │   │   │   └── combined_summary.dart      # Plain-text combined summary
-│   │   │   ├── state/workflow_controller.dart # Plan, current step, answers; prunes removed conditions
-│   │   │   └── ui/                            # /workflow: steps, module launch, placeholders, summary
+│   │   ├── clinical_workflow/             # Dynamic assessment engine
+│   │   │   ├── domain/                        # Pure Dart
+│   │   │   │   ├── assessment_context.dart    # ClinicalAssessmentContext
+│   │   │   │   ├── assessment_engine.dart     # Question resolver + rule engine + pruning
+│   │   │   │   ├── condition_expr.dart        # AND/OR/NOT and comparison conditions
+│   │   │   │   ├── clinical_question.dart     # ClinicalQuestion, QuestionGroup, options
+│   │   │   │   ├── clinical_rule.dart         # ClinicalVariable, ClinicalRule
+│   │   │   │   ├── clinical_finding.dart      # ClinicalFinding, categories, levels
+│   │   │   │   ├── shared_questions.dart      # GA, birth weight, DOB (asked once)
+│   │   │   │   ├── source_reference.dart      # STW source metadata
+│   │   │   │   ├── workflow_definition.dart   # StwWorkflow / PendingWorkflow, QuestionUse
+│   │   │   │   ├── workflow_registry.dart     # workflowFor(): topic → workflow
+│   │   │   │   └── combined_summary.dart      # CombinedAssessmentSummary
+│   │   │   ├── state/assessment_controller.dart # Riverpod: answers, pages, Back, reassessment loop
+│   │   │   └── ui/                            # /workflow: question pages, findings sheet, summary
 │   │   ├── landing/ui/
 │   │   │   ├── landing_screen.dart                # Landing / splash screen
 │   │   │   └── institutional_partners_section.dart # 5 partner logos + names
@@ -119,6 +140,7 @@ neonatal_stw/
 │   │   ├── rd/                            # Respiratory Distress module
 │   │   │   ├── domain/
 │   │   │   │   ├── rd_rules.dart          # Pure-Dart decision engine (diagnosis → plan → reassess)
+│   │   │   │   ├── rd_workflow.dart       # RD questions, variables and rules for the assessment engine
 │   │   │   │   └── sas.dart               # Silverman-Andersen Score model
 │   │   │   ├── state/                     # Riverpod state management
 │   │   │   └── ui/
@@ -127,7 +149,8 @@ neonatal_stw/
 │   │   │       └── rd_results.dart        # Treatment plan display
 │   │   ├── rop/                           # ROP Screening module
 │   │   │   ├── domain/
-│   │   │   │   └── rop_rules.dart         # Pure-Dart decision engine (eligibility → timing → findings)
+│   │   │   │   ├── rop_rules.dart         # Pure-Dart decision engine (eligibility → timing → findings)
+│   │   │   │   └── rop_workflow.dart      # ROP questions, variables and rules for the assessment engine
 │   │   │   ├── state/                     # Riverpod state management
 │   │   │   └── ui/
 │   │   │       ├── rop_screen.dart        # ROP wizard + reference screen
@@ -148,8 +171,12 @@ neonatal_stw/
 ├── test/
 │   ├── neonatal_condition_test.dart       # 14-condition model
 │   ├── condition_selection_test.dart      # Selection controller
-│   ├── workflow_plan_test.dart            # Orchestration, pruning, questionnaire branching
-│   ├── condition_flow_widget_test.dart    # Selection → workflow → summary widget flow
+│   ├── condition_expr_test.dart           # Condition operators and missing-value semantics
+│   ├── assessment_engine_test.dart        # Shared questions, visibility, pruning, pages (fixtures)
+│   ├── rd_workflow_test.dart              # RD branches through the engine
+│   ├── rop_workflow_test.dart             # ROP branches through the engine
+│   ├── multi_condition_test.dart          # RD + ROP shared answers, deselection, summary
+│   ├── condition_flow_widget_test.dart    # Selection → dynamic assessment → summary (UI)
 │   ├── rd_rules_test.dart                 # Unit tests for RD decision logic
 │   ├── rop_rules_test.dart                # Unit tests for ROP decision logic
 │   ├── sas_test.dart                      # Unit tests for SAS scoring

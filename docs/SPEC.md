@@ -34,20 +34,19 @@ Launch ─► Landing Screen (Partner logos: ICMR featured, then SRHU, AIIMS Del
              ├─► Select Conditions (/conditions) ── 14 checkboxes, "Selected: N", Continue (disabled at 0)
              │        │
              │        ▼
-             │   Clinical Workflow (/workflow) ── Baby details → each selected condition → Summary
-             │        ├─ Respiratory Distress ─ "Open … workflow" ─► RD module (/rd)
-             │        │       Assess (diagnose → gestation → SAS → initial plan)
-             │        │       Reassess (support, PEEP/FiO₂/SpO₂, repeat SAS → next step)
-             │        │       Reference (DOs/DON'Ts, algorithm, KPIs, abbreviations)
-             │        ├─ ROP ─ "Open … workflow" ─► ROP module (/rop)
-             │        │       wizard: 1 Eligibility → 2 Timing → 3 Prepare → 4 Findings → 5 Follow-up (+ Reference)
-             │        ├─ other 12 conditions ─ placeholder: "Clinical workflow content will be added from the corresponding approved STW."
-             │        └─ Clinical Assessment Summary (RD plan + reassessment, ROP results + discharge text; copy/share)
+             │   Clinical Assessment (/workflow) ── dynamic question pages chosen by the engine:
+             │        ├─ Baby details (GA, BW, DOB — asked once for all selected workflows)
+             │        ├─ RD: signs → (if RD criteria met) SAS → other findings → reassessment? → support/SpO₂ → repeat SAS → warnings → sepsis triggers
+             │        ├─ ROP: risk factors (GA 34–36) → (if eligible) DOB, follow-up assured → exam done? → right/left eye → next examination
+             │        ├─ other 12 topics: no questions; "Clinical workflow content requires the corresponding approved STW."
+             │        └─ Clinical Assessment Summary (findings per topic with STW source; ROP discharge card; copy/share)
              ├─► References ─────────────────────── 2 original STW PDF cards + in-app pinch-zoom viewer + cited sources
              └─► Disclaimer (modal bottom sheet)
 ```
 
-**Condition selection.** All 14 topics are listed in this order: Triage, Thermal Care, KMC, Fluids & Feeds, Respiratory Distress, ANCS, Sepsis, Hypoglycemia, Jaundice, Seizures, HIE, Transport, ROP, Discharge & Follow-up. Each has a status chip. Only Respiratory Distress and ROP are **Available**; the other 12 are **Coming soon** and carry no clinical content until their approved STW is added. Selected conditions run in that canonical order. GA, birth weight and DOB are asked once, and only when a selected workflow uses them. Back from the first workflow step returns to the selection with the ticks kept. Removing a condition clears its recorded data, so it cannot appear in the summary.
+**Condition selection.** All 14 topics are listed in this order: Triage, Thermal Care, KMC, Fluids & Feeds, Respiratory Distress, ANCS, Sepsis, Hypoglycemia, Jaundice, Seizures, HIE, Transport, ROP, Discharge & Follow-up. Each has a status chip. Only Respiratory Distress and ROP are **Available**; the other 12 are **Coming soon** and carry no clinical content until their approved STW is added. Selected conditions run in that canonical order. GA, birth weight and DOB are asked once, and only when a selected workflow uses them. Back from the first page returns to the selection with the ticks kept. Removing a topic drops its questions, answers and findings; shared answers still used by another topic are kept.
+
+**Dynamic assessment engine.** After every answer the engine recomputes derived variables (by calling the existing `rd_rules.dart`, `sas.dart` and `rop_rules.dart` functions), evaluates the RD/ROP rules in order, and recalculates which questions apply. Questions are grouped into pages; the next page is the one holding the first applicable unconfirmed question. Answers to questions that stop applying are discarded. Selected topics are never shown as diagnoses; findings are labelled *Assessment finding*, *Classification*, *STW pathway triggered*, *Screening*, *Treatment criteria met*, *Referral*, *Follow-up*, *Alert*, *Criteria not met* or *Further clinical assessment required*, each with its STW section. The decision rules in section 4 are unchanged; the engine only decides which questions to ask. The standalone `/rd` and `/rop` screens remain but are not linked from the flow.
 
 **1. Landing Screen (first screen on launch).** Single-screen entry point designed without scrolling:
 - **Partner Logos (top):** Shown first, in this order: **ICMR** as a larger featured card (tinted border, full name always shown), then **SRHU, AIIMS Delhi, PGIMER, GMCH** in one equal-height row, followed by "Trusted By Leading Medical & Research Institutions". There is no poster image.

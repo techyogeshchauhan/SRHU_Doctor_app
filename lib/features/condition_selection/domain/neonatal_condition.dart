@@ -52,8 +52,7 @@ class ConditionDefinition {
 
 /// Shown for any condition whose approved STW has not been added yet.
 const pendingStwMessage =
-    'Clinical workflow content will be added from the corresponding '
-    'approved STW.';
+    'Clinical workflow content requires the corresponding approved STW.';
 
 const List<ConditionDefinition> conditionDefinitions = [
   ConditionDefinition(id: NeonatalCondition.triage, title: 'Triage'),

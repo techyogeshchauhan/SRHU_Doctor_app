@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/layout.dart';
-import '../../clinical_workflow/state/workflow_controller.dart';
+import '../../clinical_workflow/state/assessment_controller.dart';
 import '../domain/neonatal_condition.dart';
 import '../state/condition_selection_controller.dart';
 
@@ -97,7 +97,7 @@ class ConditionSelectionScreen extends ConsumerWidget {
                   onPressed: selected.isEmpty
                       ? null
                       : () {
-                          ref.read(workflowProvider.notifier).start(selected);
+                          ref.read(assessmentProvider.notifier).start(selected);
                           context.push('/workflow');
                         },
                   icon: const Icon(Icons.arrow_forward, size: 18),
