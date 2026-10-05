@@ -61,7 +61,7 @@ const List<InstitutionPartner> kInstitutionalPartners = [
 ];
 
 /// Partner logos shown at the top of the landing page, in the order of
-/// [kInstitutionalPartners]: ICMR first as a larger featured card (STW
+/// [kInstitutionalPartners]: ICMR first as the hero panel (STW
 /// author), then SRHU, AIIMS Delhi, PGIMER and GMCH in one row.
 class InstitutionalPartnersSection extends StatelessWidget {
   const InstitutionalPartnersSection({
@@ -84,16 +84,20 @@ class InstitutionalPartnersSection extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ICMR, featured
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 480),
-                child: _PartnerCard(
-                  partner: featured,
-                  isDesktop: isDesktop,
-                  isCompact: isCompact,
-                  featured: true,
-                ),
+            // ICMR as the hero element
+            _IcmrHero(partner: featured, isCompact: isCompact),
+            SizedBox(height: isCompact ? 14 : 22),
+
+            Text(
+              'Trusted By Leading Medical & Research Institutions',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: isCompact ? 11.5 : 13,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryNavy,
+                letterSpacing: -0.1,
+                height: 1.2,
               ),
             ),
             SizedBox(height: isCompact ? 6 : 8),
@@ -116,25 +120,11 @@ class InstitutionalPartnersSection extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: isCompact ? 6 : 10),
-
-            Text(
-              'Trusted By Leading Medical & Research Institutions',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: isCompact ? 11.5 : 13.5,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.primaryNavy,
-                letterSpacing: -0.2,
-                height: 1.2,
-              ),
-            ),
-            const SizedBox(height: 3),
+            SizedBox(height: isCompact ? 6 : 8),
             Text(
               'Developed with support, expertise, and collaboration from leading medical and research institutions.',
               textAlign: TextAlign.center,
-              maxLines: isCompact ? 1 : 2,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontFamily: 'Inter',
@@ -151,6 +141,107 @@ class InstitutionalPartnersSection extends StatelessWidget {
   }
 }
 
+/// ICMR, the STW author, presented as the landing page's hero: the logo
+/// spans the panel's full width on a soft gradient with a gentle shadow.
+class _IcmrHero extends StatelessWidget {
+  const _IcmrHero({required this.partner, required this.isCompact});
+
+  final InstitutionPartner partner;
+  final bool isCompact;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = partner;
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        isCompact ? 16 : 22,
+        isCompact ? 16 : 24,
+        isCompact ? 16 : 22,
+        isCompact ? 12 : 18,
+      ),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.white, Color(0xFFEEF4FF)],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0x401F5FBF), width: 1.2),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x141F5FBF),
+            blurRadius: 18,
+            spreadRadius: -4,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ConstrainedBox(
+            // Full width on phones; taller on tablets and desktop.
+            constraints: BoxConstraints(maxHeight: isCompact ? 80 : 128),
+            child: Semantics(
+              label: p.semanticsLabel,
+              image: true,
+              child: Image.asset(
+                p.assetPath,
+                width: double.infinity,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => Text(
+                  p.code,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 28,
+                    color: AppTheme.primaryNavy,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: isCompact ? 10 : 14),
+          Container(
+            width: 36,
+            height: 3,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryBlue.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          SizedBox(height: isCompact ? 6 : 8),
+          Text(
+            p.shortName,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: isCompact ? 15 : 17,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.primaryNavy,
+              letterSpacing: 1.2,
+              height: 1.15,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            p.fullName,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: isCompact ? 11.5 : 12.5,
+              color: AppTheme.mutedText,
+              height: 1.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// An individual clean, neutral white partner card with subtle border,
 /// soft shadow, accessible label, and hover elevation.
 class _PartnerCard extends StatefulWidget {
@@ -158,15 +249,11 @@ class _PartnerCard extends StatefulWidget {
     required this.partner,
     required this.isDesktop,
     required this.isCompact,
-    this.featured = false,
   });
 
   final InstitutionPartner partner;
   final bool isDesktop;
   final bool isCompact;
-
-  /// Larger logo, tinted border and full name always shown (ICMR).
-  final bool featured;
 
   @override
   State<_PartnerCard> createState() => _PartnerCardState();
@@ -181,17 +268,10 @@ class _PartnerCardState extends State<_PartnerCard> {
     final isDesktop = widget.isDesktop;
     final isCompact = widget.isCompact;
 
-    final featured = widget.featured;
-
-    final logoHeight = featured
-        ? (isDesktop ? 110.0 : (isCompact ? 72.0 : 92.0))
-        : (isDesktop ? 52.0 : (isCompact ? 34.0 : 42.0));
-    final cardPaddingVertical = featured
-        ? (isCompact ? 8.0 : 10.0)
-        : (isDesktop ? 8.0 : (isCompact ? 5.0 : 6.0));
-    final cardPaddingHorizontal = featured ? 12.0 : (isDesktop ? 6.0 : 4.0);
-    final restingBorder =
-        featured ? const Color(0x731F5FBF) : const Color(0xFFE2E8F0);
+    final logoHeight = isDesktop ? 52.0 : (isCompact ? 32.0 : 38.0);
+    final cardPaddingVertical = isDesktop ? 8.0 : (isCompact ? 5.0 : 6.0);
+    final cardPaddingHorizontal = isDesktop ? 6.0 : 4.0;
+    const restingBorder = Color(0xFFE2E8F0);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -208,11 +288,11 @@ class _PartnerCardState extends State<_PartnerCard> {
             horizontal: cardPaddingHorizontal,
           ),
           decoration: BoxDecoration(
-            color: featured ? const Color(0xFFF5F9FF) : Colors.white,
-            borderRadius: BorderRadius.circular(featured ? 14 : 10),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: _isHovered ? const Color(0x731F5FBF) : restingBorder,
-              width: featured ? 1.4 : 1.0,
+              width: 1.0,
             ),
             boxShadow: [
               BoxShadow(
@@ -263,9 +343,7 @@ class _PartnerCardState extends State<_PartnerCard> {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: featured
-                      ? (isCompact ? 12.0 : 13.0)
-                      : (isDesktop ? 11.0 : (isCompact ? 9.5 : 10.5)),
+                  fontSize: isDesktop ? 11.0 : (isCompact ? 9.5 : 10.5),
                   fontWeight: FontWeight.w600,
                   color: AppTheme.primaryNavy,
                   letterSpacing: -0.1,
@@ -273,17 +351,17 @@ class _PartnerCardState extends State<_PartnerCard> {
                 ),
               ),
 
-              // Full Name (featured card, and every card on desktop)
-              if (featured || isDesktop) ...[
+              // Full Name (desktop only)
+              if (isDesktop) ...[
                 const SizedBox(height: 1),
                 Text(
                   p.fullName,
                   textAlign: TextAlign.center,
-                  maxLines: featured ? 1 : 2,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: featured ? (isCompact ? 9.5 : 10.5) : 9.0,
+                    fontSize: 9.0,
                     fontWeight: FontWeight.w400,
                     color: AppTheme.mutedText,
                     height: 1.15,

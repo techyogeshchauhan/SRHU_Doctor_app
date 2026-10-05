@@ -83,57 +83,60 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                   child: Column(
                     children: [
-                      // Top: partner logos, ICMR first and featured
+                      // Free space is shared out so the header sits a little
+                      // below the top edge and the page reads as balanced.
+                      const Spacer(flex: 2),
+
+                      // Header: ICMR hero, then partner institutions
                       InstitutionalPartnersSection(isCompact: isCompact),
+                      const Spacer(flex: 3),
 
                       // Middle: app name and purpose
-                      Expanded(
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              StwNeoBrand(
-                                showLogo: false,
-                                showTitle: true,
-                                titleSize:
-                                    isVeryShort ? 20 : (isCompact ? 24 : 28),
-                                mainAxisAlignment: MainAxisAlignment.center,
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            StwNeoBrand(
+                              showLogo: false,
+                              showTitle: true,
+                              titleSize:
+                                  isVeryShort ? 20 : (isCompact ? 24 : 28),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                            ),
+                            SizedBox(height: isVeryShort ? 4 : 8),
+                            Text(
+                              'Clinical guidance for newborn care',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize:
+                                    isVeryShort ? 16 : (isCompact ? 17.5 : 19),
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primaryNavy,
+                                letterSpacing: -0.3,
+                                height: 1.2,
                               ),
-                              SizedBox(height: isVeryShort ? 4 : 8),
-                              Text(
-                                'Clinical guidance for newborn care',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: isVeryShort
-                                      ? 16
-                                      : (isCompact ? 17.5 : 19),
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.primaryNavy,
-                                  letterSpacing: -0.3,
-                                  height: 1.2,
-                                ),
+                            ),
+                            SizedBox(height: isVeryShort ? 3 : 6),
+                            Text(
+                              'Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows.',
+                              textAlign: TextAlign.center,
+                              maxLines: isVeryShort ? 2 : 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: isVeryShort
+                                    ? 11.0
+                                    : (isCompact ? 12.0 : 13.0),
+                                fontWeight: FontWeight.w400,
+                                color: AppTheme.mutedText,
+                                height: 1.25,
                               ),
-                              SizedBox(height: isVeryShort ? 3 : 6),
-                              Text(
-                                'Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows.',
-                                textAlign: TextAlign.center,
-                                maxLines: isVeryShort ? 2 : 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: isVeryShort
-                                      ? 11.0
-                                      : (isCompact ? 12.0 : 13.0),
-                                  fontWeight: FontWeight.w400,
-                                  color: AppTheme.mutedText,
-                                  height: 1.25,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
+                      const Spacer(flex: 3),
 
                       // Bottom: Continue
                       SizedBox(
