@@ -1,46 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
+    Replaced by the `--base-href` value given to `flutter build web`
+    (tool/build_web.sh passes BASE_HREF, default "/").
   -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <!-- viewport-fit stays "auto" so iOS keeps content clear of the notch and
+       home indicator in the home-screen app. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Bedside decision support for the ICMR/DHR Standard Treatment Workflows on Respiratory Distress in Neonates and Retinopathy of Prematurity.">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="color-scheme" content="light">
+  <meta name="format-detection" content="telephone=no">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="SRHU STW">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>SRHU STW</title>
+  <!-- Installable app (Android, desktop browsers) -->
   <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- iPhone / iPad home-screen app -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SRHU STW">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>SRHU STW</title>
+
+  <style>
+    html, body { margin: 0; height: 100%; background: #FFFFFF; }
+    /* Shown until Flutter draws its first frame (see flutter_bootstrap.js). */
+    #splash {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; background: #FFFFFF;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #0B2A5B; transition: opacity .25s ease;
+    }
+    #splash img { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 6px 24px rgba(11,42,91,.12); }
+    #splash .name { font-size: 20px; font-weight: 700; letter-spacing: -.2px; }
+    #splash .hint { font-size: 13px; color: #5B6B7F; }
+    #splash .spinner {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 3px solid #DCE6F5; border-top-color: #1F5FBF;
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { #splash .spinner { animation: none; } }
+  </style>
+
+  <!-- pdf.js 4.6.82 for the in-app STW PDF viewer (pdfx), bundled locally so
+       the PDFs also open offline. -->
+  <script src="pdfjs/pdf.min.mjs" type="module"></script>
+  <script type="module">
+    var { pdfjsLib } = globalThis;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.min.mjs';
+  </script>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <div id="splash" aria-live="polite">
+    <img src="icons/Icon-192.png" alt="">
+    <div class="name">SRHU STW</div>
+    <div class="spinner" role="progressbar" aria-label="Loading"></div>
+    <div class="hint">Neonatal clinical decision support</div>
+  </div>
+  <noscript>This app needs JavaScript enabled.</noscript>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

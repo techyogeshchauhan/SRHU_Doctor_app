@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/layout.dart';
+import '../../../core/widgets/responsive.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
 import '../domain/neonatal_condition.dart';
 import '../state/condition_selection_controller.dart';
@@ -144,43 +145,48 @@ class ConditionSelectionScreen extends ConsumerWidget {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Kept in the fixed bar so the count stays visible while
-                // scrolling the list.
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Selected: ${selected.length}',
-                        style: text.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.primaryNavy,
+            child: MaxWidth(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Kept in the fixed bar so the count stays visible while
+                  // scrolling the list.
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Selected: ${selected.length}',
+                          style: text.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryNavy,
+                          ),
                         ),
                       ),
-                    ),
-                    TextButton.icon(
-                      onPressed: selected.isEmpty ? null : n.clear,
-                      icon: const Icon(Icons.clear_all),
-                      label: const Text('Clear all'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                FilledButton.icon(
-                  onPressed: selected.isEmpty
-                      ? null
-                      : () {
-                          ref.read(assessmentProvider.notifier).start(selected);
-                          context.push('/workflow');
-                        },
-                  icon: const Icon(Icons.arrow_forward, size: 18),
-                  label: const Text('Continue'),
-                  style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
-                ),
-              ],
+                      TextButton.icon(
+                        onPressed: selected.isEmpty ? null : n.clear,
+                        icon: const Icon(Icons.clear_all),
+                        label: const Text('Clear all'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  FilledButton.icon(
+                    onPressed: selected.isEmpty
+                        ? null
+                        : () {
+                            ref
+                                .read(assessmentProvider.notifier)
+                                .start(selected);
+                            context.push('/workflow');
+                          },
+                    icon: const Icon(Icons.arrow_forward, size: 18),
+                    label: const Text('Continue'),
+                    style:
+                        FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

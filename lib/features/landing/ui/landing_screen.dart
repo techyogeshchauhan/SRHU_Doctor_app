@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
+import '../../../core/widgets/responsive.dart';
 import 'institutional_partners_section.dart';
 
 /// Landing Screen shown on app launch.
@@ -64,108 +65,106 @@ class _LandingScreenState extends State<LandingScreen>
       backgroundColor: Colors.white,
       body: FadeTransition(
         opacity: _fadeAnim,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isCompact =
-                constraints.maxHeight < 680 || constraints.maxWidth < 420;
-            final isVeryShort = constraints.maxHeight < 600;
+        child: SafeArea(
+          // Phone-proportioned on every device; scrolls on short screens.
+          child: PhoneColumn(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isCompact =
+                    constraints.maxHeight < 680 || constraints.maxWidth < 420;
+                final isVeryShort = constraints.maxHeight < 600;
 
-            return SafeArea(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1040),
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      isVeryShort ? 8 : 16,
-                      16,
-                      isVeryShort ? 10 : 16,
-                    ),
-                    child: Column(
-                      children: [
-                        // Top: partner logos, ICMR first and featured
-                        InstitutionalPartnersSection(isCompact: isCompact),
-
-                        // Middle: app name and purpose
-                        Expanded(
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                StwNeoBrand(
-                                  showLogo: false,
-                                  showTitle: true,
-                                  titleSize:
-                                      isVeryShort ? 20 : (isCompact ? 24 : 28),
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                ),
-                                SizedBox(height: isVeryShort ? 4 : 8),
-                                Text(
-                                  'Clinical guidance for newborn care',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: isVeryShort
-                                        ? 16
-                                        : (isCompact ? 17.5 : 19),
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.primaryNavy,
-                                    letterSpacing: -0.3,
-                                    height: 1.2,
-                                  ),
-                                ),
-                                SizedBox(height: isVeryShort ? 3 : 6),
-                                Text(
-                                  'Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows.',
-                                  textAlign: TextAlign.center,
-                                  maxLines: isVeryShort ? 2 : 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: isVeryShort
-                                        ? 11.0
-                                        : (isCompact ? 12.0 : 13.0),
-                                    fontWeight: FontWeight.w400,
-                                    color: AppTheme.mutedText,
-                                    height: 1.25,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Bottom: Continue
-                        SizedBox(
-                          width: double.infinity,
-                          height: isVeryShort ? 46 : 50,
-                          child: FilledButton(
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppTheme.primaryBlue,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              elevation: 0,
-                            ),
-                            onPressed: () => context.go('/home'),
-                            child: const Text(
-                              'Continue',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    isVeryShort ? 8 : 16,
+                    16,
+                    isVeryShort ? 10 : 16,
                   ),
-                ),
-              ),
-            );
-          },
+                  child: Column(
+                    children: [
+                      // Top: partner logos, ICMR first and featured
+                      InstitutionalPartnersSection(isCompact: isCompact),
+
+                      // Middle: app name and purpose
+                      Expanded(
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              StwNeoBrand(
+                                showLogo: false,
+                                showTitle: true,
+                                titleSize:
+                                    isVeryShort ? 20 : (isCompact ? 24 : 28),
+                                mainAxisAlignment: MainAxisAlignment.center,
+                              ),
+                              SizedBox(height: isVeryShort ? 4 : 8),
+                              Text(
+                                'Clinical guidance for newborn care',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: isVeryShort
+                                      ? 16
+                                      : (isCompact ? 17.5 : 19),
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.primaryNavy,
+                                  letterSpacing: -0.3,
+                                  height: 1.2,
+                                ),
+                              ),
+                              SizedBox(height: isVeryShort ? 3 : 6),
+                              Text(
+                                'Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows.',
+                                textAlign: TextAlign.center,
+                                maxLines: isVeryShort ? 2 : 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: isVeryShort
+                                      ? 11.0
+                                      : (isCompact ? 12.0 : 13.0),
+                                  fontWeight: FontWeight.w400,
+                                  color: AppTheme.mutedText,
+                                  height: 1.25,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Bottom: Continue
+                      SizedBox(
+                        width: double.infinity,
+                        height: isVeryShort ? 46 : 50,
+                        child: FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppTheme.primaryBlue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: () => context.go('/home'),
+                          child: const Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
         ),
       ),
     );

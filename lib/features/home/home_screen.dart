@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../content/stw_content.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_branding.dart';
+import '../../core/widgets/responsive.dart';
 import '../condition_selection/domain/neonatal_condition.dart';
 
 /// Redesigned Home Screen matching the clean White + Blue SRHU-inspired aesthetic.
@@ -218,85 +219,91 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // Adaptive layout without scroll
+            // Adaptive layout without scroll; phone-proportioned on wide
+            // screens and scrolling on short ones (landscape phones).
             SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final height = constraints.maxHeight;
-                  final isShort = height < 680;
-                  final isVeryShort = height < 580;
-                  final showFeatureRow = height >= 680;
+              child: PhoneColumn(
+                maxHeight: 960,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final height = constraints.maxHeight;
+                    final isShort = height < 680;
+                    final isVeryShort = height < 580;
+                    final showFeatureRow = height >= 680;
 
-                  // Hero height: grows up to ~40% of screen height, shrinking on small heights
-                  final maxHeroHeight = isVeryShort
-                      ? 165.0
-                      : (isShort ? 205.0 : (height * 0.40).clamp(220.0, 320.0));
+                    // Hero height: grows up to ~40% of screen height, shrinking on small heights
+                    final maxHeroHeight = isVeryShort
+                        ? 165.0
+                        : (isShort
+                            ? 205.0
+                            : (height * 0.40).clamp(220.0, 320.0));
 
-                  final gapHeroToCards =
-                      isVeryShort ? 12.0 : (isShort ? 16.0 : 18.0);
-                  final gapCardsToFooter =
-                      isVeryShort ? 12.0 : (isShort ? 16.0 : 20.0);
+                    final gapHeroToCards =
+                        isVeryShort ? 12.0 : (isShort ? 16.0 : 18.0);
+                    final gapCardsToFooter =
+                        isVeryShort ? 12.0 : (isShort ? 16.0 : 20.0);
 
-                  return Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: isVeryShort ? 4 : (isShort ? 6 : 8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // 1. Top Brand Row (pinned top-left inside SafeArea, logo free)
-                        _buildBrandRow(isShort: isShort),
-                        SizedBox(height: isVeryShort ? 4 : (isShort ? 6 : 8)),
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: isVeryShort ? 4 : (isShort ? 6 : 8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // 1. Top Brand Row (pinned top-left inside SafeArea, logo free)
+                          _buildBrandRow(isShort: isShort),
+                          SizedBox(height: isVeryShort ? 4 : (isShort ? 6 : 8)),
 
-                        // 2. Hero Section (increased hu.png by ~20-25%, 20 px rounded corners, soft left fade)
-                        Flexible(
-                          child: ConstrainedBox(
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeroHeight),
-                            child: FadeTransition(
-                              opacity: _heroFade,
-                              child: _buildHeroSection(
+                          // 2. Hero Section (increased hu.png by ~20-25%, 20 px rounded corners, soft left fade)
+                          Flexible(
+                            child: ConstrainedBox(
+                              constraints:
+                                  BoxConstraints(maxHeight: maxHeroHeight),
+                              child: FadeTransition(
+                                opacity: _heroFade,
+                                child: _buildHeroSection(
+                                  isShort: isShort,
+                                  isVeryShort: isVeryShort,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: gapHeroToCards),
+
+                          // 3. Workflow entry card (sits directly below hero with fixed 16-20 px spacing)
+                          FadeTransition(
+                            opacity: _cardsFade,
+                            child: SlideTransition(
+                              position: _cardsSlide,
+                              child: _buildCardsColumn(
                                 isShort: isShort,
                                 isVeryShort: isVeryShort,
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(height: gapHeroToCards),
 
-                        // 3. Workflow entry card (sits directly below hero with fixed 16-20 px spacing)
-                        FadeTransition(
-                          opacity: _cardsFade,
-                          child: SlideTransition(
-                            position: _cardsSlide,
-                            child: _buildCardsColumn(
-                              isShort: isShort,
-                              isVeryShort: isVeryShort,
+                          // 4. Feature Row (3 items, shown on tall screens >= 760 px)
+                          if (showFeatureRow) ...[
+                            SizedBox(height: isShort ? 8 : 12),
+                            FadeTransition(
+                              opacity: _footerFade,
+                              child: _buildFeatureRow(),
                             ),
-                          ),
-                        ),
+                          ],
 
-                        // 4. Feature Row (3 items, shown on tall screens >= 760 px)
-                        if (showFeatureRow) ...[
-                          SizedBox(height: isShort ? 8 : 12),
+                          SizedBox(height: gapCardsToFooter),
+
+                          // 5. Footer with Disclaimer and References links
                           FadeTransition(
                             opacity: _footerFade,
-                            child: _buildFeatureRow(),
+                            child: _buildFooter(context, isShort: isShort),
                           ),
                         ],
-
-                        SizedBox(height: gapCardsToFooter),
-
-                        // 5. Footer with Disclaimer and References links
-                        FadeTransition(
-                          opacity: _footerFade,
-                          child: _buildFooter(context, isShort: isShort),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],

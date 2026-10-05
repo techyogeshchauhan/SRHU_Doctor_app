@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/layout.dart';
+import '../../../core/widgets/responsive.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../state/assessment_controller.dart';
 import 'assessment_summary.dart';
@@ -24,6 +25,10 @@ class WorkflowScreen extends ConsumerWidget {
     final group = s.currentGroup;
     final (done, total) = engine.progress(ctx);
     final canContinue = group != null && engine.canConfirm(ctx, group);
+
+    // Answers live in memory only; after a browser refresh or app restart
+    // there is no assessment to resume.
+    if (ctx.selected.isEmpty) return const _NoAssessment();
 
     void goBack() {
       if (!n.back() && context.canPop()) context.pop();
@@ -119,29 +124,31 @@ class WorkflowScreen extends ConsumerWidget {
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-              child: Row(
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: goBack,
-                    icon: const Icon(Icons.arrow_back, size: 18),
-                    label: const Text('Back'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(96, 48),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  if (group != null)
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: canContinue ? n.confirmPage : null,
-                        icon: const Icon(Icons.arrow_forward, size: 18),
-                        label: const Text('Continue'),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(140, 48),
-                        ),
+              child: MaxWidth(
+                child: Row(
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: goBack,
+                      icon: const Icon(Icons.arrow_back, size: 18),
+                      label: const Text('Back'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(96, 48),
                       ),
                     ),
-                ],
+                    const SizedBox(width: 12),
+                    if (group != null)
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: canContinue ? n.confirmPage : null,
+                          icon: const Icon(Icons.arrow_forward, size: 18),
+                          label: const Text('Continue'),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(140, 48),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -271,6 +278,61 @@ class _QuestionPage extends ConsumerWidget {
                   ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _NoAssessment extends StatelessWidget {
+  const _NoAssessment();
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Scaffold(
+      appBar: AppBar(
+        title: const StwNeoBrand(subtitle: 'Clinical Assessment'),
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.assignment_outlined,
+                  size: 48,
+                  color: AppTheme.primaryBlue,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'No assessment in progress',
+                  textAlign: TextAlign.center,
+                  style: text.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primaryNavy,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Answers are kept in memory only, so they are cleared when '
+                  'the page is reloaded or the app is closed.',
+                  textAlign: TextAlign.center,
+                  style: text.bodyMedium?.copyWith(color: AppTheme.mutedText),
+                ),
+                const SizedBox(height: 20),
+                FilledButton.icon(
+                  onPressed: () => context.go('/conditions'),
+                  icon: const Icon(Icons.checklist_rtl),
+                  label: const Text('Select conditions'),
+                  style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

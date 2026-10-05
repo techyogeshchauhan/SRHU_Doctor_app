@@ -178,7 +178,7 @@ class AssessmentSummaryView extends ConsumerWidget {
                   }
                 },
                 icon: const Icon(Icons.copy, size: 18),
-                label: const Text('Copy summary'),
+                label: const Text('Copy'),
                 style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
               ),
             ),

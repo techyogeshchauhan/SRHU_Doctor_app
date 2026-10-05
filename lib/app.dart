@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/theme.dart';
+import 'core/widgets/responsive.dart';
 import 'features/clinical_workflow/ui/workflow_screen.dart';
 import 'features/condition_selection/ui/condition_selection_screen.dart';
 import 'features/home/home_screen.dart';
@@ -23,14 +24,16 @@ GoRouter buildRouter() => GoRouter(
           pageBuilder: (context, state) => CustomTransitionPage(
             key: state.pageKey,
             child: const HomeScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
               return FadeTransition(
                 opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
                 child: SlideTransition(
                   position: Tween<Offset>(
                     begin: const Offset(0.04, 0),
                     end: Offset.zero,
-                  ).animate(CurveTween(curve: Curves.easeOutCubic).animate(animation)),
+                  ).animate(CurveTween(curve: Curves.easeOutCubic)
+                      .animate(animation)),
                   child: child,
                 ),
               );
@@ -96,6 +99,8 @@ class _NeonatalStwAppState extends State<NeonatalStwApp> {
       theme: AppTheme.light(),
       themeMode: ThemeMode.light,
       routerConfig: _router,
+      // Centred column on wide windows (desktop web, iPad landscape).
+      builder: (context, child) => AppShell(child: child!),
     );
   }
 }

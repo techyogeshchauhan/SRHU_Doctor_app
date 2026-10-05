@@ -31,11 +31,19 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  # Listed file by file so unused source images and duplicate PDFs in the
+  # folders are not bundled (smaller Android, iOS and web/PWA downloads).
   assets:
-    - assets/images/
-    - assets/images/landing/
+    - assets/images/icmr_logo.png
+    - assets/images/logo212.png
+    - assets/images/hu.png
+    - assets/images/aiims-delhi.jpg
+    - assets/images/pgi-logo.jpg
+    - assets/images/GMCH chandigrah.png
+    - assets/images/sas_chart.png
     - assets/images/sas/
-    - assets/pdfs/
+    - assets/pdfs/respiratory_distress_neonates_stw.pdf
+    - assets/pdfs/retinopathy_of_prematurity_stw.pdf
 
   fonts:
     - family: Poppins
