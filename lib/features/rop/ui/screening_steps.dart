@@ -227,6 +227,21 @@ class PrepareStep extends ConsumerWidget {
             onChanged: n.setPrepDone,
           ),
         ),
+        SectionCard(
+          number: 3,
+          title: 'Anterior segment & media checklist (SNCU form)',
+          subtitle: 'Verify before indirect ophthalmoscopy',
+          child: CheckList<int>(
+            items: const [
+              (200, 'Pupils adequately dilated (≥ 6–7 mm, unreactive to light)'),
+              (201, 'Cornea and anterior chamber clear, no haziness'),
+              (202, 'Lens and ocular media clear for fundus visualization'),
+              (203, 'Baby swaddled and stable (temperature and SpO₂ monitored)'),
+            ],
+            selected: s.prepDone,
+            onChanged: n.setPrepDone,
+          ),
+        ),
       ],
     );
   }

@@ -42,7 +42,7 @@ void main() {
       await _tap(tester, find.text('Continue'));
 
       // 2. Home Screen
-      expect(find.textContaining('SRHU STW'), findsOneWidget);
+      expect(find.textContaining('STW Neo'), findsOneWidget);
       expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
       expect(find.text('Retinopathy of Prematurity (ROP)'), findsOneWidget);
       expect(find.text('Get Started →'), findsNWidgets(2));
@@ -58,12 +58,13 @@ void main() {
       await _tap(tester, find.text('Reassess'));
       expect(find.text('Current support & oxygenation'), findsOneWidget);
 
+      // Test Reference tab
       await _tap(tester, find.text('Reference'));
       expect(find.text('DOs'), findsOneWidget);
 
       // Return to home screen via Home icon
       await _tap(tester, find.byIcon(Icons.home_outlined));
-      expect(find.textContaining('SRHU STW'), findsOneWidget);
+      expect(find.textContaining('STW Neo'), findsOneWidget);
 
       // Direct ROP launch from home card
       await _tap(tester, find.text('Retinopathy of Prematurity (ROP)'));
@@ -89,7 +90,7 @@ void main() {
 
       // Return to home screen via Home icon
       await _tap(tester, find.byIcon(Icons.home_outlined));
-      expect(find.textContaining('SRHU STW'), findsOneWidget);
+      expect(find.textContaining('STW Neo'), findsOneWidget);
     });
   }
 }

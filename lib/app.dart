@@ -84,7 +84,7 @@ class _NeonatalStwAppState extends State<NeonatalStwApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'SRHU STW',
+      title: 'STW Neo',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       themeMode: ThemeMode.light,

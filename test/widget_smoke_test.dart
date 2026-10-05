@@ -116,6 +116,17 @@ void main() {
     expect(find.text('Right eye (OD): Treatment-requiring ROP'), findsOneWidget);
     expect(find.text('Treat urgently — within 48–72 h of decision'),
         findsOneWidget);
+
+    // Scroll to and toggle ICROP3 Quick Guide without type cast or PageStorage errors
+    final icropGuide = find.text('ICROP3 Classification Quick Guide');
+    await tester.scrollUntilVisible(icropGuide, 200, scrollable: scroll);
+    expect(icropGuide, findsOneWidget);
+    await tester.tap(icropGuide);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Stage 1 (Demarcation line)'), findsOneWidget);
+    await tester.tap(icropGuide);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Stage 1 (Demarcation line)'), findsNothing);
   });
 
   testWidgets('tablet layout renders side-by-side without overflow',
@@ -133,7 +144,7 @@ void main() {
 
     // Tap Continue to navigate to Home
     await _tap(tester, find.text('Continue'));
-    expect(find.textContaining('SRHU STW'), findsOneWidget);
+    expect(find.textContaining('STW Neo'), findsOneWidget);
     expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
     expect(find.text('Get Started →'), findsNWidgets(2));
 
@@ -147,7 +158,7 @@ void main() {
 
     // Open Home via Home icon in RD screen
     await _tap(tester, find.byIcon(Icons.home_outlined));
-    expect(find.textContaining('SRHU STW'), findsOneWidget);
+    expect(find.textContaining('STW Neo'), findsOneWidget);
     expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
   });
 
@@ -157,11 +168,11 @@ void main() {
     expect(find.text('Continue'), findsOneWidget);
 
     await _tap(tester, find.text('Continue'));
-    expect(find.textContaining('SRHU STW'), findsOneWidget);
+    expect(find.textContaining('STW Neo'), findsOneWidget);
     expect(find.text('Get Started →'), findsNWidgets(2));
     await _tap(tester, find.text('Get Started →').first);
     expect(find.text('Signs of respiratory distress'), findsOneWidget);
     await _tap(tester, find.byIcon(Icons.home_outlined));
-    expect(find.textContaining('SRHU STW'), findsOneWidget);
+    expect(find.textContaining('STW Neo'), findsOneWidget);
   });
 }

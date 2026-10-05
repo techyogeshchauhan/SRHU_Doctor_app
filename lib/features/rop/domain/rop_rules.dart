@@ -186,6 +186,8 @@ class EyeFindings {
     this.zone,
     this.stage,
     this.plus = false,
+    this.prePlus = false,
+    this.clockHours,
     this.aRop = false,
     this.progressive = false,
     this.priorAntiVegf = false,
@@ -198,6 +200,11 @@ class EyeFindings {
   /// 0 = no ROP, 1–5 = ICROP stage.
   final int? stage;
   final bool plus;
+  final bool prePlus;
+
+  /// Extent in clock hours (1–12) per ICROP3 / SNCU form.
+  final int? clockHours;
+
   final bool aRop;
   final bool progressive;
   final bool priorAntiVegf;
@@ -205,12 +212,20 @@ class EyeFindings {
   final RetinaStatus? status;
 
   bool get isEmpty =>
-      zone == null && stage == null && status == null && !aRop;
+      zone == null &&
+      stage == null &&
+      status == null &&
+      !aRop &&
+      !plus &&
+      !prePlus &&
+      clockHours == null;
 
   EyeFindings copyWith({
     RopZone? Function()? zone,
     int? Function()? stage,
     bool? plus,
+    bool? prePlus,
+    int? Function()? clockHours,
     bool? aRop,
     bool? progressive,
     bool? priorAntiVegf,
@@ -221,6 +236,8 @@ class EyeFindings {
         zone: zone != null ? zone() : this.zone,
         stage: stage != null ? stage() : this.stage,
         plus: plus ?? this.plus,
+        prePlus: prePlus ?? this.prePlus,
+        clockHours: clockHours != null ? clockHours() : this.clockHours,
         aRop: aRop ?? this.aRop,
         progressive: progressive ?? this.progressive,
         priorAntiVegf: priorAntiVegf ?? this.priorAntiVegf,
@@ -233,7 +250,11 @@ class EyeFindings {
     final parts = <String>[
       if (zone != null) zone!.label,
       if (stage != null) stage == 0 ? 'no ROP' : 'stage $stage',
-      if (plus) 'plus disease',
+      if (clockHours != null) '$clockHours clock hr',
+      if (plus)
+        'plus disease'
+      else if (prePlus)
+        'pre-plus disease',
       if (status != null) status!.label.toLowerCase(),
       if (priorAntiVegf) 'post anti-VEGF',
       if (reactivationOrPar) 'reactivation/PAR',
@@ -356,15 +377,19 @@ EyeIndication eyeIndication(EyeFindings f, {int? pmaWeeks}) {
     return _stopOrContinue(f, pmaWeeks);
   }
 
-  // Posterior (Zone I) or progressive disease → review within 1 week.
-  final closeReview = zone == RopZone.i || f.progressive;
+  // Posterior (Zone I), progressive disease, or pre-plus → review within 1 week.
+  final closeReview = zone == RopZone.i || f.progressive || f.prePlus;
   return EyeIndication(
     action: EyeAction.observe,
     title: 'No treatment indication — continue screening',
-    why: ['${zone.label}, ${stage == 0 ? 'no ROP' : 'stage $stage'}'
-        '${f.plus ? ' with plus' : ''}: does not meet treatment criteria'],
+    why: [
+      '${zone.label}, ${stage == 0 ? 'no ROP' : 'stage $stage'}'
+          '${f.plus ? ' with plus' : (f.prePlus ? ' with pre-plus' : '')}: does not meet treatment criteria',
+      if (f.prePlus)
+        'Pre-plus disease: abnormal vessel tortuosity/dilation present, monitor closely within 1 week',
+    ],
     followUp: closeReview
-        ? 'Posterior/progressive disease: review within 1 week or sooner.'
+        ? 'Posterior/progressive disease or pre-plus: review within 1 week or sooner.'
         : 'Repeat screen as advised by the ROP-trained ophthalmologist, '
             'usually every 1–3 weeks.',
   );
@@ -400,6 +425,8 @@ EyeIndication _stopOrContinue(EyeFindings f, int? pmaWeeks) {
 String buildRopSummary({
   required String babyLine,
   required RopEligibility eligibility,
+  String hospitalName = '',
+  String sncuNumber = '',
   FirstScreenTiming? timing,
   DateTime? examDate,
   EyeFindings? right,
@@ -415,7 +442,8 @@ String buildRopSummary({
       (DateTime d) =>
           '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
   final b = StringBuffer()
-    ..writeln('ROP SCREENING SUMMARY (per ICMR/DHR STW)')
+    ..writeln('ROP SCREENING SUMMARY (per ICMR/DHR STW & SNCU Record)')
+    ..writeln('Facility: ${hospitalName.trim().isEmpty ? 'SNCU / Neonatal Center' : hospitalName.trim()} | SNCU/CR No: ${sncuNumber.trim().isEmpty ? 'Not documented' : sncuNumber.trim()}')
     ..writeln(babyLine)
     ..writeln(
         'Eligible for screening: ${switch (eligibility.eligible) {

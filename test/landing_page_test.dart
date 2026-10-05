@@ -47,7 +47,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // 2. Home Screen checks
-        expect(find.textContaining('SRHU STW'), findsOneWidget);
+        expect(find.textContaining('STW Neo'), findsOneWidget);
 
         // Full service names (exact text)
         expect(
@@ -246,6 +246,100 @@ void main() {
       // 3. No Spacer in Home column
       expect(find.byType(Spacer), findsNothing);
     });
+
+    testWidgets('Landing displays all 5 institutional partners with accessible semantics',
+        (tester) async {
+      await _pumpAppAt(tester, size: const Size(1024, 768));
+
+      // Section headings
+      expect(
+        find.text('Trusted By Leading Medical & Research Institutions'),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Developed with support, expertise, and collaboration from leading medical and research institutions.',
+        ),
+        findsOneWidget,
+      );
+
+      // All 5 short names
+      expect(find.text('ICMR'), findsOneWidget);
+      expect(find.text('SRHU'), findsOneWidget);
+      expect(find.text('AIIMS Delhi'), findsOneWidget);
+      expect(find.text('PGIMER'), findsOneWidget);
+      expect(find.text('GMCH'), findsOneWidget);
+
+      // All 5 accessible semantics labels
+      expect(
+        find.bySemanticsLabel('Indian Council of Medical Research (ICMR) Logo'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel('Swami Rama Himalayan University (SRHU) Logo'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel('All India Institute of Medical Sciences Delhi Logo'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(
+            'Postgraduate Institute of Medical Education and Research Chandigarh Logo'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(
+            'Government Medical College and Hospital Chandigarh Logo'),
+        findsOneWidget,
+      );
+
+      // Verify desktop layout has all 5 in one row (equal Y coordinates)
+      final icmrCenter = tester.getCenter(find.text('ICMR'));
+      final srhuCenter = tester.getCenter(find.text('SRHU'));
+      final aiimsCenter = tester.getCenter(find.text('AIIMS Delhi'));
+      final pgiCenter = tester.getCenter(find.text('PGIMER'));
+      final gmchCenter = tester.getCenter(find.text('GMCH'));
+
+      expect(icmrCenter.dy, equals(srhuCenter.dy));
+      expect(srhuCenter.dy, equals(aiimsCenter.dy));
+      expect(aiimsCenter.dy, equals(pgiCenter.dy));
+      expect(pgiCenter.dy, equals(gmchCenter.dy));
+    });
+
+    testWidgets('Header displays ICMR logo on Home, RD, and ROP screens',
+        (tester) async {
+      await _pumpAppAt(tester, size: const Size(360, 640));
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      // Home Screen header has ICMR logo
+      expect(
+        find.bySemanticsLabel('STW Neo ICMR Logo'),
+        findsOneWidget,
+      );
+
+      // Navigate to Respiratory Distress module
+      await tester.tap(find.text('Get Started →').first);
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('STW Neo ICMR Logo'),
+        findsOneWidget,
+      );
+
+      // Return to Home
+      await tester.tap(find.byIcon(Icons.home_outlined));
+      await tester.pumpAndSettle();
+
+      // Navigate to ROP module
+      await tester.tap(find.text('Get Started →').last);
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('STW Neo ICMR Logo'),
+        findsOneWidget,
+      );
+    });
   });
 }
+
 

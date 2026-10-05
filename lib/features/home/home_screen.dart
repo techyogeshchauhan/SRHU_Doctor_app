@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../content/stw_content.dart';
 import '../../core/theme.dart';
+import '../../core/widgets/app_branding.dart';
 
 /// Redesigned Home Screen matching the clean White + Blue SRHU-inspired aesthetic.
 ///
@@ -91,6 +92,11 @@ class _HomeScreenState extends State<HomeScreen>
     );
     precacheImage(
       const AssetImage('assets/images/hu.png'),
+      context,
+      onError: (_, __) {},
+    );
+    precacheImage(
+      const AssetImage('assets/images/icmr_logo.png'),
       context,
       onError: (_, __) {},
     );
@@ -300,64 +306,15 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// 1. Top Brand Row with free SRHU logo (40-44 px, no container/box/shadow) and "SRHU STW"
+  /// 1. Top Brand Row with primary ICMR logo and "STW Neo" branding
   Widget _buildBrandRow({required bool isShort}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Image.asset(
-          'assets/images/logo212.png',
-          height: isShort ? 40 : 44,
-          fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'SRHU',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: isShort ? 18 : 21,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.primaryBlue,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    TextSpan(
-                      text: ' STW',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: isShort ? 18 : 21,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.primaryNavy,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Text(
-                'Based on ICMR / DHR Standard Treatment Workflows',
-                maxLines: 2,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.mutedText,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return StwNeoBrand(
+      logoHeight: isShort ? 32 : 38,
+      titleSize: isShort ? 18 : 21,
+      subtitleSize: 11,
+      subtitleMaxLines: 2,
+      subtitle: 'Based on ICMR / DHR Standard Treatment Workflows',
+      mainAxisSize: MainAxisSize.max,
     );
   }
 
@@ -1017,7 +974,9 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('About')),
+      appBar: AppBar(
+        title: const StwNeoBrand(subtitle: 'About'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -1038,7 +997,7 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Neonatal STW decision support',
+            'STW Neo: Neonatal STW Decision Support',
             style: text.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
               color: AppTheme.primaryNavy,

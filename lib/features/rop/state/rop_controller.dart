@@ -34,6 +34,8 @@ class RopState {
     this.nextExam,
     this.place = '',
     this.counselled = false,
+    this.hospitalName = '',
+    this.sncuNumber = '',
   });
 
   final int step;
@@ -48,6 +50,8 @@ class RopState {
   final DateTime? nextExam;
   final String place;
   final bool counselled;
+  final String hospitalName;
+  final String sncuNumber;
 
   EyeFindings eye(Eye e) => e == Eye.right ? right : left;
 
@@ -62,6 +66,8 @@ class RopState {
     DateTime? Function()? nextExam,
     String? place,
     bool? counselled,
+    String? hospitalName,
+    String? sncuNumber,
   }) =>
       RopState(
         step: step ?? this.step,
@@ -74,6 +80,8 @@ class RopState {
         nextExam: nextExam != null ? nextExam() : this.nextExam,
         place: place ?? this.place,
         counselled: counselled ?? this.counselled,
+        hospitalName: hospitalName ?? this.hospitalName,
+        sncuNumber: sncuNumber ?? this.sncuNumber,
       );
 }
 
@@ -104,6 +112,8 @@ class RopController extends Notifier<RopState> {
   void setNextExam(DateTime? v) => state = state.copyWith(nextExam: () => v);
   void setPlace(String v) => state = state.copyWith(place: v);
   void setCounselled(bool v) => state = state.copyWith(counselled: v);
+  void setHospitalName(String v) => state = state.copyWith(hospitalName: v);
+  void setSncuNumber(String v) => state = state.copyWith(sncuNumber: v);
 
   void reset() => state = const RopState();
 }
@@ -191,6 +201,8 @@ final ropSummaryProvider = Provider<String>((ref) {
   return buildRopSummary(
     babyLine: baby.describe(),
     eligibility: ref.watch(ropEligibilityProvider),
+    hospitalName: s.hospitalName,
+    sncuNumber: s.sncuNumber,
     timing: ref.watch(ropTimingProvider),
     examDate: s.right.isEmpty && s.left.isEmpty
         ? null

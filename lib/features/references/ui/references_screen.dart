@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
+import '../../../core/widgets/app_branding.dart';
 
 /// Screen displaying the two bundled ICMR / DHR STW reference PDFs,
 /// external clinical guidelines cited in the STWs, and standard disclaimer.
@@ -25,7 +26,7 @@ class ReferencesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('References'),
+        title: const StwNeoBrand(subtitle: 'References'),
       ),
       body: Center(
         child: ConstrainedBox(

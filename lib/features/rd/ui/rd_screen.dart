@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
+import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/radio_choice_group.dart';
@@ -56,11 +57,7 @@ class _RdScreenState extends ConsumerState<RdScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Respiratory Distress',
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 18),
-        ),
+        title: const StwNeoBrand(subtitle: 'Respiratory Distress'),
         actions: [
           Semantics(
             button: true,

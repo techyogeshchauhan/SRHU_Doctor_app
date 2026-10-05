@@ -7,6 +7,7 @@ import 'package:pdfx/pdfx.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/theme.dart';
+import '../../../core/widgets/app_branding.dart';
 
 /// Full-screen in-app PDF viewer for the ICMR/DHR STW documents.
 ///
@@ -137,15 +138,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.title,
-          style: const TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
+        title: StwNeoBrand(subtitle: widget.title),
         actions: [
           Semantics(
             button: true,

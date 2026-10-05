@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
+import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../shared/reference_view.dart';
 import '../state/rop_controller.dart';
@@ -30,7 +31,7 @@ class RopScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ROP Screening'),
+        title: const StwNeoBrand(subtitle: 'ROP Screening'),
         actions: [
           Semantics(
             button: true,
@@ -222,7 +223,9 @@ class RopReferenceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ROP reference')),
+      appBar: AppBar(
+        title: const StwNeoBrand(subtitle: 'ROP Reference'),
+      ),
       body: const ReferenceView(
         sections: ropReference,
         links: ropRelatedLinks,
