@@ -94,7 +94,7 @@ class AppTheme {
     const interFallback = ['Poppins', 'sans-serif'];
 
     final textTheme = Typography.blackMountainView.copyWith(
-      // Landing title: 28 sp Poppins Bold
+      // Landing title: 28 sp Poppins Bold (responsive)
       headlineLarge: const TextStyle(
         fontFamily: 'Poppins',
         fontFamilyFallback: poppinsFallback,
@@ -102,6 +102,7 @@ class AppTheme {
         fontWeight: FontWeight.w700,
         letterSpacing: -0.5,
         color: primaryNavy,
+        height: 1.2,
       ),
       headlineMedium: const TextStyle(
         fontFamily: 'Poppins',
@@ -110,6 +111,7 @@ class AppTheme {
         fontWeight: FontWeight.w700,
         letterSpacing: -0.4,
         color: primaryNavy,
+        height: 1.2,
       ),
       // Screen titles: 22 sp Poppins SemiBold
       headlineSmall: const TextStyle(
@@ -119,6 +121,7 @@ class AppTheme {
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3,
         color: primaryNavy,
+        height: 1.2,
       ),
       titleLarge: const TextStyle(
         fontFamily: 'Poppins',
@@ -127,6 +130,7 @@ class AppTheme {
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3,
         color: primaryNavy,
+        height: 1.2,
       ),
       // Card titles: 16 sp Poppins SemiBold
       titleMedium: const TextStyle(
@@ -135,6 +139,7 @@ class AppTheme {
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: primaryNavy,
+        height: 1.3,
       ),
       titleSmall: const TextStyle(
         fontFamily: 'Poppins',
@@ -142,14 +147,15 @@ class AppTheme {
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: primaryNavy,
+        height: 1.3,
       ),
-      // Body: 14-15 sp Inter Regular with 1.4 line height
+      // Body: 14-15 sp Inter Regular with 1.4-1.5 line height for readability
       bodyLarge: const TextStyle(
         fontFamily: 'Inter',
         fontFamilyFallback: interFallback,
         fontSize: 15,
         fontWeight: FontWeight.w400,
-        height: 1.4,
+        height: 1.5,
         color: bodyText,
       ),
       bodyMedium: const TextStyle(
@@ -157,7 +163,7 @@ class AppTheme {
         fontFamilyFallback: interFallback,
         fontSize: 14,
         fontWeight: FontWeight.w400,
-        height: 1.4,
+        height: 1.5,
         color: bodyText,
       ),
       // Small/disclaimer text: 12 sp Inter
@@ -166,7 +172,7 @@ class AppTheme {
         fontFamilyFallback: interFallback,
         fontSize: 12,
         fontWeight: FontWeight.w400,
-        height: 1.4,
+        height: 1.5,
         color: mutedText,
       ),
       // Buttons & Labels: Poppins SemiBold for buttons
@@ -175,6 +181,7 @@ class AppTheme {
         fontFamilyFallback: poppinsFallback,
         fontSize: 15,
         fontWeight: FontWeight.w600,
+        height: 1.2,
       ),
       labelMedium: const TextStyle(
         fontFamily: 'Inter',
@@ -182,6 +189,7 @@ class AppTheme {
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: mutedText,
+        height: 1.2,
       ),
       labelSmall: const TextStyle(
         fontFamily: 'Inter',
@@ -189,6 +197,7 @@ class AppTheme {
         fontSize: 11,
         fontWeight: FontWeight.w500,
         color: mutedText,
+        height: 1.2,
       ),
     );
 
@@ -233,7 +242,7 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: primaryBlue,
           foregroundColor: Colors.white,
-          minimumSize: const Size(48, 48),
+          minimumSize: const Size(64, 48), // Increased min width for better touch target
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -244,12 +253,14 @@ class AppTheme {
             fontWeight: FontWeight.w600,
             fontSize: 15,
           ),
+          // Better touch feedback
+          tapTargetSize: MaterialTapTargetSize.padded,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryBlue,
-          minimumSize: const Size(48, 48),
+          minimumSize: const Size(64, 48), // Increased min width
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           side: const BorderSide(color: dividerColor),
           shape: RoundedRectangleBorder(
@@ -261,17 +272,20 @@ class AppTheme {
             fontWeight: FontWeight.w600,
             fontSize: 15,
           ),
+          tapTargetSize: MaterialTapTargetSize.padded,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryBlue,
-          minimumSize: const Size(48, 48),
+          minimumSize: const Size(64, 48), // Increased min width
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           textStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontFamilyFallback: poppinsFallback,
             fontWeight: FontWeight.w600,
           ),
+          tapTargetSize: MaterialTapTargetSize.padded,
         ),
       ),
       tabBarTheme: const TabBarThemeData(

@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
+import '../../../core/widgets/app_refresh_button.dart';
 
 /// Full-screen in-app PDF viewer for the ICMR/DHR STW documents.
 ///
@@ -140,6 +141,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       appBar: AppBar(
         title: StwNeoBrand(subtitle: widget.title),
         actions: [
+          const AppRefreshButton(),
+          const SizedBox(width: 4),
           Semantics(
             button: true,
             label: 'Open in another app or share PDF',

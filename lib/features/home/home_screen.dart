@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../content/stw_content.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_branding.dart';
+import '../../core/widgets/app_refresh_button.dart';
 import '../../core/widgets/responsive.dart';
 import '../condition_selection/domain/neonatal_condition.dart';
 
@@ -312,137 +313,195 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  /// 1. Top Brand Row with the primary ICMR logo and guideline note
+  /// 1. Top Brand Row with the primary ICMR logo, guideline note, and corner Refresh button
   Widget _buildBrandRow({required bool isShort}) {
-    return StwNeoBrand(
-      logoHeight: isShort ? 44 : 52,
-      stacked: false,
-      subtitleSize: 11,
-      subtitleMaxLines: 3,
-      subtitle: 'Based on ICMR / DHR Standard Treatment Workflows',
-      mainAxisSize: MainAxisSize.max,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: StwNeoBrand(
+            logoHeight: isShort ? 44 : 52,
+            stacked: false,
+            subtitleSize: 11,
+            subtitleMaxLines: 3,
+            subtitle: 'Based on ICMR / DHR Standard Treatment Workflows',
+            mainAxisSize: MainAxisSize.max,
+          ),
+        ),
+        const SizedBox(width: 8),
+        const AppRefreshButton(),
+      ],
     );
   }
 
-  /// 2. Hero Section with 25% larger hu.png, 20 px rounded corners and soft fade on left edge
+  /// 2. Hero Section with modern card styling, refined typography, and polished medical imagery
   Widget _buildHeroSection({
     required bool isShort,
     required bool isVeryShort,
   }) {
-    return ClipPath(
-      clipper: _HeroWaveClipper(),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFEAF2FF),
-              Color(0xFFF7FAFF),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFE6F0FD),
+            Color(0xFFF1F6FE),
+            Color(0xFFFFFFFF),
+          ],
+          stops: [0.0, 0.45, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFD4E3F8),
+          width: 1.2,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A1F5FBF),
+            blurRadius: 16,
+            offset: Offset(0, 4),
           ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppTheme.dividerColor, width: 1.0),
-        ),
-        padding: EdgeInsets.fromLTRB(
-          14,
-          isVeryShort ? 6 : (isShort ? 8 : 10),
-          10,
-          isVeryShort ? 10 : (isShort ? 12 : 14),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Left: Headline and fully visible subtitle (never truncated)
-            Expanded(
-              flex: 6,
-              child: LayoutBuilder(
-                builder: (context, colConstraints) {
-                  return FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: SizedBox(
-                      width: colConstraints.maxWidth,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Better Care for Every New Beginning',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize:
-                                  isVeryShort ? 14.5 : (isShort ? 16.5 : 19.0),
-                              fontWeight: FontWeight.w700,
-                              height: 1.15,
-                              color: AppTheme.primaryNavy,
-                              letterSpacing: -0.3,
-                            ),
-                          ),
-                          SizedBox(height: isVeryShort ? 3 : 5),
-                          Text(
-                            'Guidance from the ICMR / DHR Standard Treatment Workflows for newborn care, right at your fingertips.',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize:
-                                  isVeryShort ? 10.5 : (isShort ? 11.5 : 12.0),
-                              height: 1.25,
-                              color: AppTheme.mutedText,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          // Subtle ambient glow in top right
+          Positioned(
+            right: -24,
+            top: -24,
+            child: Container(
+              width: 130,
+              height: 130,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0x0D1F5FBF),
               ),
             ),
-            const SizedBox(width: 8),
+          ),
 
-            // Right: hu.png increased by ~20-25%, 20 px rounded corners, soft fade on left edge
-            Expanded(
-              flex: 5,
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: AnimatedBuilder(
-                  animation: _breathingScale,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _breathingScale.value,
-                      alignment: Alignment.bottomRight,
-                      child: child,
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              isVeryShort ? 8 : (isShort ? 10 : 14),
+              12,
+              isVeryShort ? 6 : (isShort ? 8 : 10),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+              // Left: Headline and fully visible subtitle with clean typography hierarchy
+              Expanded(
+                flex: 6,
+                child: LayoutBuilder(
+                  builder: (context, colConstraints) {
+                    return FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: SizedBox(
+                        width: colConstraints.maxWidth,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text.rich(
+                              const TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Better Care\n',
+                                    style: TextStyle(
+                                      color: AppTheme.primaryNavy,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: 'for Every New Beginning',
+                                    style: TextStyle(
+                                      color: Color(0xFF1E5BB0),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: isVeryShort
+                                    ? 14.5
+                                    : (isShort ? 16.5 : 19.5),
+                                height: 1.18,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            SizedBox(height: isVeryShort ? 3 : (isShort ? 5 : 7)),
+                            Text(
+                              'Guidance from the ICMR / DHR Standard Treatment Workflows for newborn care, right at your fingertips.',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: isVeryShort
+                                    ? 10.5
+                                    : (isShort ? 11.5 : 12.0),
+                                height: 1.30,
+                                color: const Color(0xFF475569),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   },
-                  child: ShaderMask(
-                    shaderCallback: (rect) {
-                      return const LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black,
-                          Colors.black,
-                        ],
-                        stops: [0.0, 0.16, 1.0],
-                      ).createShader(rect);
-                    },
-                    blendMode: BlendMode.dstIn,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.asset(
-                        'assets/images/hu.png',
-                        fit: BoxFit.contain,
-                        alignment: Alignment.bottomRight,
-                        cacheWidth: 600,
-                        errorBuilder: (_, __, ___) => _buildHeroPlaceholder(),
+                ),
+              ),
+              const SizedBox(width: 8),
+
+                // Right: Hospital team photo with 20px rounded corners and smooth edge fade
+                Expanded(
+                  flex: 5,
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: AnimatedBuilder(
+                      animation: _breathingScale,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: _breathingScale.value,
+                          alignment: Alignment.bottomRight,
+                          child: child,
+                        );
+                      },
+                      child: ShaderMask(
+                        shaderCallback: (rect) {
+                          return const LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black,
+                              Colors.black,
+                            ],
+                            stops: [0.0, 0.14, 1.0],
+                          ).createShader(rect);
+                        },
+                        blendMode: BlendMode.dstIn,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            'assets/images/hu.png',
+                            fit: BoxFit.contain,
+                            alignment: Alignment.bottomRight,
+                            cacheWidth: 600,
+                            errorBuilder: (_, __, ___) =>
+                                _buildHeroPlaceholder(),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -864,33 +923,6 @@ class _FeatureItem extends StatelessWidget {
       ],
     );
   }
-}
-
-/// Custom clipper that draws a gentle soft wave along the bottom edge of the hero
-class _HeroWaveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    path.lineTo(0, size.height - 12);
-    path.quadraticBezierTo(
-      size.width * 0.35,
-      size.height,
-      size.width * 0.7,
-      size.height - 10,
-    );
-    path.quadraticBezierTo(
-      size.width * 0.88,
-      size.height - 16,
-      size.width,
-      size.height - 8,
-    );
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
 /// Custom painter for the looping heart-ribbon doodle in the footer (blue only)

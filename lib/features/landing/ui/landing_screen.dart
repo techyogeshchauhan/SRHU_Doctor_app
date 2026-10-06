@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
+import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/responsive.dart';
 import 'institutional_partners_section.dart';
 
@@ -63,11 +64,13 @@ class _LandingScreenState extends State<LandingScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: FadeTransition(
-        opacity: _fadeAnim,
-        child: SafeArea(
-          // Phone-proportioned on every device; scrolls on short screens.
-          child: PhoneColumn(
+      body: Stack(
+        children: [
+          FadeTransition(
+            opacity: _fadeAnim,
+            child: SafeArea(
+              // Phone-proportioned on every device; scrolls on short screens.
+              child: PhoneColumn(
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final isCompact =
@@ -170,6 +173,15 @@ class _LandingScreenState extends State<LandingScreen>
           ),
         ),
       ),
-    );
+      const Positioned(
+        top: 10,
+        right: 12,
+        child: SafeArea(
+          child: AppRefreshButton(),
+        ),
+      ),
+    ],
+  ),
+);
   }
 }

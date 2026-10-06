@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
+import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/radio_choice_group.dart';
@@ -59,6 +60,8 @@ class _RdScreenState extends ConsumerState<RdScreen>
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'Respiratory Distress'),
         actions: [
+          const AppRefreshButton(),
+          const SizedBox(width: 4),
           Semantics(
             button: true,
             label: 'Home overview',

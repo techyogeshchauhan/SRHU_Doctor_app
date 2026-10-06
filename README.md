@@ -95,6 +95,7 @@ The standalone RD and ROP screens described below are still in the app (routes `
 | Sharing | share_plus |
 | Fonts | Poppins, Inter (bundled) |
 | Platforms | Android, iOS, Web |
+| **Responsive Design** | **Fully optimized for mobile, tablet, and desktop web** |
 
 ---
 
@@ -201,6 +202,35 @@ feature/
 ```
 
 **Key design decision:** All clinical decision logic lives in `domain/` as pure Dart with zero Flutter dependencies. This means every branching rule (diagnosis criteria, SAS severity thresholds, CPAP failure conditions, surfactant criteria, ROP treatment indications, follow-up intervals) can be **unit-tested independently** without a widget test harness.
+
+---
+
+## Responsive Design
+
+The application is **fully responsive** and optimized for web deployment across all device sizes:
+
+### Screen Support
+- **Mobile (320px - 768px)**: Optimized single-column layouts with touch-friendly controls
+- **Tablet (768px - 1200px)**: Enhanced layouts with adaptive spacing and multi-column grids
+- **Desktop (1200px+)**: Maximum-width constraints with centered content for optimal readability
+
+### Key Features
+- **Adaptive Breakpoints**: Smart layout adjustments at 6 breakpoints (mobile, mobile landscape, tablet, tablet landscape, desktop, large desktop)
+- **Touch Targets**: All interactive elements meet WCAG AA guidelines (minimum 48x48 dp)
+- **Responsive Typography**: Text scales appropriately with improved line heights (1.5) for readability
+- **Progressive Enhancement**: Mobile-first approach with enhancements for larger screens
+- **Flexible Grids**: Automatic column adjustment based on available space
+- **Smart Padding**: Context-aware spacing that adapts to screen size
+
+### Responsive Components
+The app includes comprehensive responsive utilities:
+- `ResponsiveBuilder`: Build different layouts for mobile/tablet/desktop
+- `ResponsiveGrid`: Auto-adjusting grid layouts
+- `ResponsiveRowColumn`: Switches between row and column based on breakpoint
+- `ResponsivePadding`: Adaptive spacing
+- Context extensions for easy responsive checks (`context.isMobile`, `context.isTablet`, etc.)
+
+See [RESPONSIVE_DESIGN.md](docs/RESPONSIVE_DESIGN.md) for detailed documentation.
 
 ---
 

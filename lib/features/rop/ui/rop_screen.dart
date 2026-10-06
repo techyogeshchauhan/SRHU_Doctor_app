@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
+import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../shared/reference_view.dart';
 import '../state/rop_controller.dart';
@@ -33,6 +34,8 @@ class RopScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'ROP Screening'),
         actions: [
+          const AppRefreshButton(),
+          const SizedBox(width: 4),
           Semantics(
             button: true,
             label: 'Home overview',

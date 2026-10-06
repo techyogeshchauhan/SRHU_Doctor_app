@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
+import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
@@ -43,6 +44,8 @@ class WorkflowScreen extends ConsumerWidget {
         appBar: AppBar(
           title: const StwNeoBrand(subtitle: 'Clinical Assessment'),
           actions: [
+            const AppRefreshButton(),
+            const SizedBox(width: 4),
             Semantics(
               button: true,
               label: 'Findings so far',

@@ -1,0 +1,560 @@
+/**
+ * Additional responsive styles for STW Neo web app
+ * Complements the Flutter responsive system with web-specific enhancements
+ */
+
+/* ========================================
+   Base Styles & Reset
+   ======================================== */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(31, 95, 191, 0.1);
+}
+
+html {
+  /* Prevent text size adjustment on orientation change */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  
+  /* Better font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #FFFFFF;
+}
+
+/* ========================================
+   Responsive Typography
+   ======================================== */
+
+/* Mobile (320px - 575px) */
+html {
+  font-size: 14px;
+}
+
+/* Mobile Landscape / Small Tablet (576px - 767px) */
+@media (min-width: 576px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* Tablet (768px - 991px) */
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Desktop (1200px+) */
+@media (min-width: 1200px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+/* Large Desktop (1400px+) */
+@media (min-width: 1400px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+
+/* Better focus styles for keyboard navigation */
+:focus-visible {
+  outline: 2px solid #1F5FBF;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip to main content link */
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: 12px 20px;
+  background-color: #1F5FBF;
+  color: white;
+  text-decoration: none;
+  border-radius: 0 0 8px 0;
+}
+
+.skip-to-main:focus {
+  left: 0;
+  top: 0;
+}
+
+/* ========================================
+   Loading / Splash Screen
+   ======================================== */
+
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3vw, 16px);
+  background: #FFFFFF;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #0B2A5B;
+  transition: opacity 0.25s ease;
+}
+
+#splash img {
+  width: clamp(72px, 15vw, 96px);
+  height: clamp(72px, 15vw, 96px);
+  border-radius: 22px;
+  box-shadow: 0 6px 24px rgba(11, 42, 91, 0.12);
+  object-fit: cover;
+}
+
+#splash .name {
+  font-size: clamp(16px, 4vw, 20px);
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  text-align: center;
+  margin: 0;
+}
+
+#splash .hint {
+  font-size: clamp(11px, 2.5vw, 13px);
+  color: #5B6B7F;
+  text-align: center;
+  padding: 0 20px;
+  margin: 0;
+  max-width: 300px;
+}
+
+#splash .spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid #DCE6F5;
+  border-top-color: #1F5FBF;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #splash .spinner {
+    animation: none;
+    border-top-color: #1F5FBF;
+  }
+}
+
+/* ========================================
+   Responsive Utilities
+   ======================================== */
+
+/* Hide on mobile */
+.hide-mobile {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: block !important;
+  }
+}
+
+/* Hide on tablet and up */
+@media (min-width: 768px) {
+  .hide-tablet-up {
+    display: none !important;
+  }
+}
+
+/* Hide on desktop and up */
+@media (min-width: 1200px) {
+  .hide-desktop-up {
+    display: none !important;
+  }
+}
+
+/* Show only on mobile */
+.show-mobile-only {
+  display: block !important;
+}
+
+@media (min-width: 768px) {
+  .show-mobile-only {
+    display: none !important;
+  }
+}
+
+/* ========================================
+   Performance Optimizations
+   ======================================== */
+
+/* Hardware acceleration for smooth animations */
+.hardware-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Image optimization */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Lazy loading hint */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+img[loading="lazy"].loaded {
+  opacity: 1;
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+  html {
+    font-size: 12pt;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+  
+  /* Hide non-essential elements */
+  header,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Ensure content fits page */
+  * {
+    max-width: 100% !important;
+  }
+  
+  /* Page breaks */
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  /* Links */
+  a {
+    color: black;
+    text-decoration: underline;
+  }
+  
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 90%;
+  }
+}
+
+/* ========================================
+   Dark Mode Support (Future Enhancement)
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  /* Currently the app uses light mode only */
+  /* This section is reserved for future dark mode implementation */
+}
+
+/* ========================================
+   High Contrast Mode
+   ======================================== */
+
+@media (prefers-contrast: high) {
+  * {
+    outline-width: 2px !important;
+  }
+  
+  :focus-visible {
+    outline-width: 3px !important;
+  }
+}
+
+/* ========================================
+   Reduced Transparency
+   ======================================== */
+
+@media (prefers-reduced-transparency: reduce) {
+  * {
+    background-color: solid !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* ========================================
+   iOS Safari PWA Installation Banner
+   ======================================== */
+
+.ios-install-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999999;
+  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transform: translateY(105%);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.ios-install-banner.ios-banner-visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.ios-banner-card {
+  pointer-events: auto;
+  max-width: 440px;
+  margin: 0 auto;
+  background: #FFFFFF;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.16), 0 0 1px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-bottom: none;
+  padding: 16px 18px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+@media (min-width: 480px) {
+  .ios-banner-card {
+    border-radius: 20px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.2), 0 0 1px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.ios-banner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.ios-banner-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ios-banner-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.ios-banner-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.ios-banner-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ios-banner-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  letter-spacing: -0.2px;
+}
+
+.ios-banner-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #1F5FBF;
+  background: #EBF3FC;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.ios-banner-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 11.5px;
+  color: #64748B;
+  line-height: 1.3;
+}
+
+.ios-banner-close {
+  background: #F1F5F9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+  padding: 0;
+}
+
+.ios-banner-close:hover,
+.ios-banner-close:active {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+
+.ios-banner-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.ios-banner-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.ios-step-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #1F5FBF;
+  color: #FFFFFF;
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ios-step-text {
+  flex: 1;
+}
+
+.ios-step-text strong {
+  color: #0F172A;
+  font-weight: 600;
+}
+
+.ios-share-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin: 0 2px;
+}
+
+.ios-share-icon-wrap svg {
+  display: block;
+}
+
+.ios-add-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  padding: 0 4px;
+  margin: 0 2px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #1F5FBF;
+}
+
+.ios-banner-footer {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.ios-banner-gotit-btn {
+  width: 100%;
+  background: #1F5FBF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 0;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 6px rgba(31, 95, 191, 0.25);
+}
+
+.ios-banner-gotit-btn:hover,
+.ios-banner-gotit-btn:active {
+  background: #174894;
+}
+

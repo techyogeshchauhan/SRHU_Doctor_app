@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
+import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
@@ -48,6 +49,10 @@ class ConditionSelectionScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'Select Conditions'),
+        actions: const [
+          AppRefreshButton(),
+          SizedBox(width: 8),
+        ],
       ),
       body: Align(
         alignment: Alignment.topCenter,

@@ -9,13 +9,41 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <!-- viewport-fit stays "auto" so iOS keeps content clear of the notch and
-       home indicator in the home-screen app. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Responsive viewport with proper scaling and constraints -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, viewport-fit=cover, user-scalable=yes">
   <meta name="description" content="Bedside decision support for the ICMR/DHR Standard Treatment Workflows on Respiratory Distress in Neonates and Retinopathy of Prematurity.">
   <meta name="theme-color" content="#FFFFFF">
   <meta name="color-scheme" content="light">
   <meta name="format-detection" content="telephone=no">
+  
+  <!-- Additional meta tags for better web support -->
+  <meta name="HandheldFriendly" content="true">
+  <meta name="MobileOptimized" content="320">
+  <meta name="screen-orientation" content="portrait">
+  
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="STW Neo - Neonatal Clinical Decision Support">
+  <meta property="og:description" content="Clinical guidance for newborn care based on ICMR/DHR Standard Treatment Workflows">
+  <meta property="og:image" content="icons/Icon-512.png">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="STW Neo - Neonatal Clinical Decision Support">
+  <meta name="twitter:description" content="Clinical guidance for newborn care">
+  
+  <!-- Performance hints: preconnect & preload critical app bootstrap -->
+  <link rel="preconnect" href="/">
+  <link rel="dns-prefetch" href="/">
+  <link rel="preload" href="flutter_bootstrap.js" as="script">
+  <link rel="preload" href="main.dart.js" as="script">
+
+  <script>
+    // Global reload handler available for Web and installed PWA
+    window.reloadApp = function() {
+      window.location.reload();
+    };
+  </script>
 
   <!-- Installable app (Android, desktop browsers) -->
   <link rel="manifest" href="manifest.json">
@@ -24,14 +52,53 @@
   <!-- iPhone / iPad home-screen app -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="SRHU STW">
+  <meta name="apple-mobile-web-app-title" content="STW Neo">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
   <link rel="icon" type="image/png" href="favicon.png">
-  <title>SRHU STW</title>
+  <title>STW Neo</title>
+
+  <!-- Responsive styles -->
+  <link rel="stylesheet" href="styles.css">
 
   <style>
-    html, body { margin: 0; height: 100%; background: #FFFFFF; }
+    html, body { margin: 0; height: 100%; background: #FFFFFF; overflow-x: hidden; }
+    
+    /* Responsive base font size */
+    html {
+      font-size: 16px;
+    }
+    
+    @media (max-width: 576px) {
+      html { font-size: 14px; }
+    }
+    
+    @media (min-width: 1200px) {
+      html { font-size: 18px; }
+    }
+    
+    /* Prevent text size adjustment on orientation change */
+    html {
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    
+    /* Better tap highlight */
+    * {
+      -webkit-tap-highlight-color: rgba(31, 95, 191, 0.1);
+    }
+    
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+    
     /* Shown until Flutter draws its first frame (see flutter_bootstrap.js). */
     #splash {
       position: fixed; inset: 0; z-index: 10;
@@ -39,17 +106,60 @@
       gap: 14px; background: #FFFFFF;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: #0B2A5B; transition: opacity .25s ease;
+      padding: 20px;
     }
-    #splash img { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 6px 24px rgba(11,42,91,.12); }
-    #splash .name { font-size: 20px; font-weight: 700; letter-spacing: -.2px; }
-    #splash .hint { font-size: 13px; color: #5B6B7F; }
+    
+    #splash img { 
+      width: clamp(72px, 15vw, 96px); 
+      height: clamp(72px, 15vw, 96px); 
+      border-radius: 22px; 
+      box-shadow: 0 6px 24px rgba(11,42,91,.12); 
+    }
+    
+    #splash .name { 
+      font-size: clamp(16px, 4vw, 20px); 
+      font-weight: 700; 
+      letter-spacing: -.2px;
+      text-align: center;
+    }
+    
+    #splash .hint { 
+      font-size: clamp(11px, 2.5vw, 13px); 
+      color: #5B6B7F;
+      text-align: center;
+      padding: 0 20px;
+    }
+    
     #splash .spinner {
       width: 26px; height: 26px; border-radius: 50%;
       border: 3px solid #DCE6F5; border-top-color: #1F5FBF;
       animation: spin .9s linear infinite;
     }
+    
     @keyframes spin { to { transform: rotate(360deg); } }
-    @media (prefers-reduced-motion: reduce) { #splash .spinner { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { 
+      #splash .spinner { animation: none; } 
+    }
+    
+    /* Responsive container for very wide screens */
+    @media (min-width: 1400px) {
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+    }
+    
+    /* Better focus styles for accessibility */
+    :focus-visible {
+      outline: 2px solid #1F5FBF;
+      outline-offset: 2px;
+    }
+    
+    /* Disable focus outline for mouse users */
+    :focus:not(:focus-visible) {
+      outline: none;
+    }
   </style>
 
   <!-- pdf.js 4.6.82 for the in-app STW PDF viewer (pdfx), bundled locally so
@@ -63,11 +173,129 @@
 <body>
   <div id="splash" aria-live="polite">
     <img src="icons/Icon-192.png" alt="">
-    <div class="name">SRHU STW</div>
+    <div class="name">STW Neo</div>
     <div class="spinner" role="progressbar" aria-label="Loading"></div>
     <div class="hint">Neonatal clinical decision support</div>
   </div>
   <noscript>This app needs JavaScript enabled.</noscript>
   <script src="flutter_bootstrap.js" async></script>
+
+  <!-- iOS Safari PWA Installation Instructions Banner -->
+  <aside id="ios-install-banner" class="ios-install-banner" role="dialog" aria-labelledby="ios-banner-title" aria-describedby="ios-banner-desc" style="display: none;">
+    <div class="ios-banner-card">
+      <div class="ios-banner-header">
+        <div class="ios-banner-brand">
+          <img src="icons/Icon-192.png" alt="STW Neo Logo" class="ios-banner-icon" />
+          <div class="ios-banner-titles">
+            <div class="ios-banner-title-row">
+              <span id="ios-banner-title" class="ios-banner-title">Install STW Neo</span>
+              <span class="ios-banner-badge">PWA</span>
+            </div>
+            <p id="ios-banner-desc" class="ios-banner-subtitle">Add to your iPhone Home Screen for offline bedside access</p>
+          </div>
+        </div>
+        <button type="button" class="ios-banner-close" id="ios-banner-close-btn" aria-label="Close installation banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <ol class="ios-banner-steps">
+        <li class="ios-banner-step">
+          <span class="ios-step-num">1</span>
+          <span class="ios-step-text">Open the application in <strong>Safari</strong>.</span>
+        </li>
+        <li class="ios-banner-step">
+          <span class="ios-step-num">2</span>
+          <span class="ios-step-text">
+            Tap the <strong>Share</strong> button
+            <span class="ios-share-icon-wrap" aria-label="Safari share icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F5FBF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                <polyline points="16 6 12 2 8 6"></polyline>
+                <line x1="12" y1="2" x2="12" y2="15"></line>
+              </svg>
+            </span>
+            in the bottom bar.
+          </span>
+        </li>
+        <li class="ios-banner-step">
+          <span class="ios-step-num">3</span>
+          <span class="ios-step-text">
+            Select <strong>“Add to Home Screen”</strong>
+            <span class="ios-add-icon-wrap">⊞</span>.
+          </span>
+        </li>
+        <li class="ios-banner-step">
+          <span class="ios-step-num">4</span>
+          <span class="ios-step-text">Tap <strong>“Add”</strong> in the top-right corner to install the PWA.</span>
+        </li>
+        <li class="ios-banner-step">
+          <span class="ios-step-num">5</span>
+          <span class="ios-step-text">The <strong>STW Neo</strong> app icon will appear on your iPhone Home Screen.</span>
+        </li>
+      </ol>
+
+      <div class="ios-banner-footer">
+        <button type="button" class="ios-banner-gotit-btn" id="ios-banner-dismiss-btn">Got it</button>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    (function () {
+      function setupIosBanner() {
+        var banner = document.getElementById('ios-install-banner');
+        if (!banner) return;
+
+        var ua = window.navigator.userAgent || '';
+        var isIos = /iphone|ipad|ipod/i.test(ua) ||
+          (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
+        var isSafari = isIos && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua);
+        var isStandalone = window.navigator.standalone === true ||
+          (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+
+        var isDismissed = false;
+        try {
+          isDismissed = localStorage.getItem('stw_ios_pwa_dismissed') === 'true';
+        } catch (e) {}
+
+        var params = new URLSearchParams(window.location.search);
+        var isPreview = params.get('previewIosBanner') === '1' || window.location.hash === '#ios-banner';
+
+        if ((isSafari && !isStandalone && !isDismissed) || isPreview) {
+          setTimeout(function () {
+            banner.style.display = 'block';
+            setTimeout(function () {
+              banner.classList.add('ios-banner-visible');
+            }, 30);
+          }, 800);
+
+          function hideBanner() {
+            banner.classList.remove('ios-banner-visible');
+            setTimeout(function () {
+              banner.style.display = 'none';
+            }, 350);
+            try {
+              localStorage.setItem('stw_ios_pwa_dismissed', 'true');
+            } catch (e) {}
+          }
+
+          var closeBtn = document.getElementById('ios-banner-close-btn');
+          var dismissBtn = document.getElementById('ios-banner-dismiss-btn');
+          if (closeBtn) closeBtn.addEventListener('click', hideBanner);
+          if (dismissBtn) dismissBtn.addEventListener('click', hideBanner);
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupIosBanner);
+      } else {
+        setupIosBanner();
+      }
+    })();
+  </script>
 </body>
 </html>

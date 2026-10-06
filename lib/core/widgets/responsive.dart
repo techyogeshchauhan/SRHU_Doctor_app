@@ -4,6 +4,24 @@ import 'package:flutter/material.dart';
 
 /// Layout breakpoints shared by every screen (logical pixels).
 abstract final class Breakpoints {
+  /// Mobile portrait (phones)
+  static const double mobile = 320;
+  
+  /// Mobile landscape / small tablets
+  static const double mobileLandscape = 576;
+  
+  /// Tablets portrait
+  static const double tablet = 768;
+  
+  /// Tablets landscape / small desktop
+  static const double tabletLandscape = 992;
+  
+  /// Desktop
+  static const double desktop = 1200;
+  
+  /// Large desktop
+  static const double desktopLarge = 1400;
+
   /// Widest the whole app gets. Wider windows (desktop browsers, iPad
   /// landscape) show it as a centred column.
   static const double shellMaxWidth = 1024;
@@ -13,6 +31,13 @@ abstract final class Breakpoints {
 
   /// Phone-proportioned single-column screens (Landing, Home).
   static const double phoneMaxWidth = 560;
+  
+  /// Helper methods for responsive checks
+  static bool isMobile(double width) => width < tablet;
+  static bool isTablet(double width) => width >= tablet && width < desktop;
+  static bool isDesktop(double width) => width >= desktop;
+  static bool isMobileLandscape(double width) => 
+      width >= mobileLandscape && width < tablet;
 }
 
 /// Centres the app in a [Breakpoints.shellMaxWidth] column on wide windows
@@ -122,4 +147,143 @@ class MaxWidth extends StatelessWidget {
           child: child,
         ),
       );
+}
+
+/// Responsive padding that adapts to screen size
+class ResponsivePadding extends StatelessWidget {
+  const ResponsivePadding({
+    super.key,
+    required this.child,
+    this.mobile = 16.0,
+    this.tablet = 24.0,
+    this.desktop = 32.0,
+  });
+
+  final Widget child;
+  final double mobile;
+  final double tablet;
+  final double desktop;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double padding;
+        if (constraints.maxWidth < Breakpoints.tablet) {
+          padding = mobile;
+        } else if (constraints.maxWidth < Breakpoints.desktop) {
+          padding = tablet;
+        } else {
+          padding = desktop;
+        }
+        
+        return Padding(
+          padding: EdgeInsets.all(padding),
+          child: child,
+        );
+      },
+    );
+  }
+}
+
+/// Responsive spacing that adapts to screen size
+class ResponsiveSpacing extends StatelessWidget {
+  const ResponsiveSpacing({
+    super.key,
+    this.mobile = 8.0,
+    this.tablet = 12.0,
+    this.desktop = 16.0,
+  });
+
+  final double mobile;
+  final double tablet;
+  final double desktop;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double spacing;
+        if (constraints.maxWidth < Breakpoints.tablet) {
+          spacing = mobile;
+        } else if (constraints.maxWidth < Breakpoints.desktop) {
+          spacing = tablet;
+        } else {
+          spacing = desktop;
+        }
+        
+        return SizedBox(height: spacing, width: spacing);
+      },
+    );
+  }
+}
+
+/// Helper to get responsive values based on screen size
+class ResponsiveValue<T> {
+  const ResponsiveValue({
+    required this.mobile,
+    this.tablet,
+    this.desktop,
+  });
+
+  final T mobile;
+  final T? tablet;
+  final T? desktop;
+
+  T getValue(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    
+    if (width >= Breakpoints.desktop && desktop != null) {
+      return desktop!;
+    } else if (width >= Breakpoints.tablet && tablet != null) {
+      return tablet!;
+    }
+    return mobile;
+  }
+}
+
+/// Responsive grid that adapts columns based on screen size
+class ResponsiveGrid extends StatelessWidget {
+  const ResponsiveGrid({
+    super.key,
+    required this.children,
+    this.mobileColumns = 1,
+    this.tabletColumns = 2,
+    this.desktopColumns = 3,
+    this.spacing = 16.0,
+  });
+
+  final List<Widget> children;
+  final int mobileColumns;
+  final int tabletColumns;
+  final int desktopColumns;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        int columns;
+        if (constraints.maxWidth < Breakpoints.tablet) {
+          columns = mobileColumns;
+        } else if (constraints.maxWidth < Breakpoints.desktop) {
+          columns = tabletColumns;
+        } else {
+          columns = desktopColumns;
+        }
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: children.map((child) {
+            final width = (constraints.maxWidth - (spacing * (columns - 1))) / columns;
+            return SizedBox(
+              width: width,
+              child: child,
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
 }

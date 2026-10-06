@@ -12,6 +12,7 @@ FLUTTER="${FLUTTER:-flutter}"
 DART="${DART:-dart}"
 
 # --no-web-resources-cdn bundles CanvasKit so the app also starts offline.
-"$FLUTTER" build web --release --no-web-resources-cdn \
+# -O4 maximizes dart2js optimization; --tree-shake-icons strips unused font glyphs.
+"$FLUTTER" build web --release --no-web-resources-cdn -O4 --tree-shake-icons \
   --base-href "${BASE_HREF:-/}" "$@"
 "$DART" run tool/generate_service_worker.dart
