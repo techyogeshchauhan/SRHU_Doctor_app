@@ -5,6 +5,7 @@ import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
+import '../../../core/widgets/back_to_home_button.dart';
 
 /// Screen displaying the two bundled ICMR / DHR STW reference PDFs,
 /// external clinical guidelines cited in the STWs, and standard disclaimer.
@@ -29,6 +30,7 @@ class ReferencesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'References'),
         actions: const [
+          BackToHomeButton(compact: true),
           AppRefreshButton(),
           SizedBox(width: 8),
         ],

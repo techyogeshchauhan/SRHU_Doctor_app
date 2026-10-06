@@ -55,34 +55,35 @@ const pendingStwMessage =
     'Clinical workflow content requires the corresponding approved STW.';
 
 const List<ConditionDefinition> conditionDefinitions = [
-  ConditionDefinition(id: NeonatalCondition.triage, title: 'Triage'),
-  ConditionDefinition(id: NeonatalCondition.thermalCare, title: 'Thermal Care'),
-  ConditionDefinition(id: NeonatalCondition.kmc, title: 'KMC'),
+  ConditionDefinition(id: NeonatalCondition.triage, title: 'STW Triage'),
   ConditionDefinition(
-      id: NeonatalCondition.fluidsAndFeeds, title: 'Fluids & Feeds'),
+      id: NeonatalCondition.thermalCare, title: 'STW Thermal Care'),
+  ConditionDefinition(id: NeonatalCondition.kmc, title: 'STW KMC'),
+  ConditionDefinition(
+      id: NeonatalCondition.fluidsAndFeeds, title: 'STW Fluids & Feeds'),
   ConditionDefinition(
     id: NeonatalCondition.respiratoryDistress,
-    title: 'Respiratory Distress',
+    title: 'STW Respiratory Distress',
     description: 'Assessment and management workflow as per ICMR/DHR STW.',
     status: ConditionStatus.available,
   ),
-  ConditionDefinition(id: NeonatalCondition.ancs, title: 'ANCS'),
-  ConditionDefinition(id: NeonatalCondition.sepsis, title: 'Sepsis'),
+  ConditionDefinition(id: NeonatalCondition.ancs, title: 'STW ANCS'),
+  ConditionDefinition(id: NeonatalCondition.sepsis, title: 'STW Sepsis'),
   ConditionDefinition(
-      id: NeonatalCondition.hypoglycemia, title: 'Hypoglycemia'),
-  ConditionDefinition(id: NeonatalCondition.jaundice, title: 'Jaundice'),
-  ConditionDefinition(id: NeonatalCondition.seizures, title: 'Seizures'),
-  ConditionDefinition(id: NeonatalCondition.hie, title: 'HIE'),
-  ConditionDefinition(id: NeonatalCondition.transport, title: 'Transport'),
+      id: NeonatalCondition.hypoglycemia, title: 'STW Hypoglycemia'),
+  ConditionDefinition(id: NeonatalCondition.jaundice, title: 'STW Jaundice'),
+  ConditionDefinition(id: NeonatalCondition.seizures, title: 'STW Seizures'),
+  ConditionDefinition(id: NeonatalCondition.hie, title: 'STW HIE'),
+  ConditionDefinition(id: NeonatalCondition.transport, title: 'STW Transport'),
   ConditionDefinition(
     id: NeonatalCondition.rop,
-    title: 'ROP',
+    title: 'STW ROP',
     description: 'Screening and follow-up workflow as per ICMR/DHR STW.',
     status: ConditionStatus.available,
   ),
   ConditionDefinition(
     id: NeonatalCondition.dischargeAndFollowUp,
-    title: 'Discharge & Follow-up',
+    title: 'STW Discharge & Follow up',
   ),
 ];
 

@@ -18,6 +18,7 @@ class StwNeoBrand extends StatelessWidget {
     this.titleSize = 16,
     this.subtitleSize = 11.5,
     this.subtitleMaxLines = 1,
+    this.subtitleOverflow = TextOverflow.ellipsis,
     this.mainAxisSize = MainAxisSize.min,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
@@ -31,6 +32,7 @@ class StwNeoBrand extends StatelessWidget {
   final double titleSize;
   final double subtitleSize;
   final int subtitleMaxLines;
+  final TextOverflow subtitleOverflow;
   final MainAxisSize mainAxisSize;
   final MainAxisAlignment mainAxisAlignment;
   final CrossAxisAlignment crossAxisAlignment;
@@ -60,7 +62,7 @@ class StwNeoBrand extends StatelessWidget {
         : Text(
             subtitle!,
             maxLines: subtitleMaxLines,
-            overflow: TextOverflow.ellipsis,
+            overflow: subtitleOverflow,
             style: showTitle
                 ? TextStyle(
                     fontFamily: 'Inter',
@@ -125,10 +127,11 @@ class StwNeoBrand extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment,
       children: [
-        if (showLogo) Flexible(child: logo),
-        if (showLogo && text.isNotEmpty) const SizedBox(width: 10),
+        if (showLogo) logo,
+        if (showLogo && text.isNotEmpty) const SizedBox(width: 8),
         if (text.isNotEmpty)
           Flexible(
+            fit: FlexFit.loose,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,

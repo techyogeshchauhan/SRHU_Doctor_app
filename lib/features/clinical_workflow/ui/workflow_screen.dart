@@ -3,14 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
+import '../../../core/utils/app_reload.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
+import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/responsive.dart';
+import '../../../shared/pdf_navigation.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../state/assessment_controller.dart';
 import 'assessment_summary.dart';
 import 'question_field.dart';
+
+enum _WorkflowMenuAction {
+  findings,
+  newAssessment,
+  refresh,
+}
 
 /// Dynamic clinical assessment: shows the page chosen by the engine from
 /// the current context, then the combined summary.
@@ -42,49 +51,157 @@ class WorkflowScreen extends ConsumerWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const StwNeoBrand(subtitle: 'Clinical Assessment'),
+          toolbarHeight: 58,
+          titleSpacing: 0,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppTheme.primaryNavy,
+            ),
+            tooltip: 'Back',
+            onPressed: goBack,
+          ),
+          title: Image.asset(
+            'assets/images/icmr_logo.png',
+            semanticLabel: 'ICMR Logo',
+            height: 44,
+            fit: BoxFit.contain,
+            alignment: Alignment.centerLeft,
+            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          ),
           actions: [
-            const AppRefreshButton(),
-            const SizedBox(width: 4),
+            const BackToHomeButton(iconOnly: true),
             Semantics(
               button: true,
-              label: 'Findings so far',
-              child: IconButton(
-                tooltip: 'Findings so far',
+              label: 'More options',
+              child: PopupMenuButton<_WorkflowMenuAction>(
+                tooltip: 'More options',
                 icon: Badge(
                   isLabelVisible: ctx.findings.isNotEmpty,
                   label: Text('${ctx.findings.length}'),
-                  child: const Icon(Icons.fact_check_outlined),
+                  child: const Icon(
+                    Icons.more_vert_rounded,
+                    size: 22,
+                    color: AppTheme.primaryNavy,
+                  ),
                 ),
-                onPressed: () => _showFindings(context),
+                onSelected: (action) {
+                  switch (action) {
+                    case _WorkflowMenuAction.findings:
+                      _showFindings(context);
+                    case _WorkflowMenuAction.newAssessment:
+                      _confirmNewAssessment(context, ref);
+                    case _WorkflowMenuAction.refresh:
+                      reloadApplication();
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: _WorkflowMenuAction.findings,
+                    child: Row(
+                      children: [
+                        Badge(
+                          isLabelVisible: ctx.findings.isNotEmpty,
+                          label: Text('${ctx.findings.length}'),
+                          child: const Icon(
+                            Icons.fact_check_outlined,
+                            size: 20,
+                            color: AppTheme.primaryNavy,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          ctx.findings.isNotEmpty
+                              ? 'Findings so far (${ctx.findings.length})'
+                              : 'Findings so far',
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.primaryNavy,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: _WorkflowMenuAction.newAssessment,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.restart_alt,
+                          size: 20,
+                          color: AppTheme.primaryNavy,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'New assessment',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.primaryNavy,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: _WorkflowMenuAction.refresh,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.refresh_rounded,
+                          size: 20,
+                          color: AppTheme.primaryNavy,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Refresh application',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.primaryNavy,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            Semantics(
-              button: true,
-              label: 'New assessment',
-              child: IconButton(
-                tooltip: 'New assessment',
-                icon: const Icon(Icons.restart_alt),
-                onPressed: () => _confirmNewAssessment(context, ref),
-              ),
-            ),
+            const SizedBox(width: 6),
           ],
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(28),
+            preferredSize: const Size.fromHeight(64),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const Text(
+                    'Clinical Assessment',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 17.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.primaryNavy,
+                      letterSpacing: -0.3,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
                   Text(
                     group == null
                         ? 'Assessment complete · $done of $total questions'
                         : '$done of $total questions answered '
                             '(more may appear)',
                     style: const TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryNavy,
+                      color: AppTheme.mutedText,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -260,6 +377,48 @@ class _QuestionPage extends ConsumerWidget {
                 ].join(' · ')}',
               ),
             ),
+          // PDF references for active conditions (Requirement 4)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                if (ctx.selected.contains(NeonatalCondition.respiratoryDistress))
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    ),
+                    onPressed: () => openStwPdf(
+                      context,
+                      assetPath: rdPdfAsset,
+                      title: rdPdfTitle,
+                    ),
+                    icon: const Icon(Icons.picture_as_pdf_outlined,
+                        size: 14, color: AppTheme.accentRd),
+                    label: const Text('Respiratory Distress STW PDF',
+                        style: TextStyle(fontSize: 11)),
+                  ),
+                if (ctx.selected.contains(NeonatalCondition.rop))
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    ),
+                    onPressed: () => openStwPdf(
+                      context,
+                      assetPath: ropPdfAsset,
+                      title: ropPdfTitle,
+                    ),
+                    icon: const Icon(Icons.picture_as_pdf_outlined,
+                        size: 14, color: AppTheme.accentRop),
+                    label: const Text('ROP STW PDF',
+                        style: TextStyle(fontSize: 11)),
+                  ),
+              ],
+            ),
+          ),
           for (final rq in questions)
             Padding(
               padding: const EdgeInsets.only(bottom: 14),
@@ -294,7 +453,49 @@ class _NoAssessment extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: const StwNeoBrand(subtitle: 'Clinical Assessment'),
+        toolbarHeight: 58,
+        titleSpacing: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppTheme.primaryNavy,
+          ),
+          tooltip: 'Back',
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/home'),
+        ),
+        title: Image.asset(
+          'assets/images/icmr_logo.png',
+          semanticLabel: 'ICMR Logo',
+          height: 44,
+          fit: BoxFit.contain,
+          alignment: Alignment.centerLeft,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+        ),
+        actions: const [
+          BackToHomeButton(iconOnly: true),
+          SizedBox(width: 8),
+        ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(34),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Clinical Assessment',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 17.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primaryNavy,
+                  letterSpacing: -0.3,
+                  height: 1.2,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
       body: Center(
         child: ConstrainedBox(
@@ -327,9 +528,9 @@ class _NoAssessment extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 FilledButton.icon(
-                  onPressed: () => context.go('/conditions'),
-                  icon: const Icon(Icons.checklist_rtl),
-                  label: const Text('Select conditions'),
+                  onPressed: () => context.go('/home'),
+                  icon: const Icon(Icons.home_rounded),
+                  label: const Text('Back to Home (Condition Selection)'),
                   style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
                 ),
               ],

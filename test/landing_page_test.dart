@@ -49,29 +49,29 @@ void main() {
         await tester.pumpAndSettle();
 
         // 2. Home Screen checks
-        expect(find.text('Neonatal Care Workflows'), findsOneWidget);
-
-        // Single workflow entry card
-        expect(find.text('Neonatal Care Workflows'), findsOneWidget);
-        expect(find.text('Get Started →'), findsOneWidget);
+        expect(
+          find.text('Triage: Based on history and clinical examination'),
+          findsOneWidget,
+        );
+        expect(find.text('Select any condition.'), findsOneWidget);
+        expect(find.textContaining('Selected:'), findsNothing);
+        expect(find.text('STW Respiratory Distress'), findsOneWidget);
 
         // Selecting Respiratory Distress opens the RD module
         await openStandaloneModule(tester, '/rd');
         expect(find.text('Signs of respiratory distress'), findsOneWidget);
 
-        // Verify no "Source PDF" in RD module
-        expect(find.text('Source PDF'), findsNothing);
-
         // Return to home
-        await tester.tap(find.byIcon(Icons.home_outlined));
+        await tester.tap(find.byIcon(Icons.home_rounded));
         await tester.pumpAndSettle();
 
         // Selecting ROP opens the ROP module
         await openStandaloneModule(tester, '/rop');
         expect(find.text('Step 1 of 5: Eligibility'), findsOneWidget);
 
-        // Verify no "Source PDF" in ROP module
-        expect(find.text('Source PDF'), findsNothing);
+        // Return to home
+        await tester.tap(find.byIcon(Icons.home_rounded));
+        await tester.pumpAndSettle();
 
         // Check for no overflow exceptions
         final overflowErrors = errors.where((e) =>
@@ -114,8 +114,8 @@ void main() {
           await tester.pumpAndSettle();
 
           // Home screen fits
-          expect(find.byType(SingleChildScrollView), findsNothing);
-          expect(find.text('Get Started →'), findsOneWidget);
+          expect(find.text('Triage: Based on history and clinical examination'), findsOneWidget);
+          expect(find.text('Select any condition.'), findsOneWidget);
           expect(find.text('Disclaimer'), findsOneWidget);
           expect(find.text('References'), findsOneWidget);
 
@@ -194,54 +194,29 @@ void main() {
     });
 
     testWidgets(
-        'Home layout adheres to hero sizing, card spacing, and button height rules',
+        'Home layout adheres to TRIGIN heading, condition cards, and button rules',
         (tester) async {
       await _pumpAppAt(tester, size: const Size(360, 640));
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
 
-      // 1. Hero image check
-      final heroImage = find.byWidgetPredicate((w) {
-        if (w is! Image) return false;
-        final img = w.image;
-        if (img is AssetImage) return img.assetName == 'assets/images/hu.png';
-        if (img is ResizeImage) {
-          final inner = img.imageProvider;
-          if (inner is AssetImage) {
-            return inner.assetName == 'assets/images/hu.png';
-          }
-        }
-        return false;
-      });
-      expect(heroImage, findsOneWidget);
-
-      // Hero has ClipRRect with 20px radius
-      final clipRRect = find.ancestor(
-        of: heroImage,
-        matching: find.byType(ClipRRect),
-      );
-      expect(clipRRect, findsOneWidget);
-      final clipWidget = tester.widget<ClipRRect>(clipRRect);
-      expect(clipWidget.borderRadius, BorderRadius.circular(20));
-
-      // Hero has ShaderMask for soft edge fade
-      final shaderMask = find.ancestor(
-        of: heroImage,
-        matching: find.byType(ShaderMask),
-      );
-      expect(shaderMask, findsOneWidget);
-
-      // 2. Button is at least 48 px (and 50 px on 360x640)
-      final getStartedButton =
-          find.widgetWithText(FilledButton, 'Get Started →');
-      expect(getStartedButton, findsOneWidget);
+      // 1. Heading check
       expect(
-        tester.getSize(getStartedButton).height,
-        greaterThanOrEqualTo(48.0),
+        find.text('Triage: Based on history and clinical examination'),
+        findsOneWidget,
       );
+      expect(find.text('Select any condition.'), findsOneWidget);
 
-      // 3. No Spacer in Home column
-      expect(find.byType(Spacer), findsNothing);
+      // 2. Selection counter and checkboxes present
+      expect(find.textContaining('Selected:'), findsNothing);
+      expect(find.byType(Checkbox), findsNWidgets(14));
+      expect(find.text('STW Respiratory Distress'), findsOneWidget);
+      expect(find.text('STW ROP'), findsOneWidget);
+      expect(find.text('Reference'), findsWidgets);
+
+      // 3. Status badges: 2 available, 12 awaiting STW
+      expect(find.text('Available'), findsNWidgets(2));
+      expect(find.text('Awaiting STW'), findsNWidgets(12));
     });
 
     testWidgets(
@@ -349,7 +324,7 @@ void main() {
       );
 
       // Return to Home
-      await tester.tap(find.byIcon(Icons.home_outlined));
+      await tester.tap(find.byIcon(Icons.home_rounded));
       await tester.pumpAndSettle();
 
       // Navigate to ROP module

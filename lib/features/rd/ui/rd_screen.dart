@@ -6,6 +6,7 @@ import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
+import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/radio_choice_group.dart';
@@ -60,17 +61,9 @@ class _RdScreenState extends ConsumerState<RdScreen>
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'Respiratory Distress'),
         actions: [
+          const BackToHomeButton(iconOnly: true),
           const AppRefreshButton(),
           const SizedBox(width: 4),
-          Semantics(
-            button: true,
-            label: 'Home overview',
-            child: IconButton(
-              tooltip: 'Home',
-              icon: const Icon(Icons.home_outlined),
-              onPressed: () => context.push('/home'),
-            ),
-          ),
           Semantics(
             button: true,
             label: 'Clear RD assessment',

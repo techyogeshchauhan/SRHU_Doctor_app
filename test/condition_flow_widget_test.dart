@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
+import 'package:neonatal_stw/core/widgets/back_to_home_button.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
-import 'package:neonatal_stw/features/condition_selection/ui/condition_selection_screen.dart';
 
 import 'test_helpers.dart';
 
@@ -16,180 +16,197 @@ Future<void> _pumpToSelection(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
   await tester.pumpAndSettle();
-  await tapVisible(tester, find.text('Continue'));
-  await tapVisible(tester, find.text('Get Started →'));
-}
-
-Future<void> _select(WidgetTester tester, List<String> titles) async {
-  for (final t in titles) {
-    await tapVisible(tester, find.widgetWithText(TopicSelectTile, t));
+  if (find.text('Continue').evaluate().isNotEmpty) {
+    await tapVisible(tester, find.text('Continue'));
   }
-  await tapVisible(tester, find.text('Continue'));
-}
-
-bool _checked(WidgetTester tester, String title) => tester
-    .widget<TopicSelectTile>(find.widgetWithText(TopicSelectTile, title))
-    .selected;
-
-FilledButton _button(WidgetTester tester, String label) => tester.widget(
-    find.ancestor(of: find.text(label), matching: find.byType(FilledButton)));
-
-Future<void> _continue(WidgetTester tester) =>
-    tapVisible(tester, find.text('Continue'));
-
-Future<void> _enter(WidgetTester tester, String label, String value) async {
-  final f = find.widgetWithText(TextField, label);
-  await tester.ensureVisible(f);
-  await tester.enterText(f, value);
-  await tester.pumpAndSettle();
 }
 
 void main() {
-  testWidgets('selection lists all 14 topics; Continue disabled at 0',
+  testWidgets(
+      'selection lists all 14 conditions uniformly with ROP and RD at top, live counter, 2 selectable and 12 disabled',
       (tester) async {
     await _pumpToSelection(tester);
-    expect(find.text('Available now'), findsOneWidget);
-    expect(find.text('Awaiting approved STW'), findsOneWidget);
-    // Each topic has its own checkbox.
-    expect(find.byType(Checkbox, skipOffstage: false), findsNWidgets(14));
-    expect(find.text('Selected: 0'), findsOneWidget);
-    expect(_button(tester, 'Continue').onPressed, isNull);
+
+    // 1. Header shows 'Based on ICMR / DHR Standard Treatment Workflows' below logo
+    expect(
+      find.text('Based on ICMR / DHR Standard Treatment Workflows'),
+      findsOneWidget,
+    );
+
+    // 2. Main Heading as specified
+    expect(
+      find.text('Triage: Based on history and clinical examination'),
+      findsOneWidget,
+    );
+    expect(find.text('Select any condition.'), findsOneWidget);
+
+    // 3. No bulky 'Selected' label or full text line
+    expect(find.textContaining('Selected:'), findsNothing);
+    // When nothing selected, count is hidden
+    expect(find.text('1'), findsNothing);
+    expect(find.text('2'), findsNothing);
+
+    // 4. Exactly 14 checkboxes for all 14 conditions in a single view
+    expect(find.byType(Checkbox), findsNWidgets(14));
+
+    // 5. Active conditions are at the top
+    final ropFinder = find.text('STW ROP');
+    final rdFinder = find.text('STW Respiratory Distress');
+    expect(ropFinder, findsOneWidget);
+    expect(rdFinder, findsOneWidget);
+
+    // 6. Uniform status badges: 2 available, 12 awaiting STW
+    expect(find.text('Available'), findsNWidgets(2));
+    expect(find.text('Awaiting STW'), findsNWidgets(12));
+
+    // Verify all 14 condition titles are present
     for (final d in conditionDefinitions) {
-      await tester.scrollUntilVisible(
-        find.widgetWithText(TopicSelectTile, d.title),
-        100,
-        scrollable: find.byType(Scrollable).first,
-      );
+      expect(find.text(d.title), findsOneWidget);
     }
-    await tapVisible(tester, find.widgetWithText(TopicSelectTile, 'Sepsis'));
-    expect(find.text('Selected: 1'), findsOneWidget);
-    expect(_button(tester, 'Continue').onPressed, isNotNull);
+
+    // 7. Inactive condition (e.g. Sepsis) cannot be selected
+    await tester.tap(find.text('STW Sepsis'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Selected:'), findsNothing);
+    expect(find.text('1'), findsNothing);
+
+    // 8. Active condition (Respiratory Distress) toggles selection -> count 1 appears in badge
+    await tapVisible(tester, find.text('STW Respiratory Distress'));
+    expect(find.textContaining('Selected:'), findsNothing);
+    expect(find.text('1'), findsOneWidget);
+
+    // 9. Active condition (ROP) toggles selection -> count 2 appears in badge
+    await tapVisible(tester, find.text('STW ROP'));
+    expect(find.textContaining('Selected:'), findsNothing);
+    expect(find.text('2'), findsOneWidget);
+
+    // 10. Toggling ROP again deselects it -> count 1
+    await tapVisible(tester, find.text('STW ROP'));
+    expect(find.textContaining('Selected:'), findsNothing);
+    expect(find.text('1'), findsOneWidget);
   });
 
-  testWidgets('RD + ROP: shared GA asked once, both pathways in one summary',
+  testWidgets(
+      'Condition Selection -> Next Page displays only the selected condition (e.g. RD only) with single-line card and Reference button',
       (tester) async {
     await _pumpToSelection(tester);
-    await _select(tester, ['Respiratory Distress', 'ROP']);
 
-    // Shared baby details first, asked once for both workflows.
-    expect(find.text('Baby details'), findsOneWidget);
+    // Select only Respiratory Distress
+    await tapVisible(tester, find.text('STW Respiratory Distress'));
+    expect(find.text('1'), findsOneWidget);
+
+    // Tap Continue to proceed to next page
+    await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+
+    // Next page header keeps ONLY the ICMR logo (no 'Based on ICMR / DHR...' text)
     expect(
-        find.text('Answered once and used by: Respiratory Distress · ROP'),
-        findsOneWidget);
-    await tapVisible(tester, find.text('GA known'));
-    expect(
-        find.widgetWithText(TextField, 'Gestational age (completed weeks) *'),
-        findsOneWidget);
-    expect(_button(tester, 'Continue').onPressed, isNull);
-    await _enter(tester, 'Gestational age (completed weeks) *', '32');
-    await _enter(tester, 'Birth weight', '1600');
+      find.textContaining('Based on ICMR / DHR Standard Treatment Workflow'),
+      findsNothing,
+    );
 
-    // GA 32 makes the baby ROP-eligible, so DOB appears on the same page.
-    expect(find.text('Date of birth *'), findsOneWidget);
-    await tapVisible(
-        tester,
-        find.ancestor(
-          of: find.text('Date of birth *'),
-          matching: find.byType(InputDecorator),
-        ));
-    await tapVisible(tester, find.text('OK'));
-    await _continue(tester);
+    // Next page displays ONLY Respiratory Distress
+    expect(find.text('Available Clinical Workflows'), findsOneWidget);
+    expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
+    expect(find.text('Retinopathy of Prematurity'), findsNothing);
+    expect(find.text('Combined Assessment (RD + ROP)'), findsNothing);
+    expect(find.text('Reference'), findsOneWidget);
 
-    // RD pathway.
-    expect(find.text('Signs of respiratory distress'), findsOneWidget);
-    await tapVisible(tester, find.text('Grunting'));
-    await _continue(tester);
-    expect(find.text('Silverman-Andersen Score'), findsOneWidget);
-    for (final label in [
-      '1 · Lag on inspiration',
-      '1 · Minimal',
-      '1 · Heard with stethoscope',
-    ]) {
-      await tapVisible(tester, find.text(label));
-    }
-    await tapVisible(tester, find.text('1 · Just visible').first);
-    await tapVisible(tester, find.text('1 · Just visible').last);
-    await _continue(tester);
-    expect(find.text('Other findings'), findsOneWidget);
-    await _continue(tester);
-    await tapVisible(tester, find.text('Not now — initial assessment only'));
-    await _continue(tester);
-
-    // ROP pathway (eligible): GA is not asked again.
-    expect(find.text('Screening timing'), findsOneWidget);
-    expect(find.text('Baby details'), findsNothing);
-    await tapVisible(tester, find.text('Yes'));
-    await _continue(tester);
-    await tapVisible(tester, find.text('Not yet'));
-    await _continue(tester);
-    expect(find.text('Next ROP examination'), findsOneWidget);
-    await _continue(tester);
-
-    // Combined summary.
-    expect(find.text('Clinical Assessment Summary'), findsOneWidget);
-    // Baby details card and the ROP discharge card both show it.
-    expect(find.textContaining('GA 32+0 wk · BW 1600 g', skipOffstage: false),
-        findsNWidgets(2));
-    for (final title in [
-      'Respiratory distress criteria met',
-      'START CPAP',
-      'Moderate–severe RD (SAS 5)',
-      'Screening eligible — SCREEN FOR ROP',
-    ]) {
-      expect(find.text(title, skipOffstage: false), findsOneWidget,
-          reason: title);
-    }
-    expect(
-        find.text('Selected for assessment — not diagnoses'), findsOneWidget);
+    // Tapping Reference button directly opens Respiratory Distress PDF
+    await tapVisible(tester, find.text('Reference'));
+    expect(find.text('Respiratory Distress in Neonates'), findsWidgets);
+    expect(find.byType(BackToHomeButton), findsOneWidget);
   });
 
-  testWidgets('Back keeps the selection; removing ROP removes its questions',
+  testWidgets(
+      'Condition Selection with both conditions displays both, each with its own Reference button',
       (tester) async {
     await _pumpToSelection(tester);
-    await _select(tester, ['Respiratory Distress', 'ROP']);
-    expect(find.text('Baby details'), findsOneWidget);
 
-    // Back on the first page returns to selection, ticks intact.
-    await tapVisible(tester, find.text('Back'));
-    expect(find.text('Selected: 2'), findsOneWidget);
-    expect(_checked(tester, 'Respiratory Distress'), isTrue);
-    expect(_checked(tester, 'ROP'), isTrue);
+    // Select both Respiratory Distress and ROP
+    await tapVisible(tester, find.text('STW Respiratory Distress'));
+    await tapVisible(tester, find.text('STW ROP'));
+    expect(find.text('2'), findsOneWidget);
 
-    await tapVisible(tester, find.widgetWithText(TopicSelectTile, 'ROP'));
-    await _continue(tester);
-    // RD alone starts with its own criteria; GA only if RD is present.
-    expect(find.text('Signs of respiratory distress'), findsOneWidget);
-    expect(find.text('Baby details'), findsNothing);
+    // Tap Continue to proceed to next page
+    await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
 
-    // No signs → criteria not met; nothing else is asked.
-    await _continue(tester);
-    expect(find.text('Clinical Assessment Summary'), findsOneWidget);
-    expect(find.text('Respiratory distress criteria not met'), findsOneWidget);
-    expect(find.text('ROP'), findsNothing);
+    // Next page displays both conditions properly without Combined Assessment
+    expect(find.text('Available Clinical Workflows'), findsOneWidget);
+    expect(find.text('Retinopathy of Prematurity'), findsOneWidget);
+    expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
+    expect(find.text('Combined Assessment (RD + ROP)'), findsNothing);
+    expect(find.text('Reference'), findsNWidgets(2));
 
-    // Back from the summary returns to the last page.
-    await tapVisible(tester, find.text('Back'));
-    expect(find.text('Signs of respiratory distress'), findsOneWidget);
+    // Tap ROP Reference button (first Reference button) opens ROP PDF
+    await tapVisible(tester, find.text('Reference').first);
+    expect(find.text('Retinopathy of Prematurity (ROP)'), findsWidgets);
+    expect(find.byType(BackToHomeButton), findsOneWidget);
   });
 
-  testWidgets('pending topic: no questions, placeholder in summary',
+  testWidgets(
+      'Back to Home button navigates back to 14 conditions screen from Disease Selection',
       (tester) async {
     await _pumpToSelection(tester);
-    await _select(tester, ['Hypoglycemia']);
-    expect(find.text('Clinical Assessment Summary'), findsOneWidget);
-    expect(find.text(pendingStwMessage), findsOneWidget);
-    expect(find.text('Coming soon'), findsWidgets);
+
+    // Select a condition and navigate to disease selection
+    await tapVisible(tester, find.text('STW Respiratory Distress'));
+    await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+    expect(find.text('Available Clinical Workflows'), findsOneWidget);
+
+    // Tap "Back to Home"
+    expect(find.byType(BackToHomeButton), findsWidgets);
+    await tapVisible(tester, find.byType(BackToHomeButton).first);
+
+    // Back to main condition selection list with selection intact
+    expect(
+      find.text('Triage: Based on history and clinical examination'),
+      findsOneWidget,
+    );
+    expect(find.text('1'), findsOneWidget);
+    expect(find.textContaining('Selected:'), findsNothing);
   });
 
-  testWidgets('question pages fit a 320x568 phone', (tester) async {
-    await _pumpToSelection(tester, size: const Size(320, 568));
-    await _select(tester, ['Respiratory Distress']);
-    await tapVisible(tester, find.text('Nasal flaring'));
-    await _continue(tester);
-    expect(find.text('Baby details'), findsOneWidget);
-    await tapVisible(tester, find.text('GA uncertain'));
-    await _enter(tester, 'Birth weight *', '1500');
-    await _continue(tester);
-    expect(find.text('Silverman-Andersen Score'), findsOneWidget);
+  testWidgets(
+      'Clicking a selectable disease card starts screening process with Back to Home button',
+      (tester) async {
+    await _pumpToSelection(tester);
+
+    // Select RD and navigate to disease selection
+    await tapVisible(tester, find.text('STW Respiratory Distress'));
+    await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+
+    // Click Respiratory Distress card
+    await tapVisible(tester, find.text('Respiratory Distress in Neonates'));
+
+    // Screening process starts per existing workflow
+    expect(find.text('Signs of respiratory distress'), findsOneWidget);
+    expect(find.byType(BackToHomeButton), findsOneWidget);
+
+    // Tap Back to Home returns to main condition selection
+    await tapVisible(tester, find.byType(BackToHomeButton));
+    expect(
+      find.text('Triage: Based on history and clinical examination'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+      'PDF Reference button on condition tile opens PDF viewer with Back to Home',
+      (tester) async {
+    await _pumpToSelection(tester);
+
+    // Tap Reference button for ROP (first active condition at top)
+    await tapVisible(tester, find.text('Reference').first);
+
+    // Opens PDF viewer screen
+    expect(find.text('Retinopathy of Prematurity (ROP)'), findsWidgets);
+    expect(find.byType(BackToHomeButton), findsOneWidget);
+
+    // Back to Home button returns to condition selection
+    await tapVisible(tester, find.byType(BackToHomeButton));
+    expect(
+      find.text('Triage: Based on history and clinical examination'),
+      findsOneWidget,
+    );
   });
 }

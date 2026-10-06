@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/widgets/layout.dart';
+import '../../../shared/pdf_navigation.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../domain/clinical_finding.dart';
 import '../domain/combined_summary.dart';
@@ -31,6 +33,10 @@ class FindingCard extends StatelessWidget {
         .textTheme
         .bodySmall
         ?.copyWith(color: const Color(0xFF475569));
+    final isRd = f.source.document.toLowerCase().contains('respiratory');
+    final isRop = f.source.document.toLowerCase().contains('retinopathy') ||
+        f.source.document.toLowerCase().contains('rop');
+
     return ResultCard(
       tone: toneFor(f.level),
       badge: f.category.label,
@@ -40,7 +46,47 @@ class FindingCard extends StatelessWidget {
       footer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Source: ${f.source.citation}', style: small),
+          Row(
+            children: [
+              Expanded(
+                child: Text('Source: ${f.source.citation}', style: small),
+              ),
+              if (isRd || isRop)
+                InkWell(
+                  onTap: () {
+                    openStwPdf(
+                      context,
+                      assetPath: isRd ? rdPdfAsset : ropPdfAsset,
+                      title: isRd ? rdPdfTitle : ropPdfTitle,
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(4),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.picture_as_pdf_outlined,
+                          size: 13,
+                          color: AppTheme.primaryBlue,
+                        ),
+                        SizedBox(width: 3),
+                        Text(
+                          'View PDF',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.primaryBlue,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
           if (f.source.needsClinicalReview)
             Text(
               'Requires clinical review: ${f.source.note ?? 'app reading of '
@@ -195,6 +241,23 @@ class AssessmentSummaryView extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => context.go('/home'),
+            icon: const Icon(Icons.home_rounded, size: 18),
+            label: const Text('Back to Home (Condition Selection)'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.primaryNavy,
+              minimumSize: const Size(0, 48),
+              side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
         ),
       ],
     );

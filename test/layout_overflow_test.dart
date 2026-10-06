@@ -44,9 +44,11 @@ void main() {
       await _tap(tester, find.text('Continue'));
 
       // 2. Home Screen
-      expect(find.text('Neonatal Care Workflows'), findsOneWidget);
-      expect(find.text('Neonatal Care Workflows'), findsOneWidget);
-      expect(find.text('Get Started →'), findsOneWidget);
+      expect(
+        find.text('Triage: Based on history and clinical examination'),
+        findsOneWidget,
+      );
+      expect(find.text('Select any condition.'), findsOneWidget);
 
       // RD launch via condition selection
       await openStandaloneModule(tester, '/rd');
@@ -64,8 +66,11 @@ void main() {
       expect(find.text('DOs'), findsOneWidget);
 
       // Return to home screen via Home icon
-      await _tap(tester, find.byIcon(Icons.home_outlined));
-      expect(find.text('Neonatal Care Workflows'), findsOneWidget);
+      await _tap(tester, find.byIcon(Icons.home_rounded));
+      expect(
+        find.text('Triage: Based on history and clinical examination'),
+        findsOneWidget,
+      );
 
       // ROP launch via condition selection
       await openStandaloneModule(tester, '/rop');
@@ -90,8 +95,11 @@ void main() {
       expect(find.text('Step 4 of 5: Findings'), findsOneWidget);
 
       // Return to home screen via Home icon
-      await _tap(tester, find.byIcon(Icons.home_outlined));
-      expect(find.text('Neonatal Care Workflows'), findsOneWidget);
+      await _tap(tester, find.byIcon(Icons.home_rounded));
+      expect(
+        find.text('Triage: Based on history and clinical examination'),
+        findsOneWidget,
+      );
     });
   }
 }

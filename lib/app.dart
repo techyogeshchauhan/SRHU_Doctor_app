@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'core/theme.dart';
 import 'core/widgets/responsive.dart';
 import 'features/clinical_workflow/ui/workflow_screen.dart';
+import 'features/condition_selection/domain/neonatal_condition.dart';
 import 'features/condition_selection/ui/condition_selection_screen.dart';
+import 'features/disease_selection/ui/disease_selection_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/landing/ui/landing_screen.dart';
 import 'features/rd/ui/rd_screen.dart';
@@ -23,7 +25,7 @@ GoRouter buildRouter() => GoRouter(
           path: '/home',
           pageBuilder: (context, state) => CustomTransitionPage(
             key: state.pageKey,
-            child: const HomeScreen(),
+            child: const ConditionSelectionScreen(),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return FadeTransition(
@@ -43,6 +45,17 @@ GoRouter buildRouter() => GoRouter(
         GoRoute(
           path: '/conditions',
           builder: (_, __) => const ConditionSelectionScreen(),
+        ),
+        GoRoute(
+          path: '/disease-selection',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final initialCondition =
+                extra?['condition'] as NeonatalCondition?;
+            return DiseaseSelectionScreen(
+              initialCondition: initialCondition,
+            );
+          },
         ),
         GoRoute(path: '/workflow', builder: (_, __) => const WorkflowScreen()),
         GoRoute(path: '/rd', builder: (_, __) => const RdScreen()),
@@ -94,7 +107,7 @@ class _NeonatalStwAppState extends State<NeonatalStwApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'STW Neo',
+      title: 'STWNeo',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       themeMode: ThemeMode.light,

@@ -18,20 +18,20 @@ void main() {
 
   test('display names are exact and in order', () {
     expect(conditionDefinitions.map((d) => d.title).toList(), [
-      'Triage',
-      'Thermal Care',
-      'KMC',
-      'Fluids & Feeds',
-      'Respiratory Distress',
-      'ANCS',
-      'Sepsis',
-      'Hypoglycemia',
-      'Jaundice',
-      'Seizures',
-      'HIE',
-      'Transport',
-      'ROP',
-      'Discharge & Follow-up',
+      'STW Triage',
+      'STW Thermal Care',
+      'STW KMC',
+      'STW Fluids & Feeds',
+      'STW Respiratory Distress',
+      'STW ANCS',
+      'STW Sepsis',
+      'STW Hypoglycemia',
+      'STW Jaundice',
+      'STW Seizures',
+      'STW HIE',
+      'STW Transport',
+      'STW ROP',
+      'STW Discharge & Follow up',
     ]);
   });
 
@@ -53,6 +53,6 @@ void main() {
   });
 
   test('definitionOf looks up by id', () {
-    expect(definitionOf(NeonatalCondition.hie).title, 'HIE');
+    expect(definitionOf(NeonatalCondition.hie).title, 'STW HIE');
   });
 }

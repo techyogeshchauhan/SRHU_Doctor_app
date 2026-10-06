@@ -34,10 +34,12 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
 }
 
 void main() {
-  testWidgets('home shows the workflow entry card', (tester) async {
+  testWidgets('home shows the condition selection list with TRIGIN heading', (tester) async {
     await _pumpApp(tester);
-    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
-    expect(find.text('Get Started →'), findsOneWidget);
+    expect(find.text('Triage: Based on history and clinical examination'), findsOneWidget);
+    expect(find.text('Select any condition.'), findsOneWidget);
+    expect(find.text('STW Respiratory Distress'), findsOneWidget);
+    expect(find.text('STW ROP'), findsOneWidget);
   });
 
   testWidgets('RD: GA 30 + grunting → START CPAP + caffeine in the bar',
@@ -155,8 +157,8 @@ void main() {
 
     // Tap Continue to navigate to Home
     await _tap(tester, find.text('Continue'));
-    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
-    expect(find.text('Get Started →'), findsOneWidget);
+    expect(find.text('Triage: Based on history and clinical examination'), findsOneWidget);
+    expect(find.text('Select any condition.'), findsOneWidget);
 
     // Open RD via condition selection
     await openStandaloneModule(tester, '/rd');
@@ -167,8 +169,8 @@ void main() {
     expect(find.text('Current support & oxygenation'), findsOneWidget);
 
     // Open Home via Home icon in RD screen
-    await _tap(tester, find.byIcon(Icons.home_outlined));
-    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
+    await _tap(tester, find.byIcon(Icons.home_rounded));
+    expect(find.text('Triage: Based on history and clinical examination'), findsOneWidget);
   });
 
   testWidgets('renders at 412x915 standard phone without overflow', (tester) async {
@@ -177,11 +179,11 @@ void main() {
     expect(find.text('Continue'), findsOneWidget);
 
     await _tap(tester, find.text('Continue'));
-    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
-    expect(find.text('Get Started →'), findsOneWidget);
+    expect(find.text('Triage: Based on history and clinical examination'), findsOneWidget);
+    expect(find.text('Select any condition.'), findsOneWidget);
     await openStandaloneModule(tester, '/rd');
     expect(find.text('Signs of respiratory distress'), findsOneWidget);
-    await _tap(tester, find.byIcon(Icons.home_outlined));
-    expect(find.text('Neonatal Care Workflows'), findsOneWidget);
+    await _tap(tester, find.byIcon(Icons.home_rounded));
+    expect(find.text('Triage: Based on history and clinical examination'), findsOneWidget);
   });
 }

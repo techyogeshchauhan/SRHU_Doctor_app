@@ -21,6 +21,7 @@ Future<void> tapVisible(WidgetTester tester, Finder f) async {
 /// these screens are no longer linked from the UI; their routes still exist
 /// and their behaviour is tested here.
 Future<void> openStandaloneModule(WidgetTester tester, String route) async {
-  GoRouter.of(tester.element(find.byType(HomeScreen))).push(route);
+  final element = tester.element(find.byType(Navigator).first);
+  GoRouter.of(element).push(route);
   await tester.pumpAndSettle();
 }

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
-import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/responsive.dart';
-import '../../clinical_workflow/state/assessment_controller.dart';
+import '../../../shared/pdf_navigation.dart';
 import '../domain/neonatal_condition.dart';
 import '../state/condition_selection_controller.dart';
 
-/// Icon per topic (display only).
+/// Topic icons mapping for all 14 conditions.
 const _topicIcons = <NeonatalCondition, IconData>{
   NeonatalCondition.triage: Icons.low_priority_rounded,
   NeonatalCondition.thermalCare: Icons.thermostat_rounded,
@@ -29,116 +29,217 @@ const _topicIcons = <NeonatalCondition, IconData>{
   NeonatalCondition.dischargeAndFollowUp: Icons.event_available_outlined,
 };
 
+/// The main condition-selection screen displayed after the landing page.
+///
+/// Features:
+/// - Main Heading: “TRIGIN — Based on history and clinical examination.”
+///   Subtitle: "Select any condition."
+/// - Single unified view displaying all 14 conditions in the exact same format.
+/// - Checkboxes for conditions:
+///   - 2 available conditions (Respiratory Distress and ROP) have active checkboxes
+///     and can be selected.
+///   - 12 inactive conditions look normal as well, but their checkboxes are disabled
+///     and they are not selectable.
+/// - Live selection counter showing how many conditions have been selected.
+/// - Continue button to proceed to the next page (/disease-selection) with the selected conditions.
+/// - Direct PDF reference button for the active conditions.
 class ConditionSelectionScreen extends ConsumerWidget {
   const ConditionSelectionScreen({super.key});
+
+  void _showDisclaimerSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppTheme.dividerColor,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.shield_outlined,
+                        color: AppTheme.primaryBlue,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'STW Advisory Disclaimer',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryNavy,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, size: 20),
+                        onPressed: () => Navigator.of(ctx).pop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    stwDisclaimer,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 13,
+                      height: 1.5,
+                      color: AppTheme.bodyText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(conditionSelectionProvider);
-    final n = ref.read(conditionSelectionProvider.notifier);
-    final text = Theme.of(context).textTheme;
-    final available = [
+    final selectionNotifier = ref.read(conditionSelectionProvider.notifier);
+
+    final orderedConditions = [
+      definitionOf(NeonatalCondition.rop),
+      definitionOf(NeonatalCondition.respiratoryDistress),
       for (final d in conditionDefinitions)
-        if (d.implemented) d,
-    ];
-    final pending = [
-      for (final d in conditionDefinitions)
-        if (!d.implemented) d,
+        if (d.id != NeonatalCondition.rop &&
+            d.id != NeonatalCondition.respiratoryDistress)
+          d,
     ];
 
+    void onProceedToNextPage() {
+      if (selected.isEmpty) return;
+      context.push('/disease-selection');
+    }
+
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const StwNeoBrand(subtitle: 'Select Conditions'),
+        toolbarHeight: 56,
+        titleSpacing: 16,
+        title: Image.asset(
+          'assets/images/icmr_logo.png',
+          semanticLabel: 'ICMR Logo',
+          height: 42,
+          fit: BoxFit.contain,
+          alignment: Alignment.centerLeft,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+        ),
         actions: const [
           AppRefreshButton(),
           SizedBox(width: 8),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(32),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF1F5F9),
+              border: Border(
+                top: BorderSide(color: Color(0xFFE2E8F0), width: 0.8),
+                bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.8),
+              ),
+            ),
+            child: const Text(
+              'Based on ICMR / DHR Standard Treatment Workflows',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryNavy,
+                height: 1.25,
+              ),
+            ),
+          ),
+        ),
       ),
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 820),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            children: [
-              Text(
-                'Select Conditions',
-                style: text.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryNavy,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Select one or more conditions/topics to continue.',
-                style: text.bodyMedium?.copyWith(color: AppTheme.mutedText),
-              ),
-              const SizedBox(height: 16),
-              _SectionHeader(
-                title: 'Available now',
-                count: available.length,
-                tone: Tone.success,
-              ),
-              const SizedBox(height: 8),
-              for (final d in available)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: TopicSelectTile(
-                    definition: d,
-                    selected: selected.contains(d.id),
-                    onToggle: () => n.toggle(d.id),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 1. Main Heading as specified by the user
+                const Text(
+                  'Triage: Based on history and clinical examination',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 18.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primaryNavy,
+                    letterSpacing: -0.3,
+                    height: 1.25,
                   ),
                 ),
-              const SizedBox(height: 10),
-              _SectionHeader(
-                title: 'Awaiting approved STW',
-                count: pending.length,
-                tone: Tone.info,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Selectable. Shows a placeholder until the approved STW is '
-                'added — no clinical questions or recommendations.',
-                style: text.bodySmall?.copyWith(color: AppTheme.mutedText),
-              ),
-              const SizedBox(height: 10),
-              LayoutBuilder(
-                builder: (context, c) {
-                  final columns = c.maxWidth >= 560 ? 3 : 2;
-                  return Column(
-                    children: [
-                      for (var i = 0; i < pending.length; i += columns)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                for (var j = i; j < i + columns; j++) ...[
-                                  if (j > i) const SizedBox(width: 8),
-                                  Expanded(
-                                    child: j < pending.length
-                                        ? TopicSelectTile(
-                                            definition: pending[j],
-                                            compact: true,
-                                            selected: selected
-                                                .contains(pending[j].id),
-                                            onToggle: () =>
-                                                n.toggle(pending[j].id),
-                                          )
-                                        : const SizedBox.shrink(),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              ),
-              const DisclaimerFooter(),
-            ],
+                const SizedBox(height: 6),
+                const Text(
+                  'Select any condition.',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryBlue,
+                    letterSpacing: -0.1,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 2. Single view of all 14 conditions with active ones at top (ROP, then RD)
+                for (final d in orderedConditions) ...[
+                  _ConditionTile(
+                    definition: d,
+                    isSelected: selected.contains(d.id),
+                    onToggle: d.implemented
+                        ? () => selectionNotifier.toggle(d.id)
+                        : null,
+                    onViewPdf: d.implemented
+                        ? () {
+                            final isRd =
+                                d.id == NeonatalCondition.respiratoryDistress;
+                            openStwPdf(
+                              context,
+                              assetPath: isRd ? rdPdfAsset : ropPdfAsset,
+                              title: isRd ? rdPdfTitle : ropPdfTitle,
+                            );
+                          }
+                        : null,
+                  ),
+                  const SizedBox(height: 10),
+                ],
+
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
@@ -149,46 +250,119 @@ class ConditionSelectionScreen extends ConsumerWidget {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: MaxWidth(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Kept in the fixed bar so the count stays visible while
-                  // scrolling the list.
-                  Row(
+                  Semantics(
+                    button: true,
+                    label: selected.isNotEmpty
+                        ? 'Continue with ${selected.length} conditions selected'
+                        : 'Continue',
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.primaryBlue,
+                        disabledBackgroundColor: const Color(0xFFE2E8F0),
+                        disabledForegroundColor: const Color(0xFF94A3B8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: selected.isNotEmpty ? onProceedToNextPage : null,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          if (selected.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 7,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '${selected.length}',
+                                style: const TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.primaryBlue,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward_rounded, size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
                     children: [
-                      Expanded(
-                        child: Text(
-                          'Selected: ${selected.length}',
-                          style: text.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.primaryNavy,
+                      Semantics(
+                        button: true,
+                        label: 'Read STW disclaimer',
+                        child: InkWell(
+                          onTap: () => _showDisclaimerSheet(context),
+                          borderRadius: BorderRadius.circular(4),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            child: Text(
+                              'Disclaimer',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primaryBlue,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                      TextButton.icon(
-                        onPressed: selected.isEmpty ? null : n.clear,
-                        icon: const Icon(Icons.clear_all),
-                        label: const Text('Clear all'),
+                      const Text(' • ', style: TextStyle(color: Color(0xFF94A3B8))),
+                      Semantics(
+                        button: true,
+                        label: 'Open STW references and original PDFs',
+                        child: InkWell(
+                          onTap: () => context.push('/references'),
+                          borderRadius: BorderRadius.circular(4),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            child: Text(
+                              'References',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primaryBlue,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 2),
-                  FilledButton.icon(
-                    onPressed: selected.isEmpty
-                        ? null
-                        : () {
-                            ref
-                                .read(assessmentProvider.notifier)
-                                .start(selected);
-                            context.push('/workflow');
-                          },
-                    icon: const Icon(Icons.arrow_forward, size: 18),
-                    label: const Text('Continue'),
-                    style:
-                        FilledButton.styleFrom(minimumSize: const Size(0, 48)),
                   ),
                 ],
               ),
@@ -200,179 +374,213 @@ class ConditionSelectionScreen extends ConsumerWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({
-    required this.title,
-    required this.count,
-    required this.tone,
-  });
-
-  final String title;
-  final int count;
-  final Tone tone;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Flexible(
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryNavy,
-                ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-          decoration: BoxDecoration(
-            color: tone.background(),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            '$count',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: tone.foreground(),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// A selectable topic with a checkbox. Full card for available topics,
-/// compact tile for topics awaiting their STW.
-class TopicSelectTile extends StatelessWidget {
-  const TopicSelectTile({
-    super.key,
+/// Single uniform condition tile for all 14 conditions.
+///
+/// Available conditions are selectable with active checkboxes and PDF reference.
+/// Inactive conditions look normal as well, but their checkboxes are disabled
+/// and they cannot be selected.
+class _ConditionTile extends StatelessWidget {
+  const _ConditionTile({
     required this.definition,
-    required this.selected,
+    required this.isSelected,
     required this.onToggle,
-    this.compact = false,
+    this.onViewPdf,
   });
 
   final ConditionDefinition definition;
-  final bool selected;
-  final VoidCallback onToggle;
-  final bool compact;
+  final bool isSelected;
+  final VoidCallback? onToggle;
+  final VoidCallback? onViewPdf;
 
   @override
   Widget build(BuildContext context) {
     final d = definition;
-    final accent = compact ? AppTheme.midBlue : AppTheme.primaryBlue;
-    final checkbox = Checkbox(
-      value: selected,
-      onChanged: (_) => onToggle(),
-      visualDensity: compact
-          ? const VisualDensity(horizontal: -4, vertical: -4)
-          : VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
+    final isAvailable = d.implemented;
+    final icon = _topicIcons[d.id] ?? Icons.medical_services_outlined;
 
-    final content = compact
-        ? Row(
+    final content = Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: isAvailable ? onToggle : null,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.tint : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected
+                  ? AppTheme.primaryBlue
+                  : const Color(0xFFE2E8F0),
+              width: isSelected ? 1.8 : 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isSelected
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.08)
+                    : const Color(0x06000000),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              checkbox,
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  d.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: selected
-                        ? AppTheme.primaryNavy
-                        : const Color(0xFF334155),
-                    height: 1.2,
+              // 1. Checkbox for the condition
+              Semantics(
+                label:
+                    '${d.title} ${isAvailable ? (isSelected ? "selected" : "not selected") : "not selectable"}',
+                child: Checkbox(
+                  value: isSelected,
+                  onChanged: isAvailable && onToggle != null
+                      ? (_) => onToggle!()
+                      : null,
+                  activeColor: AppTheme.primaryBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
-            ],
-          )
-        : Row(
-            children: [
+              const SizedBox(width: 8),
+
+              // 2. Condition Icon
               Container(
-                width: 42,
-                height: 42,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(12),
+                  color: isAvailable
+                      ? AppTheme.tint
+                      : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
-                  _topicIcons[d.id] ?? Icons.medical_information_outlined,
-                  color: accent,
-                  size: 22,
+                  icon,
+                  size: 21,
+                  color: isAvailable
+                      ? AppTheme.primaryBlue
+                      : const Color(0xFF64748B),
                 ),
               ),
               const SizedBox(width: 12),
+
+              // 3. Condition Details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      d.title,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 15.5,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryNavy,
-                        height: 1.2,
-                      ),
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        Text(
+                          d.title,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                            color: isAvailable
+                                ? AppTheme.primaryNavy
+                                : const Color(0xFF334155),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isAvailable
+                                ? const Color(0xFFDCFCE7)
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            isAvailable ? 'Available' : 'Awaiting STW',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: isAvailable
+                                  ? const Color(0xFF166534)
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     if (d.description != null) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         d.description!,
+                        softWrap: true,
                         style: const TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 12,
                           color: AppTheme.mutedText,
-                          height: 1.3,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                    // Compact Reference button placed near the bottom of card content
+                    if (isAvailable && onViewPdf != null) ...[
+                      const SizedBox(height: 8),
+                      Semantics(
+                        button: true,
+                        label: 'View source PDF reference for ${d.title}',
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.primaryBlue,
+                            backgroundColor: const Color(0xFFF8FAFC),
+                            side: const BorderSide(
+                              color: Color(0xFFCBD5E1),
+                              width: 1,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            minimumSize: const Size(0, 30),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          onPressed: onViewPdf,
+                          icon: const Icon(
+                            Icons.description_outlined,
+                            size: 13,
+                            color: AppTheme.primaryBlue,
+                          ),
+                          label: const Text(
+                            'Reference',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ],
                 ),
               ),
-              const SizedBox(width: 4),
-              checkbox,
             ],
-          );
-
-    return Semantics(
-      checked: selected,
-      label: '${d.title}, ${d.status.label}',
-      excludeSemantics: true,
-      child: Material(
-        color: selected ? AppTheme.tint : Colors.white,
-        borderRadius: BorderRadius.circular(compact ? 12 : 14),
-        child: InkWell(
-          onTap: onToggle,
-          borderRadius: BorderRadius.circular(compact ? 12 : 14),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: compact
-                ? const EdgeInsets.fromLTRB(6, 10, 8, 10)
-                : const EdgeInsets.fromLTRB(12, 12, 8, 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(compact ? 12 : 14),
-              border: Border.all(
-                color: selected ? accent : AppTheme.dividerColor,
-                width: selected ? 1.6 : 1,
-              ),
-            ),
-            child: content,
           ),
         ),
       ),
     );
+
+    if (!isAvailable) {
+      return Opacity(
+        opacity: 0.55,
+        child: content,
+      );
+    }
+    return content;
   }
 }

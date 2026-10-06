@@ -1,7 +1,7 @@
 {
     "id": "./",
-    "name": "STW Neo",
-    "short_name": "STW Neo",
+    "name": "STWNeo",
+    "short_name": "STWNeo",
     "description": "Bedside decision support for the ICMR/DHR Standard Treatment Workflows on Respiratory Distress in Neonates and Retinopathy of Prematurity.",
     "lang": "en-IN",
     "start_url": "./",

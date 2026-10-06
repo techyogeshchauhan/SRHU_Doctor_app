@@ -74,7 +74,7 @@ void main() {
   test('combined summary lists both topics and avoids diagnosis wording', () {
     final w = walk({rd, rop, sepsis}, answers);
     final s = CombinedAssessmentSummary.from(w.ctx);
-    expect(s.selectedTitles, ['Respiratory Distress', 'Sepsis', 'ROP']);
+    expect(s.selectedTitles, ['STW Respiratory Distress', 'STW Sepsis', 'STW ROP']);
     expect(s.topics.map((t) => t.available), [true, false, true]);
     final text = s.toPlainText();
     expect(text, contains('Baby: GA 32+0 wk · BW 1600 g'));

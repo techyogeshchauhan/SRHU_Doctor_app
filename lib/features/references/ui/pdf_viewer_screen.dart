@@ -1,4 +1,4 @@
-import 'dart:io' show File;
+import 'dart:io' show File, Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
+import '../../../core/widgets/back_to_home_button.dart';
 
 /// Full-screen in-app PDF viewer for the ICMR/DHR STW documents.
 ///
@@ -52,6 +53,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
 
   void _initController() {
     if (widget.customViewerBuilder != null) return;
+    if (!kIsWeb && Platform.isWindows) return;
     setState(() {
       _errorMessage = null;
     });
@@ -141,6 +143,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       appBar: AppBar(
         title: StwNeoBrand(subtitle: widget.title),
         actions: [
+          const BackToHomeButton(compact: true),
           const AppRefreshButton(),
           const SizedBox(width: 4),
           Semantics(
@@ -167,6 +170,51 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   }
 
   Widget _buildPdfViewer() {
+    if (!kIsWeb && Platform.isWindows) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.picture_as_pdf_rounded,
+                size: 56,
+                color: AppTheme.accentRd,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                widget.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primaryNavy,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'ICMR / DHR Standard Treatment Workflow',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 13,
+                  color: AppTheme.mutedText,
+                ),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: _shareOrOpenExternally,
+                icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                label: const Text('Open / Share Document'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (_errorMessage != null) {
       return _buildErrorState(_errorMessage!);
     }

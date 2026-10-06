@@ -9,6 +9,7 @@ import '../../content/stw_content.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/app_branding.dart';
 import '../../core/widgets/app_refresh_button.dart';
+import '../../core/widgets/back_to_home_button.dart';
 import '../../core/widgets/responsive.dart';
 import '../condition_selection/domain/neonatal_condition.dart';
 
@@ -323,9 +324,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: StwNeoBrand(
             logoHeight: isShort ? 44 : 52,
             stacked: false,
-            subtitleSize: 11,
-            subtitleMaxLines: 3,
-            subtitle: 'Based on ICMR / DHR Standard Treatment Workflows',
             mainAxisSize: MainAxisSize.max,
           ),
         ),
@@ -1009,6 +1007,10 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'About'),
+        actions: const [
+          BackToHomeButton(compact: true),
+          SizedBox(width: 8),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
