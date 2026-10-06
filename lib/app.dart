@@ -7,6 +7,7 @@ import 'features/clinical_workflow/ui/workflow_screen.dart';
 import 'features/condition_selection/domain/neonatal_condition.dart';
 import 'features/condition_selection/ui/condition_selection_screen.dart';
 import 'features/disease_selection/ui/disease_selection_screen.dart';
+import 'features/follow_up/ui/follow_up_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/landing/ui/landing_screen.dart';
 import 'features/rd/ui/rd_screen.dart';
@@ -58,6 +59,10 @@ GoRouter buildRouter() => GoRouter(
           },
         ),
         GoRoute(path: '/workflow', builder: (_, __) => const WorkflowScreen()),
+        GoRoute(
+          path: '/follow-up-assessment',
+          builder: (_, __) => const FollowUpScreen(),
+        ),
         GoRoute(path: '/rd', builder: (_, __) => const RdScreen()),
         GoRoute(path: '/rop', builder: (_, __) => const RopScreen()),
         GoRoute(

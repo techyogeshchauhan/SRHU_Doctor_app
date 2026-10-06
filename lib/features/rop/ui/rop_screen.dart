@@ -126,7 +126,20 @@ class RopScreen extends ConsumerWidget {
                     ),
                   )
                 else
-                  const SizedBox(width: 96),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: () => context.push('/follow-up-assessment'),
+                      icon: const Icon(Icons.arrow_forward, size: 18),
+                      label: const Text(
+                        'Follow-up Assessment',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.primaryNavy,
+                        minimumSize: const Size(140, 48),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

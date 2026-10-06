@@ -44,8 +44,9 @@ void main() {
       await _tap(tester, find.text('Continue'));
 
       // 2. Home Screen
+      expect(find.text('TRIGIN'), findsOneWidget);
       expect(
-        find.text('Triage: Based on history and clinical examination'),
+        find.text('Based on History and Clinical Examination.'),
         findsOneWidget,
       );
       expect(find.text('Select any condition.'), findsOneWidget);
@@ -67,8 +68,9 @@ void main() {
 
       // Return to home screen via Home icon
       await _tap(tester, find.byIcon(Icons.home_rounded));
+      expect(find.text('TRIGIN'), findsOneWidget);
       expect(
-        find.text('Triage: Based on history and clinical examination'),
+        find.text('Based on History and Clinical Examination.'),
         findsOneWidget,
       );
 
@@ -96,8 +98,9 @@ void main() {
 
       // Return to home screen via Home icon
       await _tap(tester, find.byIcon(Icons.home_rounded));
+      expect(find.text('TRIGIN'), findsOneWidget);
       expect(
-        find.text('Triage: Based on history and clinical examination'),
+        find.text('Based on History and Clinical Examination.'),
         findsOneWidget,
       );
     });

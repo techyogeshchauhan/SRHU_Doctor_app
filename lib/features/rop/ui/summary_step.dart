@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/theme.dart';
@@ -221,6 +222,20 @@ class SummaryStep extends ConsumerWidget {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: () => context.push('/follow-up-assessment'),
+                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                label: const Text('Proceed to Follow-up Assessment'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.primaryNavy,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
             ],
           ),

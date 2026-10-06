@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
-import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../../shared/pdf_navigation.dart';
@@ -191,13 +190,25 @@ class ConditionSelectionScreen extends ConsumerWidget {
               children: [
                 // 1. Main Heading as specified by the user
                 const Text(
-                  'Triage: Based on history and clinical examination',
+                  'TRIGIN',
                   style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 18.5,
+                    fontSize: 22,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.primaryNavy,
                     letterSpacing: -0.3,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  'Based on History and Clinical Examination.',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryNavy,
+                    letterSpacing: -0.2,
                     height: 1.25,
                   ),
                 ),
@@ -206,7 +217,7 @@ class ConditionSelectionScreen extends ConsumerWidget {
                   'Select any condition.',
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.primaryBlue,
                     letterSpacing: -0.1,
@@ -234,7 +245,7 @@ class ConditionSelectionScreen extends ConsumerWidget {
                           }
                         : null,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6),
                 ],
 
                 const SizedBox(height: 16),
@@ -400,28 +411,28 @@ class _ConditionTile extends StatelessWidget {
 
     final content = Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: isAvailable ? onToggle : null,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: isSelected ? AppTheme.tint : Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
                   ? AppTheme.primaryBlue
                   : const Color(0xFFE2E8F0),
-              width: isSelected ? 1.8 : 1.2,
+              width: isSelected ? 1.6 : 1.0,
             ),
             boxShadow: [
               BoxShadow(
                 color: isSelected
                     ? AppTheme.primaryBlue.withValues(alpha: 0.08)
                     : const Color(0x06000000),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                blurRadius: 6,
+                offset: const Offset(0, 1.5),
               ),
             ],
           ),
@@ -432,14 +443,21 @@ class _ConditionTile extends StatelessWidget {
               Semantics(
                 label:
                     '${d.title} ${isAvailable ? (isSelected ? "selected" : "not selected") : "not selectable"}',
-                child: Checkbox(
-                  value: isSelected,
-                  onChanged: isAvailable && onToggle != null
-                      ? (_) => onToggle!()
-                      : null,
-                  activeColor: AppTheme.primaryBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Checkbox(
+                    value: isSelected,
+                    onChanged: isAvailable && onToggle != null
+                        ? (_) => onToggle!()
+                        : null,
+                    activeColor: AppTheme.primaryBlue,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity:
+                        const VisualDensity(horizontal: -3, vertical: -3),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                 ),
               ),
@@ -447,23 +465,23 @@ class _ConditionTile extends StatelessWidget {
 
               // 2. Condition Icon
               Container(
-                width: 40,
-                height: 40,
+                width: 34,
+                height: 34,
                 decoration: BoxDecoration(
                   color: isAvailable
                       ? AppTheme.tint
                       : const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   icon,
-                  size: 21,
+                  size: 18,
                   color: isAvailable
                       ? AppTheme.primaryBlue
                       : const Color(0xFF64748B),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
 
               // 3. Condition Details
               Expanded(
@@ -471,38 +489,40 @@ class _ConditionTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 6,
-                      runSpacing: 4,
+                    Row(
                       children: [
-                        Text(
-                          d.title,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w600,
-                            color: isAvailable
-                                ? AppTheme.primaryNavy
-                                : const Color(0xFF334155),
+                        Expanded(
+                          child: Text(
+                            d.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                              color: isAvailable
+                                  ? AppTheme.primaryNavy
+                                  : const Color(0xFF334155),
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
-                            vertical: 2,
+                            vertical: 1.5,
                           ),
                           decoration: BoxDecoration(
                             color: isAvailable
                                 ? const Color(0xFFDCFCE7)
                                 : const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(5),
                           ),
                           child: Text(
                             isAvailable ? 'Available' : 'Awaiting STW',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 10,
+                              fontSize: 9.5,
                               fontWeight: FontWeight.w700,
                               color: isAvailable
                                   ? const Color(0xFF166534)
@@ -513,54 +533,61 @@ class _ConditionTile extends StatelessWidget {
                       ],
                     ),
                     if (d.description != null) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         d.description!,
-                        softWrap: true,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
                         style: const TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 12,
+                          fontSize: 11,
                           color: AppTheme.mutedText,
-                          height: 1.35,
+                          height: 1.2,
                         ),
                       ),
                     ],
                     // Compact Reference button placed near the bottom of card content
                     if (isAvailable && onViewPdf != null) ...[
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       Semantics(
                         button: true,
                         label: 'View source PDF reference for ${d.title}',
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.primaryBlue,
-                            backgroundColor: const Color(0xFFF8FAFC),
-                            side: const BorderSide(
-                              color: Color(0xFFCBD5E1),
-                              width: 1,
-                            ),
+                        child: InkWell(
+                          onTap: onViewPdf,
+                          borderRadius: BorderRadius.circular(5),
+                          child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
+                              horizontal: 7,
+                              vertical: 2.5,
                             ),
-                            minimumSize: const Size(0, 30),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(
+                                color: const Color(0xFFCBD5E1),
+                                width: 0.8,
+                              ),
                             ),
-                          ),
-                          onPressed: onViewPdf,
-                          icon: const Icon(
-                            Icons.description_outlined,
-                            size: 13,
-                            color: AppTheme.primaryBlue,
-                          ),
-                          label: const Text(
-                            'Reference',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.description_outlined,
+                                  size: 11.5,
+                                  color: AppTheme.primaryBlue,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Reference',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.primaryBlue,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

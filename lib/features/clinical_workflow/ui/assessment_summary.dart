@@ -207,6 +207,75 @@ class AssessmentSummaryView extends ConsumerWidget {
         ],
         const SizedBox(height: 8),
         const AlertBanner(tone: Tone.info, text: combinedSummaryAdvisory),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0x330B2545),
+              width: 1.2,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0x1A0B2545),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      Icons.school_outlined,
+                      color: AppTheme.primaryNavy,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Follow-up Assessment: ROP MCQs & Case Scenarios',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.primaryNavy,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Complete the follow-up assessment with 8 MCQs and 8 bedside clinical case scenarios based on ICMR / DHR STW guidelines.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF475569),
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: () => context.push('/follow-up-assessment'),
+                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                label: const Text('Proceed to Follow-up Assessment'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.primaryNavy,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(0, 46),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(

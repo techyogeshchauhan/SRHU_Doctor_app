@@ -3,11 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
-import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
-import '../../../core/widgets/responsive.dart';
 import '../../../shared/pdf_navigation.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
@@ -139,36 +137,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                 ],
 
-                const SizedBox(height: 12),
-
-                // Prominent Back to Home navigation button
-                Center(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.primaryNavy,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      side: const BorderSide(color: Color(0xFFCBD5E1)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () => context.go('/home'),
-                    icon: const Icon(Icons.home_rounded, size: 20),
-                    label: const Text(
-                      'Back to Home (Condition Selection)',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 const DisclaimerFooter(),
               ],
             ),

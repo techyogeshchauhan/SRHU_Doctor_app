@@ -49,8 +49,9 @@ void main() {
         await tester.pumpAndSettle();
 
         // 2. Home Screen checks
+        expect(find.text('TRIGIN'), findsOneWidget);
         expect(
-          find.text('Triage: Based on history and clinical examination'),
+          find.text('Based on History and Clinical Examination.'),
           findsOneWidget,
         );
         expect(find.text('Select any condition.'), findsOneWidget);
@@ -114,7 +115,11 @@ void main() {
           await tester.pumpAndSettle();
 
           // Home screen fits
-          expect(find.text('Triage: Based on history and clinical examination'), findsOneWidget);
+          expect(find.text('TRIGIN'), findsOneWidget);
+          expect(
+            find.text('Based on History and Clinical Examination.'),
+            findsOneWidget,
+          );
           expect(find.text('Select any condition.'), findsOneWidget);
           expect(find.text('Disclaimer'), findsOneWidget);
           expect(find.text('References'), findsOneWidget);
@@ -201,8 +206,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // 1. Heading check
+      expect(find.text('TRIGIN'), findsOneWidget);
       expect(
-        find.text('Triage: Based on history and clinical examination'),
+        find.text('Based on History and Clinical Examination.'),
         findsOneWidget,
       );
       expect(find.text('Select any condition.'), findsOneWidget);

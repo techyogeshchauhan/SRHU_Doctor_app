@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/utils/app_reload.dart';
-import '../../../core/widgets/app_branding.dart';
-import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/responsive.dart';
@@ -245,29 +243,136 @@ class WorkflowScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
               child: MaxWidth(
-                child: Row(
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: goBack,
-                      icon: const Icon(Icons.arrow_back, size: 18),
-                      label: const Text('Back'),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final compact = constraints.maxWidth < 380;
+                    final backToSelectionBtn = OutlinedButton.icon(
+                      onPressed: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go('/disease-selection');
+                        }
+                      },
+                      icon: const Icon(Icons.arrow_back_rounded, size: 15),
+                      label: const Text('Back to Selection'),
                       style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(96, 48),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    if (group != null)
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: canContinue ? n.confirmPage : null,
-                          icon: const Icon(Icons.arrow_forward, size: 18),
-                          label: const Text('Continue'),
-                          style: FilledButton.styleFrom(
-                            minimumSize: const Size(140, 48),
-                          ),
+                        foregroundColor: AppTheme.primaryNavy,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: compact ? 8 : 12,
+                          vertical: 10,
+                        ),
+                        minimumSize: const Size(0, 44),
+                        side: const BorderSide(color: Color(0xFFCBD5E1)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        textStyle: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                  ],
+                    );
+
+                    final actionsGroup = Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: goBack,
+                          icon: const Icon(Icons.arrow_back, size: 15),
+                          label: const Text('Back'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.primaryNavy,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: compact ? 8 : 12,
+                              vertical: 10,
+                            ),
+                            minimumSize: const Size(0, 44),
+                            side: const BorderSide(color: Color(0xFFCBD5E1)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            textStyle: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (group != null) ...[
+                          const SizedBox(width: 8),
+                          FilledButton.icon(
+                            onPressed: canContinue
+                                ? () {
+                                    n.confirmPage();
+                                    final nextGroup =
+                                        ref.read(assessmentProvider).currentGroup;
+                                    if (nextGroup == null && context.mounted) {
+                                      context.push('/follow-up-assessment');
+                                    }
+                                  }
+                                : null,
+                            icon: const Icon(Icons.arrow_forward, size: 15),
+                            label: const Text('Continue'),
+                            style: FilledButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: compact ? 10 : 14,
+                                vertical: 10,
+                              ),
+                              minimumSize: const Size(0, 44),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              textStyle: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ] else ...[
+                          const SizedBox(width: 8),
+                          FilledButton.icon(
+                            onPressed: () =>
+                                context.push('/follow-up-assessment'),
+                            icon: const Icon(Icons.arrow_forward, size: 15),
+                            label: const Text('Follow-up Assessment'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppTheme.primaryNavy,
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: compact ? 10 : 14,
+                                vertical: 10,
+                              ),
+                              minimumSize: const Size(0, 44),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              textStyle: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
+
+                    return SizedBox(
+                      width: double.infinity,
+                      child: Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        runSpacing: 8,
+                        children: [
+                          backToSelectionBtn,
+                          actionsGroup,
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ),

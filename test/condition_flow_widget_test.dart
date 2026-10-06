@@ -34,8 +34,9 @@ void main() {
     );
 
     // 2. Main Heading as specified
+    expect(find.text('TRIGIN'), findsOneWidget);
     expect(
-      find.text('Triage: Based on history and clinical examination'),
+      find.text('Based on History and Clinical Examination.'),
       findsOneWidget,
     );
     expect(find.text('Select any condition.'), findsOneWidget);
@@ -158,8 +159,9 @@ void main() {
     await tapVisible(tester, find.byType(BackToHomeButton).first);
 
     // Back to main condition selection list with selection intact
+    expect(find.text('TRIGIN'), findsOneWidget);
     expect(
-      find.text('Triage: Based on history and clinical examination'),
+      find.text('Based on History and Clinical Examination.'),
       findsOneWidget,
     );
     expect(find.text('1'), findsOneWidget);
@@ -167,27 +169,32 @@ void main() {
   });
 
   testWidgets(
-      'Clicking a selectable disease card starts screening process with Back to Home button',
+      'Clicking a selectable disease card starts screening process, and Back to Selection returns to selected diseases',
       (tester) async {
     await _pumpToSelection(tester);
 
-    // Select RD and navigate to disease selection
+    // Select both RD and ROP, navigate to disease selection
     await tapVisible(tester, find.text('STW Respiratory Distress'));
+    await tapVisible(tester, find.text('STW ROP'));
     await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
 
-    // Click Respiratory Distress card
+    // On Available Clinical Workflows page
+    expect(find.text('Available Clinical Workflows'), findsOneWidget);
+
+    // Click Respiratory Distress card to open disease details
     await tapVisible(tester, find.text('Respiratory Distress in Neonates'));
 
-    // Screening process starts per existing workflow
+    // Screening process starts
     expect(find.text('Signs of respiratory distress'), findsOneWidget);
-    expect(find.byType(BackToHomeButton), findsOneWidget);
+    expect(find.text('Back to Selection'), findsOneWidget);
+    expect(find.text('Back'), findsOneWidget);
+    expect(find.text('Continue'), findsOneWidget);
 
-    // Tap Back to Home returns to main condition selection
-    await tapVisible(tester, find.byType(BackToHomeButton));
-    expect(
-      find.text('Triage: Based on history and clinical examination'),
-      findsOneWidget,
-    );
+    // Tap "Back to Selection" returns directly to Available Clinical Workflows
+    await tapVisible(tester, find.text('Back to Selection'));
+    expect(find.text('Available Clinical Workflows'), findsOneWidget);
+    expect(find.text('Retinopathy of Prematurity'), findsOneWidget);
+    expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
   });
 
   testWidgets(
@@ -204,8 +211,9 @@ void main() {
 
     // Back to Home button returns to condition selection
     await tapVisible(tester, find.byType(BackToHomeButton));
+    expect(find.text('TRIGIN'), findsOneWidget);
     expect(
-      find.text('Triage: Based on history and clinical examination'),
+      find.text('Based on History and Clinical Examination.'),
       findsOneWidget,
     );
   });

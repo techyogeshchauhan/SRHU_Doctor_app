@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:neonatal_stw/features/home/home_screen.dart';
 
 /// Scrolls [f] into view (when inside a scrollable), then taps it.
 Future<void> tapVisible(WidgetTester tester, Finder f) async {
