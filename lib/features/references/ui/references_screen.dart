@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
+import '../../../shared/pdf_navigation.dart';
 
 /// Screen displaying the two bundled ICMR / DHR STW reference PDFs,
 /// external clinical guidelines cited in the STWs, and standard disclaimer.
@@ -203,12 +203,10 @@ class ReferencesScreen extends StatelessWidget {
     required String assetPath,
     required String title,
   }) {
-    context.push(
-      '/pdf-viewer',
-      extra: {
-        'path': assetPath,
-        'title': title,
-      },
+    openStwPdf(
+      context,
+      assetPath: assetPath,
+      title: title,
     );
   }
 }

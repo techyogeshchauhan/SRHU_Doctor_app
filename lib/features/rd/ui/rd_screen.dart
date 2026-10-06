@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
+import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
@@ -60,7 +61,14 @@ class _RdScreenState extends ConsumerState<RdScreen>
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'Respiratory Distress'),
         actions: [
-          const BackToHomeButton(iconOnly: true),
+          BackToHomeButton(
+            iconOnly: true,
+            onPressed: () => confirmLeaveCondition(
+              context,
+              ref,
+              destinationRoute: '/home',
+            ),
+          ),
           const AppRefreshButton(),
           const SizedBox(width: 4),
           Semantics(

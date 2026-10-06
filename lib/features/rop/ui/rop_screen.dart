@@ -4,11 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
+import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../shared/reference_view.dart';
+import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../follow_up/state/follow_up_controller.dart';
 import '../state/rop_controller.dart';
 import 'findings_step.dart';
 import 'screening_steps.dart';
@@ -35,7 +38,14 @@ class RopScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'ROP Screening'),
         actions: [
-          const BackToHomeButton(iconOnly: true),
+          BackToHomeButton(
+            iconOnly: true,
+            onPressed: () => confirmLeaveCondition(
+              context,
+              ref,
+              destinationRoute: '/home',
+            ),
+          ),
           const AppRefreshButton(),
           const SizedBox(width: 4),
           Semantics(
@@ -93,50 +103,112 @@ class RopScreen extends ConsumerWidget {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                Opacity(
-                  opacity: step > 0 ? 1.0 : 0.0,
-                  child: IgnorePointer(
-                    ignoring: step == 0,
-                    child: OutlinedButton.icon(
-                      onPressed: n.back,
-                      icon: const Icon(Icons.arrow_back, size: 18),
-                      label: const Text('Back'),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(96, 48),
-                      ),
+                OutlinedButton.icon(
+                  onPressed: () => confirmLeaveCondition(
+                    context,
+                    ref,
+                    destinationRoute: '/disease-selection',
+                  ),
+                  icon: const Icon(Icons.arrow_back_rounded, size: 15),
+                  label: const Text('Back to Selection'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.primaryNavy,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
+                    minimumSize: const Size(0, 44),
+                    side: const BorderSide(color: Color(0xFFCBD5E1)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    textStyle: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                if (!isLast)
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: n.next,
-                      icon: const Icon(Icons.arrow_forward, size: 18),
-                      label: Text(
-                        'Next: ${_stepTitles[step + 1]}',
-                        overflow: TextOverflow.ellipsis,
+                if (step > 0)
+                  OutlinedButton.icon(
+                    onPressed: n.back,
+                    icon: const Icon(Icons.arrow_back, size: 15),
+                    label: const Text('Back'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.primaryNavy,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
                       ),
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size(140, 48),
+                      minimumSize: const Size(0, 44),
+                      side: const BorderSide(color: Color(0xFFCBD5E1)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                if (!isLast)
+                  FilledButton.icon(
+                    onPressed: n.next,
+                    icon: const Icon(Icons.arrow_forward, size: 15),
+                    label: Text(
+                      'Next: ${_stepTitles[step + 1]}',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      minimumSize: const Size(0, 44),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   )
                 else
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () => context.push('/follow-up-assessment'),
-                      icon: const Icon(Icons.arrow_forward, size: 18),
-                      label: const Text(
-                        'Follow-up Assessment',
-                        overflow: TextOverflow.ellipsis,
+                  FilledButton.icon(
+                    onPressed: () {
+                      ref
+                          .read(followUpProvider.notifier)
+                          .initForCondition(NeonatalCondition.rop);
+                      context.push('/follow-up-assessment');
+                    },
+                    icon: const Icon(Icons.arrow_forward, size: 15),
+                    label: const Text(
+                      'Follow-up Assessment',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.primaryNavy,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
                       ),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppTheme.primaryNavy,
-                        minimumSize: const Size(140, 48),
+                      minimumSize: const Size(0, 44),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),

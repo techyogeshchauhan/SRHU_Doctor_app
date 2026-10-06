@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../condition_selection/domain/neonatal_condition.dart';
+import '../data/disease_follow_up_registry.dart';
 import '../data/rop_follow_up_data.dart';
 import '../domain/follow_up_models.dart';
 
@@ -41,6 +42,10 @@ class FollowUpState {
   /// The active disease/condition for this follow-up assessment.
   final NeonatalCondition condition;
 
+  /// Display title for the active condition's package.
+  String get conditionTitle =>
+      getFollowUpPackage(condition)?.title ?? definitionOf(condition).title;
+
   /// Currently viewed MCQ.
   FollowUpQuestion get currentMcq => mcqs[currentMcqIndex];
 
@@ -54,10 +59,12 @@ class FollowUpState {
   int? get selectedCaseOption => caseAnswers[currentCase.id];
 
   /// Whether current MCQ is the last in the set.
-  bool get isLastMcq => currentMcqIndex == mcqs.length - 1;
+  bool get isLastMcq =>
+      mcqs.isEmpty || currentMcqIndex == mcqs.length - 1;
 
   /// Whether current Case Scenario is the last in the set.
-  bool get isLastCase => currentCaseIndex == caseScenarios.length - 1;
+  bool get isLastCase =>
+      caseScenarios.isEmpty || currentCaseIndex == caseScenarios.length - 1;
 
   /// Total MCQs answered.
   int get mcqAnsweredCount => mcqAnswers.length;
@@ -215,9 +222,34 @@ class FollowUpController extends StateNotifier<FollowUpState> {
     state = state.copyWith(stage: FollowUpStage.finalSummary);
   }
 
+  /// Initializes the assessment for a specific disease condition.
+  void initForCondition(NeonatalCondition condition) {
+    final pkg = getFollowUpPackage(condition);
+    state = FollowUpState(
+      stage: FollowUpStage.intro,
+      condition: condition,
+      mcqs: pkg?.mcqs ?? const [],
+      caseScenarios: pkg?.caseScenarios ?? const [],
+      currentMcqIndex: 0,
+      mcqAnswers: const {},
+      currentCaseIndex: 0,
+      caseAnswers: const {},
+    );
+  }
+
   /// Resets the assessment back to the intro stage and clears all answers.
   void reset() {
-    state = const FollowUpState();
+    final pkg = getFollowUpPackage(state.condition);
+    state = FollowUpState(
+      stage: FollowUpStage.intro,
+      condition: state.condition,
+      mcqs: pkg?.mcqs ?? const [],
+      caseScenarios: pkg?.caseScenarios ?? const [],
+      currentMcqIndex: 0,
+      mcqAnswers: const {},
+      currentCaseIndex: 0,
+      caseAnswers: const {},
+    );
   }
 
   /// Retakes only the MCQ portion.

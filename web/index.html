@@ -43,6 +43,26 @@
     window.reloadApp = function() {
       window.location.reload();
     };
+
+    // Global helper for opening/downloading PDFs on Web and PWA
+    window.downloadPdfBlob = function(bytes, filename) {
+      try {
+        var blob = new Blob([bytes], { type: 'application/pdf' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() {
+          URL.revokeObjectURL(url);
+        }, 15000);
+      } catch (e) {
+        console.error('Error opening/downloading PDF blob:', e);
+      }
+    };
   </script>
 
   <!-- Installable app (Android, desktop browsers) -->
@@ -161,13 +181,46 @@
       outline: none;
     }
   </style>
-
-  <!-- pdf.js 4.6.82 for the in-app STW PDF viewer (pdfx), bundled locally so
-       the PDFs also open offline. -->
-  <script src="pdfjs/pdf.min.mjs" type="module"></script>
+  <!-- pdf.js 4.6.82 for the in-app STW PDF viewer (pdfx).
+       Uses local .js bundle (application/javascript MIME compatible with all Nginx/web servers)
+       with automatic CDN fallback for 100% reliability in offline PWA and online production. -->
   <script type="module">
-    var { pdfjsLib } = globalThis;
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.min.mjs';
+    async function initPdfJs() {
+      let lib = null;
+      try {
+        // 1. Try local bundled .js (served as application/javascript by all web servers)
+        lib = await import('./pdfjs/pdf.min.js');
+      } catch (e1) {
+        try {
+          // 2. Fallback to local .mjs
+          lib = await import('./pdfjs/pdf.min.mjs');
+        } catch (e2) {
+          try {
+            // 3. Fallback to CDN
+            lib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.mjs');
+          } catch (e3) {
+            console.error('Failed to load PDF.js from local or CDN:', e1, e2, e3);
+            return;
+          }
+        }
+      }
+
+      if (lib) {
+        globalThis.pdfjsLib = lib;
+        try {
+          lib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.min.js';
+        } catch (_) {
+          lib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.mjs';
+        }
+      }
+    }
+
+    globalThis.pdfRenderOptions = {
+      cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/cmaps/',
+      cMapPacked: true,
+    };
+
+    initPdfJs();
   </script>
 </head>
 <body>

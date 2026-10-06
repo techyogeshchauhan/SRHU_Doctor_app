@@ -8,6 +8,8 @@ import '../../../core/theme.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../shared/pdf_navigation.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../follow_up/data/disease_follow_up_registry.dart';
+import '../../follow_up/state/follow_up_controller.dart';
 import '../domain/clinical_finding.dart';
 import '../domain/combined_summary.dart';
 import '../state/assessment_controller.dart';
@@ -208,72 +210,145 @@ class AssessmentSummaryView extends ConsumerWidget {
         const SizedBox(height: 8),
         const AlertBanner(tone: Tone.info, text: combinedSummaryAdvisory),
         const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: const Color(0x330B2545),
-              width: 1.2,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0x1A0B2545),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(
-                      Icons.school_outlined,
-                      color: AppTheme.primaryNavy,
-                      size: 20,
-                    ),
+        Builder(
+          builder: (context) {
+            final hasFollowUp = hasFollowUpForSelected(ctx.selected);
+            if (hasFollowUp) {
+              final conditionWithMcqs = ctx.selected.firstWhere(
+                hasFollowUpForCondition,
+                orElse: () => ctx.selected.first,
+              );
+              final pkg = getFollowUpPackage(conditionWithMcqs)!;
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0x330B2545),
+                    width: 1.2,
                   ),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Text(
-                      'Follow-up Assessment: ROP MCQs & Case Scenarios',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.primaryNavy,
-                        fontFamily: 'Poppins',
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: const Color(0x1A0B2545),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(
+                            Icons.school_outlined,
+                            color: AppTheme.primaryNavy,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Follow-up Assessment: ${pkg.title}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.primaryNavy,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      pkg.subtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF475569),
+                        height: 1.45,
                       ),
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: () {
+                        ref
+                            .read(followUpProvider.notifier)
+                            .initForCondition(conditionWithMcqs);
+                        context.push('/follow-up-assessment');
+                      },
+                      icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                      label: const Text('Proceed to Follow-up Assessment'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.primaryNavy,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(0, 46),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final conditionLabels =
+                ctx.selected.map((c) => definitionOf(c).title).join(', ');
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFE2E8F0),
+                  width: 1.2,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE2E8F0),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(
+                          Icons.school_outlined,
+                          color: Color(0xFF64748B),
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Follow-up Assessment: $conditionLabels',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryNavy,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Follow-up MCQs and bedside clinical case scenarios for $conditionLabels are currently under preparation as per ICMR / DHR STW guidelines.',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF64748B),
+                      height: 1.45,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Complete the follow-up assessment with 8 MCQs and 8 bedside clinical case scenarios based on ICMR / DHR STW guidelines.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF475569),
-                  height: 1.45,
-                ),
-              ),
-              const SizedBox(height: 12),
-              FilledButton.icon(
-                onPressed: () => context.push('/follow-up-assessment'),
-                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                label: const Text('Proceed to Follow-up Assessment'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.primaryNavy,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(0, 46),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
         const SizedBox(height: 12),
         Row(

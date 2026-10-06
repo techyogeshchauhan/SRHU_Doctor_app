@@ -4,11 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/utils/app_reload.dart';
+import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../../shared/pdf_navigation.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../follow_up/data/disease_follow_up_registry.dart';
+import '../../follow_up/state/follow_up_controller.dart';
 import '../state/assessment_controller.dart';
 import 'assessment_summary.dart';
 import 'question_field.dart';
@@ -68,7 +71,14 @@ class WorkflowScreen extends ConsumerWidget {
             errorBuilder: (_, __, ___) => const SizedBox.shrink(),
           ),
           actions: [
-            const BackToHomeButton(iconOnly: true),
+            BackToHomeButton(
+              iconOnly: true,
+              onPressed: () => confirmLeaveCondition(
+                context,
+                ref,
+                destinationRoute: '/home',
+              ),
+            ),
             Semantics(
               button: true,
               label: 'More options',
@@ -247,13 +257,11 @@ class WorkflowScreen extends ConsumerWidget {
                   builder: (context, constraints) {
                     final compact = constraints.maxWidth < 380;
                     final backToSelectionBtn = OutlinedButton.icon(
-                      onPressed: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.go('/disease-selection');
-                        }
-                      },
+                      onPressed: () => confirmLeaveCondition(
+                        context,
+                        ref,
+                        destinationRoute: '/disease-selection',
+                      ),
                       icon: const Icon(Icons.arrow_back_rounded, size: 15),
                       label: const Text('Back to Selection'),
                       style: OutlinedButton.styleFrom(
@@ -309,7 +317,19 @@ class WorkflowScreen extends ConsumerWidget {
                                     final nextGroup =
                                         ref.read(assessmentProvider).currentGroup;
                                     if (nextGroup == null && context.mounted) {
-                                      context.push('/follow-up-assessment');
+                                      final selected =
+                                          ref.read(assessmentProvider).context.selected;
+                                      if (hasFollowUpForSelected(selected)) {
+                                        final conditionWithMcqs =
+                                            selected.firstWhere(
+                                          hasFollowUpForCondition,
+                                          orElse: () => selected.first,
+                                        );
+                                        ref
+                                            .read(followUpProvider.notifier)
+                                            .initForCondition(conditionWithMcqs);
+                                        context.push('/follow-up-assessment');
+                                      }
                                     }
                                   }
                                 : null,
@@ -331,11 +351,19 @@ class WorkflowScreen extends ConsumerWidget {
                               ),
                             ),
                           ),
-                        ] else ...[
+                        ] else if (hasFollowUpForSelected(ctx.selected)) ...[
                           const SizedBox(width: 8),
                           FilledButton.icon(
-                            onPressed: () =>
-                                context.push('/follow-up-assessment'),
+                            onPressed: () {
+                              final conditionWithMcqs = ctx.selected.firstWhere(
+                                hasFollowUpForCondition,
+                                orElse: () => ctx.selected.first,
+                              );
+                              ref
+                                  .read(followUpProvider.notifier)
+                                  .initForCondition(conditionWithMcqs);
+                              context.push('/follow-up-assessment');
+                            },
                             icon: const Icon(Icons.arrow_forward, size: 15),
                             label: const Text('Follow-up Assessment'),
                             style: FilledButton.styleFrom(

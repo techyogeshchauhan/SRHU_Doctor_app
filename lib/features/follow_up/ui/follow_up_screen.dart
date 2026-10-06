@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/theme.dart';
+import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
+import '../../condition_selection/domain/neonatal_condition.dart';
 import '../domain/follow_up_models.dart';
 import '../state/follow_up_controller.dart';
 
@@ -28,7 +29,14 @@ class FollowUpScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'Follow-up Assessment'),
         actions: [
-          const BackToHomeButton(iconOnly: true),
+          BackToHomeButton(
+            iconOnly: true,
+            onPressed: () => confirmLeaveCondition(
+              context,
+              ref,
+              destinationRoute: '/home',
+            ),
+          ),
           const AppRefreshButton(),
           const SizedBox(width: 4),
           Semantics(
@@ -67,7 +75,9 @@ class FollowUpScreen extends ConsumerWidget {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
-          child: _StageProgressBar(stage: state.stage),
+          child: state.mcqs.isEmpty
+              ? const SizedBox.shrink()
+              : _StageProgressBar(stage: state.stage),
         ),
       ),
       body: Align(
@@ -80,15 +90,59 @@ class FollowUpScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                switch (state.stage) {
-                  FollowUpStage.intro => const _IntroSection(),
-                  FollowUpStage.mcqs => const _McqSection(),
-                  FollowUpStage.mcqResult => const _McqResultSection(),
-                  FollowUpStage.caseScenarios => const _CaseScenarioSection(),
-                  FollowUpStage.finalSummary => const _FinalSummarySection(),
-                },
+                if (state.mcqs.isEmpty)
+                  _EmptyFollowUpSection(condition: state.condition)
+                else
+                  switch (state.stage) {
+                    FollowUpStage.intro => const _IntroSection(),
+                    FollowUpStage.mcqs => const _McqSection(),
+                    FollowUpStage.mcqResult => const _McqResultSection(),
+                    FollowUpStage.caseScenarios => const _CaseScenarioSection(),
+                    FollowUpStage.finalSummary => const _FinalSummarySection(),
+                  },
                 const SizedBox(height: 24),
                 const DisclaimerFooter(),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => confirmLeaveCondition(
+                    context,
+                    ref,
+                    destinationRoute: '/disease-selection',
+                  ),
+                  icon: const Icon(Icons.arrow_back_rounded, size: 16),
+                  label: const Text('Back to Selection'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.primaryNavy,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    minimumSize: const Size(0, 44),
+                    side: const BorderSide(color: Color(0xFFCBD5E1)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    textStyle: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -167,6 +221,88 @@ class _StageProgressBar extends StatelessWidget {
   }
 }
 
+class _EmptyFollowUpSection extends ConsumerWidget {
+  const _EmptyFollowUpSection({required this.condition});
+
+  final NeonatalCondition condition;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: const BoxDecoration(
+              color: Color(0xFFEFF6FF),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.school_outlined,
+              color: AppTheme.primaryNavy,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Follow-up Assessment: ${definitionOf(condition).title}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Poppins',
+              color: AppTheme.primaryNavy,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Follow-up MCQs and bedside clinical case scenarios for ${definitionOf(condition).title} are currently under preparation as per ICMR / DHR STW guidelines.\n\nCurrently, follow-up MCQs are available for Retinopathy of Prematurity (ROP).',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 13,
+              fontFamily: 'Inter',
+              color: Color(0xFF64748B),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: () => confirmLeaveCondition(
+              context,
+              ref,
+              destinationRoute: '/disease-selection',
+            ),
+            icon: const Icon(Icons.arrow_back_rounded, size: 18),
+            label: const Text('Back to Disease Selection'),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.primaryNavy,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(200, 46),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ===========================================================================
 // STAGE 1: INTRO SECTION
 // ===========================================================================
@@ -176,6 +312,7 @@ class _IntroSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(followUpProvider);
     final controller = ref.read(followUpProvider.notifier);
 
     return Column(
@@ -219,9 +356,9 @@ class _IntroSection extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Follow-up Assessment: Retinopathy of Prematurity (ROP)',
-                style: TextStyle(
+              Text(
+                'Follow-up Assessment: ${state.conditionTitle}',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -302,15 +439,13 @@ class _IntroSection extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         OutlinedButton.icon(
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/disease-selection');
-            }
-          },
+          onPressed: () => confirmLeaveCondition(
+            context,
+            ref,
+            destinationRoute: '/disease-selection',
+          ),
           icon: const Icon(Icons.arrow_back_rounded, size: 18),
-          label: const Text('Back to Disease Screening'),
+          label: const Text('Back to Disease Selection'),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppTheme.primaryNavy,
             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -437,18 +572,21 @@ class _McqSection extends ConsumerWidget {
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                currentQuestion.category,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF475569),
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  currentQuestion.category,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF475569),
+                  ),
                 ),
               ),
             ),
@@ -769,13 +907,16 @@ class _McqResultSection extends ConsumerWidget {
             const Icon(Icons.rate_review_outlined,
                 size: 18, color: AppTheme.primaryNavy),
             const SizedBox(width: 8),
-            Text(
-              'Detailed Answers & Clinical Rationales',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primaryNavy,
-                    fontFamily: 'Poppins',
-                  ),
+            Expanded(
+              child: Text(
+                'Detailed Answers & Clinical Rationales',
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.primaryNavy,
+                      fontFamily: 'Poppins',
+                    ),
+              ),
             ),
           ],
         ),
@@ -1234,14 +1375,18 @@ class _FinalSummarySection extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
 
-        // Back to Condition Selection & Retake
+        // Navigation & Retake
         Row(
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => context.go('/conditions'),
-                icon: const Icon(Icons.home_rounded, size: 18),
-                label: const Text('Return to Home'),
+                onPressed: () => confirmLeaveCondition(
+                  context,
+                  ref,
+                  destinationRoute: '/disease-selection',
+                ),
+                icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                label: const Text('Back to Selection'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.primaryNavy,
                   minimumSize: const Size(0, 48),
@@ -1252,9 +1397,13 @@ class _FinalSummarySection extends ConsumerWidget {
             const SizedBox(width: 12),
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: controller.reset,
-                icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Retake All'),
+                onPressed: () => confirmLeaveCondition(
+                  context,
+                  ref,
+                  destinationRoute: '/home',
+                ),
+                icon: const Icon(Icons.home_rounded, size: 18),
+                label: const Text('Return to Home'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.primaryNavy,
                   minimumSize: const Size(0, 48),
@@ -1264,6 +1413,17 @@ class _FinalSummarySection extends ConsumerWidget {
             ),
           ],
         ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          onPressed: controller.reset,
+          icon: const Icon(Icons.refresh_rounded, size: 18),
+          label: const Text('Retake All Questions & Scenarios'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppTheme.primaryNavy,
+            minimumSize: const Size(double.infinity, 46),
+            side: const BorderSide(color: Color(0xFFCBD5E1)),
+          ),
+        ),
         const SizedBox(height: 24),
 
         // Case Scenarios Review Header
@@ -1272,13 +1432,16 @@ class _FinalSummarySection extends ConsumerWidget {
             const Icon(Icons.assignment_turned_in_outlined,
                 size: 20, color: AppTheme.primaryNavy),
             const SizedBox(width: 8),
-            Text(
-              'Case Scenarios Review & Answers',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primaryNavy,
-                    fontFamily: 'Poppins',
-                  ),
+            Expanded(
+              child: Text(
+                'Case Scenarios Review & Answers',
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.primaryNavy,
+                      fontFamily: 'Poppins',
+                    ),
+              ),
             ),
           ],
         ),
@@ -1695,13 +1858,17 @@ class _QuestionFeedbackCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Spacer(),
-              Text(
-                'Q$questionNumber • ${question.category}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF64748B),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Q$questionNumber • ${question.category}',
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF64748B),
+                  ),
                 ),
               ),
             ],
@@ -1808,13 +1975,16 @@ class _QuestionFeedbackCard extends StatelessWidget {
                     Icon(Icons.menu_book_outlined,
                         size: 14, color: AppTheme.primaryNavy),
                     SizedBox(width: 6),
-                    Text(
-                      'CLINICAL RATIONALE (ICMR / DHR STW)',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primaryNavy,
-                        letterSpacing: 0.5,
+                    Expanded(
+                      child: Text(
+                        'CLINICAL RATIONALE (ICMR / DHR STW)',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.primaryNavy,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
                   ],
@@ -1908,13 +2078,17 @@ class _CaseFeedbackCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Spacer(),
-              Text(
-                'Case $caseNumber • ${question.category}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF64748B),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Case $caseNumber • ${question.category}',
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF64748B),
+                  ),
                 ),
               ),
             ],

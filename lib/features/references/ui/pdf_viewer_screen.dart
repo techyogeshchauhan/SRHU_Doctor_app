@@ -10,6 +10,7 @@ import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
+import 'pdf_web_helper.dart';
 
 /// Full-screen in-app PDF viewer for the ICMR/DHR STW documents.
 ///
@@ -51,6 +52,27 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     _initController();
   }
 
+  Future<PdfDocument> _loadDocument() async {
+    if (kIsWeb) {
+      // Allow pdfjsLib module to complete asynchronous initialization if needed
+      for (int i = 0; i < 20; i++) {
+        try {
+          return await PdfDocument.openAsset(widget.assetPath);
+        } catch (e) {
+          final s = e.toString();
+          if (i < 19 &&
+              (s.contains('pdf.js not added') ||
+                  s.contains('Pdfjs library not loaded'))) {
+            await Future.delayed(const Duration(milliseconds: 100));
+            continue;
+          }
+          rethrow;
+        }
+      }
+    }
+    return PdfDocument.openAsset(widget.assetPath);
+  }
+
   void _initController() {
     if (widget.customViewerBuilder != null) return;
     if (!kIsWeb && Platform.isWindows) return;
@@ -59,7 +81,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     });
     try {
       _controller = PdfControllerPinch(
-        document: PdfDocument.openAsset(widget.assetPath),
+        document: _loadDocument(),
       );
     } catch (e) {
       setState(() {
@@ -93,17 +115,17 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       final filename = widget.assetPath.split('/').last;
 
       if (kIsWeb) {
-        await Share.shareXFiles(
-          [
-            XFile.fromData(
-              byteData.buffer.asUint8List(),
-              mimeType: 'application/pdf',
-              name: filename,
+        // Direct browser opening or downloading via Blob URL (reliable in PWA, HTTP, HTTPS)
+        openOrDownloadPdf(byteData.buffer.asUint8List(), filename);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Opening ${widget.title}...'),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
             ),
-          ],
-          text: widget.title,
-          subject: widget.title,
-        );
+          );
+        }
       } else {
         final tempDir = await getTemporaryDirectory();
         final file = File('${tempDir.path}/$filename');
@@ -125,7 +147,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Unable to share or open document: $e'),
+            content: Text('Unable to open document: $e'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -148,16 +170,16 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
           const SizedBox(width: 4),
           Semantics(
             button: true,
-            label: 'Open in another app or share PDF',
+            label: kIsWeb ? 'Download or open PDF' : 'Open in another app or share PDF',
             child: IconButton(
-              tooltip: 'Open in another app / Share',
+              tooltip: kIsWeb ? 'Download / Open PDF' : 'Open in another app / Share',
               icon: _isSharing
                   ? const SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.share_outlined),
+                  : const Icon(kIsWeb ? Icons.download_rounded : Icons.share_outlined),
               onPressed: _isSharing ? null : _shareOrOpenExternally,
             ),
           ),
@@ -294,8 +316,11 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                 const SizedBox(width: 12),
                 FilledButton.icon(
                   onPressed: _shareOrOpenExternally,
-                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                  label: const Text('Open in App'),
+                  icon: const Icon(
+                    kIsWeb ? Icons.download_rounded : Icons.open_in_new_rounded,
+                    size: 18,
+                  ),
+                  label: const Text(kIsWeb ? 'Open / Download' : 'Open in App'),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(130, 48),
                   ),

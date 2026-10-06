@@ -98,6 +98,9 @@ void main() {
 
       // Return to home screen via Home icon
       await _tap(tester, find.byIcon(Icons.home_rounded));
+      if (find.text('Leave & Reset').evaluate().isNotEmpty) {
+        await _tap(tester, find.text('Leave & Reset'));
+      }
       expect(find.text('TRIGIN'), findsOneWidget);
       expect(
         find.text('Based on History and Clinical Examination.'),

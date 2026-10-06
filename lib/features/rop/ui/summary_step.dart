@@ -7,6 +7,8 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/layout.dart';
+import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../follow_up/state/follow_up_controller.dart';
 import '../domain/rop_rules.dart';
 import '../state/rop_controller.dart';
 
@@ -225,7 +227,12 @@ class SummaryStep extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               FilledButton.icon(
-                onPressed: () => context.push('/follow-up-assessment'),
+                onPressed: () {
+                  ref
+                      .read(followUpProvider.notifier)
+                      .initForCondition(NeonatalCondition.rop);
+                  context.push('/follow-up-assessment');
+                },
                 icon: const Icon(Icons.arrow_forward_rounded, size: 18),
                 label: const Text('Proceed to Follow-up Assessment'),
                 style: FilledButton.styleFrom(

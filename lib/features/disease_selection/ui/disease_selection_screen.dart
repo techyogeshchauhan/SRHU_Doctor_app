@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
+import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
@@ -108,9 +109,10 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                     pdfAssetPath: ropPdfAsset,
                     pdfTitle: ropPdfTitle,
                     onStartScreening: () {
+                      clearConditionData(ref);
                       ref.read(assessmentProvider.notifier).start({
                         NeonatalCondition.rop,
-                      });
+                      }, forceReset: true);
                       context.push('/workflow');
                     },
                   ),
@@ -128,9 +130,10 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                     pdfAssetPath: rdPdfAsset,
                     pdfTitle: rdPdfTitle,
                     onStartScreening: () {
+                      clearConditionData(ref);
                       ref.read(assessmentProvider.notifier).start({
                         NeonatalCondition.respiratoryDistress,
-                      });
+                      }, forceReset: true);
                       context.push('/workflow');
                     },
                   ),

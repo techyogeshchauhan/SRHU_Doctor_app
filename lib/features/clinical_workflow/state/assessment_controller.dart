@@ -48,12 +48,45 @@ class AssessmentController extends Notifier<AssessmentState> {
         ),
       );
 
-  /// Starts or updates the assessment for [selected]. Answers to shared
-  /// questions are kept; anything only used by removed topics is dropped.
-  void start(Set<NeonatalCondition> selected) => _update(
+  /// Starts or updates the assessment for [selected].
+  ///
+  /// Automatically resets the screening state when:
+  /// - Starting a different disease screening
+  /// - The previous screening was already completed
+  /// - Or when explicitly requested via [forceReset].
+  /// Normal navigation within an active screening (Back <-> Continue) preserves all answers.
+  void start(Set<NeonatalCondition> selected, {bool forceReset = false}) {
+    final prev = state.context;
+    final isDifferentDisease =
+        prev.selected.length != selected.length ||
+        !prev.selected.containsAll(selected);
+    final wasCompleted = state.isComplete;
+
+    if (forceReset || isDifferentDisease || wasCompleted) {
+      final ctx = _engine.evaluate(
+        selected: selected,
+        answers: const {},
+        completed: const {},
+        today: ref.read(assessmentTodayProvider),
+      );
+      state = AssessmentState(
+        context: ctx,
+        history: const [],
+        cursor: null,
+        currentGroup: _engine.nextGroup(ctx),
+      );
+    } else {
+      _update(
         selected: selected,
         cursor: null,
       );
+    }
+  }
+
+  /// Resets the current screening progress back to empty.
+  void reset() {
+    state = build();
+  }
 
   /// Stores (or clears, with null) the answer to [questionId] and
   /// re-evaluates variables, rules, findings and applicable questions.

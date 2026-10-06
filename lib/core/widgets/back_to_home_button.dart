@@ -11,6 +11,7 @@ class BackToHomeButton extends StatelessWidget {
     super.key,
     this.compact = false,
     this.iconOnly = false,
+    this.onPressed,
   });
 
   /// In compact mode (e.g. app bar actions on phone), displays 'Home'
@@ -20,8 +21,13 @@ class BackToHomeButton extends StatelessWidget {
   /// If true, renders an icon-only button without text label.
   final bool iconOnly;
 
+  /// Custom callback executed when tapped; defaults to `context.go('/home')`.
+  final VoidCallback? onPressed;
+
   @override
   Widget build(BuildContext context) {
+    final handleTap = onPressed ?? () => context.go('/home');
+
     if (iconOnly) {
       return Semantics(
         button: true,
@@ -33,7 +39,7 @@ class BackToHomeButton extends StatelessWidget {
             size: 22,
             color: AppTheme.primaryNavy,
           ),
-          onPressed: () => context.go('/home'),
+          onPressed: handleTap,
         ),
       );
     }
@@ -56,7 +62,7 @@ class BackToHomeButton extends StatelessWidget {
               side: const BorderSide(color: Color(0xFFD4E3F8), width: 1.2),
             ),
           ),
-          onPressed: () => context.go('/home'),
+          onPressed: handleTap,
           icon: const Icon(
             Icons.home_rounded,
             size: 17,
