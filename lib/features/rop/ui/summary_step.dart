@@ -230,7 +230,10 @@ class SummaryStep extends ConsumerWidget {
                 onPressed: () {
                   ref
                       .read(followUpProvider.notifier)
-                      .initForCondition(NeonatalCondition.rop);
+                      .initForCondition(
+                        NeonatalCondition.rop,
+                        startImmediately: true,
+                      );
                   context.push('/follow-up-assessment');
                 },
                 icon: const Icon(Icons.arrow_forward_rounded, size: 18),

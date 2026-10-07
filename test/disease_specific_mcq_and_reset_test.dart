@@ -284,5 +284,96 @@ void main() {
       await tapVisible(tester, find.text('Leave & Reset'));
       expect(find.text('Available Clinical Workflows'), findsOneWidget);
     });
+
+    testWidgets(
+        'ROP screening completion: result page stays without auto-redirect, Next opens MCQs, Back returns to result page',
+        (tester) async {
+      await _pumpToSelection(tester);
+
+      // Select STW ROP
+      await tapVisible(tester, find.text('STW ROP'));
+      await tapVisible(
+          tester, find.widgetWithText(FilledButton, 'Continue').first);
+
+      expect(find.text('Available Clinical Workflows'), findsOneWidget);
+
+      // Open ROP screening
+      await tapVisible(tester, find.text('Retinopathy of Prematurity'));
+      expect(find.text('Baby details'), findsOneWidget);
+
+      // Select GA known and enter 37 weeks, BW 2500 g -> Not eligible
+      await tapVisible(tester, find.text('GA known'));
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Gestational age (completed weeks) *'),
+          '37');
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Birth weight'), '2500');
+      await tester.pumpAndSettle();
+
+      // Tap Continue to complete screening
+      await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue'));
+
+      // 1. Result page appears and stays
+      expect(find.text('Clinical Assessment Summary'), findsOneWidget);
+      expect(
+          find.text('Not eligible per STW screening criteria'), findsOneWidget);
+
+      // 2. Wait 10 seconds: NO redirect happens
+      await tester.pump(const Duration(seconds: 10));
+      await tester.pumpAndSettle();
+      expect(find.text('Clinical Assessment Summary'), findsOneWidget);
+      expect(find.text('MCQ 1 OF 8'), findsNothing);
+
+      // 3. Bottom bar has "Next: MCQs" button
+      expect(find.text('Next: MCQs'), findsOneWidget);
+
+      // 4. Tap Next: the MCQs open
+      await tapVisible(tester, find.text('Next: MCQs'));
+      expect(find.text('MCQ 1 OF 8'), findsOneWidget);
+
+      // 5. From the MCQs, tap Back: you return to the result page and do not get pushed forward again
+      await tapVisible(tester, find.widgetWithText(OutlinedButton, 'Back'));
+      expect(find.text('Clinical Assessment Summary'), findsOneWidget);
+      expect(
+          find.text('Not eligible per STW screening criteria'), findsOneWidget);
+
+      // Wait 10 seconds: stays on result page
+      await tester.pump(const Duration(seconds: 10));
+      await tester.pumpAndSettle();
+      expect(find.text('Clinical Assessment Summary'), findsOneWidget);
+      expect(find.text('MCQ 1 OF 8'), findsNothing);
+
+      // Verify rebuild does not trigger navigation
+      tester.binding.scheduleFrame();
+      await tester.pumpAndSettle();
+      expect(find.text('Clinical Assessment Summary'), findsOneWidget);
+      expect(find.text('MCQ 1 OF 8'), findsNothing);
+
+      // Verify screen rotation (portrait to landscape) does not trigger navigation
+      tester.view.physicalSize = const Size(915, 412);
+      await tester.pumpAndSettle();
+      expect(find.text('Clinical Assessment Summary'), findsOneWidget);
+      expect(find.text('MCQ 1 OF 8'), findsNothing);
+
+      // Rotate back to portrait
+      tester.view.physicalSize = const Size(412, 915);
+      await tester.pumpAndSettle();
+      expect(find.text('Clinical Assessment Summary'), findsOneWidget);
+      expect(find.text('MCQ 1 OF 8'), findsNothing);
+
+      // 6. Back to Selection still prompts confirmation dialog
+      await tapVisible(tester, find.text('Back to Selection'));
+      expect(find.text('Progress will be reset'), findsOneWidget);
+      expect(find.text(conditionExitAlertMessage), findsOneWidget);
+
+      // Tap Stay -> stays on result page
+      await tapVisible(tester, find.text('Stay'));
+      expect(find.text('Clinical Assessment Summary'), findsOneWidget);
+
+      // Tap Leave & Reset -> clears data and navigates to Available Clinical Workflows
+      await tapVisible(tester, find.text('Back to Selection'));
+      await tapVisible(tester, find.text('Leave & Reset'));
+      expect(find.text('Available Clinical Workflows'), findsOneWidget);
+    });
   });
 }

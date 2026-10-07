@@ -311,28 +311,7 @@ class WorkflowScreen extends ConsumerWidget {
                         if (group != null) ...[
                           const SizedBox(width: 8),
                           FilledButton.icon(
-                            onPressed: canContinue
-                                ? () {
-                                    n.confirmPage();
-                                    final nextGroup =
-                                        ref.read(assessmentProvider).currentGroup;
-                                    if (nextGroup == null && context.mounted) {
-                                      final selected =
-                                          ref.read(assessmentProvider).context.selected;
-                                      if (hasFollowUpForSelected(selected)) {
-                                        final conditionWithMcqs =
-                                            selected.firstWhere(
-                                          hasFollowUpForCondition,
-                                          orElse: () => selected.first,
-                                        );
-                                        ref
-                                            .read(followUpProvider.notifier)
-                                            .initForCondition(conditionWithMcqs);
-                                        context.push('/follow-up-assessment');
-                                      }
-                                    }
-                                  }
-                                : null,
+                            onPressed: canContinue ? n.confirmPage : null,
                             icon: const Icon(Icons.arrow_forward, size: 15),
                             label: const Text('Continue'),
                             style: FilledButton.styleFrom(
@@ -361,11 +340,14 @@ class WorkflowScreen extends ConsumerWidget {
                               );
                               ref
                                   .read(followUpProvider.notifier)
-                                  .initForCondition(conditionWithMcqs);
+                                  .initForCondition(
+                                    conditionWithMcqs,
+                                    startImmediately: true,
+                                  );
                               context.push('/follow-up-assessment');
                             },
                             icon: const Icon(Icons.arrow_forward, size: 15),
-                            label: const Text('Follow-up Assessment'),
+                            label: const Text('Next: MCQs'),
                             style: FilledButton.styleFrom(
                               backgroundColor: AppTheme.primaryNavy,
                               foregroundColor: Colors.white,

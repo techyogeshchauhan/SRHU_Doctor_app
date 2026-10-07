@@ -1612,26 +1612,23 @@ class _QuestionNavigationButtons extends StatelessWidget {
 
     return Row(
       children: [
-        if (currentIndex > 0)
-          Expanded(
-            flex: 1,
-            child: OutlinedButton.icon(
-              onPressed: onPrevious,
-              icon: const Icon(Icons.arrow_back, size: 16),
-              label: const Text('Back'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.primaryNavy,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                minimumSize: const Size(0, 48),
-                side: const BorderSide(color: Color(0xFFCBD5E1)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+        Expanded(
+          flex: 1,
+          child: OutlinedButton.icon(
+            onPressed: onPrevious ?? () => Navigator.of(context).maybePop(),
+            icon: const Icon(Icons.arrow_back, size: 16),
+            label: const Text('Back'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.primaryNavy,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              minimumSize: const Size(0, 48),
+              side: const BorderSide(color: Color(0xFFCBD5E1)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-          )
-        else
-          const Spacer(flex: 1),
+          ),
+        ),
         const SizedBox(width: 12),
         Expanded(
           flex: 2,

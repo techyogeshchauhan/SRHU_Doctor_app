@@ -274,7 +274,10 @@ class AssessmentSummaryView extends ConsumerWidget {
                       onPressed: () {
                         ref
                             .read(followUpProvider.notifier)
-                            .initForCondition(conditionWithMcqs);
+                            .initForCondition(
+                              conditionWithMcqs,
+                              startImmediately: true,
+                            );
                         context.push('/follow-up-assessment');
                       },
                       icon: const Icon(Icons.arrow_forward_rounded, size: 18),

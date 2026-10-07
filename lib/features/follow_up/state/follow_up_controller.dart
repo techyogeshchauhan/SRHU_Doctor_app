@@ -223,10 +223,19 @@ class FollowUpController extends StateNotifier<FollowUpState> {
   }
 
   /// Initializes the assessment for a specific disease condition.
-  void initForCondition(NeonatalCondition condition) {
+  void initForCondition(
+    NeonatalCondition condition, {
+    bool startImmediately = false,
+  }) {
+    if (state.condition == condition && state.mcqs.isNotEmpty) {
+      if (startImmediately && state.stage == FollowUpStage.intro) {
+        state = state.copyWith(stage: FollowUpStage.mcqs);
+      }
+      return;
+    }
     final pkg = getFollowUpPackage(condition);
     state = FollowUpState(
-      stage: FollowUpStage.intro,
+      stage: startImmediately ? FollowUpStage.mcqs : FollowUpStage.intro,
       condition: condition,
       mcqs: pkg?.mcqs ?? const [],
       caseScenarios: pkg?.caseScenarios ?? const [],

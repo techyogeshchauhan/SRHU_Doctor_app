@@ -187,12 +187,15 @@ class RopScreen extends ConsumerWidget {
                     onPressed: () {
                       ref
                           .read(followUpProvider.notifier)
-                          .initForCondition(NeonatalCondition.rop);
+                          .initForCondition(
+                            NeonatalCondition.rop,
+                            startImmediately: true,
+                          );
                       context.push('/follow-up-assessment');
                     },
                     icon: const Icon(Icons.arrow_forward, size: 15),
                     label: const Text(
-                      'Follow-up Assessment',
+                      'Next: MCQs',
                       overflow: TextOverflow.ellipsis,
                     ),
                     style: FilledButton.styleFrom(
