@@ -536,11 +536,50 @@ class _InfoTile extends StatelessWidget {
 // STAGE 2: ROP MCQ SECTION
 // ===========================================================================
 
-class _McqSection extends ConsumerWidget {
+class _McqSection extends ConsumerStatefulWidget {
   const _McqSection();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_McqSection> createState() => _McqSectionState();
+}
+
+class _McqSectionState extends ConsumerState<_McqSection> {
+  bool _highlightUnanswered = false;
+
+  void _onAttemptIncompleteSubmit() {
+    setState(() => _highlightUnanswered = true);
+    final state = ref.read(followUpProvider);
+    final controller = ref.read(followUpProvider.notifier);
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please answer all questions before submitting'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+      ),
+    );
+
+    final firstMissing = state.firstUnansweredMcqIndex;
+    if (firstMissing != null) {
+      controller.goToMcq(firstMissing);
+    }
+  }
+
+  void _onAttemptIncompleteNext() {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content:
+            Text('Please select an option before moving to the next question'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(followUpProvider);
     final controller = ref.read(followUpProvider.notifier);
 
@@ -548,6 +587,14 @@ class _McqSection extends ConsumerWidget {
     final currentIndex = state.currentMcqIndex;
     final total = state.mcqs.length;
     final selectedOption = state.selectedMcqOption;
+    final allAnswered = state.allMcqsAnswered;
+
+    // Reset highlight automatically once all questions are answered
+    if (allAnswered && _highlightUnanswered) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _highlightUnanswered = false);
+      });
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -574,7 +621,8 @@ class _McqSection extends ConsumerWidget {
             ),
             Flexible(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(8),
@@ -594,13 +642,46 @@ class _McqSection extends ConsumerWidget {
         ),
         const SizedBox(height: 14),
 
+        if (_highlightUnanswered && selectedOption == null) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF2F2),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFFCA5A5)),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.error_outline, size: 18, color: Color(0xFFDC2626)),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Please select an answer for this question before submitting.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFB91C1C),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+
         // Question Card
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+            border: Border.all(
+              color: (_highlightUnanswered && selectedOption == null)
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFFCBD5E1),
+              width: (_highlightUnanswered && selectedOption == null) ? 1.6 : 1.2,
+            ),
             boxShadow: const [
               BoxShadow(
                 color: Color(0x0A000000),
@@ -666,9 +747,13 @@ class _McqSection extends ConsumerWidget {
           currentIndex: currentIndex,
           total: total,
           hasSelectedAnswer: selectedOption != null,
+          answeredCount: state.mcqAnsweredCount,
+          allAnswered: allAnswered,
           onPrevious: currentIndex > 0 ? controller.previousMcq : null,
           onNext: currentIndex < total - 1 ? controller.nextMcq : null,
-          onSubmit: state.isLastMcq ? controller.submitMcqs : null,
+          onSubmit: allAnswered ? controller.submitMcqs : null,
+          onAttemptIncompleteSubmit: _onAttemptIncompleteSubmit,
+          onAttemptIncompleteNext: _onAttemptIncompleteNext,
           submitLabel: 'Submit Assessment',
         ),
 
@@ -682,6 +767,7 @@ class _McqSection extends ConsumerWidget {
           children: List.generate(total, (i) {
             final isCurrent = i == currentIndex;
             final isAnswered = state.mcqAnswers.containsKey(state.mcqs[i].id);
+            final isMissing = _highlightUnanswered && !isAnswered;
 
             return InkWell(
               onTap: () => controller.goToMcq(i),
@@ -692,16 +778,21 @@ class _McqSection extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: isCurrent
                       ? AppTheme.primaryNavy
-                      : isAnswered
-                          ? const Color(0xFFE0E7FF)
-                          : const Color(0xFFF1F5F9),
+                      : isMissing
+                          ? const Color(0xFFFEE2E2)
+                          : isAnswered
+                              ? const Color(0xFFE0E7FF)
+                              : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isCurrent
                         ? AppTheme.primaryNavy
-                        : isAnswered
-                            ? const Color(0xFF818CF8)
-                            : const Color(0xFFCBD5E1),
+                        : isMissing
+                            ? const Color(0xFFDC2626)
+                            : isAnswered
+                                ? const Color(0xFF818CF8)
+                                : const Color(0xFFCBD5E1),
+                    width: isMissing ? 2.0 : 1.0,
                   ),
                 ),
                 alignment: Alignment.center,
@@ -712,14 +803,43 @@ class _McqSection extends ConsumerWidget {
                     fontWeight: FontWeight.w700,
                     color: isCurrent
                         ? Colors.white
-                        : isAnswered
-                            ? const Color(0xFF3730A3)
-                            : const Color(0xFF475569),
+                        : isMissing
+                            ? const Color(0xFFB91C1C)
+                            : isAnswered
+                                ? const Color(0xFF3730A3)
+                                : const Color(0xFF475569),
                   ),
                 ),
               ),
             );
           }),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const _LegendItem(
+              color: Color(0xFFE0E7FF),
+              borderColor: Color(0xFF818CF8),
+              label: 'Answered',
+            ),
+            const SizedBox(width: 14),
+            _LegendItem(
+              color: _highlightUnanswered
+                  ? const Color(0xFFFEE2E2)
+                  : const Color(0xFFF1F5F9),
+              borderColor: _highlightUnanswered
+                  ? const Color(0xFFDC2626)
+                  : const Color(0xFFCBD5E1),
+              label: 'Unanswered',
+            ),
+            const SizedBox(width: 14),
+            const _LegendItem(
+              color: AppTheme.primaryNavy,
+              borderColor: AppTheme.primaryNavy,
+              label: 'Current',
+            ),
+          ],
         ),
       ],
     );
@@ -740,7 +860,7 @@ class _McqResultSection extends ConsumerWidget {
 
     final correct = state.mcqCorrectCount;
     final total = state.mcqs.length;
-    final incorrect = total - correct;
+    final incorrect = state.mcqIncorrectCount;
     final percentage = state.mcqPercentage;
 
     return Column(
@@ -960,11 +1080,52 @@ class _McqResultSection extends ConsumerWidget {
 // STAGE 4: CASE SCENARIO SECTION
 // ===========================================================================
 
-class _CaseScenarioSection extends ConsumerWidget {
+class _CaseScenarioSection extends ConsumerStatefulWidget {
   const _CaseScenarioSection();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CaseScenarioSection> createState() =>
+      _CaseScenarioSectionState();
+}
+
+class _CaseScenarioSectionState extends ConsumerState<_CaseScenarioSection> {
+  bool _highlightUnanswered = false;
+
+  void _onAttemptIncompleteSubmit() {
+    setState(() => _highlightUnanswered = true);
+    final state = ref.read(followUpProvider);
+    final controller = ref.read(followUpProvider.notifier);
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content:
+            Text('Please answer all case scenario questions before submitting'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+      ),
+    );
+
+    final firstMissing = state.firstUnansweredCaseIndex;
+    if (firstMissing != null) {
+      controller.goToCase(firstMissing);
+    }
+  }
+
+  void _onAttemptIncompleteNext() {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+            'Please select a clinical response before moving to the next case'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(followUpProvider);
     final controller = ref.read(followUpProvider.notifier);
 
@@ -972,6 +1133,14 @@ class _CaseScenarioSection extends ConsumerWidget {
     final currentIndex = state.currentCaseIndex;
     final total = state.caseScenarios.length;
     final selectedOption = state.selectedCaseOption;
+    final allAnswered = state.allCasesAnswered;
+
+    // Reset highlight automatically once all cases are answered
+    if (allAnswered && _highlightUnanswered) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _highlightUnanswered = false);
+      });
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1015,13 +1184,47 @@ class _CaseScenarioSection extends ConsumerWidget {
         ),
         const SizedBox(height: 14),
 
+        if (_highlightUnanswered && selectedOption == null) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF2F2),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFFCA5A5)),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.error_outline, size: 18, color: Color(0xFFDC2626)),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Please select a clinical response for this case before submitting.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFB91C1C),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+
         // Clinical Scenario Card
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+            border: Border.all(
+              color: (_highlightUnanswered && selectedOption == null)
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFFCBD5E1),
+              width:
+                  (_highlightUnanswered && selectedOption == null) ? 1.6 : 1.2,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1128,9 +1331,13 @@ class _CaseScenarioSection extends ConsumerWidget {
           currentIndex: currentIndex,
           total: total,
           hasSelectedAnswer: selectedOption != null,
+          answeredCount: state.caseAnsweredCount,
+          allAnswered: allAnswered,
           onPrevious: currentIndex > 0 ? controller.previousCase : null,
           onNext: currentIndex < total - 1 ? controller.nextCase : null,
-          onSubmit: state.isLastCase ? controller.submitCaseScenarios : null,
+          onSubmit: allAnswered ? controller.submitCaseScenarios : null,
+          onAttemptIncompleteSubmit: _onAttemptIncompleteSubmit,
+          onAttemptIncompleteNext: _onAttemptIncompleteNext,
           submitLabel: 'Submit Case Scenarios',
         ),
 
@@ -1145,6 +1352,7 @@ class _CaseScenarioSection extends ConsumerWidget {
             final isCurrent = i == currentIndex;
             final isAnswered =
                 state.caseAnswers.containsKey(state.caseScenarios[i].id);
+            final isMissing = _highlightUnanswered && !isAnswered;
 
             return InkWell(
               onTap: () => controller.goToCase(i),
@@ -1155,16 +1363,21 @@ class _CaseScenarioSection extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: isCurrent
                       ? const Color(0xFF0F766E)
-                      : isAnswered
-                          ? const Color(0xFFCCFBF1)
-                          : const Color(0xFFF1F5F9),
+                      : isMissing
+                          ? const Color(0xFFFEE2E2)
+                          : isAnswered
+                              ? const Color(0xFFCCFBF1)
+                              : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isCurrent
                         ? const Color(0xFF0F766E)
-                        : isAnswered
-                            ? const Color(0xFF14B8A6)
-                            : const Color(0xFFCBD5E1),
+                        : isMissing
+                            ? const Color(0xFFDC2626)
+                            : isAnswered
+                                ? const Color(0xFF14B8A6)
+                                : const Color(0xFFCBD5E1),
+                    width: isMissing ? 2.0 : 1.0,
                   ),
                 ),
                 alignment: Alignment.center,
@@ -1175,14 +1388,43 @@ class _CaseScenarioSection extends ConsumerWidget {
                     fontWeight: FontWeight.w700,
                     color: isCurrent
                         ? Colors.white
-                        : isAnswered
-                            ? const Color(0xFF115E59)
-                            : const Color(0xFF475569),
+                        : isMissing
+                            ? const Color(0xFFB91C1C)
+                            : isAnswered
+                                ? const Color(0xFF115E59)
+                                : const Color(0xFF475569),
                   ),
                 ),
               ),
             );
           }),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const _LegendItem(
+              color: Color(0xFFCCFBF1),
+              borderColor: Color(0xFF14B8A6),
+              label: 'Answered',
+            ),
+            const SizedBox(width: 14),
+            _LegendItem(
+              color: _highlightUnanswered
+                  ? const Color(0xFFFEE2E2)
+                  : const Color(0xFFF1F5F9),
+              borderColor: _highlightUnanswered
+                  ? const Color(0xFFDC2626)
+                  : const Color(0xFFCBD5E1),
+              label: 'Unanswered',
+            ),
+            const SizedBox(width: 14),
+            const _LegendItem(
+              color: Color(0xFF0F766E),
+              borderColor: Color(0xFF0F766E),
+              label: 'Current',
+            ),
+          ],
         ),
       ],
     );
@@ -1592,67 +1834,208 @@ class _QuestionNavigationButtons extends StatelessWidget {
     required this.currentIndex,
     required this.total,
     required this.hasSelectedAnswer,
+    required this.answeredCount,
+    required this.allAnswered,
     required this.onPrevious,
     required this.onNext,
     required this.onSubmit,
+    required this.onAttemptIncompleteSubmit,
+    required this.onAttemptIncompleteNext,
     required this.submitLabel,
   });
 
   final int currentIndex;
   final int total;
   final bool hasSelectedAnswer;
+  final int answeredCount;
+  final bool allAnswered;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final VoidCallback? onSubmit;
+  final VoidCallback onAttemptIncompleteSubmit;
+  final VoidCallback onAttemptIncompleteNext;
   final String submitLabel;
 
   @override
   Widget build(BuildContext context) {
     final isLast = currentIndex == total - 1;
+    final bool isActionEnabled = isLast ? allAnswered : hasSelectedAnswer;
+    final VoidCallback? actionCallback = isLast ? onSubmit : onNext;
+    final VoidCallback disabledTapHandler = isLast
+        ? onAttemptIncompleteSubmit
+        : onAttemptIncompleteNext;
 
-    return Row(
+    Widget actionButton = FilledButton.icon(
+      onPressed: isActionEnabled ? actionCallback : null,
+      icon: Icon(
+        isLast ? Icons.check_circle_outline : Icons.arrow_forward,
+        size: 18,
+      ),
+      label: Text(isLast ? submitLabel : 'Next Question'),
+      style: FilledButton.styleFrom(
+        backgroundColor: AppTheme.primaryNavy,
+        disabledBackgroundColor: const Color(0xFF94A3B8),
+        foregroundColor: Colors.white,
+        disabledForegroundColor: Colors.white.withValues(alpha: 0.9),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        minimumSize: const Size(0, 48),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        textStyle: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+
+    if (!isActionEnabled) {
+      actionButton = GestureDetector(
+        onTap: disabledTapHandler,
+        behavior: HitTestBehavior.opaque,
+        child: IgnorePointer(
+          child: actionButton,
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          flex: 1,
-          child: OutlinedButton.icon(
-            onPressed: onPrevious ?? () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.arrow_back, size: 16),
-            label: const Text('Back'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.primaryNavy,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              minimumSize: const Size(0, 48),
-              side: const BorderSide(color: Color(0xFFCBD5E1)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+        // Answered Progress Tracker
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    allAnswered
+                        ? Icons.check_circle_rounded
+                        : Icons.pending_actions_rounded,
+                    size: 15,
+                    color: allAnswered
+                        ? const Color(0xFF16A34A)
+                        : const Color(0xFF64748B),
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    '$answeredCount of $total answered',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: allAnswered
+                          ? const Color(0xFF16A34A)
+                          : const Color(0xFF475569),
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ],
               ),
-            ),
+              if (!allAnswered)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFFECACA)),
+                  ),
+                  child: Text(
+                    '${total - answeredCount} unanswered',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFDC2626),
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFBBF7D0)),
+                  ),
+                  child: const Text(
+                    'Ready to submit',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF16A34A),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 2,
-          child: FilledButton.icon(
-            onPressed: isLast ? onSubmit : onNext,
-            icon: Icon(
-              isLast ? Icons.check_circle_outline : Icons.arrow_forward,
-              size: 18,
-            ),
-            label: Text(isLast ? submitLabel : 'Next Question'),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppTheme.primaryNavy,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              minimumSize: const Size(0, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              textStyle: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+        Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: OutlinedButton.icon(
+                onPressed: onPrevious ?? () => Navigator.of(context).maybePop(),
+                icon: const Icon(Icons.arrow_back, size: 16),
+                label: const Text('Back'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.primaryNavy,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  minimumSize: const Size(0, 48),
+                  side: const BorderSide(color: Color(0xFFCBD5E1)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
+              child: actionButton,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _LegendItem extends StatelessWidget {
+  const _LegendItem({
+    required this.color,
+    required this.borderColor,
+    required this.label,
+  });
+
+  final Color color;
+  final Color borderColor;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+            border: Border.all(color: borderColor),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF64748B),
           ),
         ),
       ],

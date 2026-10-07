@@ -254,17 +254,12 @@ void main() {
       await openStandaloneModule(tester, '/follow-up-assessment');
       await tapVisible(tester, find.text('Start ROP MCQs (8 Questions)'));
 
-      // Select answer on Q1
-      await tapVisible(
-          tester, find.textContaining('Percentage of eligible preterm'));
-
-      // Jump to last question (MCQ 8) via pill button
-      await tapVisible(tester, find.widgetWithText(InkWell, '8'));
-      expect(find.text('MCQ 8 OF 8'), findsOneWidget);
-
-      // Select answer on Q8 and submit
-      await tapVisible(tester,
-          find.textContaining('Observe, monitor weight gain, encourage KMC'));
+      // Answer all 8 questions to complete assessment
+      for (int i = 1; i <= 8; i++) {
+        await tapVisible(tester, find.widgetWithText(InkWell, '$i'));
+        await tapVisible(tester, find.text('A'));
+      }
+      expect(find.text('8 of 8 answered'), findsOneWidget);
       await tapVisible(tester, find.text('Submit Assessment'));
 
       // Reached MCQ Result Summary (completion)

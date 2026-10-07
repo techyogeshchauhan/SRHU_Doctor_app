@@ -69,8 +69,36 @@ class FollowUpState {
   /// Total MCQs answered.
   int get mcqAnsweredCount => mcqAnswers.length;
 
+  /// Whether every MCQ has been answered.
+  bool get allMcqsAnswered =>
+      mcqs.isNotEmpty &&
+      mcqAnswers.length == mcqs.length &&
+      mcqs.every((q) => mcqAnswers.containsKey(q.id));
+
+  /// Index of the first unanswered MCQ, or null if all are answered.
+  int? get firstUnansweredMcqIndex {
+    for (int i = 0; i < mcqs.length; i++) {
+      if (!mcqAnswers.containsKey(mcqs[i].id)) return i;
+    }
+    return null;
+  }
+
   /// Total Case Scenarios answered.
   int get caseAnsweredCount => caseAnswers.length;
+
+  /// Whether every Case Scenario has been answered.
+  bool get allCasesAnswered =>
+      caseScenarios.isNotEmpty &&
+      caseAnswers.length == caseScenarios.length &&
+      caseScenarios.every((q) => caseAnswers.containsKey(q.id));
+
+  /// Index of the first unanswered Case Scenario, or null if all are answered.
+  int? get firstUnansweredCaseIndex {
+    for (int i = 0; i < caseScenarios.length; i++) {
+      if (!caseAnswers.containsKey(caseScenarios[i].id)) return i;
+    }
+    return null;
+  }
 
   /// Count of correctly answered MCQs.
   int get mcqCorrectCount =>
@@ -177,8 +205,13 @@ class FollowUpController extends StateNotifier<FollowUpState> {
   }
 
   /// Submits the MCQ section and navigates to the MCQ Result screen.
-  void submitMcqs() {
+  /// Returns true if all MCQs are answered and submission succeeds; false otherwise.
+  bool submitMcqs() {
+    if (!state.allMcqsAnswered) {
+      return false;
+    }
     state = state.copyWith(stage: FollowUpStage.mcqResult);
+    return true;
   }
 
   /// Advances from MCQ Result to the Case Scenarios section.
@@ -218,8 +251,13 @@ class FollowUpController extends StateNotifier<FollowUpState> {
   }
 
   /// Submits the Case Scenarios and navigates to the Final Summary screen.
-  void submitCaseScenarios() {
+  /// Returns true if all case scenarios are answered and submission succeeds; false otherwise.
+  bool submitCaseScenarios() {
+    if (!state.allCasesAnswered) {
+      return false;
+    }
     state = state.copyWith(stage: FollowUpStage.finalSummary);
+    return true;
   }
 
   /// Initializes the assessment for a specific disease condition.

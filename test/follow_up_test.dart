@@ -144,6 +144,64 @@ void main() {
       expect(controller.state.stage, FollowUpStage.intro);
       expect(controller.state.mcqAnswers.isEmpty, true);
     });
+
+    test('submitMcqs and submitCaseScenarios block incomplete submission and track unanswered indices', () {
+      final controller = FollowUpController();
+      controller.startAssessment();
+
+      // Only Q1 and Q8 answered
+      controller.selectMcqOption(1); // Q1 answered
+      controller.goToMcq(7);
+      controller.selectMcqOption(2); // Q8 answered
+
+      expect(controller.state.mcqAnsweredCount, 2);
+      expect(controller.state.allMcqsAnswered, isFalse);
+      expect(controller.state.firstUnansweredMcqIndex, 1); // Q2 is first missing
+
+      // Attempt submit: must return false and NOT advance stage
+      final submitSuccess = controller.submitMcqs();
+      expect(submitSuccess, isFalse);
+      expect(controller.state.stage, FollowUpStage.mcqs);
+
+      // Answer all remaining questions
+      for (int i = 1; i < 7; i++) {
+        controller.goToMcq(i);
+        controller.selectMcqOption(0);
+      }
+      expect(controller.state.allMcqsAnswered, isTrue);
+      expect(controller.state.firstUnansweredMcqIndex, isNull);
+
+      final secondSubmit = controller.submitMcqs();
+      expect(secondSubmit, isTrue);
+      expect(controller.state.stage, FollowUpStage.mcqResult);
+
+      // Now test Case Scenarios
+      controller.proceedToCaseScenarios();
+      expect(controller.state.stage, FollowUpStage.caseScenarios);
+
+      controller.selectCaseOption(0); // Case 1 answered
+      controller.goToCase(7);
+      controller.selectCaseOption(0); // Case 8 answered
+      expect(controller.state.caseAnsweredCount, 2);
+      expect(controller.state.allCasesAnswered, isFalse);
+      expect(controller.state.firstUnansweredCaseIndex, 1);
+
+      final caseSubmitBlocked = controller.submitCaseScenarios();
+      expect(caseSubmitBlocked, isFalse);
+      expect(controller.state.stage, FollowUpStage.caseScenarios);
+
+      // Answer all remaining cases
+      for (int i = 1; i < 7; i++) {
+        controller.goToCase(i);
+        controller.selectCaseOption(0);
+      }
+      expect(controller.state.allCasesAnswered, isTrue);
+      expect(controller.state.firstUnansweredCaseIndex, isNull);
+
+      final caseSubmitSuccess = controller.submitCaseScenarios();
+      expect(caseSubmitSuccess, isTrue);
+      expect(controller.state.stage, FollowUpStage.finalSummary);
+    });
   });
 
   group('FollowUpScreen Widget Tests', () {
@@ -178,7 +236,8 @@ void main() {
       expect(find.text('D'), findsOneWidget);
     });
 
-    testWidgets('allows selecting an option, navigating next, and submitting MCQs',
+    testWidgets(
+        'blocks submission when questions are skipped, highlights missing, and allows submission only when all answered',
         (tester) async {
       await tester.binding.setSurfaceSize(const Size(800, 1000));
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -200,32 +259,118 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('MCQ 1 OF 8'), findsOneWidget);
+      expect(find.text('0 of 8 answered'), findsOneWidget);
 
-      // Tap option B
+      // On Q1, Next button is disabled when no option is selected
+      final nextFinder = find.widgetWithText(FilledButton, 'Next Question');
+      expect(tester.widget<FilledButton>(nextFinder).onPressed, isNull);
+
+      // Tap option B on Q1
       await tester.tap(find.textContaining('Percentage of eligible preterm/LBW babies'));
       await tester.pumpAndSettle();
 
-      // Verify controller state updated
+      // Controller state updated and Next button is now enabled
       expect(container.read(followUpProvider).selectedMcqOption, 1);
+      expect(find.text('1 of 8 answered'), findsOneWidget);
+      expect(tester.widget<FilledButton>(nextFinder).onPressed, isNotNull);
 
-      // Jump to last question (MCQ 8)
-      container.read(followUpProvider.notifier).goToMcq(7);
+      // Jump to last question (MCQ 8) via pill button
+      await tester.tap(find.widgetWithText(InkWell, '8'));
       await tester.pumpAndSettle();
 
       expect(find.text('MCQ 8 OF 8'), findsOneWidget);
       expect(find.text('Submit Assessment'), findsOneWidget);
+      expect(find.text('1 of 8 answered'), findsOneWidget);
 
       // Tap option C on Q8
       await tester.tap(find.textContaining('Observe, monitor weight gain, encourage KMC'));
       await tester.pumpAndSettle();
 
-      // Tap Submit Assessment
-      await tester.tap(find.text('Submit Assessment'));
+      expect(find.text('2 of 8 answered'), findsOneWidget);
+
+      // Submit button should be disabled because only 2 of 8 answered
+      final submitFinder = find.widgetWithText(FilledButton, 'Submit Assessment');
+      expect(tester.widget<FilledButton>(submitFinder).onPressed, isNull);
+
+      // Tapping the disabled Submit button should show validation error and jump to first unanswered question (Q2)
+      await tester.tap(submitFinder);
       await tester.pumpAndSettle();
 
-      // Verify we are on MCQ Result screen
+      expect(find.text('Please answer all questions before submitting'), findsOneWidget);
+      expect(find.text('MCQ 2 OF 8'), findsOneWidget);
+      expect(container.read(followUpProvider).stage, FollowUpStage.mcqs);
+
+      // Answer all remaining questions (Q2 through Q7)
+      for (int i = 1; i <= 6; i++) {
+        container.read(followUpProvider.notifier).goToMcq(i);
+        container.read(followUpProvider.notifier).selectMcqOption(
+              container.read(followUpProvider).mcqs[i].correctAnswerIndex,
+            );
+      }
+      await tester.pumpAndSettle();
+
+      // Now all 8 are answered
+      expect(container.read(followUpProvider).allMcqsAnswered, isTrue);
+      expect(find.text('8 of 8 answered'), findsOneWidget);
+
+      // Go back to Q8
+      container.read(followUpProvider.notifier).goToMcq(7);
+      await tester.pumpAndSettle();
+
+      // Submit button is now enabled
+      expect(tester.widget<FilledButton>(submitFinder).onPressed, isNotNull);
+
+      // Tap Submit Assessment
+      await tester.tap(submitFinder);
+      await tester.pumpAndSettle();
+
+      // Successfully transitioned to MCQ Result screen
+      expect(container.read(followUpProvider).stage, FollowUpStage.mcqResult);
       expect(find.textContaining('Results'), findsWidgets);
       expect(find.text('Proceed to Case Scenarios (8 Cases)'), findsWidgets);
+    });
+
+    testWidgets(
+        'opening MCQs shows no option pre-selected anywhere and reset clears all selections',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(800, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: FollowUpScreen(),
+          ),
+        ),
+      );
+
+      container.read(followUpProvider.notifier).startAssessment();
+      await tester.pumpAndSettle();
+
+      // Check all 8 questions: none must have any selected option initially
+      for (int i = 0; i < 8; i++) {
+        container.read(followUpProvider.notifier).goToMcq(i);
+        await tester.pumpAndSettle();
+        expect(container.read(followUpProvider).selectedMcqOption, isNull,
+            reason: 'MCQ $i must have no option pre-selected');
+      }
+
+      // Select an answer on Q1
+      container.read(followUpProvider.notifier).goToMcq(0);
+      container.read(followUpProvider.notifier).selectMcqOption(1);
+      expect(container.read(followUpProvider).mcqAnswers.isNotEmpty, isTrue);
+
+      // Reset
+      container.read(followUpProvider.notifier).reset();
+      await tester.pumpAndSettle();
+
+      expect(container.read(followUpProvider).stage, FollowUpStage.intro);
+      expect(container.read(followUpProvider).mcqAnswers.isEmpty, isTrue);
+      expect(container.read(followUpProvider).caseAnswers.isEmpty, isTrue);
     });
   });
 }
