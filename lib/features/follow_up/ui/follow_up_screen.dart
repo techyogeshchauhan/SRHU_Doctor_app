@@ -10,13 +10,14 @@ import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
+import '../data/disease_follow_up_registry.dart';
 import '../domain/follow_up_models.dart';
 import '../state/follow_up_controller.dart';
 
 /// Main screen for the Follow-up Assessment workflow.
 ///
 /// Flow:
-/// Intro -> ROP MCQs (1..8) -> MCQ Result -> Case Scenarios (1..8) -> Final Summary
+/// Intro -> MCQs -> MCQ Result -> Case Scenarios -> Final Summary
 class FollowUpScreen extends ConsumerWidget {
   const FollowUpScreen({super.key});
 
@@ -270,7 +271,7 @@ class _EmptyFollowUpSection extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Follow-up MCQs and bedside clinical case scenarios for ${definitionOf(condition).title} are currently under preparation as per ICMR / DHR STW guidelines.\n\nCurrently, follow-up MCQs are available for Retinopathy of Prematurity (ROP).',
+            'Follow-up MCQs and bedside clinical case scenarios for ${definitionOf(condition).title} are currently under preparation as per ICMR / DHR STW guidelines.\n\nCurrently, follow-up MCQs are available for ${diseaseFollowUpRegistry.values.map((p) => p.title).join(', ')}.',
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 13,
@@ -367,9 +368,9 @@ class _IntroSection extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Test and consolidate your clinical understanding of ROP prevention, screening protocols, timing criteria, analgesia, zone/stage treatment, and post-discharge surveillance.',
-                style: TextStyle(
+              Text(
+                state.package?.introDescription ?? '',
+                style: const TextStyle(
                   color: Color(0xFFE2E8F0),
                   fontSize: 13,
                   height: 1.5,
@@ -392,28 +393,28 @@ class _IntroSection extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
 
-        const _InfoTile(
+        _InfoTile(
           icon: Icons.quiz_outlined,
-          color: Color(0xFF2563EB),
-          title: 'Part 1: ROP MCQs (8 Questions)',
-          subtitle:
-              'Multiple choice questions covering KPIs, prevention measures, screening arrangements, pre-exam fasting/preparation, gestational age eligibility, screening timing, zone treatment, and Stage 1 management.',
+          color: const Color(0xFF2563EB),
+          title:
+              'Part 1: ${state.shortName} MCQs (${state.mcqs.length} Questions)',
+          subtitle: state.package?.mcqTopics ?? '',
         ),
         const SizedBox(height: 10),
-        const _InfoTile(
+        _InfoTile(
           icon: Icons.analytics_outlined,
-          color: Color(0xFF059669),
+          color: const Color(0xFF059669),
           title: 'Part 2: MCQ Results & Explanations',
           subtitle:
-              'Comprehensive score breakdown with detailed clinical rationales directly from the ICMR/DHR ROP STW guidelines.',
+              'Comprehensive score breakdown with detailed clinical rationales directly from the ICMR/DHR ${state.shortName} STW guidelines.',
         ),
         const SizedBox(height: 10),
-        const _InfoTile(
+        _InfoTile(
           icon: Icons.medical_services_outlined,
-          color: Color(0xFFD97706),
-          title: 'Part 3: Clinical Case Scenarios (8 Cases)',
-          subtitle:
-              'Real-life bedside vignettes including oxygen titration, timely screening KPI calculations, transfer documentation, anti-VEGF surveillance, and aggressive ROP follow-up.',
+          color: const Color(0xFFD97706),
+          title:
+              'Part 3: Clinical Case Scenarios (${state.caseScenarios.length} Cases)',
+          subtitle: state.package?.caseTopics ?? '',
         ),
         const SizedBox(height: 24),
 
@@ -421,7 +422,8 @@ class _IntroSection extends ConsumerWidget {
         FilledButton.icon(
           onPressed: controller.startAssessment,
           icon: const Icon(Icons.arrow_forward_rounded, size: 20),
-          label: const Text('Start ROP MCQs (8 Questions)'),
+          label: Text(
+              'Start ${state.shortName} MCQs (${state.mcqs.length} Questions)'),
           style: FilledButton.styleFrom(
             backgroundColor: AppTheme.primaryNavy,
             foregroundColor: Colors.white,
@@ -901,9 +903,9 @@ class _McqResultSection extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'ROP Standard Treatment Workflow MCQ Results',
-                style: TextStyle(
+              Text(
+                '${state.shortName} Standard Treatment Workflow MCQ Results',
+                style: const TextStyle(
                   fontSize: 13,
                   color: Color(0xFF64748B),
                 ),
@@ -988,7 +990,8 @@ class _McqResultSection extends ConsumerWidget {
         FilledButton.icon(
           onPressed: controller.proceedToCaseScenarios,
           icon: const Icon(Icons.arrow_forward_rounded, size: 20),
-          label: const Text('Proceed to Case Scenarios (8 Cases)'),
+          label: Text(
+              'Proceed to Case Scenarios (${state.caseScenarios.length} Cases)'),
           style: FilledButton.styleFrom(
             backgroundColor: AppTheme.primaryNavy,
             foregroundColor: Colors.white,
@@ -1055,7 +1058,8 @@ class _McqResultSection extends ConsumerWidget {
         FilledButton.icon(
           onPressed: controller.proceedToCaseScenarios,
           icon: const Icon(Icons.arrow_forward_rounded, size: 20),
-          label: const Text('Proceed to Case Scenarios (8 Cases)'),
+          label: Text(
+              'Proceed to Case Scenarios (${state.caseScenarios.length} Cases)'),
           style: FilledButton.styleFrom(
             backgroundColor: AppTheme.primaryNavy,
             foregroundColor: Colors.white,
@@ -1602,7 +1606,7 @@ class _FinalSummarySection extends ConsumerWidget {
               child: OutlinedButton.icon(
                 onPressed: () => Share.share(
                   summaryReport,
-                  subject: 'ROP STW Follow-up Assessment Summary',
+                  subject: '${state.shortName} STW Follow-up Assessment Summary',
                 ),
                 icon: const Icon(Icons.share_rounded, size: 18),
                 label: const Text('Share Report'),
@@ -1704,7 +1708,8 @@ class _FinalSummarySection extends ConsumerWidget {
   String _buildSummaryReport(FollowUpState state) {
     final buffer = StringBuffer();
     buffer.writeln('==============================================');
-    buffer.writeln('ICMR / DHR ROP STW FOLLOW-UP ASSESSMENT REPORT');
+    buffer.writeln(
+        'ICMR / DHR ${state.shortName.toUpperCase()} STW FOLLOW-UP ASSESSMENT REPORT');
     buffer.writeln('==============================================');
     buffer.writeln(
         'Overall Score: ${state.totalCorrectCount} / ${state.totalQuestionsCount} (${state.totalPercentage.round()}%)');
@@ -2378,6 +2383,17 @@ class _QuestionFeedbackCard extends StatelessWidget {
                     height: 1.45,
                   ),
                 ),
+                if (question.stwReference != null) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    'Source: ${question.stwReference}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                      color: Color(0xFF475569),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -2617,6 +2633,17 @@ class _CaseFeedbackCard extends StatelessWidget {
                     height: 1.45,
                   ),
                 ),
+                if (question.stwReference != null) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    'Source: ${question.stwReference}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                      color: Color(0xFF475569),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

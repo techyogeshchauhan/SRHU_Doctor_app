@@ -27,6 +27,7 @@ class FollowUpQuestion {
     required this.questionType,
     this.scenario,
     this.disease = NeonatalCondition.rop,
+    this.stwReference,
   });
 
   /// Unique identifier, e.g. 'rop_mcq_1' or 'rop_case_1'.
@@ -55,6 +56,10 @@ class FollowUpQuestion {
 
   /// Associated neonatal condition.
   final NeonatalCondition disease;
+
+  /// STW box the answer comes from, e.g. 'ICMR/DHR STW "Neonatal
+  /// Hypoglycemia" (August 2026), DRUGS FOR REFRACTORY HYPOGLYCEMIA'.
+  final String? stwReference;
 
   /// Letter corresponding to correct answer ('A', 'B', 'C', 'D').
   String get correctAnswerLetter =>

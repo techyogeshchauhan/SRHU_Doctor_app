@@ -1,0 +1,3239 @@
+[
+  {
+    "id": "rd_diagnostic_criteria",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Diagnostic Criteria: Respiratory Distress in Neonates",
+    "type": "text",
+    "section": "Diagnosis",
+    "x": 0.01117,
+    "y": 0.11636,
+    "w": 0.21285,
+    "h": 0.09267,
+    "aliases": [
+      "diagnostic criteria",
+      "respiratory rate",
+      "rr >60",
+      "tachypnea",
+      "chest indrawing",
+      "nasal flaring",
+      "grunting",
+      "symptoms of rd"
+    ],
+    "example_questions": [
+      "What are the diagnostic criteria for neonatal respiratory distress?",
+      "How to diagnose respiratory distress in a newborn?",
+      "Tachypnea cut-off for neonates",
+      "Bacche mein respiratory distress ke lakshan kya hain?",
+      "Newborn baby ka breathing rate kitna hone par respiratory distress maante hain?",
+      "Nasal flaring aur grunting kab hoti hai?"
+    ],
+    "text": "RESPIRATORY DISTRESS\nPresence of ANY ONE:\nRR >60/min\nChest retractions\nNasal ﬂaring\nGrunting",
+    "crop_image": "assets/regions/crops/rd_diagnostic_criteria.webp",
+    "segments": [
+      {
+        "text": "RESPIRATORY DISTRESS",
+        "header": true
+      },
+      {
+        "text": "Presence of ANY ONE:",
+        "header": true
+      },
+      {
+        "text": "RR >60/min",
+        "label": "Presence of ANY ONE:"
+      },
+      {
+        "text": "Chest retractions",
+        "label": "Presence of ANY ONE:"
+      },
+      {
+        "text": "Nasal ﬂaring",
+        "label": "Presence of ANY ONE:"
+      },
+      {
+        "text": "Grunting",
+        "label": "Presence of ANY ONE:"
+      }
+    ],
+    "intents": [
+      "definition",
+      "signs",
+      "criteria"
+    ]
+  },
+  {
+    "id": "rd_immediate_actions",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Immediate Actions & Stabilization (TABC)",
+    "type": "text",
+    "section": "Immediate Actions",
+    "x": 0.23519,
+    "y": 0.11636,
+    "w": 0.75438,
+    "h": 0.09267,
+    "aliases": [
+      "tabc",
+      "temperature",
+      "airway",
+      "breathing",
+      "circulation",
+      "sncu",
+      "nicu",
+      "iv access",
+      "blood glucose",
+      "hypoglycemia"
+    ],
+    "example_questions": [
+      "What are the immediate actions for neonatal respiratory distress?",
+      "Explain TABC in neonatal stabilization",
+      "Immediate steps in SNCU for baby with breathing difficulty",
+      "Bacche ko distress mein pehle kaise stabilize karein?",
+      "TABC ka matlab kya hai neonatal care mein?",
+      "Distress wale bacche ka blood sugar kab check karein?"
+    ],
+    "text": "IMMEDIATE ACTIONS\nAssess and stabilize TABC (temperature, airway, breathing, circulation)\nAdmit to SNCU/NICU\n◦Provide thermal care\n◦Attach pulse oximeter\n◦Monitor HR, RR, SpO₂ and CRT; grade severity using Silverman-Andersen score (SAS)\nFeed enterally if stable\n◦Direct breastfeed if mild distress; gastric-tube feeds if moderate distress, or on CPAP\nIV ﬂuids if severe distress, recurrent apnea, poor perfusion, or abdominal signs",
+    "crop_image": "assets/regions/crops/rd_immediate_actions.webp",
+    "segments": [
+      {
+        "text": "IMMEDIATE ACTIONS",
+        "header": true
+      },
+      {
+        "text": "Assess and stabilize TABC (temperature, airway, breathing, circulation)"
+      },
+      {
+        "text": "Admit to SNCU/NICU"
+      },
+      {
+        "text": "Provide thermal care",
+        "label": "Admit to SNCU/NICU"
+      },
+      {
+        "text": "Attach pulse oximeter",
+        "label": "Admit to SNCU/NICU"
+      },
+      {
+        "text": "Monitor HR, RR, SpO₂ and CRT; grade severity using Silverman-Andersen score (SAS)",
+        "label": "Admit to SNCU/NICU"
+      },
+      {
+        "text": "Feed enterally if stable"
+      },
+      {
+        "text": "Direct breastfeed if mild distress; gastric-tube feeds if moderate distress, or on CPAP",
+        "label": "Feed enterally if stable"
+      },
+      {
+        "text": "IV ﬂuids if severe distress, recurrent apnea, poor perfusion, or abdominal signs"
+      }
+    ],
+    "intents": [
+      "management",
+      "procedure"
+    ]
+  },
+  {
+    "id": "rd_algorithm_overview",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Algorithm Assessment by GA & SAS",
+    "type": "algorithm",
+    "section": "Clinical Algorithm",
+    "x": 0.01045,
+    "y": 0.2113,
+    "w": 0.97911,
+    "h": 0.08441,
+    "aliases": [
+      "algorithm overview",
+      "gestational age",
+      "ga assessment",
+      "silverman andersen score",
+      "sas",
+      "1800g surrogate",
+      "birth weight surrogate"
+    ],
+    "example_questions": [
+      "How to stratify respiratory distress by gestational age and SAS?",
+      "Surrogate birth weight if gestational age is uncertain",
+      "What birth weight cutoff is used when GA is not known?",
+      "Agar gestational age pata na ho toh kaunsa birth weight cutoff lete hain?",
+      "Distress algorithm mein GA aur SAS ka kya role hai?"
+    ],
+    "text": "ALGORITHM\nRESPIRATORY DISTRESS Assess gestation (GA) + SAS\nGA ≤34 weeks\nAny respiratory distress\nGA >34 weeks\nModerate-severe RD (SAS ≥4)\nGA >34 weeks\nMild RD (SAS ≤3)\nIf GA is uncertain, BW ≤1800 g may be used as an operational surrogate",
+    "crop_image": "assets/regions/crops/rd_algorithm_overview.webp",
+    "segments": [
+      {
+        "text": "RESPIRATORY DISTRESS Assess gestation (GA) + SAS"
+      },
+      {
+        "text": "If GA is uncertain, BW ≤1800 g may be used as an operational surrogate"
+      },
+      {
+        "text": "GA ≤34 weeks Any respiratory distress"
+      },
+      {
+        "text": "GA >34 weeks Moderate-severe RD (SAS ≥4)"
+      },
+      {
+        "text": "GA >34 weeks Mild RD (SAS ≤3)"
+      }
+    ],
+    "intents": [
+      "criteria",
+      "management"
+    ]
+  },
+  {
+    "id": "rd_initial_preterm_cpap_caffeine",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Initial Respiratory Support for GA ≤34 Weeks (CPAP & Caffeine Citrate)",
+    "type": "algorithm",
+    "section": "Preterm Respiratory Support",
+    "x": 0.01083,
+    "y": 0.30867,
+    "w": 0.58604,
+    "h": 0.03576,
+    "aliases": [
+      "cpap",
+      "start cpap",
+      "5-6 cm h2o",
+      "blended o2",
+      "fio2",
+      "spo2 91-95%",
+      "caffeine citrate",
+      "<34 weeks",
+      "preterm",
+      "peep 5-6"
+    ],
+    "example_questions": [
+      "Initial CPAP pressure in preterm ≤34 weeks",
+      "What is the starting CPAP level in preterm neonates?",
+      "Caffeine citrate indication and dosage",
+      "When to start caffeine citrate in preterm infants?",
+      "Target SpO2 for preterm baby on CPAP",
+      "Preterm baby <=34 weeks ko CPAP kitne pressure par start karein?",
+      "Caffeine citrate kab shuru karni chahiye?",
+      "Preterm neonate mein oxygen target kitna hota hai?"
+    ],
+    "text": "START CPAP\nCPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%\nStart caffeine citrate in neonates <34 weeks who require respiratory support",
+    "crop_image": "assets/regions/crops/rd_initial_preterm_cpap_caffeine.webp",
+    "segments": [
+      {
+        "text": "START CPAP",
+        "header": true
+      },
+      {
+        "text": "CPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%",
+        "label": "START CPAP"
+      },
+      {
+        "text": "Start caffeine citrate in neonates <34 weeks who require respiratory support"
+      }
+    ],
+    "intents": [
+      "management",
+      "dose",
+      "criteria"
+    ]
+  },
+  {
+    "id": "rd_initial_term_moderate_severe_cpap",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Initial Support for GA >34 Weeks with Moderate-to-Severe Distress (SAS ≥4)",
+    "type": "algorithm",
+    "section": "Term Respiratory Support",
+    "x": 0.01069,
+    "y": 0.30851,
+    "w": 0.58559,
+    "h": 0.03611,
+    "aliases": [
+      "term baby",
+      ">34 weeks",
+      "moderate-severe distress",
+      "sas >=4",
+      "cpap 5-6 cm h2o",
+      "term cpap",
+      "sas 4",
+      "sas >=4",
+      "moderate-severe distress"
+    ],
+    "example_questions": [
+      "How to manage moderate to severe respiratory distress in term neonates?",
+      "Initial CPAP for GA >34 weeks with SAS ≥4",
+      "Term baby with SAS 4 management",
+      "Term baby ko moderate ya severe distress ho toh kya support dein?",
+      "GA >34 weeks aur SAS 4 se jyada par CPAP pressure kitna hona chahiye?"
+    ],
+    "text": "START CPAP\nCPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%\nStart caffeine citrate in neonates <34 weeks who require respiratory support",
+    "crop_image": "assets/regions/crops/rd_initial_term_moderate_severe_cpap.webp",
+    "segments": [
+      {
+        "text": "START CPAP",
+        "header": true
+      },
+      {
+        "text": "CPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%",
+        "label": "START CPAP"
+      },
+      {
+        "text": "Start caffeine citrate in neonates <34 weeks who require respiratory support"
+      }
+    ],
+    "intents": [
+      "management",
+      "dose"
+    ]
+  },
+  {
+    "id": "rd_reassessment_sepsis",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Reassessment Protocol & Sepsis Consideration",
+    "type": "algorithm",
+    "section": "Monitoring & Reassessment",
+    "x": 0.08317,
+    "y": 0.3567,
+    "w": 0.83998,
+    "h": 0.03023,
+    "aliases": [
+      "reassess frequently",
+      "clinical status",
+      "sepsis",
+      "perinatal risk factors",
+      "worsening",
+      "blood culture",
+      "antibiotics",
+      "suspect sepsis",
+      "sepsis in respiratory distress"
+    ],
+    "example_questions": [
+      "How frequently should a neonate in respiratory distress be reassessed?",
+      "When should sepsis be considered in a baby with respiratory distress?",
+      "Risk factors for sepsis in neonatal respiratory distress",
+      "Distress wale bacche ko kitni der mein dobara assess karein?",
+      "Respiratory distress mein sepsis kab suspect karein?"
+    ],
+    "text": "REASSESS FREQUENTLY: clinical status, SAS, SpO₂, FiO₂ requirement\nConsider sepsis if perinatal risk factors, systemic illness, worsening distress or rising FiO₂ (see STW: Sepsis in Neonates)",
+    "crop_image": "assets/regions/crops/rd_reassessment_sepsis.webp",
+    "segments": [
+      {
+        "text": "REASSESS FREQUENTLY: clinical status, SAS, SpO₂, FiO₂ requirement"
+      },
+      {
+        "text": "Consider sepsis if perinatal risk factors, systemic illness, worsening distress or rising FiO₂ (see STW: Sepsis in Neonates)"
+      }
+    ],
+    "intents": [
+      "schedule",
+      "signs",
+      "criteria"
+    ]
+  },
+  {
+    "id": "rd_initial_term_mild_nasal_o2",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Initial Support for GA >34 Weeks with Mild Distress (SAS ≤3)",
+    "type": "algorithm",
+    "section": "Term Mild Distress",
+    "x": 0.64617,
+    "y": 0.30851,
+    "w": 0.34328,
+    "h": 0.03611,
+    "aliases": [
+      "mild distress",
+      "sas <=3",
+      "nasal-prong oxygen",
+      "nasal prongs",
+      "0.5-1 l/min",
+      "oxygen flow",
+      "sas 3",
+      "sas <=3",
+      "mild distress sas <=3"
+    ],
+    "example_questions": [
+      "How to manage mild respiratory distress in term neonate?",
+      "Oxygen flow rate by nasal prongs for SAS ≤3",
+      "When to use nasal prong oxygen in newborns?",
+      "Mild distress wale term baby ko oxygen kitne flow par dein?",
+      "SAS 3 ya usse kam hone par oxygen therapy kaise dete hain?"
+    ],
+    "text": "NASAL-PRONG OXYGEN 0.5–1 L/min\nTitrate to SpO₂ 91–95%",
+    "crop_image": "assets/regions/crops/rd_initial_term_mild_nasal_o2.webp",
+    "segments": [
+      {
+        "text": "NASAL-PRONG OXYGEN 0.5–1 L/min"
+      },
+      {
+        "text": "Titrate to SpO₂ 91–95%"
+      }
+    ],
+    "intents": [
+      "management",
+      "dose"
+    ]
+  },
+  {
+    "id": "rd_outcome_improving_weaning",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Outcome Improving: CPAP and Oxygen Weaning Protocol",
+    "type": "algorithm",
+    "section": "Weaning Protocol",
+    "x": 0.01049,
+    "y": 0.47859,
+    "w": 0.31114,
+    "h": 0.08521,
+    "aliases": [
+      "weaning",
+      "wean fio2",
+      "0.21 room air",
+      "reduce cpap",
+      "1 cm h2o",
+      "4-5 cm h2o",
+      "stop cpap",
+      "monitoring 24 hours"
+    ],
+    "example_questions": [
+      "How to wean CPAP in neonates?",
+      "What is the protocol for weaning CPAP and oxygen?",
+      "When can CPAP be stopped?",
+      "Baby ko CPAP se kaise hatayein (wean karein)?",
+      "FiO2 aur CPAP pressure kam karne ka sequence kya hai?",
+      "CPAP stop karne ke baad kitni der monitor karna chahiye?"
+    ],
+    "text": "Wean FiO₂ ﬁrst to 0.21, then\nreduce CPAP in 1 cm H₂O steps to\n4–5 cm H₂O and stop when\nstable; continue SpO₂ monitoring\nfor 24 h after stopping",
+    "crop_image": "assets/regions/crops/rd_outcome_improving_weaning.webp",
+    "segments": [
+      {
+        "text": "Wean FiO₂ ﬁrst to 0.21, then reduce CPAP in 1 cm H₂O steps to 4–5 cm H₂O and stop when stable; continue SpO₂ monitoring for 24 h after stopping"
+      }
+    ],
+    "intents": [
+      "wean",
+      "stop"
+    ]
+  },
+  {
+    "id": "rd_surfactant_indication",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Surfactant Therapy Indication & Thresholds",
+    "type": "algorithm",
+    "section": "Surfactant Therapy",
+    "x": 0.36847,
+    "y": 0.39942,
+    "w": 0.21911,
+    "h": 0.08308,
+    "aliases": [
+      "surfactant",
+      "<34 weeks",
+      "cpap",
+      "peep >6 cm h2o",
+      "fio2 >0.30",
+      "fio2 >30%",
+      "spo2 91-95%",
+      "rds",
+      "within 2 hours"
+    ],
+    "example_questions": [
+      "Surfactant criteria on CPAP",
+      "What are the threshold criteria for surfactant therapy in preterm neonates?",
+      "FiO2 cutoff for surfactant administration",
+      "How soon should surfactant be given after meeting criteria?",
+      "Surfactant kab dena chahiye preterm baby ko?",
+      "CPAP par PEEP aur FiO2 kitna hone par surfactant diya jata hai?",
+      "Criteria meet hone ke kitni der ke andar surfactant de dena chahiye?"
+    ],
+    "text": "SURFACTANT\n<34 weeks on CPAP\nneeding PEEP >6 cm H₂O\nAND FiO₂ >0.30 to keep\nSpO₂ between 91-95%",
+    "crop_image": "assets/regions/crops/rd_surfactant_indication.webp",
+    "segments": [
+      {
+        "text": "SURFACTANT",
+        "header": true
+      },
+      {
+        "text": "<34 weeks on CPAP needing PEEP >6 cm H₂O AND FiO₂ >0.30 to keep SpO₂ between 91-95%",
+        "label": "SURFACTANT"
+      }
+    ],
+    "intents": [
+      "criteria",
+      "management"
+    ]
+  },
+  {
+    "id": "rd_outcome_not_improving_optimize_cpap",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Outcome Not Improving: Steps to Optimize CPAP",
+    "type": "algorithm",
+    "section": "CPAP Optimization",
+    "x": 0.64239,
+    "y": 0.47675,
+    "w": 0.34612,
+    "h": 0.045,
+    "aliases": [
+      "not improving",
+      "worsening",
+      "optimize cpap",
+      "increase peep",
+      "7-8 cm h2o",
+      "check prongs",
+      "prongs dislodged",
+      "airway blockage"
+    ],
+    "example_questions": [
+      "What steps to take if baby on CPAP is not improving?",
+      "How to optimize CPAP in worsening distress?",
+      "Maximum PEEP on CPAP before failure",
+      "Agar CPAP par baby improve na ho toh kya karein?",
+      "PEEP ko badhakar kitne tak le ja sakte hain?",
+      "CPAP optimize karne ke liye kya check karna padta hai?"
+    ],
+    "text": "OPTIMIZE CPAP\nIncrease PEEP stepwise up to 7–8 cm H₂O\nTitrate FiO₂ to target SpO₂ 91–95%\nLook for/treat underlying cause\nConsider surfactant if criteria met",
+    "crop_image": "assets/regions/crops/rd_outcome_not_improving_optimize_cpap.webp",
+    "segments": [
+      {
+        "text": "OPTIMIZE CPAP",
+        "header": true
+      },
+      {
+        "text": "Increase PEEP stepwise up to 7–8 cm H₂O"
+      },
+      {
+        "text": "Titrate FiO₂ to target SpO₂ 91–95%"
+      },
+      {
+        "text": "Look for/treat underlying cause"
+      },
+      {
+        "text": "Consider surfactant if criteria met"
+      }
+    ],
+    "intents": [
+      "escalate",
+      "management"
+    ]
+  },
+  {
+    "id": "rd_cpap_failure_referral",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "CPAP Failure Criteria & Urgent Referral Indication",
+    "type": "algorithm",
+    "section": "Escalation & Referral",
+    "x": 0.61079,
+    "y": 0.53582,
+    "w": 0.37844,
+    "h": 0.02805,
+    "aliases": [
+      "cpap failure",
+      "persistent hypoxemia",
+      "fio2 >0.60",
+      "recurrent apnea",
+      "severe retractions",
+      "urgent referral",
+      "mechanical ventilation"
+    ],
+    "example_questions": [
+      "CPAP failure and urgent referral criteria",
+      "What defines CPAP failure in neonates?",
+      "When to intubate or refer a baby on CPAP?",
+      "CPAP fail kab mana jata hai?",
+      "Baby ko urgent referral kab chahiye hota hai?",
+      "FiO2 kitna pahunchne par CPAP failure declare karte hain?"
+    ],
+    "text": "CPAP FAILURE\nPersistent hypoxemia/high FiO₂ requirement,\nrecurrent apnea, shock or fatigue → Refer urgently",
+    "crop_image": "assets/regions/crops/rd_cpap_failure_referral.webp",
+    "segments": [
+      {
+        "text": "CPAP FAILURE",
+        "header": true
+      },
+      {
+        "text": "Persistent hypoxemia/high FiO₂ requirement, recurrent apnea, shock or fatigue → Refer urgently"
+      }
+    ],
+    "intents": [
+      "refer",
+      "definition",
+      "criteria"
+    ]
+  },
+  {
+    "id": "rd_clinical_dos",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Clinical DOs for Neonatal Respiratory Distress",
+    "type": "text",
+    "section": "Clinical DOs",
+    "x": 0.01083,
+    "y": 0.56592,
+    "w": 0.46891,
+    "h": 0.07516,
+    "aliases": [
+      "dos",
+      "clinical dos",
+      "continuous spo2",
+      "blended oxygen",
+      "early cpap",
+      "prone position",
+      "warmth",
+      "asepsis"
+    ],
+    "example_questions": [
+      "What are the clinical DOs for neonatal respiratory distress?",
+      "Best practices in managing neonatal respiratory distress",
+      "Respiratory distress wale bacche ke sath kya karna chahiye?",
+      "Clinical DOs kya hain ICMR guidelines ke hisaab se?"
+    ],
+    "text": "DOs\nAssess severity using SAS and monitor SpO₂ continuously\nMaintain SpO₂ 91%-95%.\nStart CPAP within 30 minutes\nAdminister surfactant within 2 hours",
+    "crop_image": "assets/regions/crops/rd_clinical_dos.webp",
+    "segments": [
+      {
+        "text": "DOs",
+        "header": true
+      },
+      {
+        "text": "Assess severity using SAS and monitor SpO₂ continuously"
+      },
+      {
+        "text": "Maintain SpO₂ 91%-95%."
+      },
+      {
+        "text": "Start CPAP within 30 minutes"
+      },
+      {
+        "text": "Administer surfactant within 2 hours"
+      }
+    ],
+    "intents": [
+      "dos",
+      "timing"
+    ]
+  },
+  {
+    "id": "rd_clinical_donts",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Clinical DON'Ts for Neonatal Respiratory Distress",
+    "type": "text",
+    "section": "Clinical DON'Ts",
+    "x": 0.48903,
+    "y": 0.56592,
+    "w": 0.5002,
+    "h": 0.0752,
+    "aliases": [
+      "donts",
+      "clinical donts",
+      "do not give 100% oxygen",
+      "do not delay cpap",
+      "avoid routine suctioning",
+      "do not keep npo unnecessarily"
+    ],
+    "example_questions": [
+      "What are the clinical DON'Ts in neonatal respiratory distress?",
+      "What should NOT be done when managing neonatal distress?",
+      "Is routine suctioning recommended in neonates?",
+      "Distress wale bacche ke sath kya bilkul nahi karna chahiye?",
+      "Kya unmonitored 100% oxygen dena chahiye?"
+    ],
+    "text": "DON’Ts\nDO NOT give unmonitored supplemental oxygen.\nDO NOT perform routine CBC, CRP, Chest X-ray or blood gas in\nuncomplicated mild RD\nDO NOT give IV ﬂuids, antibiotics, or blood products routinely\nDO NOT delay mechanical ventilation or referral in case of CPAP\nfailure",
+    "crop_image": "assets/regions/crops/rd_clinical_donts.webp",
+    "segments": [
+      {
+        "text": "DON’Ts",
+        "header": true
+      },
+      {
+        "text": "DO NOT give unmonitored supplemental oxygen."
+      },
+      {
+        "text": "DO NOT perform routine CBC, CRP, Chest X-ray or blood gas in uncomplicated mild RD"
+      },
+      {
+        "text": "DO NOT give IV ﬂuids, antibiotics, or blood products routinely"
+      },
+      {
+        "text": "DO NOT delay mechanical ventilation or referral in case of CPAP failure"
+      }
+    ],
+    "intents": [
+      "donts"
+    ]
+  },
+  {
+    "id": "rd_kpis",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Key Performance Indicators (KPIs): Respiratory Distress Management",
+    "type": "table",
+    "section": "Quality & KPIs",
+    "x": 0.01083,
+    "y": 0.66104,
+    "w": 0.97829,
+    "h": 0.05677,
+    "aliases": [
+      "kpis",
+      "key performance indicators",
+      "timely cpap initiation",
+      "spo2 compliance",
+      "surfactant timeliness",
+      "quality indicators"
+    ],
+    "example_questions": [
+      "What are the KPIs for neonatal respiratory distress management?",
+      "Quality benchmarks for timely CPAP and surfactant in SNCU",
+      "SNCU ke liye respiratory distress ke KPIs kya hain?",
+      "Timely CPAP initiation ka target percentage kitna hai?"
+    ],
+    "text": "Timely CPAP initiation (%) = Neonates ≤34 weeks with RD started on CPAP within 30 min of diagnosis or admission x 100\n(Target >90%)\nNeonates ≤34 weeks diagnosed with RD\nSpO₂ target compliance (%) = Neonates receiving supplemental oxygen or CPAP with continuous pulse oximetry and SpO2 in target range × 100\n(Target >90%)\nNeonates receiving supplemental oxygen or CPAP",
+    "crop_image": "assets/regions/crops/rd_kpis.webp",
+    "segments": [
+      {
+        "text": "Timely CPAP initiation (%) = Neonates ≤34 weeks with RD started on CPAP within 30 min of diagnosis or admission x 100 / Neonates ≤34 weeks diagnosed with RD (Target >90%)"
+      },
+      {
+        "text": "SpO₂ target compliance (%) = Neonates receiving supplemental oxygen or CPAP with continuous pulse oximetry and SpO2 in target range × 100 / Neonates receiving supplemental oxygen or CPAP (Target >90%)"
+      }
+    ],
+    "intents": [
+      "kpi"
+    ]
+  },
+  {
+    "id": "rd_sas_scoring_guide",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Silverman-Andersen Score (SAS) Methodology & Parameter Illustrations",
+    "type": "table",
+    "section": "Severity Scoring",
+    "x": 0.66011,
+    "y": 0.74786,
+    "w": 0.32941,
+    "h": 0.14583,
+    "aliases": [
+      "sas",
+      "silverman andersen score",
+      "sas scoring",
+      "upper chest",
+      "lower chest",
+      "xiphoid retractions",
+      "nares dilatation",
+      "expiratory grunt",
+      "grade 0 1 2"
+    ],
+    "example_questions": [
+      "Silverman-Andersen score parameters",
+      "How to calculate Silverman score in neonates?",
+      "What are the 5 components of SAS?",
+      "Silverman Andersen score ke 5 parameters kya hote hain?",
+      "SAS score kaise calculate karte hain?",
+      "Grade 2 expiratory grunt aur retractions ka kya matlab hai?"
+    ],
+    "text": "Figure: The Silverman score for assessing the magnitude of respiratory\ndistress. (From Avery, M.E., and Fletcher, B.D.: The Lung and Its\nDisorders in the Newborn. Philadelphia, W.B. Saunders Company,\n1974) (Courtesy of W.A. Silverman)\nSILVERMAN ANDERSEN SCORE (SAS)",
+    "crop_image": "assets/regions/crops/rd_sas_scoring_guide.webp",
+    "segments": [
+      {
+        "text": "Figure: The Silverman score for assessing the magnitude of respiratory distress. (From Avery, M.E., and Fletcher, B.D.: The Lung and Its Disorders in the Newborn. Philadelphia, W.B. Saunders Company, 1974) (Courtesy of W.A. Silverman)"
+      },
+      {
+        "text": "SILVERMAN ANDERSEN SCORE (SAS)",
+        "header": true
+      }
+    ],
+    "intents": [
+      "procedure",
+      "definition"
+    ]
+  },
+  {
+    "id": "rd_improving",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Reassessment: Improving (Criteria)",
+    "type": "algorithm",
+    "section": "Improving",
+    "x": 0.01069,
+    "y": 0.41379,
+    "w": 0.3112,
+    "h": 0.04897,
+    "aliases": [
+      "improving",
+      "decreasing sas",
+      "comfortable breathing",
+      "stable support",
+      "sudhar",
+      "improve ho raha"
+    ],
+    "example_questions": [
+      "How do I know the baby with respiratory distress is improving?",
+      "Improving criteria on reassessment of RD",
+      "Baby sudhar raha hai kaise pata karein?"
+    ],
+    "text": "IMPROVING\nDecreasing SAS\nSpO₂ 91–95% on stable/reducing support\nComfortable breathing",
+    "crop_image": "assets/regions/crops/rd_improving.webp",
+    "segments": [
+      {
+        "text": "IMPROVING",
+        "header": true
+      },
+      {
+        "text": "Decreasing SAS"
+      },
+      {
+        "text": "SpO₂ 91–95% on stable/reducing support"
+      },
+      {
+        "text": "Comfortable breathing"
+      }
+    ],
+    "intents": [
+      "signs"
+    ]
+  },
+  {
+    "id": "rd_not_improving",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Reassessment: Not Improving / Worsening (Criteria)",
+    "type": "algorithm",
+    "section": "Not improving/worsening",
+    "x": 0.64141,
+    "y": 0.41379,
+    "w": 0.34803,
+    "h": 0.04897,
+    "aliases": [
+      "not improving",
+      "worsening",
+      "persisting sas",
+      "increasing sas",
+      "spo2 <91%",
+      "rising oxygen need",
+      "bigad raha",
+      "sudhar nahi"
+    ],
+    "example_questions": [
+      "What are the signs that respiratory distress is worsening?",
+      "When is the baby considered not improving on reassessment?",
+      "Baby ki saans ki takleef bigad rahi hai, kaise pehchanein?"
+    ],
+    "text": "NOT IMPROVING/WORSENING\nPersisting/increasing SAS\nSpO₂ <91% or rising oxygen need\nRecurrent apnea/bradycardia\nFatigue, shock or deterioration",
+    "crop_image": "assets/regions/crops/rd_not_improving.webp",
+    "segments": [
+      {
+        "text": "NOT IMPROVING/WORSENING",
+        "header": true
+      },
+      {
+        "text": "Persisting/increasing SAS"
+      },
+      {
+        "text": "SpO₂ <91% or rising oxygen need"
+      },
+      {
+        "text": "Recurrent apnea/bradycardia"
+      },
+      {
+        "text": "Fatigue, shock or deterioration"
+      }
+    ],
+    "intents": [
+      "signs",
+      "escalate"
+    ]
+  },
+  {
+    "id": "rd_abbreviations",
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "title": "Respiratory Distress Abbreviations",
+    "type": "text",
+    "section": "Abbreviations",
+    "x": 0.0,
+    "y": 0.89427,
+    "w": 1.0,
+    "h": 0.04268,
+    "aliases": [
+      "abbreviations",
+      "full form",
+      "crt full form",
+      "peep full form",
+      "fio2 full form"
+    ],
+    "example_questions": [
+      "What is the full form of CRT?",
+      "PEEP ka full form kya hai?"
+    ],
+    "text": "ABBREVIATIONS\nBW: Birth Weight\nCRT: Capillary Reﬁll Time\nCPAP: Continuous Positive Airway Pressure\nGA: Gestational Age\nIV: Intravenous\nSP02: Peripheral Oxygen Saturation\nRD: Respiratory Distress\nFIO2: Fraction of Inspired Oxygen\nRR: Respiratory Rate\nPEEP: Positive End- Expiratory Pressure\nSAS: Silverman-Andersen Score",
+    "crop_image": "assets/regions/crops/rd_abbreviations.webp",
+    "segments": [
+      {
+        "text": "BW: Birth Weight"
+      },
+      {
+        "text": "CRT: Capillary Reﬁll Time"
+      },
+      {
+        "text": "CPAP: Continuous Positive Airway Pressure"
+      },
+      {
+        "text": "GA: Gestational Age"
+      },
+      {
+        "text": "IV: Intravenous"
+      },
+      {
+        "text": "SP02: Peripheral Oxygen Saturation"
+      },
+      {
+        "text": "RD: Respiratory Distress"
+      },
+      {
+        "text": "FIO2: Fraction of Inspired Oxygen"
+      },
+      {
+        "text": "RR: Respiratory Rate"
+      },
+      {
+        "text": "PEEP: Positive End- Expiratory Pressure"
+      },
+      {
+        "text": "SAS: Silverman-Andersen Score"
+      }
+    ],
+    "intents": [
+      "abbreviation"
+    ]
+  },
+  {
+    "id": "rop_whom_to_screen",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "Whom to Screen: ROP Screening Eligibility Criteria",
+    "type": "algorithm",
+    "section": "Eligibility Criteria",
+    "x": 0.00369,
+    "y": 0.16483,
+    "w": 0.33395,
+    "h": 0.10252,
+    "aliases": [
+      "whom to screen",
+      "eligibility",
+      "gestation <34 weeks",
+      "birth weight <2000 g",
+      "<2000g",
+      "34-36 weeks with risk factors",
+      "screening criteria"
+    ],
+    "example_questions": [
+      "Whom to screen for ROP",
+      "What are the eligibility criteria for ROP screening?",
+      "Gestation and birth weight criteria for ROP",
+      "Risk factors for ROP in 34-36 week infants",
+      "ROP screening kin baccho mein karni chahiye?",
+      "Birth weight aur gestational age ka kya criteria hai ROP ke liye?",
+      "34 se 36 week ke bacche mein ROP screening kab zaroori hoti hai?"
+    ],
+    "text": "WHOM TO SCREEN\nScreen if any ONE of the following is present:\nGestation <34 weeks\nBirth weight <2000 g\nGestation 34-36 weeks with speciﬁed risk\nfactors* or an unstable clinical course\n*Signiﬁcant cardiorespiratory support,\nprolonged/poorly controlled oxygen therapy,\nsigniﬁcant anemia, blood transfusion, sepsis,\npoor postnatal weight gain",
+    "crop_image": "assets/regions/crops/rop_whom_to_screen.webp",
+    "segments": [
+      {
+        "text": "Screen if any ONE of the following is present:",
+        "header": true
+      },
+      {
+        "text": "Gestation <34 weeks",
+        "label": "Screen if any ONE of the following is present:"
+      },
+      {
+        "text": "Birth weight <2000 g",
+        "label": "Screen if any ONE of the following is present:"
+      },
+      {
+        "text": "Gestation 34-36 weeks with speciﬁed risk factors* or an unstable clinical course",
+        "label": "Screen if any ONE of the following is present:"
+      },
+      {
+        "text": "*Signiﬁcant cardiorespiratory support, prolonged/poorly controlled oxygen therapy, signiﬁcant anemia, blood transfusion, sepsis, poor postnatal weight gain"
+      }
+    ],
+    "intents": [
+      "criteria"
+    ]
+  },
+  {
+    "id": "rop_how_to_arrange",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "How to Arrange Screening: SNCU/NICU & Referral Protocols",
+    "type": "text",
+    "section": "Screening Logistics",
+    "x": 0.34123,
+    "y": 0.16483,
+    "w": 0.32672,
+    "h": 0.10253,
+    "aliases": [
+      "how to arrange",
+      "on-site screening",
+      "sncu",
+      "nicu",
+      "tele-screening",
+      "specialist visits",
+      "referral centre"
+    ],
+    "example_questions": [
+      "How to arrange ROP screening in SNCU?",
+      "Protocol for tele-screening or referral for ROP",
+      "SNCU mein ROP screening ka intezam kaise karein?",
+      "Agar ophthalmologist available na ho toh ROP screening kaise hoti hai?"
+    ],
+    "text": "Preferred: On-site screening in SNCU/\nNICU by an ROP-trained\nophthalmologist/tele-screening team\nwith appropriate monitoring\nIf unavailable: Arrange scheduled\nspecialist visits, or safe referral to the\nnearest designated ROP screening\ncentre\nHOW TO ARRANGE SCREENING",
+    "crop_image": "assets/regions/crops/rop_how_to_arrange.webp",
+    "segments": [
+      {
+        "text": "Preferred: On-site screening in SNCU/ NICU by an ROP-trained ophthalmologist/tele-screening team with appropriate monitoring"
+      },
+      {
+        "text": "If unavailable: Arrange scheduled specialist visits, or safe referral to the nearest designated ROP screening centre"
+      },
+      {
+        "text": "HOW TO ARRANGE SCREENING",
+        "header": true
+      }
+    ],
+    "intents": [
+      "procedure"
+    ]
+  },
+  {
+    "id": "rop_treatment_indications",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "Treatment Indications: ICROP Criteria (Zones, Plus Disease, Urgency)",
+    "type": "algorithm",
+    "section": "Treatment Criteria",
+    "x": 0.67162,
+    "y": 0.16483,
+    "w": 0.32439,
+    "h": 0.13273,
+    "aliases": [
+      "treatment indications",
+      "zone i",
+      "zone ii",
+      "stage 2",
+      "stage 3",
+      "plus disease",
+      "a-rop",
+      "aggressive rop",
+      "48-72 hours",
+      "urgency"
+    ],
+    "example_questions": [
+      "Treatment indications for ROP",
+      "What are the ICROP criteria for ROP treatment?",
+      "When is urgent treatment needed in ROP?",
+      "What is the timeframe to treat threshold ROP?",
+      "ROP ka treatment kab start karna padta hai?",
+      "Zone I aur Zone II mein plus disease ho toh kya karein?",
+      "Decision lene ke kitne ghante mein ROP treatment hona chahiye?"
+    ],
+    "text": "Zone I: Any stage with plus disease, or\nstage 3 without plus\nZone II: Stage 2-3 with plus disease\nAggressive ROP (A-ROP): Urgent\ntreatment\nReactivation/signiﬁcant PAR after\nanti-VEGF; stage 2–3; stage 4–5\nAdvanced ROP (Stage 4-5): Requires\nreferral for surgery\nTreatment-requiring ROP should be treated\nurgently, preferably within 48-72 hours of\nthe decision to treat\nTREATMENT INDICATIONS",
+    "crop_image": "assets/regions/crops/rop_treatment_indications.webp",
+    "segments": [
+      {
+        "text": "Zone I: Any stage with plus disease, or stage 3 without plus"
+      },
+      {
+        "text": "Zone II: Stage 2-3 with plus disease"
+      },
+      {
+        "text": "Aggressive ROP (A-ROP): Urgent treatment"
+      },
+      {
+        "text": "Reactivation/signiﬁcant PAR after anti-VEGF; stage 2–3; stage 4–5"
+      },
+      {
+        "text": "Advanced ROP (Stage 4-5): Requires referral for surgery"
+      },
+      {
+        "text": "Treatment-requiring ROP should be treated urgently, preferably within 48-72 hours of the decision to treat"
+      }
+    ],
+    "intents": [
+      "criteria",
+      "management",
+      "timing"
+    ]
+  },
+  {
+    "id": "rop_when_to_screen",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "When to Screen: Timing of First Screening & Follow-up Intervals",
+    "type": "algorithm",
+    "section": "Screening Timing",
+    "x": 0.00439,
+    "y": 0.28114,
+    "w": 0.3339,
+    "h": 0.14281,
+    "aliases": [
+      "when to screen",
+      "first screen",
+      "4 weeks postnatal age",
+      "2-3 weeks",
+      "<28 weeks",
+      "<1200 g",
+      "follow-up intervals",
+      "every 1-3 weeks",
+      "pehli screening",
+      "first screening",
+      "pehla screen"
+    ],
+    "example_questions": [
+      "When to do first ROP screening",
+      "At what postnatal age should the first ROP screening be performed?",
+      "Timing of screening for babies <28 weeks or <1200g",
+      "How often should follow-up ROP screening be done?",
+      "ROP ki pehli screening kab karni chahiye?",
+      "28 week se chote bacche ki screening kab hoti hai?",
+      "Follow-up screening kitne din ke interval par karni hoti hai?"
+    ],
+    "text": "First screen:\nBy 4 weeks postnatal age\nBy 2-3 weeks postnatal age, if GA <28\nweeks or BW <1200 g\nIf already overdue, screen ASAP\nIf follow-up uncertain, screen before\ndischarge even if not due\nRepeat screen:\nAs per advice by ROP-trained\nophthalmologist according to retinal\nﬁndings, usually every 1-3 weeks\nPosterior or progressive disease/suspected\nA-ROP may require review within 1 week or\nsooner\nWHEN TO SCREEN",
+    "crop_image": "assets/regions/crops/rop_when_to_screen.webp",
+    "segments": [
+      {
+        "text": "First screen:",
+        "header": true
+      },
+      {
+        "text": "By 4 weeks postnatal age",
+        "label": "First screen:"
+      },
+      {
+        "text": "By 2-3 weeks postnatal age, if GA <28 weeks or BW <1200 g",
+        "label": "First screen:"
+      },
+      {
+        "text": "If already overdue, screen ASAP",
+        "label": "First screen:"
+      },
+      {
+        "text": "If follow-up uncertain, screen before discharge even if not due",
+        "label": "First screen:"
+      },
+      {
+        "text": "Repeat screen:",
+        "header": true
+      },
+      {
+        "text": "As per advice by ROP-trained ophthalmologist according to retinal ﬁndings, usually every 1-3 weeks",
+        "label": "Repeat screen:"
+      },
+      {
+        "text": "Posterior or progressive disease/suspected A-ROP may require review within 1 week or sooner",
+        "label": "Repeat screen:"
+      },
+      {
+        "text": "WHEN TO SCREEN",
+        "header": true
+      }
+    ],
+    "intents": [
+      "timing",
+      "schedule"
+    ]
+  },
+  {
+    "id": "rop_prepare_to_screen",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "Prepare to Screen: Feeding, Pupillary Dilation & Swaddling",
+    "type": "text",
+    "section": "Preparation",
+    "x": 0.34123,
+    "y": 0.28114,
+    "w": 0.32672,
+    "h": 0.14256,
+    "aliases": [
+      "prepare to screen",
+      "withhold feeds",
+      "1 hour before",
+      "dilate pupils",
+      "phenylephrine 2.5%",
+      "tropicamide 0.5-0.8%",
+      "pupil dilation",
+      "swaddling",
+      "pain relief",
+      "analgesia",
+      "before the exam"
+    ],
+    "example_questions": [
+      "How to prepare a baby for ROP screening?",
+      "Which eye drops are used for pupillary dilation in ROP screening?",
+      "How long before screening should feeds be withheld?",
+      "ROP screening se pehle bacche ko feed kab band karein?",
+      "Pupil dilate karne ke liye kaunse drops use karte hain?",
+      "Phenylephrine aur tropicamide ki concentration kitni hoti hai?"
+    ],
+    "text": "Withhold feeds - 1 hour before screening\nDilate pupils: phenylephrine 2.5% +\ntropicamide 0.5-0.8% eye drops (2-3\ntimes at 10 min interval)\nSwaddle, proparacaine eye drops, EBM/\noral 25% dextrose for analgesia\nMaintain temperature and monitor SpO2\nPREPARE TO SCREEN",
+    "crop_image": "assets/regions/crops/rop_prepare_to_screen.webp",
+    "segments": [
+      {
+        "text": "Withhold feeds - 1 hour before screening"
+      },
+      {
+        "text": "Dilate pupils: phenylephrine 2.5% + tropicamide 0.5-0.8% eye drops (2-3 times at 10 min interval)"
+      },
+      {
+        "text": "Swaddle, proparacaine eye drops, EBM/ oral 25% dextrose for analgesia"
+      },
+      {
+        "text": "Maintain temperature and monitor SpO2"
+      },
+      {
+        "text": "PREPARE TO SCREEN",
+        "header": true
+      }
+    ],
+    "intents": [
+      "procedure"
+    ]
+  },
+  {
+    "id": "rop_treatment_options",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "Treatment Options: Laser Photocoagulation & Anti-VEGF",
+    "type": "algorithm",
+    "section": "Therapeutic Options",
+    "x": 0.67162,
+    "y": 0.31903,
+    "w": 0.32439,
+    "h": 0.10467,
+    "aliases": [
+      "treatment options",
+      "laser",
+      "laser photocoagulation",
+      "anti-vegf",
+      "intravitreal injection",
+      "surgery",
+      "vitreo-retinal"
+    ],
+    "example_questions": [
+      "What are the treatment options for ROP?",
+      "When is laser photocoagulation used in ROP?",
+      "Role of intravitreal anti-VEGF in ROP",
+      "ROP ke ilaj ke kya options hain?",
+      "Laser aur anti-VEGF injections kab diye jaate hain?"
+    ],
+    "text": "Laser photocoagulation and/or\nintravitreal anti-VEGF injection, as\ndecided by the ROP specialist based on\nzone and disease characteristics.\nVitreo-retinal surgery for advanced ROP\nTREATMENT OPTIONS",
+    "crop_image": "assets/regions/crops/rop_treatment_options.webp",
+    "segments": [
+      {
+        "text": "Laser photocoagulation and/or intravitreal anti-VEGF injection, as decided by the ROP specialist based on zone and disease characteristics."
+      },
+      {
+        "text": "Vitreo-retinal surgery for advanced ROP"
+      },
+      {
+        "text": "TREATMENT OPTIONS",
+        "header": true
+      }
+    ],
+    "intents": [
+      "management"
+    ]
+  },
+  {
+    "id": "rop_how_to_screen",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "How to Screen: Clinical Examination Technique",
+    "type": "text",
+    "section": "Examination Technique",
+    "x": 0.3409,
+    "y": 0.4444,
+    "w": 0.32665,
+    "h": 0.12426,
+    "aliases": [
+      "how to screen",
+      "indirect ophthalmoscopy",
+      "20d",
+      "28d lens",
+      "topical anesthetic",
+      "proparacaine 0.5%",
+      "eye speculum",
+      "scleral depressor"
+    ],
+    "example_questions": [
+      "How to perform ROP screening examination?",
+      "What equipment and lenses are required for ROP screening?",
+      "Anesthetic drops used for ROP exam",
+      "ROP examine karne ka tarika kya hai?",
+      "Kaunsi lens aur speculum use kiya jata hai?"
+    ],
+    "text": "Strict hand hygiene and asepsis\nExamine both eyes by indirect\nophthalmoscopy (20D/28D lens); use\nspeculum/scleral indentation as required\nWide-ﬁeld retinal imaging/tele-\nscreening may be used where available\nMonitor for apnea, bradycardia,\ndesaturation and feed intolerance\nDocument ROP ﬁndings and the\ndate/place of the next examination\nHOW TO SCREEN",
+    "crop_image": "assets/regions/crops/rop_how_to_screen.webp",
+    "segments": [
+      {
+        "text": "Strict hand hygiene and asepsis"
+      },
+      {
+        "text": "Examine both eyes by indirect ophthalmoscopy (20D/28D lens); use speculum/scleral indentation as required"
+      },
+      {
+        "text": "Wide-ﬁeld retinal imaging/tele- screening may be used where available"
+      },
+      {
+        "text": "Monitor for apnea, bradycardia, desaturation and feed intolerance"
+      },
+      {
+        "text": "Document ROP ﬁndings and the date/place of the next examination"
+      },
+      {
+        "text": "HOW TO SCREEN",
+        "header": true
+      }
+    ],
+    "intents": [
+      "procedure"
+    ]
+  },
+  {
+    "id": "rop_when_to_stop",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "When to Stop Screening: Criteria for Termination of Screening",
+    "type": "algorithm",
+    "section": "Discharge Criteria",
+    "x": 0.00475,
+    "y": 0.4444,
+    "w": 0.33377,
+    "h": 0.12426,
+    "aliases": [
+      "when to stop",
+      "termination of screening",
+      "retina fully vascularised",
+      "zone iii",
+      "pma 45 weeks",
+      "regression of rop"
+    ],
+    "example_questions": [
+      "When to stop ROP screening?",
+      "What are the criteria for terminating ROP screening?",
+      "Postmenstrual age cutoff to stop ROP follow-up",
+      "ROP screening kab band karni chahiye?",
+      "Retina kab fully vascularised maani jaati hai?",
+      "PMA 45 weeks par kya ROP screening band ki ja sakti hai?"
+    ],
+    "text": "Stop only when advised by ROP-trained\nophthalmologist (retina fully vascularised,\nor ROP fully regressed)\nAfter anti-VEGF treatment, prolonged\nfollow-up at least until 65 weeks PMA is\nrequired because of the risk of late\nreactivation and persistent avascular retina\n(PAR)\nWHEN TO STOP SCREENING",
+    "crop_image": "assets/regions/crops/rop_when_to_stop.webp",
+    "segments": [
+      {
+        "text": "Stop only when advised by ROP-trained ophthalmologist (retina fully vascularised, or ROP fully regressed)"
+      },
+      {
+        "text": "After anti-VEGF treatment, prolonged follow-up at least until 65 weeks PMA is required because of the risk of late reactivation and persistent avascular retina"
+      },
+      {
+        "text": "(PAR)",
+        "header": true
+      },
+      {
+        "text": "WHEN TO STOP SCREENING",
+        "header": true
+      }
+    ],
+    "intents": [
+      "stop",
+      "followup"
+    ]
+  },
+  {
+    "id": "rop_prevention",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "Prevention of ROP: Antenatal Steroids, Safe Oxygenation & Breastmilk",
+    "type": "text",
+    "section": "Prevention",
+    "x": 0.67301,
+    "y": 0.44446,
+    "w": 0.32154,
+    "h": 0.12395,
+    "aliases": [
+      "prevention",
+      "antenatal corticosteroids",
+      "safe oxygen",
+      "blended oxygen",
+      "pulse oximeter",
+      "spo2 target",
+      "breastmilk",
+      "ebm",
+      "infection control"
+    ],
+    "example_questions": [
+      "How to prevent ROP in preterm neonates?",
+      "Role of antenatal steroids and breastmilk in ROP prevention",
+      "Safe oxygenation practices to prevent ROP",
+      "Preterm baccho mein ROP se kaise bachayein?",
+      "Maa ka doodh (EBM) ROP rokne mein kaise madad karta hai?"
+    ],
+    "text": "Antenatal corticosteroids for fetal lung\nmaturation\nSafe oxygen therapy\n◦Use air-oxygen blenders and\ncontinuous pulse oximetry\n◦Target SpO2 : 91-95%\nPrevent and promptly treat sepsis\nEnsure mother’s own milk, optimal\nnutrition and adequate postnatal growth\nAvoid unnecessary blood transfusions\nPREVENTION",
+    "crop_image": "assets/regions/crops/rop_prevention.webp",
+    "segments": [
+      {
+        "text": "Antenatal corticosteroids for fetal lung maturation"
+      },
+      {
+        "text": "Safe oxygen therapy"
+      },
+      {
+        "text": "Use air-oxygen blenders and continuous pulse oximetry",
+        "label": "Safe oxygen therapy"
+      },
+      {
+        "text": "Target SpO2 : 91-95%",
+        "label": "Safe oxygen therapy"
+      },
+      {
+        "text": "Prevent and promptly treat sepsis"
+      },
+      {
+        "text": "Ensure mother’s own milk, optimal nutrition and adequate postnatal growth"
+      },
+      {
+        "text": "Avoid unnecessary blood transfusions"
+      },
+      {
+        "text": "PREVENTION",
+        "header": true
+      }
+    ],
+    "intents": [
+      "prevention"
+    ]
+  },
+  {
+    "id": "rop_clinical_dos",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "Clinical DOs for Retinopathy of Prematurity",
+    "type": "text",
+    "section": "Clinical DOs",
+    "x": 0.0,
+    "y": 0.57857,
+    "w": 0.49971,
+    "h": 0.06115,
+    "aliases": [
+      "clinical dos",
+      "dos",
+      "timely screening",
+      "aseptic precautions",
+      "monitor vitals",
+      "safe oxygen"
+    ],
+    "example_questions": [
+      "What are the clinical DOs for ROP management?",
+      "Best practices in ROP screening and neonatal care",
+      "ROP ke clinical DOs kya hain?"
+    ],
+    "text": "Ensure timely ROP screening and follow-up\nDocument the date and place of next screening in discharge card\nCounsel the family regarding need for follow-up and risk of vision\nloss if screening is delayed\nDOs",
+    "crop_image": "assets/regions/crops/rop_clinical_dos.webp",
+    "segments": [
+      {
+        "text": "DOs",
+        "header": true
+      },
+      {
+        "text": "Ensure timely ROP screening and follow-up"
+      },
+      {
+        "text": "Document the date and place of next screening in discharge card"
+      },
+      {
+        "text": "Counsel the family regarding need for follow-up and risk of vision loss if screening is delayed"
+      }
+    ],
+    "intents": [
+      "dos",
+      "documentation"
+    ]
+  },
+  {
+    "id": "rop_clinical_donts",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "Clinical DON'Ts for Retinopathy of Prematurity",
+    "type": "text",
+    "section": "Clinical DON'Ts",
+    "x": 0.50565,
+    "y": 0.57894,
+    "w": 0.49435,
+    "h": 0.06078,
+    "aliases": [
+      "clinical donts",
+      "donts",
+      "do not discharge without screening plan",
+      "do not delay treatment",
+      "no unblended oxygen",
+      "discharge without follow-up plan"
+    ],
+    "example_questions": [
+      "What are the clinical DON'Ts for ROP?",
+      "What must NOT be done during ROP management?",
+      "ROP care mein kya galtiyan nahi karni chahiye?"
+    ],
+    "text": "DO NOT discharge/transfer an at-risk neonate without a\ndocumented ROP follow-up plan\nDO NOT delay referral/treatment when indicated\nDO NOT stop ROP follow-up without advice of ROP-trained\nophthalmologist\nDON’Ts",
+    "crop_image": "assets/regions/crops/rop_clinical_donts.webp",
+    "segments": [
+      {
+        "text": "DON’Ts",
+        "header": true
+      },
+      {
+        "text": "DO NOT discharge/transfer an at-risk neonate without a documented ROP follow-up plan"
+      },
+      {
+        "text": "DO NOT delay referral/treatment when indicated"
+      },
+      {
+        "text": "DO NOT stop ROP follow-up without advice of ROP-trained ophthalmologist"
+      }
+    ],
+    "intents": [
+      "donts"
+    ]
+  },
+  {
+    "id": "rop_kpis",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "Key Performance Indicators (KPIs): ROP Screening & Treatment Coverage",
+    "type": "table",
+    "section": "Quality & KPIs",
+    "x": 0.00202,
+    "y": 0.65398,
+    "w": 0.99918,
+    "h": 0.07052,
+    "aliases": [
+      "kpis",
+      "key performance indicators",
+      "screening coverage",
+      "timely treatment",
+      "percentage screened"
+    ],
+    "example_questions": [
+      "What are the KPIs for ROP screening in India?",
+      "National benchmarks for ROP coverage in SNCUs",
+      "ROP screening ke KPIs aur targets kya hain?"
+    ],
+    "text": "ROP screening coverage (%) = Eligible infants who received at least one ROP eye examination x 100\nTotal eligible infants for ROP screening\nTimely ﬁrst ROP screening (%) = Eligible infants screened within the recommended ﬁrst-screen window x 100\nEligible infants due for ﬁrst screening\nAll SNCUs/NICUs should periodically assess the KPIs and undertake quality improvement measures to achieve 95-100% compliance",
+    "crop_image": "assets/regions/crops/rop_kpis.webp",
+    "segments": [
+      {
+        "text": "ROP screening coverage (%) = Eligible infants who received at least one ROP eye examination x 100 / Total eligible infants for ROP screening"
+      },
+      {
+        "text": "Timely ﬁrst ROP screening (%) = Eligible infants screened within the recommended ﬁrst-screen window x 100 / Eligible infants due for ﬁrst screening"
+      },
+      {
+        "text": "All SNCUs/NICUs should periodically assess the KPIs and undertake quality improvement measures to achieve 95-100% compliance"
+      }
+    ],
+    "intents": [
+      "kpi"
+    ]
+  },
+  {
+    "id": "rop_key_clinical_message",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "Key Clinical Imperative: No At-Risk Infant Leaves Without Screening Plan",
+    "type": "text",
+    "section": "Clinical Imperative",
+    "x": 0.00059,
+    "y": 0.72952,
+    "w": 0.99999,
+    "h": 0.03091,
+    "aliases": [
+      "key message",
+      "no infant leaves without screening",
+      "discharge card",
+      "written documentation",
+      "mandatory screening date"
+    ],
+    "example_questions": [
+      "What is the key clinical message regarding ROP discharge?",
+      "Discharge rule for preterm infants regarding ROP",
+      "Discharge karte waqt ROP ke liye kya rule hai?",
+      "Kya bina ROP date ke bacche ko discharge kar sakte hain?"
+    ],
+    "text": "TIMELY ROP SCREENING SAVES SIGHT — NO ELIGIBLE INFANT SHOULD LEAVE THE SNCU/NICU\nWITHOUT SCREENING OR A DOCUMENTED FOLLOW-UP PLAN",
+    "crop_image": "assets/regions/crops/rop_key_clinical_message.webp",
+    "segments": [
+      {
+        "text": "TIMELY ROP SCREENING SAVES SIGHT — NO ELIGIBLE INFANT SHOULD LEAVE THE SNCU/NICU WITHOUT SCREENING OR A DOCUMENTED FOLLOW-UP PLAN"
+      }
+    ],
+    "intents": [
+      "benefit"
+    ]
+  },
+  {
+    "id": "rop_introduction",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "ROP: What It Is and Why Screening Matters",
+    "type": "text",
+    "section": "Introduction",
+    "x": 0.02494,
+    "y": 0.1163,
+    "w": 0.76495,
+    "h": 0.03734,
+    "aliases": [
+      "what is rop",
+      "retinopathy of prematurity definition",
+      "blindness",
+      "retinal detachment",
+      "rop kya hai"
+    ],
+    "example_questions": [
+      "What is retinopathy of prematurity?",
+      "ROP kya hota hai?",
+      "Can ROP cause blindness?"
+    ],
+    "text": "ROP is a potentially blinding retinal vascular disorder of preterm infants. Severe disease may cause retinal\ndetachment and irreversible vision loss. Optimal quality neonatal care, timely screening and prompt\ntreatment can prevent most ROP-related blindness.",
+    "crop_image": "assets/regions/crops/rop_introduction.webp",
+    "segments": [
+      {
+        "text": "ROP is a potentially blinding retinal vascular disorder of preterm infants. Severe disease may cause retinal detachment and irreversible vision loss. Optimal quality neonatal care, timely screening and prompt treatment can prevent most ROP-related blindness."
+      }
+    ],
+    "intents": [
+      "definition",
+      "benefit"
+    ]
+  },
+  {
+    "id": "rop_abbreviations",
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "title": "ROP Abbreviations",
+    "type": "text",
+    "section": "Abbreviations",
+    "x": 0.0,
+    "y": 0.88452,
+    "w": 1.0,
+    "h": 0.04265,
+    "aliases": [
+      "abbreviations",
+      "full form",
+      "par full form",
+      "pma full form",
+      "vegf full form"
+    ],
+    "example_questions": [
+      "What is the full form of PMA?",
+      "PAR ka full form kya hai?"
+    ],
+    "text": "ABBREVIATIONS\nA-ROP: Aggressive ROP\nBW: Birth weight\nEBM: Expressed Breastmilk\nGA: Gestational Age\nPAR: Persistent Avascular Retina\nPMA: Postmenstrual Age\nROP: Retinopathy of Prematurity\nVEGF: Vascular Endothelial Growth Factor",
+    "crop_image": "assets/regions/crops/rop_abbreviations.webp",
+    "segments": [
+      {
+        "text": "A-ROP: Aggressive ROP"
+      },
+      {
+        "text": "BW: Birth weight"
+      },
+      {
+        "text": "EBM: Expressed Breastmilk"
+      },
+      {
+        "text": "GA: Gestational Age"
+      },
+      {
+        "text": "PAR: Persistent Avascular Retina"
+      },
+      {
+        "text": "PMA: Postmenstrual Age"
+      },
+      {
+        "text": "ROP: Retinopathy of Prematurity"
+      },
+      {
+        "text": "VEGF: Vascular Endothelial Growth Factor"
+      }
+    ],
+    "intents": [
+      "abbreviation"
+    ]
+  },
+  {
+    "id": "ancs_introduction",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "Introduction: Antenatal Corticosteroids (ACS)",
+    "type": "text",
+    "section": "Introduction",
+    "x": 0.00594,
+    "y": 0.13405,
+    "w": 0.5939,
+    "h": 0.06794,
+    "aliases": [
+      "antenatal corticosteroids",
+      "acs",
+      "antenatal steroids",
+      "benefits of acs",
+      "why give acs",
+      "steroid ke fayde"
+    ],
+    "example_questions": [
+      "What are the benefits of antenatal corticosteroids?",
+      "Why are antenatal steroids used before preterm birth?",
+      "ACS dene se kya fayda hota hai?",
+      "Antenatal steroid kyun dete hain?"
+    ],
+    "text": "INTRODUCTION\nAntenatal corticosteroid (ACS) therapy is one of the most cost-effective\ninterventions for improving outcomes of preterm birth. When given to women with\na high likelihood of preterm birth, it reduces neonatal mortality, incidence and\nseverity of respiratory distress syndrome, and intraventricular haemorrhage",
+    "crop_image": "assets/regions/crops/ancs_introduction.webp",
+    "segments": [
+      {
+        "text": "INTRODUCTION",
+        "header": true
+      },
+      {
+        "text": "Antenatal corticosteroid (ACS) therapy is one of the most cost-effective interventions for improving outcomes of preterm birth. When given to women with a high likelihood of preterm birth, it reduces neonatal mortality, incidence and severity of respiratory distress syndrome, and intraventricular haemorrhage"
+      }
+    ],
+    "intents": [
+      "benefit",
+      "definition"
+    ]
+  },
+  {
+    "id": "ancs_when_to_give",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "When to Give ACS",
+    "type": "text",
+    "section": "When to give",
+    "x": 0.60697,
+    "y": 0.13405,
+    "w": 0.38722,
+    "h": 0.06794,
+    "aliases": [
+      "when to give acs",
+      "24+0 to 33+6 weeks",
+      "gestation window",
+      "acs timing",
+      "acs kab dena hai",
+      "kitne hafte"
+    ],
+    "example_questions": [
+      "When should antenatal corticosteroids be given?",
+      "At what gestational age is ACS given?",
+      "ACS kab dena chahiye?",
+      "Kitne hafte ki pregnancy me steroid dete hain?"
+    ],
+    "text": "WHEN TO GIVE\nPregnant women at 24+0 to 33+6 weeks of gestation\nwith a high likelihood of preterm birth within the\nnext 7 days",
+    "crop_image": "assets/regions/crops/ancs_when_to_give.webp",
+    "segments": [
+      {
+        "text": "WHEN TO GIVE",
+        "header": true
+      },
+      {
+        "text": "Pregnant women at 24+0 to 33+6 weeks of gestation with a high likelihood of preterm birth within the next 7 days"
+      }
+    ],
+    "intents": [
+      "timing",
+      "criteria"
+    ]
+  },
+  {
+    "id": "ancs_eligibility",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "ACS Eligibility Criteria",
+    "type": "text",
+    "section": "Eligibility criteria",
+    "x": 0.00594,
+    "y": 0.20751,
+    "w": 0.59509,
+    "h": 0.17874,
+    "aliases": [
+      "eligibility criteria",
+      "acs eligibility",
+      "spontaneous preterm labour",
+      "pprom",
+      "antepartum hemorrhage",
+      "severe pre-eclampsia",
+      "eclampsia",
+      "planned preterm birth",
+      "early usg",
+      "acs ke criteria",
+      "eligible"
+    ],
+    "example_questions": [
+      "What are the eligibility criteria for ACS?",
+      "Which pregnant women are eligible for antenatal corticosteroids?",
+      "Is ACS given in PPROM?",
+      "ACS kis mahila ko dena chahiye?",
+      "PPROM me steroid de sakte hain?",
+      "Preterm labour me ACS ke criteria kya hain?"
+    ],
+    "text": "GIVE ACS WHEN ALL CONDITIONS ARE MET IN WOMEN AT 24+0 TO\n33+6 WEEKS OF GESTATION:\n1. High likelihood of preterm birth within the next 7 days due to any one:\nSpontaneous preterm labour: regular contractions with cervical change\nconsider (dilatation or effacement)\nPPROM without clinical infection\nAntepartum Hemorrhage\nSevere pre-eclampsia/eclampsia\nPlanned preterm birth for maternal/fetal indication\n2. Gestational age assessed accurately, preferably by early USG\n3. No clinical chorioamnionitis or systemic maternal infection\n4. Adequate childbirth care is available at the facility or at the referral facility\n5. Adequate preterm newborn care be ensured(including CPAP) at the\nfacility or the receiving facility\nIMPORTANT: Start ACS promptly once eligibility criteria are met, even if the full\ncourse may not be completed before birth\nELIGIBILITY CRITERIA",
+    "crop_image": "assets/regions/crops/ancs_eligibility.webp",
+    "segments": [
+      {
+        "text": "GIVE ACS WHEN ALL CONDITIONS ARE MET IN WOMEN AT 24+0 TO 33+6 WEEKS OF GESTATION:"
+      },
+      {
+        "text": "1. High likelihood of preterm birth within the next 7 days due to any one:",
+        "header": true
+      },
+      {
+        "text": "Spontaneous preterm labour: regular contractions with cervical change consider (dilatation or effacement)",
+        "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+      },
+      {
+        "text": "PPROM without clinical infection",
+        "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+      },
+      {
+        "text": "Antepartum Hemorrhage",
+        "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+      },
+      {
+        "text": "Severe pre-eclampsia/eclampsia",
+        "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+      },
+      {
+        "text": "Planned preterm birth for maternal/fetal indication",
+        "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+      },
+      {
+        "text": "2. Gestational age assessed accurately, preferably by early USG"
+      },
+      {
+        "text": "3. No clinical chorioamnionitis or systemic maternal infection"
+      },
+      {
+        "text": "4. Adequate childbirth care is available at the facility or at the referral facility"
+      },
+      {
+        "text": "5. Adequate preterm newborn care be ensured(including CPAP) at the facility or the receiving facility"
+      },
+      {
+        "text": "IMPORTANT: Start ACS promptly once eligibility criteria are met, even if the full course may not be completed before birth"
+      }
+    ],
+    "intents": [
+      "criteria",
+      "timing"
+    ]
+  },
+  {
+    "id": "ancs_drug_dose",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "Drug & Dose: Dexamethasone for ACS",
+    "type": "text",
+    "section": "Drug & dose",
+    "x": 0.60697,
+    "y": 0.20812,
+    "w": 0.38722,
+    "h": 0.10467,
+    "aliases": [
+      "dexamethasone",
+      "dexamethasone sodium phosphate",
+      "6 mg im",
+      "every 12 hours",
+      "4 doses",
+      "betamethasone",
+      "acs dose",
+      "dexa dose",
+      "steroid dose",
+      "dexamethasone kitna dena hai",
+      "acs ka dose"
+    ],
+    "example_questions": [
+      "What is the dose of dexamethasone for ACS?",
+      "ACS ka dose kya hai?",
+      "Dexamethasone kitna dena hai?",
+      "Why is dexamethasone preferred over betamethasone?",
+      "Betamethasone kyun nahi dete?",
+      "Steroid ki khuraak kitni hai?"
+    ],
+    "text": "DRUG & DOSE\nDEXAMETHASONE SODIUM PHOSPHATE 6mg IM EVERY 12\nHOURS X 4 DOSES\nDexamethasone is preferred: it is effective,\nlow-cost, widely available and more heat-stable\nBetamethasone regimen (12 mg every 24 hours\nx 2 doses) requires an appropriate acetate +\nphosphate preparation, which is not available in\nIndia. Betamethasone phosphate alone is\nshorter acting than dexamethasone",
+    "crop_image": "assets/regions/crops/ancs_drug_dose.webp",
+    "segments": [
+      {
+        "text": "DRUG & DOSE",
+        "header": true
+      },
+      {
+        "text": "DEXAMETHASONE SODIUM PHOSPHATE 6mg IM EVERY 12 HOURS X 4 DOSES"
+      },
+      {
+        "text": "Dexamethasone is preferred: it is effective, low-cost, widely available and more heat-stable"
+      },
+      {
+        "text": "Betamethasone regimen (12 mg every 24 hours x 2 doses) requires an appropriate acetate + phosphate preparation, which is not available in India. Betamethasone phosphate alone is shorter acting than dexamethasone"
+      }
+    ],
+    "intents": [
+      "dose"
+    ]
+  },
+  {
+    "id": "ancs_when_not_to_give",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "When NOT to Give ACS",
+    "type": "text",
+    "section": "When not to give",
+    "x": 0.60697,
+    "y": 0.31279,
+    "w": 0.38722,
+    "h": 0.07284,
+    "aliases": [
+      "contraindications",
+      "when not to give",
+      "acs contraindication",
+      "chorioamnionitis",
+      "systemic maternal infection",
+      "34 weeks",
+      "≥34 weeks",
+      "routine use",
+      "acs kab nahi dena",
+      "steroids not given",
+      "should not be given"
+    ],
+    "example_questions": [
+      "When should ACS not be given?",
+      "When should antenatal steroids not be given?",
+      "Contraindications of antenatal corticosteroids",
+      "Is ACS given at 34 weeks or more?",
+      "ACS kab nahi dena chahiye?",
+      "Chorioamnionitis me steroid de sakte hain?"
+    ],
+    "text": "WHEN NOT TO GIVE\nClinical chorioamnionitis or systemic\nmaternal infection\nPreterm birth within next 7 days is unlikely\nRoutine use at ≥34 weeks\nMore than one repeat course",
+    "crop_image": "assets/regions/crops/ancs_when_not_to_give.webp",
+    "segments": [
+      {
+        "text": "WHEN NOT TO GIVE",
+        "header": true
+      },
+      {
+        "text": "Clinical chorioamnionitis or systemic maternal infection"
+      },
+      {
+        "text": "Preterm birth within next 7 days is unlikely"
+      },
+      {
+        "text": "Routine use at ≥34 weeks"
+      },
+      {
+        "text": "More than one repeat course"
+      }
+    ],
+    "intents": [
+      "contraindication"
+    ]
+  },
+  {
+    "id": "ancs_special_situations",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "Special Situations: Multiple Pregnancy, FGR, Hypertension, Diabetes",
+    "type": "text",
+    "section": "Special situations",
+    "x": 0.00594,
+    "y": 0.39175,
+    "w": 0.42405,
+    "h": 0.09427,
+    "aliases": [
+      "special situations",
+      "multiple pregnancy",
+      "twins",
+      "fetal growth restriction",
+      "fgr",
+      "hypertensive disorders",
+      "diabetes in pregnancy",
+      "maternal glucose control",
+      "twins me steroid"
+    ],
+    "example_questions": [
+      "Can ACS be given in twins or multiple pregnancy?",
+      "Is ACS given in diabetes in pregnancy?",
+      "ACS in fetal growth restriction",
+      "Diabetic mother ko steroid dena chahiye?",
+      "Twins pregnancy me ACS de sakte hain?"
+    ],
+    "text": "SPECIAL SITUATIONS\nWhen otherwise eligible, do not withhold ACS because\nof: multiple pregnancy, fetal growth restriction,\nhypertensive disorders, or diabetes in pregnancy\nIn diabetes: monitor and optimize maternal glucose\ncontrol",
+    "crop_image": "assets/regions/crops/ancs_special_situations.webp",
+    "segments": [
+      {
+        "text": "SPECIAL SITUATIONS",
+        "header": true
+      },
+      {
+        "text": "When otherwise eligible, do not withhold ACS because of: multiple pregnancy, fetal growth restriction, hypertensive disorders, or diabetes in pregnancy"
+      },
+      {
+        "text": "In diabetes: monitor and optimize maternal glucose control"
+      }
+    ],
+    "intents": [
+      "criteria"
+    ]
+  },
+  {
+    "id": "ancs_repeat_course",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "When to Give a Repeat ACS Course",
+    "type": "text",
+    "section": "Repeat course",
+    "x": 0.4383,
+    "y": 0.39175,
+    "w": 0.55589,
+    "h": 0.09427,
+    "aliases": [
+      "repeat course",
+      "repeat acs",
+      "second course",
+      "7 days earlier",
+      "one repeat course",
+      "fetal harm",
+      "dobara steroid",
+      "repeat dose"
+    ],
+    "example_questions": [
+      "When can a repeat course of ACS be given?",
+      "How many repeat courses of ACS are allowed?",
+      "Repeat steroid course kab dete hain?",
+      "Kya dobara ACS de sakte hain?",
+      "Second course of antenatal steroids after 7 days"
+    ],
+    "text": "WHEN TO GIVE REPEAT COURSE\nGive ONE repeat course only if ALL criteria are met; neuro-developmental\n▪GA 24+0 to 33+6 weeks\n▪High likelihood of preterm birth within the next 7 days\n▪The previous ACS course was started ≥7 days earlier\nDo NOT give more than one repeat course\n(More than one repeat course may cause fetal harm, and is not\nrecommended)",
+    "crop_image": "assets/regions/crops/ancs_repeat_course.webp",
+    "segments": [
+      {
+        "text": "WHEN TO GIVE REPEAT COURSE",
+        "header": true
+      },
+      {
+        "text": "Give ONE repeat course only if ALL criteria are met; neuro-developmental"
+      },
+      {
+        "text": "GA 24+0 to 33+6 weeks"
+      },
+      {
+        "text": "High likelihood of preterm birth within the next 7 days"
+      },
+      {
+        "text": "The previous ACS course was started ≥7 days earlier"
+      },
+      {
+        "text": "Do NOT give more than one repeat course (More than one repeat course may cause fetal harm, and is not recommended)"
+      }
+    ],
+    "intents": [
+      "criteria",
+      "timing"
+    ]
+  },
+  {
+    "id": "ancs_documentation",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "ACS Documentation",
+    "type": "text",
+    "section": "Documentation",
+    "x": 0.00594,
+    "y": 0.49092,
+    "w": 0.42523,
+    "h": 0.09121,
+    "aliases": [
+      "documentation",
+      "document",
+      "record",
+      "case sheet",
+      "mcp card",
+      "referral slip",
+      "next dose due",
+      "kahan likhein"
+    ],
+    "example_questions": [
+      "What should be documented when giving ACS?",
+      "Where to record ACS doses?",
+      "ACS ki documentation kaise karein?",
+      "MCP card me kya likhna hai?"
+    ],
+    "text": "DOCUMENTATION\nDocument: gestational age, indication, drug/dose,\ndate and time, initial/repeat course, next dose due\nRecord in: case sheet, MCP card, and referral slip",
+    "crop_image": "assets/regions/crops/ancs_documentation.webp",
+    "segments": [
+      {
+        "text": "DOCUMENTATION",
+        "header": true
+      },
+      {
+        "text": "Document: gestational age, indication, drug/dose, date and time, initial/repeat course, next dose due"
+      },
+      {
+        "text": "Record in: case sheet, MCP card, and referral slip"
+      }
+    ],
+    "intents": [
+      "documentation"
+    ]
+  },
+  {
+    "id": "ancs_referral",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "Referral / In-utero Transfer for ACS",
+    "type": "text",
+    "section": "Referral/transfer",
+    "x": 0.4383,
+    "y": 0.49092,
+    "w": 0.55589,
+    "h": 0.09121,
+    "aliases": [
+      "referral",
+      "transfer",
+      "in-utero transfer",
+      "level ii care",
+      "level i facility",
+      "first dose before referral",
+      "refer pregnant woman"
+    ],
+    "example_questions": [
+      "When should a pregnant woman be referred for in-utero transfer?",
+      "Can a level I facility give the first dose of ACS?",
+      "In-utero transfer kab karna chahiye?",
+      "Referral se pehle pehla dose de sakte hain?"
+    ],
+    "text": "REFERRAL/TRANSFER\nPregnant women with likelihood of early preterm birth should be\nreferred to a facility (in-utero transfer) with at least level II care (CPAP) for\npreterm infants\nLevel I facilities can give the ﬁrst dose of ACS before referral, provided\nthe pregnant woman meets the eligibility criteria, but referral/transfer\nshould not be delayed to complete the course",
+    "crop_image": "assets/regions/crops/ancs_referral.webp",
+    "segments": [
+      {
+        "text": "REFERRAL/TRANSFER",
+        "header": true
+      },
+      {
+        "text": "Pregnant women with likelihood of early preterm birth should be referred to a facility (in-utero transfer) with at least level II care (CPAP) for preterm infants"
+      },
+      {
+        "text": "Level I facilities can give the ﬁrst dose of ACS before referral, provided the pregnant woman meets the eligibility criteria, but referral/transfer should not be delayed to complete the course"
+      }
+    ],
+    "intents": [
+      "refer"
+    ]
+  },
+  {
+    "id": "ancs_dos",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "ACS Clinical DOs",
+    "type": "text",
+    "section": "DOs",
+    "x": 0.0,
+    "y": 0.58457,
+    "w": 0.48938,
+    "h": 0.09733,
+    "aliases": [
+      "dos",
+      "clinical dos",
+      "acs dos",
+      "kya karna chahiye"
+    ],
+    "example_questions": [
+      "What are the DOs for antenatal corticosteroids?",
+      "ACS dete samay kya karna chahiye?"
+    ],
+    "text": "Conﬁrm accurate GA and that preterm birth is likely within\nnext 7 days\nStart ACS promptly once eligibility criteria are met\nMonitor maternal glucose closely in women with diabetes\nDocument dose timing and arrange in-utero transfer when\nhigher-level care is required\nDOS",
+    "crop_image": "assets/regions/crops/ancs_dos.webp",
+    "segments": [
+      {
+        "text": "Conﬁrm accurate GA and that preterm birth is likely within next 7 days"
+      },
+      {
+        "text": "Start ACS promptly once eligibility criteria are met"
+      },
+      {
+        "text": "Monitor maternal glucose closely in women with diabetes"
+      },
+      {
+        "text": "Document dose timing and arrange in-utero transfer when higher-level care is required"
+      },
+      {
+        "text": "DOS",
+        "header": true
+      }
+    ],
+    "intents": [
+      "dos"
+    ]
+  },
+  {
+    "id": "ancs_donts",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "ACS Clinical DON'Ts",
+    "type": "text",
+    "section": "DON'Ts",
+    "x": 0.49531,
+    "y": 0.58457,
+    "w": 0.50469,
+    "h": 0.09733,
+    "aliases": [
+      "donts",
+      "acs donts",
+      "kya nahi karna"
+    ],
+    "example_questions": [
+      "What should be avoided with antenatal corticosteroids?",
+      "ACS ke DON'Ts kya hain?",
+      "Do not delay birth or referral to complete the ACS course"
+    ],
+    "text": "Do NOT give ACS when preterm birth is unlikely within next 7\ndays\nDo NOT delay an indicated birth or referral to complete the ACS\ncourse\nDo NOT give ACS in clinical chorioamnionitis or systemic\nmaternal infection\nDo NOT routinely use ACS at ≥34+0 weeks or give more than one\nrepeat course\nDONTS",
+    "crop_image": "assets/regions/crops/ancs_donts.webp",
+    "segments": [
+      {
+        "text": "Do NOT give ACS when preterm birth is unlikely within next 7 days"
+      },
+      {
+        "text": "Do NOT delay an indicated birth or referral to complete the ACS course"
+      },
+      {
+        "text": "Do NOT give ACS in clinical chorioamnionitis or systemic maternal infection"
+      },
+      {
+        "text": "Do NOT routinely use ACS at ≥34+0 weeks or give more than one repeat course"
+      },
+      {
+        "text": "DONTS",
+        "header": true
+      }
+    ],
+    "intents": [
+      "donts",
+      "contraindication"
+    ]
+  },
+  {
+    "id": "ancs_kpis",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "ACS Key Performance Indicators",
+    "type": "table",
+    "section": "KPIs",
+    "x": 0.0,
+    "y": 0.6819,
+    "w": 1.0,
+    "h": 0.06856,
+    "aliases": [
+      "kpi",
+      "kpis",
+      "key performance indicators",
+      "acs coverage",
+      "appropriate acs use",
+      "80%",
+      "95%"
+    ],
+    "example_questions": [
+      "What are the KPIs for antenatal corticosteroids?",
+      "ACS coverage target kya hai?",
+      "How is ACS coverage calculated?"
+    ],
+    "text": "Women at 24+0–33+6 weeks identiﬁed with high likelihood of preterm birth who received ≥1 ACS dose × 100\nAll women at 24+0-33+6 weeks identiﬁed with high likelihood of preterm birth\nKEY PERFORMANCE INDICATORS (KPIs)\nACS coverage =\nAppropriate ACS use =\n(Target: ≥80%)\n(Target: ≥95%)",
+    "crop_image": "assets/regions/crops/ancs_kpis.webp",
+    "segments": [
+      {
+        "text": "ACS coverage = Women at 24+0–33+6 weeks identiﬁed with high likelihood of preterm birth who received ≥1 ACS dose × 100 / All women at 24+0-33+6 weeks identiﬁed with high likelihood of preterm birth (Target: ≥80%)"
+      },
+      {
+        "text": "Appropriate ACS use = (Target: ≥95%)"
+      }
+    ],
+    "intents": [
+      "kpi"
+    ]
+  },
+  {
+    "id": "ancs_abbreviations",
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "title": "ACS Abbreviations",
+    "type": "text",
+    "section": "Abbreviations",
+    "x": 0.0,
+    "y": 0.88634,
+    "w": 1.0,
+    "h": 0.04958,
+    "aliases": [
+      "abbreviations",
+      "full form",
+      "pprom full form",
+      "mcp card full form"
+    ],
+    "example_questions": [
+      "What is the full form of PPROM?",
+      "MCP ka full form kya hai?"
+    ],
+    "text": "ABBREVIATIONS\nACS: Antenatal Corticosteroids\nGA: Gestational Age\nPPROM: Preterm Prelabour Rupture of Membranes\nCPAP: Continuous Positive Airway Pressure\nMCP: Mother and Child Protection Card\nIM: Intramuscular\nIVH: Intraventricular Hemorrhage\nRDS: Respiratory Distress Syndrome\nUSG: Ultrasonography",
+    "crop_image": "assets/regions/crops/ancs_abbreviations.webp",
+    "segments": [
+      {
+        "text": "ACS: Antenatal Corticosteroids"
+      },
+      {
+        "text": "GA: Gestational Age"
+      },
+      {
+        "text": "PPROM: Preterm Prelabour Rupture of Membranes"
+      },
+      {
+        "text": "CPAP: Continuous Positive Airway Pressure"
+      },
+      {
+        "text": "MCP: Mother and Child Protection Card"
+      },
+      {
+        "text": "IM: Intramuscular"
+      },
+      {
+        "text": "IVH: Intraventricular Hemorrhage"
+      },
+      {
+        "text": "RDS: Respiratory Distress Syndrome"
+      },
+      {
+        "text": "USG: Ultrasonography"
+      }
+    ],
+    "intents": [
+      "abbreviation"
+    ]
+  },
+  {
+    "id": "hypo_whom_to_screen",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Whom to Screen for Hypoglycemia",
+    "type": "text",
+    "section": "Whom to screen",
+    "x": 0.00713,
+    "y": 0.1463,
+    "w": 0.97637,
+    "h": 0.11018,
+    "aliases": [
+      "whom to screen",
+      "at-risk neonates",
+      "risk factors",
+      "low birth weight",
+      "lbw",
+      "sga",
+      "lga",
+      "intergrowth-21st",
+      "infant of diabetic mother",
+      "idm",
+      "beta-blockers",
+      "exchange transfusion",
+      "sick neonates",
+      "healthy term aga",
+      "sugar check kisko"
+    ],
+    "example_questions": [
+      "Which neonates should be screened for hypoglycemia?",
+      "Who is at risk of neonatal hypoglycemia?",
+      "Kis bacche ka sugar check karna chahiye?",
+      "Diabetic mother ke bacche ka sugar check karein?",
+      "Is glucose monitoring needed in healthy term AGA babies?"
+    ],
+    "text": "Routine blood glucose monitoring is not required in healthy term AGA neonates\nWHOM TO SCREEN FOR HYPOGLYCEMIA\nPreterm infants (<37 weeks’ gestation)\nLow-birth-weight infants (<2500 g)\nSmall-for-gestational-age (SGA) infants: birth weight <10th percentile as per INTERGROWTH-21st standards\nLarge-for-gestational-age (LGA) infants: birth weight >90th percentile as per INTERGROWTH-21st standards\nInfants of diabetic mothers (IDM)\nNeonates born to mothers receiving beta-blockers\nSick neonates, including those with sepsis, shock, birth asphyxia, respiratory distress, polycythaemia, on IV ﬂuids\nNeonates following exchange transfusion",
+    "crop_image": "assets/regions/crops/hypo_whom_to_screen.webp",
+    "segments": [
+      {
+        "text": "Routine blood glucose monitoring is not required in healthy term AGA neonates"
+      },
+      {
+        "text": "WHOM TO SCREEN FOR HYPOGLYCEMIA",
+        "header": true
+      },
+      {
+        "text": "Preterm infants (<37 weeks’ gestation)"
+      },
+      {
+        "text": "Low-birth-weight infants (<2500 g)"
+      },
+      {
+        "text": "Small-for-gestational-age (SGA) infants: birth weight <10th percentile as per INTERGROWTH-21st standards"
+      },
+      {
+        "text": "Large-for-gestational-age (LGA) infants: birth weight >90th percentile as per INTERGROWTH-21st standards"
+      },
+      {
+        "text": "Infants of diabetic mothers (IDM)"
+      },
+      {
+        "text": "Neonates born to mothers receiving beta-blockers"
+      },
+      {
+        "text": "Sick neonates, including those with sepsis, shock, birth asphyxia, respiratory distress, polycythaemia, on IV ﬂuids"
+      },
+      {
+        "text": "Neonates following exchange transfusion"
+      }
+    ],
+    "intents": [
+      "criteria"
+    ]
+  },
+  {
+    "id": "hypo_monitoring_schedule",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Schedule of Blood Glucose Monitoring",
+    "type": "table",
+    "section": "Monitoring schedule",
+    "x": 0.01663,
+    "y": 0.26015,
+    "w": 0.33615,
+    "h": 0.101,
+    "aliases": [
+      "schedule",
+      "monitoring schedule",
+      "1, 2, 6, 12, 24, 48, 72 hours",
+      "how often",
+      "iv fluids every 6-8 hours",
+      "pre-feeding",
+      "24-36 hours",
+      "kitne ghante"
+    ],
+    "example_questions": [
+      "How often should blood glucose be monitored in at-risk infants?",
+      "Blood glucose monitoring schedule for neonates",
+      "Sugar kitne ghante par check karna hai?",
+      "When can BG monitoring be stopped in IDM?"
+    ],
+    "text": "SCHEDULE OF BLOOD GLUCOSE MONITORING\nCATEGORY\nTIME SCHEDULE\nAt-risk infants\n1, 2, 6, 12, 24, 48, 72 hours\n*in IDM, monitoring can be\nstopped between 24-36\nhours provided feeding is\nestablished\nInfants on IV ﬂuids\nBG should be measured pre-feeding\nEvery 6-8 hours",
+    "crop_image": "assets/regions/crops/hypo_monitoring_schedule.webp",
+    "segments": [
+      {
+        "text": "SCHEDULE OF BLOOD GLUCOSE MONITORING",
+        "header": true
+      },
+      {
+        "text": "At-risk infants: 1, 2, 6, 12, 24, 48, 72 hours"
+      },
+      {
+        "text": "*in IDM, monitoring can be stopped between 24-36 hours provided feeding is established"
+      },
+      {
+        "text": "Infants on IV ﬂuids: Every 6-8 hours"
+      },
+      {
+        "text": "BG should be measured pre-feeding"
+      }
+    ],
+    "intents": [
+      "schedule",
+      "timing"
+    ]
+  },
+  {
+    "id": "hypo_how_to_monitor",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "How to Monitor Blood Glucose (BG)",
+    "type": "text",
+    "section": "How to monitor",
+    "x": 0.63547,
+    "y": 0.26076,
+    "w": 0.34803,
+    "h": 0.09549,
+    "aliases": [
+      "glucometer",
+      "point-of-care",
+      "lab sample",
+      "lab confirmation",
+      "do not delay treatment",
+      "how to measure",
+      "sugar kaise check"
+    ],
+    "example_questions": [
+      "How should blood glucose be measured in neonates?",
+      "Should treatment wait for lab confirmation of low glucose?",
+      "Glucometer se sugar kaise check karein?",
+      "Lab report ka wait karein ya treatment shuru karein?"
+    ],
+    "text": "HOW TO MONITOR BLOOD GLUCOSE (BG)\nMeasure BG using a point-of-care\nglucometer\nLow value (<45 mg/dL): send a blood\nsample to the lab\nDO NOT delay treatment for lab\nconﬁrmation",
+    "crop_image": "assets/regions/crops/hypo_how_to_monitor.webp",
+    "segments": [
+      {
+        "text": "HOW TO MONITOR BLOOD GLUCOSE (BG)",
+        "header": true
+      },
+      {
+        "text": "Measure BG using a point-of-care glucometer"
+      },
+      {
+        "text": "Low value (<45 mg/dL): send a blood sample to the lab"
+      },
+      {
+        "text": "DO NOT delay treatment for lab conﬁrmation"
+      }
+    ],
+    "intents": [
+      "procedure"
+    ]
+  },
+  {
+    "id": "hypo_flowchart_entry",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Blood Glucose <45 mg/dL",
+    "type": "algorithm",
+    "section": "Flowchart entry",
+    "x": 0.38722,
+    "y": 0.28953,
+    "w": 0.21143,
+    "h": 0.01959,
+    "aliases": [
+      "45 mg/dl",
+      "<45 mg/dl",
+      "hypoglycemia cutoff",
+      "low blood glucose",
+      "sugar kam"
+    ],
+    "example_questions": [
+      "What is the blood glucose cutoff for neonatal hypoglycemia?",
+      "Kitne sugar ko low maante hain newborn me?",
+      "Hypoglycemia definition in neonates"
+    ],
+    "text": "BLOOD GLUCOSE <45 mg/dL",
+    "crop_image": "assets/regions/crops/hypo_flowchart_entry.webp",
+    "segments": [
+      {
+        "text": "BLOOD GLUCOSE <45 mg/dL"
+      }
+    ],
+    "intents": [
+      "definition"
+    ]
+  },
+  {
+    "id": "hypo_symptoms",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Symptoms and Signs of Hypoglycemia",
+    "type": "text",
+    "section": "Symptoms and signs",
+    "x": 0.25181,
+    "y": 0.36237,
+    "w": 0.49531,
+    "h": 0.05876,
+    "aliases": [
+      "symptoms",
+      "signs",
+      "lethargy",
+      "jitteriness",
+      "tremors",
+      "convulsions",
+      "cyanosis",
+      "apnoea",
+      "high-pitched cry",
+      "unable to feed",
+      "lakshan"
+    ],
+    "example_questions": [
+      "What are the symptoms of neonatal hypoglycemia?",
+      "Signs of low blood sugar in newborn",
+      "Bacche me sugar kam hone ke lakshan kya hain?",
+      "Jitteriness and lethargy in hypoglycemia"
+    ],
+    "text": "LOOK FOR THE FOLLOWING SYMPTOMS AND SIGNS\nStupor, lethargy, limpness\nJitteriness, tremors, convulsions\nEpisodes of cyanosis, apnoea or tachypnoea\nWeak or high-pitched cry\nUnable to feed",
+    "crop_image": "assets/regions/crops/hypo_symptoms.webp",
+    "segments": [
+      {
+        "text": "LOOK FOR THE FOLLOWING SYMPTOMS AND SIGNS",
+        "header": true
+      },
+      {
+        "text": "Stupor, lethargy, limpness"
+      },
+      {
+        "text": "Jitteriness, tremors, convulsions"
+      },
+      {
+        "text": "Episodes of cyanosis, apnoea or tachypnoea"
+      },
+      {
+        "text": "Weak or high-pitched cry"
+      },
+      {
+        "text": "Unable to feed"
+      }
+    ],
+    "intents": [
+      "signs"
+    ]
+  },
+  {
+    "id": "hypo_asymptomatic_branch",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Asymptomatic & BG ≥25 mg/dL: Supervised Feeding",
+    "type": "algorithm",
+    "section": "Asymptomatic branch",
+    "x": 0.01069,
+    "y": 0.41991,
+    "w": 0.48581,
+    "h": 0.04591,
+    "aliases": [
+      "asymptomatic",
+      "no symptoms",
+      "symptoms nahi",
+      "bina symptoms",
+      "bg ≥25",
+      "supervised feeding",
+      "breastfeeding",
+      "expressed breastmilk",
+      "ebm",
+      "formula",
+      "paladai",
+      "gavage",
+      "feed karayein"
+    ],
+    "example_questions": [
+      "Management of asymptomatic hypoglycemia with BG 25 or more",
+      "BG 30 aur symptoms nahi, kya karein?",
+      "Asymptomatic baby with low sugar - should we feed?",
+      "Paladai or gavage feeding in hypoglycemia"
+    ],
+    "text": "ASYMPTOMATIC & BG ≥25 mg/dL\nImmediate supervised feeding\nBreastfeeding or a measured volume of expressed breastmilk\n(Formula milk if EBM not available) by paladai or gavage",
+    "crop_image": "assets/regions/crops/hypo_asymptomatic_branch.webp",
+    "segments": [
+      {
+        "text": "ASYMPTOMATIC & BG ≥25 mg/dL"
+      },
+      {
+        "text": "Immediate supervised feeding"
+      },
+      {
+        "text": "Breastfeeding or a measured volume of expressed breastmilk (Formula milk if EBM not available) by paladai or gavage"
+      }
+    ],
+    "intents": [
+      "management"
+    ]
+  },
+  {
+    "id": "hypo_recheck_1h",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Re-check BG After 1 Hour",
+    "type": "algorithm",
+    "section": "Re-check after 1 hour",
+    "x": 0.01307,
+    "y": 0.47439,
+    "w": 0.48344,
+    "h": 0.06733,
+    "aliases": [
+      "re-check after 1 hour",
+      "1 hour",
+      "recheck",
+      "continue feeds",
+      "6 hourly for 24 hours",
+      "symptoms develop",
+      "ek ghante baad"
+    ],
+    "example_questions": [
+      "When to recheck blood glucose after feeding?",
+      "What if BG is still below 45 after 1 hour of feeding?",
+      "Feed ke 1 ghante baad sugar check karna hai?",
+      "When to start IV glucose infusion after feeding?"
+    ],
+    "text": "If BG ≥ 45 mg/dL\nContinue feeds\nContinue BG monitoring\n6 hourly for 24 hours\nRE-CHECK BG AFTER 1 HOUR\nStart IV glucose infusion if:\nBG < 45 mg/dL OR\nSymptoms develop",
+    "crop_image": "assets/regions/crops/hypo_recheck_1h.webp",
+    "segments": [
+      {
+        "text": "RE-CHECK BG AFTER 1 HOUR",
+        "header": true
+      },
+      {
+        "text": "If BG ≥ 45 mg/dL: Continue feeds; Continue BG monitoring 6 hourly for 24 hours"
+      },
+      {
+        "text": "Start IV glucose infusion if: BG < 45 mg/dL OR Symptoms develop"
+      }
+    ],
+    "intents": [
+      "schedule",
+      "management"
+    ]
+  },
+  {
+    "id": "hypo_symptomatic_branch",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Symptomatic or BG <25 mg/dL: IV Bolus and Dextrose Infusion",
+    "type": "algorithm",
+    "section": "Symptomatic branch",
+    "x": 0.54164,
+    "y": 0.41991,
+    "w": 0.44068,
+    "h": 0.0453,
+    "aliases": [
+      "symptomatic",
+      "bg <25",
+      "<25 mg/dl",
+      "iv bolus",
+      "2 ml/kg",
+      "10% dextrose",
+      "d10",
+      "gir 6",
+      "6 mg/kg/min",
+      "bolus dose",
+      "dextrose kitna"
+    ],
+    "example_questions": [
+      "Management of symptomatic neonatal hypoglycemia",
+      "What is the dextrose bolus dose for hypoglycemia?",
+      "BG below 25 mg/dL treatment",
+      "Dextrose bolus kitna dena hai?",
+      "Symptomatic baby ko kitna GIR shuru karein?"
+    ],
+    "text": "SYMPTOMATIC OR BG < 25 mg/dL\nIV bolus: 2 ml/kg of 10% of dextrose slowly over 1 minute\nStart IV infusion of dextrose at a glucose infusion rate\n(GIR) of 6 mg/kg/min",
+    "crop_image": "assets/regions/crops/hypo_symptomatic_branch.webp",
+    "segments": [
+      {
+        "text": "SYMPTOMATIC OR BG < 25 mg/dL"
+      },
+      {
+        "text": "IV bolus: 2 ml/kg of 10% of dextrose slowly over 1 minute"
+      },
+      {
+        "text": "Start IV infusion of dextrose at a glucose infusion rate (GIR) of 6 mg/kg/min"
+      }
+    ],
+    "intents": [
+      "management",
+      "dose"
+    ]
+  },
+  {
+    "id": "hypo_recheck_30min",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Re-check BG Every 30 Minutes on IV Glucose",
+    "type": "algorithm",
+    "section": "Re-check every 30 min",
+    "x": 0.54164,
+    "y": 0.47561,
+    "w": 0.44068,
+    "h": 0.02265,
+    "aliases": [
+      "every 30 min",
+      "30 minutes",
+      "2 consecutive values",
+      "every 6 h",
+      "recheck on iv"
+    ],
+    "example_questions": [
+      "How often to recheck BG after starting IV dextrose?",
+      "IV glucose ke baad sugar kitni der me check karein?"
+    ],
+    "text": "Re-check BG every 30 min until 2 consecutive values\nare ≥45 mg/dL, then every 6 h",
+    "crop_image": "assets/regions/crops/hypo_recheck_30min.webp",
+    "segments": [
+      {
+        "text": "Re-check BG every 30 min until 2 consecutive values are ≥45 mg/dL, then every 6 h"
+      }
+    ],
+    "intents": [
+      "schedule"
+    ]
+  },
+  {
+    "id": "hypo_increase_gir",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "BG <45 mg/dL on IV: Increase GIR (maximum 12 mg/kg/min)",
+    "type": "algorithm",
+    "section": "Increase GIR",
+    "x": 0.54283,
+    "y": 0.50867,
+    "w": 0.22212,
+    "h": 0.07162,
+    "aliases": [
+      "increase gir",
+      "gir by 2",
+      "maximum 12 mg/kg/min",
+      "max gir",
+      "gir badhana",
+      "gir badhayein"
+    ],
+    "example_questions": [
+      "How much to increase GIR if BG stays low?",
+      "What is the maximum GIR?",
+      "GIR kitna badhayein?",
+      "Sugar low rehne par GIR kaise badhayein?"
+    ],
+    "text": "BG < 45 mg/dL\nIncrease GIR by 2 mg/ kg/min\n(maximum 12 mg/kg/min)",
+    "crop_image": "assets/regions/crops/hypo_increase_gir.webp",
+    "segments": [
+      {
+        "text": "BG < 45 mg/dL",
+        "header": true
+      },
+      {
+        "text": "Increase GIR by 2 mg/ kg/min (maximum 12 mg/kg/min)",
+        "label": "BG < 45 mg/dL"
+      }
+    ],
+    "intents": [
+      "escalate",
+      "dose"
+    ]
+  },
+  {
+    "id": "hypo_persistent_refractory",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Persistent or Refractory Hypoglycemia: Consider Endocrine/Metabolic Disorders & Refer",
+    "type": "algorithm",
+    "section": "Persistent / refractory",
+    "x": 0.53689,
+    "y": 0.59192,
+    "w": 0.234,
+    "h": 0.11079,
+    "aliases": [
+      "persistent hypoglycemia",
+      "refractory hypoglycemia",
+      "gir >10-12",
+      "3-7 days",
+      "endocrine",
+      "metabolic",
+      "refer to higher centre"
+    ],
+    "example_questions": [
+      "What is refractory hypoglycemia?",
+      "When to refer a baby with persistent hypoglycemia?",
+      "Refractory hypoglycemia me refer kab karein?",
+      "Persistent hypoglycemia definition GIR requirement"
+    ],
+    "text": "Persistent (GIR requirement\n>3-7 days) or Refractory (GIR\n> 10-12 mg/kg/min for 24\nhours) hypoglycemia\nConsider ENDOCRINE/\nMETABOLIC disorders &\nREFER to higher centre",
+    "crop_image": "assets/regions/crops/hypo_persistent_refractory.webp",
+    "segments": [
+      {
+        "text": "Persistent (GIR requirement >3-7 days) or Refractory (GIR > 10-12 mg/kg/min for 24 hours) hypoglycemia"
+      },
+      {
+        "text": "Consider ENDOCRINE/ METABOLIC disorders & REFER to higher centre"
+      }
+    ],
+    "intents": [
+      "refer",
+      "definition"
+    ]
+  },
+  {
+    "id": "hypo_euglycemic_wean",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "BG ≥45 mg/dL on IV: Euglycemic for 24 Hours, Reduce GIR",
+    "type": "algorithm",
+    "section": "Wean GIR",
+    "x": 0.78751,
+    "y": 0.50867,
+    "w": 0.20311,
+    "h": 0.13528,
+    "aliases": [
+      "euglycemic",
+      "24 hours",
+      "reduce gir",
+      "wean gir",
+      "every 6 hours",
+      "increase oral feeds",
+      "gir kam karna"
+    ],
+    "example_questions": [
+      "How to wean IV dextrose in hypoglycemia?",
+      "How to reduce GIR once sugar is normal?",
+      "GIR kaise kam karein?",
+      "When to start reducing glucose infusion?"
+    ],
+    "text": "BG ≥ 45 mg/dL\nEuglycemic for 24\nhours on IV ﬂuids\nReduce GIR by 2 mg/\nkg/min every 6 hours\nIncrease oral feeds\nMonitor BG every 6 hours",
+    "crop_image": "assets/regions/crops/hypo_euglycemic_wean.webp",
+    "segments": [
+      {
+        "text": "BG ≥ 45 mg/dL",
+        "header": true
+      },
+      {
+        "text": "Euglycemic for 24 hours on IV ﬂuids",
+        "label": "BG ≥ 45 mg/dL"
+      },
+      {
+        "text": "Reduce GIR by 2 mg/ kg/min every 6 hours"
+      },
+      {
+        "text": "Increase oral feeds"
+      },
+      {
+        "text": "Monitor BG every 6 hours"
+      }
+    ],
+    "intents": [
+      "wean"
+    ]
+  },
+  {
+    "id": "hypo_stop_iv",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Stop IV Fluids (Euglycemic on GIR 4 mg/kg/min)",
+    "type": "algorithm",
+    "section": "Stop IV fluids",
+    "x": 0.78751,
+    "y": 0.65496,
+    "w": 0.20311,
+    "h": 0.04774,
+    "aliases": [
+      "stop iv fluids",
+      "gir 4",
+      "4 mg/kg/min",
+      "tolerating enteral feeds",
+      "iv band karna"
+    ],
+    "example_questions": [
+      "When to stop IV fluids in neonatal hypoglycemia?",
+      "IV fluids kab band karein?",
+      "Stop IV glucose at what GIR?"
+    ],
+    "text": "Stop IV ﬂuids when\neuglycemic on GIR 4 mg/\nkg/min and tolerating\nadequate enteral feeds",
+    "crop_image": "assets/regions/crops/hypo_stop_iv.webp",
+    "segments": [
+      {
+        "text": "Stop IV ﬂuids when euglycemic on GIR 4 mg/ kg/min and tolerating adequate enteral feeds"
+      }
+    ],
+    "intents": [
+      "stop"
+    ]
+  },
+  {
+    "id": "hypo_drugs_refractory",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Drugs for Refractory Hypoglycemia",
+    "type": "text",
+    "section": "Drugs",
+    "x": 0.54164,
+    "y": 0.71311,
+    "w": 0.45612,
+    "h": 0.04652,
+    "aliases": [
+      "hydrocortisone",
+      "5 mg/kg/day",
+      "two divided doses",
+      "drugs",
+      "tertiary care",
+      "refractory dawa"
+    ],
+    "example_questions": [
+      "Which drugs are used for refractory hypoglycemia?",
+      "Hydrocortisone dose for hypoglycemia",
+      "Refractory hypoglycemia me kya dete hain?",
+      "Hydrocortisone kitna dena hai?"
+    ],
+    "text": "DRUGS FOR REFRACTORY HYPOGLYCEMIA\nHydrocortisone: 5 mg/kg/day IV in two divided doses\nAdditional drugs should be administered at a tertiary\ncare hospital with workup for underlying causes",
+    "crop_image": "assets/regions/crops/hypo_drugs_refractory.webp",
+    "segments": [
+      {
+        "text": "DRUGS FOR REFRACTORY HYPOGLYCEMIA",
+        "header": true
+      },
+      {
+        "text": "Hydrocortisone: 5 mg/kg/day IV in two divided doses"
+      },
+      {
+        "text": "Additional drugs should be administered at a tertiary care hospital with workup for underlying causes"
+      }
+    ],
+    "intents": [
+      "dose",
+      "management"
+    ]
+  },
+  {
+    "id": "hypo_prevention",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Prevention of Hypoglycemia",
+    "type": "text",
+    "section": "Prevention",
+    "x": 0.01307,
+    "y": 0.54233,
+    "w": 0.48344,
+    "h": 0.04774,
+    "aliases": [
+      "prevention",
+      "prevent",
+      "early breastfeeding",
+      "normothermia",
+      "do not feed dextrose",
+      "bachav"
+    ],
+    "example_questions": [
+      "How to prevent neonatal hypoglycemia?",
+      "Hypoglycemia se kaise bachayein?",
+      "Can dextrose be fed instead of breastmilk?"
+    ],
+    "text": "Support mother for early initiation and regular breastfeeding\nMaintain normothermia\nDo not feed dextrose solutions as a substitute for breastmilk\nPREVENTION OF HYPOGLYCEMIA",
+    "crop_image": "assets/regions/crops/hypo_prevention.webp",
+    "segments": [
+      {
+        "text": "Support mother for early initiation and regular breastfeeding"
+      },
+      {
+        "text": "Maintain normothermia"
+      },
+      {
+        "text": "Do not feed dextrose solutions as a substitute for breastmilk"
+      },
+      {
+        "text": "PREVENTION OF HYPOGLYCEMIA",
+        "header": true
+      }
+    ],
+    "intents": [
+      "prevention"
+    ]
+  },
+  {
+    "id": "hypo_practical_points",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Practical Points for IV Glucose",
+    "type": "text",
+    "section": "Practical points",
+    "x": 0.01544,
+    "y": 0.59008,
+    "w": 0.48106,
+    "h": 0.08937,
+    "aliases": [
+      "practical points",
+      "peripheral vein",
+      "12.5-15% dextrose",
+      "iv cannula",
+      "syringe pump",
+      "infusion pump",
+      "frequent boluses",
+      "underlying cause",
+      "polycythemia",
+      "meningitis",
+      "iugr",
+      "underlying causes",
+      "causes of hypoglycemia"
+    ],
+    "example_questions": [
+      "Maximum dextrose concentration through a peripheral vein",
+      "Practical points for glucose infusion",
+      "Peripheral line me kitna dextrose de sakte hain?",
+      "Search for underlying cause of hypoglycemia"
+    ],
+    "text": "PRACTICAL POINTS\nAvoid > 12.5-15% dextrose infusion through a peripheral vein\nMaintain patency of IV cannula\nUse a syringe/infusion pump to deliver glucose\nAvoid frequent dextrose boluses\nAlways search for an underlying cause – polycythemia, sepsis,\nmeningitis, hypothermia, IUGR",
+    "crop_image": "assets/regions/crops/hypo_practical_points.webp",
+    "segments": [
+      {
+        "text": "PRACTICAL POINTS",
+        "header": true
+      },
+      {
+        "text": "Avoid > 12.5-15% dextrose infusion through a peripheral vein"
+      },
+      {
+        "text": "Maintain patency of IV cannula"
+      },
+      {
+        "text": "Use a syringe/infusion pump to deliver glucose"
+      },
+      {
+        "text": "Avoid frequent dextrose boluses"
+      },
+      {
+        "text": "Always search for an underlying cause – polycythemia, sepsis, meningitis, hypothermia, IUGR"
+      }
+    ],
+    "intents": [
+      "procedure"
+    ]
+  },
+  {
+    "id": "hypo_dos",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Hypoglycemia Clinical DOs",
+    "type": "text",
+    "section": "DO's",
+    "x": 0.0,
+    "y": 0.76208,
+    "w": 0.45493,
+    "h": 0.04836,
+    "aliases": [
+      "dos",
+      "clinical dos",
+      "hypoglycemia dos",
+      "monitor bg in all"
+    ],
+    "example_questions": [
+      "What are the DOs in neonatal hypoglycemia?",
+      "Hypoglycemia me kya karna chahiye?"
+    ],
+    "text": "Monitor BG in all; as per protocol\nSupport early and frequent breastfeeding\nTreat symptomatic hypoglycemia immediately\nDO’s",
+    "crop_image": "assets/regions/crops/hypo_dos.webp",
+    "segments": [
+      {
+        "text": "DO’s",
+        "header": true
+      },
+      {
+        "text": "Monitor BG in all; as per protocol"
+      },
+      {
+        "text": "Support early and frequent breastfeeding"
+      },
+      {
+        "text": "Treat symptomatic hypoglycemia immediately"
+      }
+    ],
+    "intents": [
+      "dos"
+    ]
+  },
+  {
+    "id": "hypo_donts",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Hypoglycemia Clinical DON'Ts",
+    "type": "text",
+    "section": "DON'Ts",
+    "x": 0.46799,
+    "y": 0.76208,
+    "w": 0.53201,
+    "h": 0.04836,
+    "aliases": [
+      "donts",
+      "antibiotics",
+      "mother-infant dyad",
+      "substitute dextrose"
+    ],
+    "example_questions": [
+      "What should not be done in neonatal hypoglycemia?",
+      "Should antibiotics be given for hypoglycemia?",
+      "Hypoglycemia me kya nahi karna chahiye?"
+    ],
+    "text": "Do NOT substitute dextrose solutions for breastmilk\nDo NOT separate a stable mother-infant dyad solely for glucose\nmonitoring\nDo NOT give antibiotics for hypoglycemia unless sepsis is suspected\nDON’Ts",
+    "crop_image": "assets/regions/crops/hypo_donts.webp",
+    "segments": [
+      {
+        "text": "DON’Ts",
+        "header": true
+      },
+      {
+        "text": "Do NOT substitute dextrose solutions for breastmilk"
+      },
+      {
+        "text": "Do NOT separate a stable mother-infant dyad solely for glucose monitoring"
+      },
+      {
+        "text": "Do NOT give antibiotics for hypoglycemia unless sepsis is suspected"
+      }
+    ],
+    "intents": [
+      "donts"
+    ]
+  },
+  {
+    "id": "hypo_kpis",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Hypoglycemia Key Performance Indicators",
+    "type": "table",
+    "section": "KPIs",
+    "x": 0.0,
+    "y": 0.8086,
+    "w": 1.0,
+    "h": 0.0606,
+    "aliases": [
+      "kpi",
+      "kpis",
+      "key performance indicators",
+      "screening coverage",
+      "timely bg re-check",
+      "90%"
+    ],
+    "example_questions": [
+      "What are the KPIs for neonatal hypoglycemia?",
+      "Blood glucose screening coverage target"
+    ],
+    "text": "KEY PERFORMANCE INDICATORS (KPIs)\nAt-risk neonates monitored for BG as per protocol × 100\nTotal at-risk neonates eligible for BG monitoring\nHypoglycemic episodes with repeat BG within prescribed interval × 100\nNo. of hypoglycemic episodes treated\nBlood glucose screening coverage =\nTimely BG re-check after treatment =\n(Target ≥90%)\n(Target ≥90%)",
+    "crop_image": "assets/regions/crops/hypo_kpis.webp",
+    "segments": [
+      {
+        "text": "Blood glucose screening coverage = At-risk neonates monitored for BG as per protocol × 100 / Total at-risk neonates eligible for BG monitoring (Target ≥90%)"
+      },
+      {
+        "text": "Timely BG re-check after treatment = Hypoglycemic episodes with repeat BG within prescribed interval × 100 / No. of hypoglycemic episodes treated (Target ≥90%)"
+      }
+    ],
+    "intents": [
+      "kpi"
+    ]
+  },
+  {
+    "id": "hypo_neuro_followup",
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "title": "Neurodevelopmental Follow-up after Hypoglycemia",
+    "type": "text",
+    "section": "Follow-up",
+    "x": 0.0,
+    "y": 0.86737,
+    "w": 1.0,
+    "h": 0.02571,
+    "aliases": [
+      "neurodevelopmental follow-up",
+      "structured follow-up",
+      "recurrent hypoglycemia",
+      "severe hypoglycemia"
+    ],
+    "example_questions": [
+      "Which babies with hypoglycemia need neurodevelopmental follow-up?",
+      "Hypoglycemia ke baad follow-up kab chahiye?"
+    ],
+    "text": "NEONATES WITH SYMPTOMATIC, SEVERE, RECURRENT OR PERSISTENT HYPOGLYCEMIA SHOULD RECEIVE\nSTRUCTURED NEURODEVELOPMENTAL FOLLOW-UP",
+    "crop_image": "assets/regions/crops/hypo_neuro_followup.webp",
+    "segments": [
+      {
+        "text": "NEONATES WITH SYMPTOMATIC, SEVERE, RECURRENT OR PERSISTENT HYPOGLYCEMIA SHOULD RECEIVE STRUCTURED NEURODEVELOPMENTAL FOLLOW-UP"
+      }
+    ],
+    "intents": [
+      "followup"
+    ]
+  }
+]

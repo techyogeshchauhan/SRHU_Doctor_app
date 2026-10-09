@@ -11,6 +11,7 @@ import '../../../shared/pdf_navigation.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../condition_selection/state/condition_selection_controller.dart';
+import '../../references/ui/stw_reference_screen.dart';
 
 /// Screen displayed after the user selects an active condition on the
 /// main 14-condition screen.
@@ -39,6 +40,14 @@ class DiseaseSelectionScreen extends ConsumerWidget {
     final showRd = selected.contains(NeonatalCondition.respiratoryDistress) ||
         initialCondition == NeonatalCondition.respiratoryDistress ||
         selected.isEmpty;
+    bool show(NeonatalCondition c) =>
+        selected.contains(c) || initialCondition == c || selected.isEmpty;
+
+    void startScreening(NeonatalCondition c) {
+      clearConditionData(ref);
+      ref.read(assessmentProvider.notifier).start({c}, forceReset: true);
+      context.push('/workflow');
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -125,8 +134,8 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                     title: 'Respiratory Distress in Neonates',
                     icon: Icons.air_rounded,
                     accentColor: AppTheme.accentRd,
-                    highlighted:
-                        initialCondition == NeonatalCondition.respiratoryDistress,
+                    highlighted: initialCondition ==
+                        NeonatalCondition.respiratoryDistress,
                     pdfAssetPath: rdPdfAsset,
                     pdfTitle: rdPdfTitle,
                     onStartScreening: () {
@@ -139,6 +148,31 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                 ],
+
+                // 3. ANCS and Neonatal Hypoglycemia cards (if selected or default)
+                for (final (c, title) in const [
+                  (
+                    NeonatalCondition.ancs,
+                    'Antenatal Corticosteroids for Preterm Birth',
+                  ),
+                  (NeonatalCondition.hypoglycemia, 'Neonatal Hypoglycemia'),
+                ])
+                  if (show(c)) ...[
+                    _DiseaseCard(
+                      title: title,
+                      icon: c == NeonatalCondition.ancs
+                          ? Icons.vaccines_outlined
+                          : Icons.bloodtype_outlined,
+                      accentColor: AppTheme.primaryNavy,
+                      highlighted: initialCondition == c,
+                      pdfAssetPath: stwPdfFor(c)!.asset,
+                      pdfTitle: stwPdfFor(c)!.title,
+                      onOpenStwText: () =>
+                          context.push(StwReferenceScreen.routeFor(c)),
+                      onStartScreening: () => startScreening(c),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
 
                 const SizedBox(height: 16),
                 const DisclaimerFooter(),
@@ -161,6 +195,7 @@ class _DiseaseCard extends StatelessWidget {
     required this.pdfTitle,
     required this.onStartScreening,
     this.highlighted = false,
+    this.onOpenStwText,
   });
 
   final String title;
@@ -170,6 +205,9 @@ class _DiseaseCard extends StatelessWidget {
   final String pdfTitle;
   final VoidCallback onStartScreening;
   final bool highlighted;
+
+  /// Opens the verbatim STW text (DOs/DON'Ts, KPIs, ...); hidden when null.
+  final VoidCallback? onOpenStwText;
 
   @override
   Widget build(BuildContext context) {
@@ -186,9 +224,8 @@ class _DiseaseCard extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: highlighted
-                  ? AppTheme.primaryBlue
-                  : const Color(0xFFD4E3F8),
+              color:
+                  highlighted ? AppTheme.primaryBlue : const Color(0xFFD4E3F8),
               width: highlighted ? 1.8 : 1.2,
             ),
             boxShadow: const [
@@ -233,46 +270,90 @@ class _DiseaseCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Semantics(
-                      button: true,
-                      label: 'Open reference PDF for $title',
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.primaryBlue,
-                          backgroundColor: const Color(0xFFF8FAFC),
-                          side: const BorderSide(
-                            color: Color(0xFFCBD5E1),
-                            width: 1,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          minimumSize: const Size(0, 30),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        Semantics(
+                          button: true,
+                          label: 'Open reference PDF for $title',
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppTheme.primaryBlue,
+                              backgroundColor: const Color(0xFFF8FAFC),
+                              side: const BorderSide(
+                                color: Color(0xFFCBD5E1),
+                                width: 1,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              minimumSize: const Size(0, 30),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            onPressed: () => openStwPdf(
+                              context,
+                              assetPath: pdfAssetPath,
+                              title: pdfTitle,
+                            ),
+                            icon: const Icon(
+                              Icons.description_outlined,
+                              size: 13,
+                              color: AppTheme.primaryBlue,
+                            ),
+                            label: const Text(
+                              'Reference',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
-                        onPressed: () => openStwPdf(
-                          context,
-                          assetPath: pdfAssetPath,
-                          title: pdfTitle,
-                        ),
-                        icon: const Icon(
-                          Icons.description_outlined,
-                          size: 13,
-                          color: AppTheme.primaryBlue,
-                        ),
-                        label: const Text(
-                          'Reference',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
+                        if (onOpenStwText != null)
+                          Semantics(
+                            button: true,
+                            label: 'Open STW text for $title',
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppTheme.primaryBlue,
+                                backgroundColor: const Color(0xFFF8FAFC),
+                                side: const BorderSide(
+                                  color: Color(0xFFCBD5E1),
+                                  width: 1,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                minimumSize: const Size(0, 30),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              onPressed: onOpenStwText,
+                              icon: const Icon(
+                                Icons.checklist_rtl_outlined,
+                                size: 13,
+                                color: AppTheme.primaryBlue,
+                              ),
+                              label: const Text(
+                                "DOs/DON'Ts & KPIs",
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),

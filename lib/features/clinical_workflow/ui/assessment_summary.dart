@@ -35,9 +35,8 @@ class FindingCard extends StatelessWidget {
         .textTheme
         .bodySmall
         ?.copyWith(color: const Color(0xFF475569));
-    final isRd = f.source.document.toLowerCase().contains('respiratory');
-    final isRop = f.source.document.toLowerCase().contains('retinopathy') ||
-        f.source.document.toLowerCase().contains('rop');
+    final pdf = stwPdfForDocument(f.source.document);
+    final regionId = f.source.regionId;
 
     return ResultCard(
       tone: toneFor(f.level),
@@ -53,14 +52,18 @@ class FindingCard extends StatelessWidget {
               Expanded(
                 child: Text('Source: ${f.source.citation}', style: small),
               ),
-              if (isRd || isRop)
+              if (pdf != null)
                 InkWell(
                   onTap: () {
-                    openStwPdf(
-                      context,
-                      assetPath: isRd ? rdPdfAsset : ropPdfAsset,
-                      title: isRd ? rdPdfTitle : ropPdfTitle,
-                    );
+                    if (regionId != null) {
+                      openStwRegion(context, pdf: pdf, regionId: regionId);
+                    } else {
+                      openStwPdf(
+                        context,
+                        assetPath: pdf.asset,
+                        title: pdf.title,
+                      );
+                    }
                   },
                   borderRadius: BorderRadius.circular(4),
                   child: const Padding(
@@ -130,10 +133,11 @@ class AssessmentSummaryView extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 12),
-        SectionCard(
-          title: 'Baby details',
-          child: Text(summary.babyLine, style: text.bodyLarge),
-        ),
+        for (final s in summary.subjects)
+          SectionCard(
+            title: s.label == 'Baby' ? 'Baby details' : s.label,
+            child: Text(s.line, style: text.bodyLarge),
+          ),
         SectionCard(
           title: 'Topics assessed',
           subtitle: 'Selected for assessment — not diagnoses',

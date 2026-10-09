@@ -1,11 +1,13 @@
 # STW Neo — Neonatal Clinical Decision Support
 
-**STW Neo** is a cross-platform mobile application built with [Flutter](https://flutter.dev) that provides bedside decision support for two ICMR / DHR (Indian Council of Medical Research / Department of Health Research) **Standard Treatment Workflows (STWs)**:
+**STW Neo** is a cross-platform mobile application built with [Flutter](https://flutter.dev) that provides bedside decision support for four ICMR / DHR (Indian Council of Medical Research / Department of Health Research) **Standard Treatment Workflows (STWs)**:
 
 1. **Respiratory Distress in Neonates** (ICD-11 KB23)
 2. **Retinopathy of Prematurity — ROP** (ICD-11 9B71.3)
+3. **Antenatal Corticosteroids for Preterm Birth — ANCS** (August 2026)
+4. **Neonatal Hypoglycemia** (ICD-11 KB60.4, August 2026)
 
-The app digitises the paper-based STW algorithms into an interactive, step-by-step clinical tool that clinicians can use at the bedside. **No patient data is stored** — all inputs are kept in memory and cleared when the app is closed.
+The app digitises the paper-based STW algorithms into an interactive, step-by-step clinical tool that clinicians can use at the bedside. **No patient identifiers leave the device** — dates (date of birth, exam dates) and free-text entries (facility, SNCU/CR number) stay in memory only. Other answers, findings and quiz attempts are queued for the de-identified sync described under *Database & Offline Sync* below.
 
 ---
 
@@ -36,8 +38,8 @@ Selecting a topic means "assess this workflow", **not** "the baby has this condi
 
 | Status | Topics | Behaviour |
 |---|---|---|
-| **Available** | Respiratory Distress, ROP | Questions and rules from the approved STWs, delegated to the existing validated engines |
-| **Coming soon** | the other 12 | Selectable; shows *"Clinical workflow content requires the corresponding approved STW."* No questions, rules or recommendations |
+| **Available** | Respiratory Distress, ANCS, Hypoglycemia, ROP | Questions and rules from the approved STWs, delegated to the existing validated engines |
+| **Coming soon** | the other 10 | Selectable; shows *"Clinical workflow content requires the corresponding approved STW."* No questions, rules or recommendations |
 
 The standalone RD and ROP screens described below are still in the app (routes `/rd`, `/rop`) but are no longer linked from the assessment flow.
 
@@ -59,6 +61,16 @@ The standalone RD and ROP screens described below are still in the app (routes `
 | **Timing** | Enters date of birth | Calculates first screening date (2–3 weeks for early window; 4 weeks otherwise), flags overdue cases, and computes postmenstrual age |
 | **Findings** | Records per-eye findings — Zone (I/II/III), Stage (0–5), Plus disease, A-ROP, clock hours | Classifies each eye and determines treatment indication based on ICROP staging |
 | **Outcome** | Reviews the treatment/follow-up plan | Generates recommendation: **Treatment required** (laser / anti-VEGF), **Follow-up schedule** with next exam date, or **Discharge from screening** — with PMA-based follow-up intervals |
+
+### ANCS Module (Antenatal Corticosteroids)
+
+The person assessed is the **pregnant woman** (maternal GA; no identifiers). Asks GA (weeks + days), the five eligibility criteria, previous ACS courses, special situations and whether the facility has level II care (CPAP). Outputs, verbatim from the STW: **GIVE ACS** (dexamethasone sodium phosphate 6 mg IM every 12 hours × 4 doses, with the IMPORTANT note and documentation checklist), **GIVE ONE REPEAT COURSE**, **Do NOT give** with every matching WHEN NOT TO GIVE reason, special-situation advice and **REFERRAL/TRANSFER**. Rules: `lib/features/ancs/domain/`.
+
+### Neonatal Hypoglycemia Module
+
+Whom to screen (8 STW risk groups) and the monitoring schedule, then the flowchart from **BG <45 mg/dL**: asymptomatic & BG ≥25 → supervised feeding and 1-hour re-check; symptomatic or BG <25 → IV bolus 2 ml/kg 10% dextrose + GIR 6 mg/kg/min (bolus volume shown with its formula when a weight is entered); on IV glucose → increase GIR by 2 (max 12), wean after 24 h euglycemia, stop IV fluids on GIR 4 with adequate enteral feeds; persistent/refractory → refer + hydrocortisone. Rules: `lib/features/hypoglycemia/domain/`.
+
+Every rule, threshold, dose and wording of both modules is listed with its PDF box in [CLINICAL_REVIEW.md](CLINICAL_REVIEW.md), with the open clinical questions that need sign-off before release. Each module also has 8 MCQs + 6 case scenarios written only from its PDF, and a verbatim **STW reference** screen (DOs/DON'Ts, KPIs, abbreviations, references, disclaimer).
 
 ### Additional Features
 
@@ -272,6 +284,96 @@ flutter test test/rop_rules_test.dart
 
 ---
 
+---
+
+## STW Clinical Assistant & Grounded Retrieval (Goal A)
+
+**STW Neo** includes a zero-hallucination, offline-first Clinical Assistant strictly grounded in the approved ICMR / DHR STW PDFs:
+- **Zero Hallucination**: Answers are strictly extracted verbatim from the source documents. If a query is not covered in the approved STW documents, the system replies with: *"This information is not covered in the approved STW documents."*
+- **Visual PDF Highlighting**: Every bot answer includes a source badge (Document, Page, Section Title) and a **"View in PDF"** action. Tapping it navigates to the exact PDF page, centers the viewport, and renders a translucent amber overlay (`#F59E0B` with 35% fill and amber border) over the exact normalized bounding box coordinates.
+- **Hybrid Lexical Search**: Powered by on-device BM25 ranking with clinical synonym expansion (`assets/stw_index/clinical_synonyms.json`), entity boosting for vital thresholds (e.g. `20 mg/kg`, `5 cm H2O`), and whole-word regex matching.
+
+### Running the STW Index Build Script
+
+The pre-built index extracts text blocks, tables, and flowchart algorithms using PyMuPDF (`fitz`):
+
+```bash
+# 1. Install prerequisites (Python 3.10+)
+pip install pymupdf
+
+# 2. Run the indexer from project root
+python tools/build_stw_index.py
+```
+
+The script will:
+- Parse `assets/pdfs/respiratory_distress_neonates_stw.pdf` and `assets/pdfs/retinopathy_of_prematurity_stw.pdf`.
+- Extract logical clinical blocks and compute normalized `(0.0 - 1.0)` bounding boxes relative to page dimensions.
+- Verify that 100% of chunk texts exist verbatim within the source PDF pages.
+- Output the indexed knowledge base to `assets/stw_index/stw_index.json`.
+
+---
+
+## Database & Offline Sync (Goal B)
+
+The application persists de-identified clinical screening workflows, MCQ evaluations, and chatbot query logs via a secure Node.js + Express REST API backed by **MongoDB Atlas** using an offline-first queue:
+- **Strictly De-Identified**: No patient names, hospital numbers (MRNs), or dates of birth are collected or stored.
+- **Offline-First Resilience**: All writes are first committed locally to Hive (IndexedDB on Web/PWA, binary storage on mobile). When network connectivity is established, a background sync worker flushes pending operations via idempotent REST operations with client-generated UUIDs.
+- **Architecture**: The Flutter app communicates ONLY via REST endpoints (`/sessions`, `/screenings`, `/chat-logs`) and never stores MongoDB credentials directly.
+
+### Setting API Configuration via `--dart-define`
+
+Never hardcode server credentials in code. Provide the REST backend URL and API key at build or launch time:
+
+```bash
+# Web / PWA
+flutter run -d chrome \
+  --dart-define=API_BASE_URL=https://api.example.com \
+  --dart-define=API_KEY=your-client-api-key
+
+# Android / iOS Release Build
+flutter build apk \
+  --dart-define=API_BASE_URL=https://api.example.com \
+  --dart-define=API_KEY=your-client-api-key
+```
+
+*Note: If `--dart-define` parameters are omitted (e.g., in air-gapped hospital tablets or unit test runners), the app gracefully operates in local-only offline mode with full functionality.*
+
+---
+
+## Adding a New Disease STW PDF in the Future
+
+When ICMR / DHR releases an approved STW PDF for another neonatal condition (e.g., Sepsis, Jaundice):
+1. **Add PDF**: Place the approved PDF in `assets/pdfs/<disease_code>_stw.pdf`.
+2. **Re-run Indexer**: Run `python tools/build_stw_index.py`. The script will parse the new PDF, generate bounding boxes, and rebuild `assets/stw_index/stw_index.json`. The chatbot will immediately be able to answer questions grounded in the new STW.
+3. **Activate in Database**: In the database, mark the disease active in the `diseases` collection:
+   ```json
+   { "code": "<disease_code>", "isActive": true }
+   ```
+4. **Implement Workflow**: Define the clinical decision rules in `lib/features/<disease_code>/domain/` following the existing `rd_workflow.dart` pattern and update `status: ConditionStatus.available` in `lib/features/condition_selection/domain/neonatal_condition.dart`.
+
+---
+
+### Regions for the ANCS and Hypoglycemia PDFs
+
+The chatbot and "View in PDF" use the curated regions in `assets/regions/regions.json`. For the two 8th-Oct posters they are defined in `tools/add_ancs_hypo_regions.py` (boxes taken from the PDF's own card rectangles, English + Hinglish aliases):
+
+```bash
+python tools/render_pages.py Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf Neonatal_Hypoglycemia_8th_Oct.pdf
+python tools/add_ancs_hypo_regions.py
+python tools/build_region_text.py Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf Neonatal_Hypoglycemia_8th_Oct.pdf
+```
+
+Passing file names limits each script to those documents, so the RD/ROP pages and regions are left untouched. `build_region_text.py` skips text hidden under a later-drawn box (the hypoglycemia flowchart has such duplicate labels).
+
+## PDF Layout & Bounding Box Verification Notes
+
+The two bundled STW documents have unique layout characteristics:
+1. **Single-Page Poster Format**: Both `respiratory_distress_neonates_stw.pdf` and `retinopathy_of_prematurity_stw.pdf` are tall clinical posters ($841.89 \times 1633.68$ pt, aspect ratio $\approx 0.5153$) rather than multi-page A4 books.
+2. **Normalized Coordinates**: All bounding box coordinates in `stw_index.json` are stored as normalized fractions `[0.0, 1.0]` of the page width and height (`x, y, width, height`). This allows the visual highlight overlay in `PdfViewerScreen` to align at any zoom level, pixel density, or device orientation.
+3. **Algorithm & Flowchart Boxes**: Decision trees and flowcharts (e.g. *Algorithm for Retinopathy of Prematurity Management* and *Algorithm for Assessment and Management of Respiratory Distress*) are extracted as unified regions spanning their enclosing cards. Clinicians can verify the boundaries in `assets/stw_index/stw_index.json`.
+
+---
+
 ## Clinical Disclaimer
 
 > This STW has been prepared by national experts of India with feasibility considerations for various levels of healthcare system in the country. These broad guidelines are advisory, and are based on expert opinions and available scientific evidence. There may be variations in the management of an individual patient based on his/her specific condition, as decided by the treating physician. There will be no indemnity for direct or indirect consequences. Kindly visit the website of DHR for more information (stw.icmr.org.in).
@@ -283,3 +385,4 @@ flutter test test/rop_rules_test.dart
 ## Version
 
 `0.1.0+1` — Based on ICMR / DHR STW documents (August 2026).
+

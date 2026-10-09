@@ -6,6 +6,8 @@ library;
 
 const rdStwDocument = 'Respiratory Distress in Neonates';
 const ropStwDocument = 'Retinopathy of Prematurity (ROP)';
+const ancsStwDocument = 'Antenatal Corticosteroids for Preterm Birth';
+const hypoStwDocument = 'Neonatal Hypoglycemia';
 
 class SourceReference {
   const SourceReference({
@@ -15,6 +17,7 @@ class SourceReference {
     this.version = 'August 2026',
     this.needsClinicalReview = false,
     this.note,
+    this.regionId,
   });
 
   /// Respiratory Distress in Neonates STW (ICD-11 KB23).
@@ -22,6 +25,7 @@ class SourceReference {
     this.section, {
     this.needsClinicalReview = false,
     this.note,
+    this.regionId,
   })  : document = rdStwDocument,
         authority = 'ICMR/DHR',
         version = 'August 2026';
@@ -31,7 +35,30 @@ class SourceReference {
     this.section, {
     this.needsClinicalReview = false,
     this.note,
+    this.regionId,
   })  : document = ropStwDocument,
+        authority = 'ICMR/DHR',
+        version = 'August 2026';
+
+  /// Antenatal Corticosteroids for Preterm Birth STW. [section] is the
+  /// heading of the PDF box the content comes from (single-page poster).
+  const SourceReference.ancs(
+    this.section, {
+    this.needsClinicalReview = false,
+    this.note,
+    this.regionId,
+  })  : document = ancsStwDocument,
+        authority = 'ICMR/DHR',
+        version = 'August 2026';
+
+  /// Neonatal Hypoglycemia STW (ICD-11 KB60.4). [section] is the heading of
+  /// the PDF box the content comes from (single-page poster).
+  const SourceReference.hypo(
+    this.section, {
+    this.needsClinicalReview = false,
+    this.note,
+    this.regionId,
+  })  : document = hypoStwDocument,
         authority = 'ICMR/DHR',
         version = 'August 2026';
 
@@ -42,7 +69,8 @@ class SourceReference {
         section = 'No clinical rule',
         authority = 'STW Neo',
         version = '',
-        needsClinicalReview = false;
+        needsClinicalReview = false,
+        regionId = null;
 
   final String document;
   final String section;
@@ -53,6 +81,10 @@ class SourceReference {
   /// confirmed (see the open points in the spec, section 6).
   final bool needsClinicalReview;
   final String? note;
+
+  /// Id of the box in `assets/regions/regions.json` this content comes from;
+  /// "View in PDF" highlights it.
+  final String? regionId;
 
   bool get isClinical => document != 'App data entry';
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
@@ -29,10 +30,15 @@ class ReferencesScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'References'),
-        actions: const [
-          BackToHomeButton(compact: true),
-          AppRefreshButton(),
-          SizedBox(width: 8),
+        actions: [
+          IconButton(
+            tooltip: 'Clinical Assistant',
+            icon: const Icon(Icons.chat_bubble_outline_rounded),
+            onPressed: () => context.push('/chat'),
+          ),
+          const BackToHomeButton(compact: true),
+          const AppRefreshButton(),
+          const SizedBox(width: 8),
         ],
       ),
       body: Center(
@@ -57,6 +63,7 @@ class ReferencesScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
+
 
               // 1. Respiratory Distress Card
               _PdfWorkflowCard(

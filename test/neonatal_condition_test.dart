@@ -35,13 +35,15 @@ void main() {
     ]);
   });
 
-  test('only RD and ROP are implemented; others carry no description', () {
+  test('RD, ANCS, Hypoglycemia and ROP are implemented; others carry no description', () {
     final implemented = {
       for (final d in conditionDefinitions)
         if (d.implemented) d.id,
     };
     expect(implemented, {
       NeonatalCondition.respiratoryDistress,
+      NeonatalCondition.ancs,
+      NeonatalCondition.hypoglycemia,
       NeonatalCondition.rop,
     });
     for (final d in conditionDefinitions) {

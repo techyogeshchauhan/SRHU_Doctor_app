@@ -23,7 +23,7 @@ Future<void> _pumpToSelection(
 
 void main() {
   testWidgets(
-      'selection lists all 14 conditions uniformly with ROP and RD at top, live counter, 2 selectable and 12 disabled',
+      'selection lists all 14 conditions uniformly with ROP and RD at top, live counter, 4 selectable and 10 disabled',
       (tester) async {
     await _pumpToSelection(tester);
 
@@ -56,9 +56,9 @@ void main() {
     expect(ropFinder, findsOneWidget);
     expect(rdFinder, findsOneWidget);
 
-    // 6. Uniform status badges: 2 available, 12 awaiting STW
-    expect(find.text('Available'), findsNWidgets(2));
-    expect(find.text('Awaiting STW'), findsNWidgets(12));
+    // 6. Uniform status badges: 4 available, 10 awaiting STW
+    expect(find.text('Available'), findsNWidgets(4));
+    expect(find.text('Awaiting STW'), findsNWidgets(10));
 
     // Verify all 14 condition titles are present
     for (final d in conditionDefinitions) {

@@ -15,6 +15,11 @@ dependencies:
   share_plus: ^10.1.4
   pdfx: ^2.11.0
   path_provider: ^2.1.5
+  dio: ^5.8.0
+  connectivity_plus: ^7.3.2
+  uuid: ^4.6.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -44,6 +49,16 @@ flutter:
     - assets/images/sas/
     - assets/pdfs/respiratory_distress_neonates_stw.pdf
     - assets/pdfs/retinopathy_of_prematurity_stw.pdf
+    - assets/pdfs/Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf
+    - assets/pdfs/Neonatal_Hypoglycemia_8th_Oct.pdf
+    - assets/stw_index/
+    - assets/pages/
+    - assets/pages/respiratory_distress_neonates_stw.pdf/
+    - assets/pages/retinopathy_of_prematurity_stw.pdf/
+    - assets/pages/Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf/
+    - assets/pages/Neonatal_Hypoglycemia_8th_Oct.pdf/
+    - assets/regions/
+    - assets/regions/crops/
 
   fonts:
     - family: Poppins

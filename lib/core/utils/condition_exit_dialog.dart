@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/repositories/screening_sync_repository.dart';
 import '../../features/clinical_workflow/state/assessment_controller.dart';
 import '../../features/follow_up/domain/follow_up_models.dart';
 import '../../features/follow_up/state/follow_up_controller.dart';
@@ -82,6 +83,8 @@ bool hasConditionProgress(WidgetRef ref) {
 
 /// Clears all screening, assessment, and MCQ data for this condition.
 void clearConditionData(WidgetRef ref) {
+  // Goal B: Mark in-progress screenings as abandoned in database rather than deleting
+  ref.read(screeningSyncRepositoryProvider).abandonActiveScreenings();
   ref.read(assessmentProvider.notifier).reset();
   ref.read(followUpProvider.notifier).reset();
   ref.read(ropProvider.notifier).reset();

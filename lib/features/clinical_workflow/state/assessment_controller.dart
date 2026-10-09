@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/repositories/screening_sync_repository.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../condition_selection/state/condition_selection_controller.dart';
 import '../../rd/domain/rd_workflow.dart';
@@ -61,8 +62,13 @@ class AssessmentController extends Notifier<AssessmentState> {
         prev.selected.length != selected.length ||
         !prev.selected.containsAll(selected);
     final wasCompleted = state.isComplete;
+    final isReset = forceReset || isDifferentDisease || wasCompleted;
+    final syncRepo = ref.read(screeningSyncRepositoryProvider);
 
-    if (forceReset || isDifferentDisease || wasCompleted) {
+    if (isReset) {
+      // A fresh assessment gets fresh screenings; unfinished ones are
+      // marked abandoned.
+      syncRepo.abandonActiveScreenings();
       final ctx = _engine.evaluate(
         selected: selected,
         answers: const {},
@@ -80,6 +86,11 @@ class AssessmentController extends Notifier<AssessmentState> {
         selected: selected,
         cursor: null,
       );
+    }
+
+    // Goal B: Asynchronously ensure clinical session & disease_screenings in background queue
+    for (final c in selected) {
+      syncRepo.startDiseaseScreening(diseaseCodeOf(c));
     }
   }
 
@@ -102,6 +113,18 @@ class AssessmentController extends Notifier<AssessmentState> {
     final answers = {...ctx.answers}..remove(q.variable);
     if (valid != null) answers[q.variable] = valid;
     _update(answers: answers);
+
+    // Goal B: Asynchronously upsert response in background queue. Dates and
+    // free text stay on the device (see isSyncableQuestion).
+    if (!isSyncableQuestion(q)) return;
+    final syncRepo = ref.read(screeningSyncRepositoryProvider);
+    for (final c in state.context.selected) {
+      syncRepo.recordResponse(
+        diseaseCode: diseaseCodeOf(c),
+        questionId: questionId,
+        value: valid,
+      );
+    }
   }
 
   /// Confirms the current page; moves to the next page (or the summary).
@@ -121,6 +144,19 @@ class AssessmentController extends Notifier<AssessmentState> {
       history: history,
       cursor: reviewing && i + 1 < history.length ? history[i + 1] : null,
     );
+
+    // Goal B: When screening reaches summary/completion, record findings and mark completed
+    if (state.isComplete) {
+      final syncRepo = ref.read(screeningSyncRepositoryProvider);
+      for (final c in state.context.selected) {
+        final findings = state.context.findingsFor(c);
+        syncRepo.recordFindings(
+          diseaseCode: diseaseCodeOf(c),
+          findings: findings,
+        );
+        syncRepo.completeScreening(diseaseCodeOf(c));
+      }
+    }
   }
 
   /// Goes to the previous page. Returns false when there is none (the UI

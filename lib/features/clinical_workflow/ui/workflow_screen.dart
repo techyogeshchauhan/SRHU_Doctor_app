@@ -499,38 +499,25 @@ class _QuestionPage extends ConsumerWidget {
               spacing: 8,
               runSpacing: 6,
               children: [
-                if (ctx.selected.contains(NeonatalCondition.respiratoryDistress))
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    ),
-                    onPressed: () => openStwPdf(
-                      context,
-                      assetPath: rdPdfAsset,
-                      title: rdPdfTitle,
-                    ),
-                    icon: const Icon(Icons.picture_as_pdf_outlined,
-                        size: 14, color: AppTheme.accentRd),
-                    label: const Text('Respiratory Distress STW PDF',
-                        style: TextStyle(fontSize: 11)),
-                  ),
-                if (ctx.selected.contains(NeonatalCondition.rop))
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    ),
-                    onPressed: () => openStwPdf(
-                      context,
-                      assetPath: ropPdfAsset,
-                      title: ropPdfTitle,
-                    ),
-                    icon: const Icon(Icons.picture_as_pdf_outlined,
-                        size: 14, color: AppTheme.accentRop),
-                    label: const Text('ROP STW PDF',
-                        style: TextStyle(fontSize: 11)),
-                  ),
+                for (final c in NeonatalCondition.values)
+                  if (ctx.selected.contains(c))
+                    if (stwPdfFor(c) case final pdf?)
+                      OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                        ),
+                        onPressed: () => openStwPdf(
+                          context,
+                          assetPath: pdf.asset,
+                          title: pdf.title,
+                        ),
+                        icon: Icon(Icons.picture_as_pdf_outlined,
+                            size: 14, color: _pdfAccent(c)),
+                        label: Text(_pdfButtonLabel(c),
+                            style: const TextStyle(fontSize: 11)),
+                      ),
               ],
             ),
           ),
@@ -656,3 +643,17 @@ class _NoAssessment extends StatelessWidget {
     );
   }
 }
+
+String _pdfButtonLabel(NeonatalCondition c) => switch (c) {
+      NeonatalCondition.respiratoryDistress => 'Respiratory Distress STW PDF',
+      NeonatalCondition.rop => 'ROP STW PDF',
+      NeonatalCondition.ancs => 'ANCS STW PDF',
+      NeonatalCondition.hypoglycemia => 'Hypoglycemia STW PDF',
+      _ => '${definitionOf(c).title} PDF',
+    };
+
+Color _pdfAccent(NeonatalCondition c) => switch (c) {
+      NeonatalCondition.respiratoryDistress => AppTheme.accentRd,
+      NeonatalCondition.rop => AppTheme.accentRop,
+      _ => AppTheme.primaryNavy,
+    };

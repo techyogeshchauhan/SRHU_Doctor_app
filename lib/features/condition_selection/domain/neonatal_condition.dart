@@ -67,10 +67,20 @@ const List<ConditionDefinition> conditionDefinitions = [
     description: 'Assessment and management workflow as per ICMR/DHR STW.',
     status: ConditionStatus.available,
   ),
-  ConditionDefinition(id: NeonatalCondition.ancs, title: 'STW ANCS'),
+  ConditionDefinition(
+    id: NeonatalCondition.ancs,
+    title: 'STW ANCS',
+    description: 'Antenatal corticosteroid eligibility workflow as per ICMR/DHR '
+        'STW.',
+    status: ConditionStatus.available,
+  ),
   ConditionDefinition(id: NeonatalCondition.sepsis, title: 'STW Sepsis'),
   ConditionDefinition(
-      id: NeonatalCondition.hypoglycemia, title: 'STW Hypoglycemia'),
+    id: NeonatalCondition.hypoglycemia,
+    title: 'STW Hypoglycemia',
+    description: 'Screening and management workflow as per ICMR/DHR STW.',
+    status: ConditionStatus.available,
+  ),
   ConditionDefinition(id: NeonatalCondition.jaundice, title: 'STW Jaundice'),
   ConditionDefinition(id: NeonatalCondition.seizures, title: 'STW Seizures'),
   ConditionDefinition(id: NeonatalCondition.hie, title: 'STW HIE'),

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/repositories/screening_sync_repository.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../data/disease_follow_up_registry.dart';
 import '../data/rop_follow_up_data.dart';
@@ -45,6 +46,13 @@ class FollowUpState {
   /// Display title for the active condition's package.
   String get conditionTitle =>
       getFollowUpPackage(condition)?.title ?? definitionOf(condition).title;
+
+  /// Short label of the active package, e.g. 'ROP'.
+  String get shortName =>
+      getFollowUpPackage(condition)?.shortName ?? definitionOf(condition).title;
+
+  /// The active condition's question package, if any.
+  DiseaseFollowUpPackage? get package => getFollowUpPackage(condition);
 
   /// Currently viewed MCQ.
   FollowUpQuestion get currentMcq => mcqs[currentMcqIndex];
@@ -166,7 +174,9 @@ class FollowUpState {
 
 /// Controller managing the follow-up assessment workflow.
 class FollowUpController extends StateNotifier<FollowUpState> {
-  FollowUpController() : super(const FollowUpState());
+  FollowUpController({this.syncRepo}) : super(const FollowUpState());
+
+  final ScreeningSyncRepository? syncRepo;
 
   /// Begins the MCQ section from the intro screen.
   void startAssessment() {
@@ -211,6 +221,23 @@ class FollowUpController extends StateNotifier<FollowUpState> {
       return false;
     }
     state = state.copyWith(stage: FollowUpStage.mcqResult);
+
+    // Goal B: Record MCQ attempts in background queue
+    if (syncRepo != null) {
+      final code = diseaseCodeOf(state.condition);
+      for (final q in state.mcqs) {
+        final optIdx = state.mcqAnswers[q.id];
+        if (optIdx != null && optIdx >= 0 && optIdx < q.options.length) {
+          syncRepo!.recordMcqAttempt(
+            diseaseCode: code,
+            questionId: q.id,
+            selectedOption: q.options[optIdx],
+            isCorrect: optIdx == q.correctAnswerIndex,
+          );
+        }
+      }
+    }
+
     return true;
   }
 
@@ -257,6 +284,23 @@ class FollowUpController extends StateNotifier<FollowUpState> {
       return false;
     }
     state = state.copyWith(stage: FollowUpStage.finalSummary);
+
+    // Goal B: Record Case Scenario attempts in background queue
+    if (syncRepo != null) {
+      final code = diseaseCodeOf(state.condition);
+      for (final q in state.caseScenarios) {
+        final optIdx = state.caseAnswers[q.id];
+        if (optIdx != null && optIdx >= 0 && optIdx < q.options.length) {
+          syncRepo!.recordMcqAttempt(
+            diseaseCode: code,
+            questionId: q.id,
+            selectedOption: q.options[optIdx],
+            isCorrect: optIdx == q.correctAnswerIndex,
+          );
+        }
+      }
+    }
+
     return true;
   }
 
@@ -321,5 +365,7 @@ class FollowUpController extends StateNotifier<FollowUpState> {
 /// Global provider for follow-up assessment state and actions.
 final followUpProvider =
     StateNotifierProvider<FollowUpController, FollowUpState>(
-  (ref) => FollowUpController(),
+  (ref) => FollowUpController(
+    syncRepo: ref.watch(screeningSyncRepositoryProvider),
+  ),
 );

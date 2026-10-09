@@ -1,0 +1,56 @@
+[
+  {
+    "document": "Respiratory distress in neonates_New.pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/Respiratory distress in neonates_New.pdf/1.webp"
+  },
+  {
+    "document": "Retinopathy of Prematurity (ROP).pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/Retinopathy of Prematurity (ROP).pdf/1.webp"
+  },
+  {
+    "document": "respiratory_distress_neonates_stw.pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/respiratory_distress_neonates_stw.pdf/1.webp"
+  },
+  {
+    "document": "retinopathy_of_prematurity_stw.pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/retinopathy_of_prematurity_stw.pdf/1.webp"
+  },
+  {
+    "document": "Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf/1.webp"
+  },
+  {
+    "document": "Neonatal_Hypoglycemia_8th_Oct.pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/Neonatal_Hypoglycemia_8th_Oct.pdf/1.webp"
+  }
+]

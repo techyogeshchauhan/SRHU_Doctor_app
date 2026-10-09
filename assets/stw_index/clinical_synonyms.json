@@ -1,0 +1,191 @@
+{
+  "rds": [
+    "respiratory distress",
+    "respiratory distress syndrome",
+    "hyaline membrane disease",
+    "rd"
+  ],
+  "rd": [
+    "respiratory distress",
+    "rds"
+  ],
+  "cpap": [
+    "continuous positive airway pressure",
+    "bubble cpap",
+    "peep"
+  ],
+  "bubble cpap": [
+    "cpap",
+    "continuous positive airway pressure"
+  ],
+  "sas": [
+    "silverman",
+    "andersen",
+    "silverman andersen score",
+    "silverman-andersen score",
+    "respiratory severity score"
+  ],
+  "silverman": [
+    "sas",
+    "silverman-andersen",
+    "scoring"
+  ],
+  "caffeine": [
+    "caffeine citrate",
+    "loading dose 20 mg/kg",
+    "maintenance dose",
+    "apnea of prematurity"
+  ],
+  "caffeine citrate": [
+    "caffeine",
+    "20 mg/kg"
+  ],
+  "surfactant": [
+    "exogenous surfactant",
+    "peep >6",
+    "fio2 >0.30",
+    "intubation surfactant extubation",
+    "insure"
+  ],
+  "fio2": [
+    "fraction of inspired oxygen",
+    "oxygen concentration",
+    "blended oxygen"
+  ],
+  "peep": [
+    "positive end-expiratory pressure",
+    "cpap pressure",
+    "5 cm h2o",
+    "5-6 cm h2o",
+    "7-8 cm h2o"
+  ],
+  "spo2": [
+    "oxygen saturation",
+    "saturation",
+    "pulse oximetry",
+    "target 91-95%",
+    "91-95%"
+  ],
+  "rr": [
+    "respiratory rate",
+    "breaths per minute",
+    ">60/min",
+    "tachypnea"
+  ],
+  "tachypnea": [
+    "rr >60/min",
+    "respiratory rate",
+    "fast breathing"
+  ],
+  "grunting": [
+    "expiratory grunt",
+    "grunt"
+  ],
+  "retractions": [
+    "chest indrawing",
+    "intercostal retractions",
+    "subcostal retractions",
+    "xiphoid retractions"
+  ],
+  "rop": [
+    "retinopathy of prematurity",
+    "retinal screening",
+    "retina"
+  ],
+  "retinopathy of prematurity": [
+    "rop"
+  ],
+  "a-rop": [
+    "aggressive rop",
+    "aggressive retinopathy",
+    "ap-rop"
+  ],
+  "laser": [
+    "laser photocoagulation",
+    "retinal ablation"
+  ],
+  "laser photocoagulation": [
+    "laser",
+    "treatment-requiring rop"
+  ],
+  "anti-vegf": [
+    "antivegf",
+    "bevacizumab",
+    "ranibizumab",
+    "intravitreal injection",
+    "vegf"
+  ],
+  "vegf": [
+    "vascular endothelial growth factor",
+    "anti-vegf"
+  ],
+  "zone": [
+    "zone i",
+    "zone ii",
+    "zone iii",
+    "icrop zone"
+  ],
+  "stage": [
+    "stage 1",
+    "stage 2",
+    "stage 3",
+    "stage 4",
+    "stage 5",
+    "icrop stage"
+  ],
+  "plus disease": [
+    "plus",
+    "tortuosity",
+    "dilation",
+    "venous dilation",
+    "arteriolar tortuosity"
+  ],
+  "pma": [
+    "postmenstrual age",
+    "gestational age plus chronological age"
+  ],
+  "ga": [
+    "gestational age",
+    "gestation",
+    "weeks gestation"
+  ],
+  "bw": [
+    "birth weight",
+    "grams"
+  ],
+  "sncu": [
+    "special newborn care unit",
+    "nicu"
+  ],
+  "nicu": [
+    "neonatal intensive care unit",
+    "sncu"
+  ],
+  "tropicamide": [
+    "pupillary dilation",
+    "eye drops",
+    "0.5% tropicamide"
+  ],
+  "phenylephrine": [
+    "pupillary dilation",
+    "eye drops",
+    "2.5% phenylephrine"
+  ],
+  "proparacaine": [
+    "topical anesthetic",
+    "0.5% proparacaine",
+    "eye drops"
+  ],
+  "pain relief": [
+    "analgesia"
+  ],
+  "pain": [
+    "analgesia"
+  ],
+  "withheld": [
+    "withhold"
+  ],
+  "withhold": [
+    "withheld"
+  ]
+}

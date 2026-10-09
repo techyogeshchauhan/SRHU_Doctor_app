@@ -40,6 +40,13 @@ class TopicSummary {
   String get title => definitionOf(topic).title;
 }
 
+/// "Baby: GA 30+2 wk · BW 1200 g", "Pregnant woman: GA 30+2 wk", ...
+class SubjectLine {
+  const SubjectLine(this.label, this.line);
+  final String label;
+  final String line;
+}
+
 class CombinedAssessmentSummary {
   const CombinedAssessmentSummary({
     required this.babyLine,
@@ -47,15 +54,29 @@ class CombinedAssessmentSummary {
     required this.answered,
     required this.applicable,
     required this.topics,
-  });
+    List<SubjectLine>? subjects,
+  }) : subjects = subjects ?? const [];
 
   factory CombinedAssessmentSummary.from(
     ClinicalAssessmentContext ctx, {
     AssessmentEngine engine = const AssessmentEngine(),
   }) {
     final (answered, applicable) = engine.progress(ctx);
+    final workflows = engine.workflowsFor(ctx.selected);
+    final ownSubject = [
+      for (final w in workflows)
+        if (w.subjectLine != null) w,
+    ];
+    final babyLine = describeBabyLine(ctx);
     return CombinedAssessmentSummary(
-      babyLine: describeBabyLine(ctx),
+      babyLine: babyLine,
+      subjects: [
+        // Baby line unless every selected workflow describes its own subject.
+        if (workflows.isEmpty || ownSubject.length < workflows.length)
+          SubjectLine('Baby', babyLine),
+        for (final w in ownSubject)
+          SubjectLine(w.subjectLabel ?? 'Subject', w.subjectLine!(ctx)),
+      ],
       selectedTitles: [
         for (final c in NeonatalCondition.values)
           if (ctx.selected.contains(c)) definitionOf(c).title,
@@ -91,10 +112,15 @@ class CombinedAssessmentSummary {
   final int applicable;
   final List<TopicSummary> topics;
 
+  /// Subjects of the assessment, in order (the baby line first when shown).
+  final List<SubjectLine> subjects;
+
   String toPlainText() {
-    final b = StringBuffer()
-      ..writeln('CLINICAL ASSESSMENT SUMMARY')
-      ..writeln('Baby: $babyLine')
+    final b = StringBuffer()..writeln('CLINICAL ASSESSMENT SUMMARY');
+    for (final s in subjects.isEmpty ? [SubjectLine('Baby', babyLine)] : subjects) {
+      b.writeln('${s.label}: ${s.line}');
+    }
+    b
       ..writeln('Topics assessed: ${selectedTitles.join(', ')}')
       ..writeln('Questions answered: $answered of $applicable applicable');
     for (final t in topics) {

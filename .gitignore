@@ -48,3 +48,9 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Environment and Secrets
+.env
+*.env
+server/.env
+server/node_modules/

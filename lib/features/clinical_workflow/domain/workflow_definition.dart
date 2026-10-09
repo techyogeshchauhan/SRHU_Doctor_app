@@ -54,6 +54,8 @@ class StwWorkflow extends WorkflowDefinition {
     required this.rules,
     this.persistentKeys = const {},
     this.recordTextKey,
+    this.subjectLabel,
+    this.subjectLine,
   });
 
   final SourceReference source;
@@ -76,6 +78,14 @@ class StwWorkflow extends WorkflowDefinition {
   /// Variable holding a ready-to-copy record produced by the workflow's own
   /// engine (e.g. the ROP discharge-card text), shown in the summary.
   final String? recordTextKey;
+
+  /// Who the assessment is about, when it is not the baby described by the
+  /// shared baby questions (e.g. "Pregnant woman" for ANCS). Null: the
+  /// summary shows the baby line.
+  final String? subjectLabel;
+
+  /// One-line description of the subject from the answers (no identifiers).
+  final String Function(VariableReader r)? subjectLine;
 }
 
 /// No approved STW supplied yet: no questions, rules or recommendations.

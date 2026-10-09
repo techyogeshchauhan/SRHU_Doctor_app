@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'core/theme.dart';
 import 'core/widgets/responsive.dart';
+import 'features/chatbot/ui/chat_screen.dart';
 import 'features/clinical_workflow/ui/workflow_screen.dart';
 import 'features/condition_selection/domain/neonatal_condition.dart';
 import 'features/condition_selection/ui/condition_selection_screen.dart';
@@ -13,6 +14,7 @@ import 'features/landing/ui/landing_screen.dart';
 import 'features/rd/ui/rd_screen.dart';
 import 'features/references/ui/pdf_viewer_screen.dart';
 import 'features/references/ui/references_screen.dart';
+import 'features/references/ui/stw_reference_screen.dart';
 import 'features/rop/ui/rop_screen.dart';
 
 GoRouter buildRouter() => GoRouter(
@@ -51,8 +53,7 @@ GoRouter buildRouter() => GoRouter(
           path: '/disease-selection',
           builder: (context, state) {
             final extra = state.extra as Map<String, dynamic>?;
-            final initialCondition =
-                extra?['condition'] as NeonatalCondition?;
+            final initialCondition = extra?['condition'] as NeonatalCondition?;
             return DiseaseSelectionScreen(
               initialCondition: initialCondition,
             );
@@ -75,6 +76,18 @@ GoRouter buildRouter() => GoRouter(
           builder: (_, __) => const ReferencesScreen(),
         ),
         GoRoute(
+          path: '/stw-reference/:topic',
+          builder: (_, state) => StwReferenceScreen(
+            condition: NeonatalCondition.values
+                    .asNameMap()[state.pathParameters['topic']] ??
+                NeonatalCondition.ancs,
+          ),
+        ),
+        GoRoute(
+          path: '/chat',
+          builder: (_, __) => const ChatScreen(),
+        ),
+        GoRoute(
           path: '/pdf-viewer',
           builder: (context, state) {
             final extra = state.extra as Map<String, dynamic>?;
@@ -84,9 +97,12 @@ GoRouter buildRouter() => GoRouter(
             final title = state.uri.queryParameters['title'] ??
                 extra?['title'] as String? ??
                 'STW Document';
+            final highlightTarget =
+                extra?['highlightTarget'] as HighlightTarget?;
             return PdfViewerScreen(
               assetPath: path,
               title: title,
+              highlightTarget: highlightTarget,
             );
           },
         ),

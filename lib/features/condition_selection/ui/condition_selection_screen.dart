@@ -35,9 +35,10 @@ const _topicIcons = <NeonatalCondition, IconData>{
 ///   Subtitle: "Select any condition."
 /// - Single unified view displaying all 14 conditions in the exact same format.
 /// - Checkboxes for conditions:
-///   - 2 available conditions (Respiratory Distress and ROP) have active checkboxes
+///   - 4 available conditions (Respiratory Distress, ANCS, Hypoglycemia, ROP)
+///     have active checkboxes
 ///     and can be selected.
-///   - 12 inactive conditions look normal as well, but their checkboxes are disabled
+///   - 10 inactive conditions look normal as well, but their checkboxes are disabled
 ///     and they are not selectable.
 /// - Live selection counter showing how many conditions have been selected.
 /// - Continue button to proceed to the next page (/disease-selection) with the selected conditions.
@@ -123,13 +124,15 @@ class ConditionSelectionScreen extends ConsumerWidget {
     final selected = ref.watch(conditionSelectionProvider);
     final selectionNotifier = ref.read(conditionSelectionProvider.notifier);
 
+    // Active topics first (ROP, RD, then the rest in list order), then the
+    // topics awaiting their STW in list order.
+    const pinned = [NeonatalCondition.rop, NeonatalCondition.respiratoryDistress];
     final orderedConditions = [
-      definitionOf(NeonatalCondition.rop),
-      definitionOf(NeonatalCondition.respiratoryDistress),
+      for (final c in pinned) definitionOf(c),
       for (final d in conditionDefinitions)
-        if (d.id != NeonatalCondition.rop &&
-            d.id != NeonatalCondition.respiratoryDistress)
-          d,
+        if (d.implemented && !pinned.contains(d.id)) d,
+      for (final d in conditionDefinitions)
+        if (!d.implemented) d,
     ];
 
     void onProceedToNextPage() {
@@ -150,9 +153,14 @@ class ConditionSelectionScreen extends ConsumerWidget {
           alignment: Alignment.centerLeft,
           errorBuilder: (_, __, ___) => const SizedBox.shrink(),
         ),
-        actions: const [
-          AppRefreshButton(),
-          SizedBox(width: 8),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.chat_bubble_outline_rounded, color: AppTheme.primaryNavy),
+            tooltip: 'STW Clinical Assistant',
+            onPressed: () => context.push('/chat'),
+          ),
+          const AppRefreshButton(),
+          const SizedBox(width: 8),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(32),
@@ -233,17 +241,14 @@ class ConditionSelectionScreen extends ConsumerWidget {
                     onToggle: d.implemented
                         ? () => selectionNotifier.toggle(d.id)
                         : null,
-                    onViewPdf: d.implemented
-                        ? () {
-                            final isRd =
-                                d.id == NeonatalCondition.respiratoryDistress;
-                            openStwPdf(
-                              context,
-                              assetPath: isRd ? rdPdfAsset : ropPdfAsset,
-                              title: isRd ? rdPdfTitle : ropPdfTitle,
-                            );
-                          }
-                        : null,
+                    onViewPdf: switch (stwPdfFor(d.id)) {
+                      final pdf? when d.implemented => () => openStwPdf(
+                            context,
+                            assetPath: pdf.asset,
+                            title: pdf.title,
+                          ),
+                      _ => null,
+                    },
                   ),
                   const SizedBox(height: 6),
                 ],
