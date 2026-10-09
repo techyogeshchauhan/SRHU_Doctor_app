@@ -54,3 +54,6 @@ app.*.map.json
 *.env
 server/.env
 server/node_modules/
+
+# Release APKs from scripts/build_apk.ps1
+/dist/

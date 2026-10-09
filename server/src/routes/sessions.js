@@ -18,6 +18,7 @@ router.post('/', async (req, res, next) => {
       platform: data.platform,
       appVersion: data.appVersion,
       status: data.status,
+      selectedConditions: data.selectedConditions ?? [],
       updatedAt: now,
     };
 
@@ -45,6 +46,9 @@ router.patch('/:id', async (req, res, next) => {
 
     const updateFields = {
       ...data,
+      ...(data.endedAt !== undefined && {
+        endedAt: data.endedAt ? new Date(data.endedAt) : null,
+      }),
       updatedAt: new Date(),
     };
 

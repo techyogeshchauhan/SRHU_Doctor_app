@@ -2626,7 +2626,8 @@
     "crop_image": "assets/regions/crops/hypo_asymptomatic_branch.webp",
     "segments": [
       {
-        "text": "ASYMPTOMATIC & BG ≥25 mg/dL"
+        "text": "ASYMPTOMATIC & BG ≥25 mg/dL",
+        "header": true
       },
       {
         "text": "Immediate supervised feeding"
@@ -2719,7 +2720,8 @@
     "crop_image": "assets/regions/crops/hypo_symptomatic_branch.webp",
     "segments": [
       {
-        "text": "SYMPTOMATIC OR BG < 25 mg/dL"
+        "text": "SYMPTOMATIC OR BG < 25 mg/dL",
+        "header": true
       },
       {
         "text": "IV bolus: 2 ml/kg of 10% of dextrose slowly over 1 minute"

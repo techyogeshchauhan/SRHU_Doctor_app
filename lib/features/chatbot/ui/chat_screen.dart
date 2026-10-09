@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
+import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../references/ui/pdf_viewer_screen.dart';
+import '../domain/answering/stw_answer.dart';
 import '../domain/models/chat_message.dart';
+import '../domain/understanding/query_analyzer.dart';
 import '../domain/models/stw_chunk.dart';
 import '../state/chatbot_provider.dart';
 
@@ -110,7 +113,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         actions: [
           if (state.messages.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.refresh_rounded, color: AppTheme.primaryNavy),
+              icon: const Icon(Icons.refresh_rounded,
+                  color: AppTheme.primaryNavy),
               tooltip: 'Clear Chat',
               onPressed: () {
                 ref.read(chatbotNotifierProvider.notifier).clearHistory();
@@ -127,11 +131,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 // Top clinical advisory banner
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   color: AppTheme.tint,
                   child: Row(
                     children: [
-                      const Icon(Icons.verified_outlined, size: 16, color: AppTheme.primaryBlue),
+                      const Icon(Icons.verified_outlined,
+                          size: 16, color: AppTheme.primaryBlue),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -147,37 +153,39 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
                 ),
 
-              // Chat messages list
-              Expanded(
-                child: state.messages.isEmpty
-                    ? _buildEmptyState(theme)
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        itemCount: state.messages.length + (state.isLoading ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == state.messages.length && state.isLoading) {
-                            return _buildLoadingBubble();
-                          }
-                          final msg = state.messages[index];
-                          return _buildMessageItem(context, msg, theme);
-                        },
-                      ),
-              ),
+                // Chat messages list
+                Expanded(
+                  child: state.messages.isEmpty
+                      ? _buildEmptyState(theme)
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          itemCount:
+                              state.messages.length + (state.isLoading ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == state.messages.length &&
+                                state.isLoading) {
+                              return _buildLoadingBubble();
+                            }
+                            final msg = state.messages[index];
+                            return _buildMessageItem(context, msg, theme);
+                          },
+                        ),
+                ),
 
-              // Quick query chips (when not loading)
-              if (!state.isLoading)
-                _buildQuickQueryChips(theme),
+                // Quick query chips (when not loading)
+                if (!state.isLoading) _buildQuickQueryChips(theme),
 
-              // Bottom query input bar
-              _buildInputBar(theme, state.isLoading),
-            ],
+                // Bottom query input bar
+                _buildInputBar(theme, state.isLoading),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildEmptyState(ThemeData theme) {
     return SingleChildScrollView(
@@ -234,8 +242,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             children: _sampleQueries.map((q) {
               return ActionChip(
                 backgroundColor: Colors.white,
-                side: BorderSide(color: AppTheme.midBlue.withValues(alpha: 0.3)),
-                avatar: const Icon(Icons.search, size: 14, color: AppTheme.primaryBlue),
+                side:
+                    BorderSide(color: AppTheme.midBlue.withValues(alpha: 0.3)),
+                avatar: const Icon(Icons.search,
+                    size: 14, color: AppTheme.primaryBlue),
                 label: Text(
                   q,
                   style: const TextStyle(
@@ -270,7 +280,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             labelPadding: const EdgeInsets.symmetric(horizontal: 4),
             label: Text(
               q,
-              style: const TextStyle(fontSize: 11.5, color: AppTheme.primaryBlue),
+              style:
+                  const TextStyle(fontSize: 11.5, color: AppTheme.primaryBlue),
             ),
             onPressed: () => _submitQuery(q),
           );
@@ -279,7 +290,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildMessageItem(BuildContext context, ChatMessage msg, ThemeData theme) {
+  Widget _buildMessageItem(
+      BuildContext context, ChatMessage msg, ThemeData theme) {
     if (msg.isUser) {
       return Align(
         alignment: Alignment.centerRight,
@@ -317,7 +329,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     // Bot message card
     final isNotCovered = msg.isNotCovered;
-    final chunk = msg.searchResult?.chunk;
+    final answer = msg.answer;
+    final isClarify = answer?.kind == AnswerKind.clarify;
+    final chunk = answer?.region ?? msg.searchResult?.chunk;
+    final condition =
+        chunk == null ? null : _conditionOf(topicOfDocument(chunk.document));
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -364,18 +380,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   Icon(
                     isNotCovered
                         ? Icons.info_outline
-                        : (chunk?.type == 'algorithm'
-                            ? Icons.account_tree_outlined
-                            : Icons.menu_book_outlined),
+                        : isClarify
+                            ? Icons.help_outline_rounded
+                            : (chunk?.type == 'algorithm'
+                                ? Icons.account_tree_outlined
+                                : Icons.menu_book_outlined),
                     size: 16,
-                    color: isNotCovered ? Colors.red.shade700 : AppTheme.primaryBlue,
+                    color: isNotCovered
+                        ? Colors.red.shade700
+                        : AppTheme.primaryBlue,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       isNotCovered
                           ? 'Out of Scope'
-                          : (chunk?.sectionTitle ?? 'STW Evidence'),
+                          : isClarify
+                              ? 'Did you mean…'
+                              : (chunk?.sectionTitle ?? 'STW Evidence'),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -389,7 +411,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
                   if (chunk != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
@@ -413,47 +436,71 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHighlightedText(
-                    msg.text,
-                    msg.searchResult?.matchedTokens ?? [],
-                    theme,
-                  ),
+                  if (answer?.caseSummary != null) ...[
+                    _buildCaseInputs(answer!.caseSummary!.inputs),
+                    const SizedBox(height: 10),
+                  ],
+
+                  if (answer != null && answer.kind == AnswerKind.answer)
+                    _buildAnswerLines(answer.lines)
+                  else
+                    _buildHighlightedText(
+                      msg.text,
+                      msg.searchResult?.matchedTokens ?? [],
+                      theme,
+                    ),
+
+                  // "Did you mean" options: tapping one shows that box.
+                  if (isClarify && answer!.options.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final option in answer.options)
+                          ActionChip(
+                            backgroundColor: Colors.white,
+                            side: BorderSide(
+                              color: AppTheme.midBlue.withValues(alpha: 0.4),
+                            ),
+                            label: Text(
+                              option.sectionTitle,
+                              style: const TextStyle(
+                                fontSize: 12.5,
+                                color: AppTheme.primaryNavy,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            onPressed: () => ref
+                                .read(chatbotNotifierProvider.notifier)
+                                .chooseOption(msg, option),
+                          ),
+                      ],
+                    ),
+                  ],
+
+                  // Clinician sign-off note from CLINICAL_REVIEW.md
+                  if (answer?.caseSummary?.reviewNote != null) ...[
+                    const SizedBox(height: 10),
+                    _buildNotice(
+                      'Requires clinical review: '
+                      '${answer!.caseSummary!.reviewNote!}',
+                    ),
+                  ],
 
                   // Multi-part completeness notice (e.g. dosage missing)
                   if (msg.missingNotice != null) ...[
                     const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFFBEB),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: const Color(0xFFF59E0B), width: 1),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.info_outline_rounded,
-                            size: 15,
-                            color: Color(0xFFB45309),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              msg.missingNotice!,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF92400E),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildNotice(msg.missingNotice!),
                   ],
 
+                  // Whole STW box, collapsed under the answer lines
+                  if (answer != null &&
+                      answer.kind == AnswerKind.answer &&
+                      chunk != null)
+                    _buildFullBox(chunk)
                   // Cropped region image preview
-                  if (chunk?.cropImage != null) ...[
+                  else if (chunk?.cropImage != null) ...[
                     const SizedBox(height: 12),
                     Container(
                       decoration: BoxDecoration(
@@ -477,7 +524,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             if (chunk != null) ...[
               const Divider(height: 1, color: Color(0xFFE2E8F0)),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: Row(
                   children: [
                     Expanded(
@@ -509,7 +557,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         backgroundColor: AppTheme.primaryBlue,
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         shape: RoundedRectangleBorder(
@@ -519,11 +568,179 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       icon: const Icon(Icons.picture_as_pdf_outlined, size: 14),
                       label: const Text(
                         'View in PDF',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                       onPressed: () => _openInPdf(context, chunk),
                     ),
                   ],
+                ),
+              ),
+              if (condition != null && answer?.caseSummary != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 12, 6),
+                  child: TextButton.icon(
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppTheme.primaryBlue,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    icon:
+                        const Icon(Icons.playlist_add_check_rounded, size: 18),
+                    label: const Text(
+                      'Start full assessment',
+                      style: TextStyle(
+                          fontSize: 12.5, fontWeight: FontWeight.w600),
+                    ),
+                    onPressed: () => context.push(
+                      '/disease-selection',
+                      extra: {'condition': condition},
+                    ),
+                  ),
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  static NeonatalCondition? _conditionOf(StwTopic? topic) => switch (topic) {
+        StwTopic.rd => NeonatalCondition.respiratoryDistress,
+        StwTopic.rop => NeonatalCondition.rop,
+        StwTopic.ancs => NeonatalCondition.ancs,
+        StwTopic.hypo => NeonatalCondition.hypoglycemia,
+        null => null,
+      };
+
+  /// The verbatim STW lines that answer the question.
+  Widget _buildAnswerLines(List<StwSegment> lines) {
+    const style = TextStyle(fontSize: 14, height: 1.45, color: Colors.black87);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final line in lines)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (lines.length > 1)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 7, right: 8),
+                    child: Icon(Icons.circle,
+                        size: 6, color: AppTheme.primaryBlue),
+                  ),
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      style: style,
+                      children: [
+                        if (line.label != null)
+                          TextSpan(
+                            text: '${line.label} ',
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        TextSpan(text: line.text),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// Values read from a case question, so the clinician can check them.
+  Widget _buildCaseInputs(String inputs) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        'Read from your question: $inputs',
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.primaryNavy,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotice(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFF59E0B), width: 1),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.info_outline_rounded,
+            size: 15,
+            color: Color(0xFFB45309),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF92400E),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Whole STW box (text and crop), collapsed under the answer lines.
+  Widget _buildFullBox(StwChunk chunk) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: Material(
+        type: MaterialType.transparency,
+        child: ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          childrenPadding: const EdgeInsets.only(bottom: 4),
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          dense: true,
+          title: const Text(
+            'Show full STW box',
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.primaryBlue,
+            ),
+          ),
+          children: [
+            Text(
+              chunk.text,
+              style: const TextStyle(
+                  fontSize: 13, height: 1.45, color: Colors.black87),
+            ),
+            if (chunk.cropImage != null) ...[
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFCBD5E1)),
+                  color: Colors.white,
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.asset(
+                  chunk.cropImage!,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
             ],
@@ -541,7 +758,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (matchedTokens.isEmpty) {
       return Text(
         fullText,
-        style: const TextStyle(fontSize: 13.5, height: 1.45, color: Colors.black87),
+        style: const TextStyle(
+            fontSize: 13.5, height: 1.45, color: Colors.black87),
       );
     }
 
@@ -562,7 +780,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             height: 1.45,
             color: Colors.black87,
             fontWeight: isMatch ? FontWeight.w700 : FontWeight.w400,
-            backgroundColor: isMatch ? const Color(0xFFFEF08A) : Colors.transparent,
+            backgroundColor:
+                isMatch ? const Color(0xFFFEF08A) : Colors.transparent,
           ),
         ),
       );
@@ -588,7 +807,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             SizedBox(
               width: 16,
               height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryBlue),
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: AppTheme.primaryBlue),
             ),
             SizedBox(width: 10),
             Text(
@@ -622,7 +842,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 filled: true,
                 fillColor: const Color(0xFFF1F5F9),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide.none,

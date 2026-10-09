@@ -25,6 +25,10 @@ String diseaseCodeOf(NeonatalCondition c) {
 }
 
 
+/// App version recorded with each session (set by scripts/build_*.ps1).
+const appVersion =
+    String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0+1');
+
 /// Question types never sent to the server: dates (date of birth, exam
 /// dates) and free text (facility name, SNCU/CR number) can identify a baby.
 bool isSyncableQuestion(ClinicalQuestion q) =>
@@ -68,11 +72,56 @@ class ScreeningSyncRepository {
     }
   }
 
-  /// Ensures an active de-identified clinical session exists.
+  /// Ensures an active de-identified clinical session exists (e.g. for a
+  /// chatbot question asked outside an assessment).
   Future<String> ensureSession({String? facilityName}) =>
       _serial(() => _ensureSession(facilityName: facilityName));
 
-  Future<String> _ensureSession({String? facilityName}) async {
+  /// One session per assessment: closes the current session (see
+  /// [endAssessmentSession]) and opens a new one for [diseaseCodes]. Called
+  /// when an assessment starts or restarts.
+  Future<String> startAssessmentSession(Set<String> diseaseCodes) =>
+      _serial(() async {
+        await _endSession();
+        return _ensureSession(selectedConditions: diseaseCodes);
+      });
+
+  /// Ends the current session: unfinished screenings are marked abandoned
+  /// and the session is closed, 'completed' when every screening in it was
+  /// completed, else 'abandoned'. The next screening or chat opens a new
+  /// session. Called on Home / Exit reset.
+  Future<void> endAssessmentSession() => _serial(_endSession);
+
+  Future<void> _endSession() async {
+    final active = _queue.getActiveScreenings();
+    final completed = _queue.getCompletedScreenings();
+    final allDone = active.keys.every(completed.contains);
+    await _abandonActive();
+    final sessionId = _queue.currentSessionId;
+    if (sessionId == null || sessionId.isEmpty) return;
+    if (!_queue.isSessionClosed) {
+      await _closeSession(sessionId, allDone ? 'completed' : 'abandoned');
+    }
+    await _queue.clearSessionId();
+  }
+
+  Future<void> _closeSession(String sessionId, String status) async {
+    await _queue.enqueue(
+      table: 'clinical_sessions',
+      action: 'patch',
+      payload: {
+        'id': sessionId,
+        'status': status,
+        'ended_at': DateTime.now().toUtc().toIso8601String(),
+      },
+    );
+    await _queue.markSessionClosed();
+  }
+
+  Future<String> _ensureSession({
+    String? facilityName,
+    Set<String> selectedConditions = const {},
+  }) async {
     var sessionId = _queue.currentSessionId;
     if (sessionId != null && sessionId.isNotEmpty) {
       return sessionId;
@@ -92,7 +141,8 @@ class ScreeningSyncRepository {
         'clinician_id': 'anon_${token.substring(0, 8)}',
         'facility_name': facilityName,
         'platform': _detectPlatform(),
-        'app_version': '0.1.0+1',
+        'app_version': appVersion,
+        'selected_conditions': (selectedConditions.toList()..sort()),
         'status': 'in_progress',
         'created_at': now,
         'updated_at': now,
@@ -209,6 +259,16 @@ class ScreeningSyncRepository {
             'completed_at': now,
           },
         );
+
+        // Every screening of this assessment done: the session is complete
+        // (it stays current, so follow-up MCQs and chats still belong to it).
+        final completed = _queue.getCompletedScreenings();
+        final sessionId = _queue.currentSessionId;
+        if (sessionId != null &&
+            !_queue.isSessionClosed &&
+            active.keys.every(completed.contains)) {
+          await _closeSession(sessionId, 'completed');
+        }
       });
 
   /// Records an attempt at an MCQ or clinical case scenario question.
@@ -240,22 +300,24 @@ class ScreeningSyncRepository {
   /// Screenings not yet completed are marked 'abandoned'; completed ones
   /// keep their status. Called on Home / Exit reset and when an assessment
   /// is restarted.
-  Future<void> abandonActiveScreenings() => _serial(() async {
-        final active = _queue.getActiveScreenings();
-        final completed = _queue.getCompletedScreenings();
-        for (final entry in active.entries) {
-          if (completed.contains(entry.key)) continue;
-          await _queue.enqueue(
-            table: 'disease_screenings',
-            action: 'patch_status',
-            payload: {
-              'id': entry.value,
-              'progress_state': 'abandoned',
-            },
-          );
-        }
-        await _queue.clearActiveScreenings();
-      });
+  Future<void> abandonActiveScreenings() => _serial(_abandonActive);
+
+  Future<void> _abandonActive() async {
+    final active = _queue.getActiveScreenings();
+    final completed = _queue.getCompletedScreenings();
+    for (final entry in active.entries) {
+      if (completed.contains(entry.key)) continue;
+      await _queue.enqueue(
+        table: 'disease_screenings',
+        action: 'patch_status',
+        payload: {
+          'id': entry.value,
+          'progress_state': 'abandoned',
+        },
+      );
+    }
+    await _queue.clearActiveScreenings();
+  }
 }
 
 /// Global provider for [ScreeningSyncRepository].

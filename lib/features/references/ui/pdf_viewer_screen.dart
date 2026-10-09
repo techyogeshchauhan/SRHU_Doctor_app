@@ -83,8 +83,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
   /// Ctrl/⌘ held: the mouse wheel zooms instead of scrolling.
   bool _wheelZooms = false;
 
+  /// "Ping" around the highlight when the page opens (three pulses).
   late final AnimationController _pulseController;
-  late final Animation<double> _pulseAnimation;
 
   // Canonical page aspect ratio for the ICMR STW documents:
   // Rendered at 1600 x 3105 px -> 1600 / 3105 ≈ 0.515298
@@ -104,29 +104,11 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
 
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 900),
     );
 
-    _pulseAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 40,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 0.6)
-            .chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 30,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.6, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 30,
-      ),
-    ]).animate(_pulseController);
-
     if (widget.highlightTarget != null) {
-      _pulseController.forward();
+      _pulseController.repeat(count: 3);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _scheduleAutoScroll();
       });
@@ -250,7 +232,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
                     ? Icons.highlight_rounded
                     : Icons.highlight_outlined,
                 color:
-                    _showHighlight ? const Color(0xFFF59E0B) : Colors.white70,
+                    _showHighlight ? const Color(0xFFEF4444) : Colors.white70,
               ),
               onPressed: () {
                 setState(() => _showHighlight = !_showHighlight);
@@ -398,13 +380,15 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
                           if (widget.highlightTarget != null && _showHighlight)
                             Positioned.fill(
                               child: AnimatedBuilder(
-                                animation: _pulseAnimation,
+                                animation: _pulseController,
                                 builder: (context, _) {
                                   return CustomPaint(
                                     painter: _CuratedHighlightPainter(
                                       normalizedBboxes: widget
                                           .highlightTarget!.normalizedBboxes,
-                                      pulseValue: _pulseAnimation.value,
+                                      ping: _pulseController.isAnimating
+                                          ? _pulseController.value
+                                          : null,
                                       debugEdges: widget.debugHighlights,
                                     ),
                                   );
@@ -428,16 +412,16 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
                 child: Material(
                   elevation: 6,
                   borderRadius: BorderRadius.circular(10),
-                  color: const Color(0xFFFFFBEB),
+                  color: const Color(0xFFFEF2F2),
                   shadowColor: Colors.black38,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBEB),
+                      color: const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: const Color(0xFFF59E0B),
+                        color: const Color(0xFFDC2626),
                         width: 1.5,
                       ),
                     ),
@@ -445,7 +429,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
                       children: [
                         const Icon(
                           Icons.highlight_alt_rounded,
-                          color: Color(0xFFB45309),
+                          color: Color(0xFFDC2626),
                           size: 20,
                         ),
                         const SizedBox(width: 10),
@@ -460,16 +444,16 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
                                 style: const TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF78350F),
+                                  color: Color(0xFF7F1D1D),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                'Page ${widget.highlightTarget!.page} • Tap icon above to toggle overlay',
+                                'Page ${widget.highlightTarget!.page} • Highlighted in red • Tap icon above to toggle',
                                 style: const TextStyle(
                                   fontSize: 10.5,
-                                  color: Color(0xFF92400E),
+                                  color: Color(0xFF991B1B),
                                 ),
                               ),
                             ],
@@ -479,7 +463,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
                           icon: const Icon(
                             Icons.close_rounded,
                             size: 18,
-                            color: Color(0xFFB45309),
+                            color: Color(0xFFDC2626),
                           ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
@@ -501,23 +485,44 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
   }
 }
 
-/// Custom painter for curated region highlights with pulse effect and debug edges.
+/// Marks the referenced STW box: the rest of the page is dimmed and the box
+/// is framed by a red rectangle with a white edge, so it shows on any
+/// background. [ping] (0–1) draws an expanding frame while the page opens.
 class _CuratedHighlightPainter extends CustomPainter {
   final List<Rect> normalizedBboxes;
-  final double pulseValue;
+  final double? ping;
   final bool debugEdges;
 
   _CuratedHighlightPainter({
     required this.normalizedBboxes,
-    required this.pulseValue,
+    required this.ping,
     required this.debugEdges,
   });
+
+  static const _red = Color(0xFFDC2626);
+
+  /// Red rectangle just outside [box] (page pixels), kept on the page so
+  /// all four sides stay visible for boxes at the page edge.
+  static RRect _frame(Rect box, Size page, double stroke) {
+    final edge = stroke / 2 + 2;
+    final r = box.inflate(stroke + 3);
+    return RRect.fromRectAndRadius(
+      Rect.fromLTRB(
+        math.max(r.left, edge),
+        math.max(r.top, edge),
+        math.min(r.right, page.width - edge),
+        math.min(r.bottom, page.height - edge),
+      ),
+      const Radius.circular(3),
+    );
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     if (size.width <= 0 || size.height <= 0) return;
 
-    // 1. Debug flag: draw red border at (0,0,1,1) to verify overlay matches page edges
+    // Debug flag: red border at (0,0,1,1) to verify the overlay matches the
+    // page edges.
     if (debugEdges) {
       final debugPaint = Paint()
         ..color = Colors.red
@@ -531,44 +536,63 @@ class _CuratedHighlightPainter extends CustomPainter {
 
     if (normalizedBboxes.isEmpty) return;
 
-    // Style specifications:
-    // Amber fill at 30-35% opacity
-    final fillAlpha = (0.30 + (0.05 * pulseValue)).clamp(0.0, 1.0);
-    final fillPaint = Paint()
-      ..color = const Color(0xFFF59E0B).withValues(alpha: fillAlpha)
-      ..style = PaintingStyle.fill;
+    final stroke = (size.width * 0.007).clamp(3.0, 7.0);
+    final frames = [
+      for (final b in normalizedBboxes)
+        _frame(
+          Rect.fromLTWH(
+            b.left * size.width,
+            b.top * size.height,
+            b.width * size.width,
+            b.height * size.height,
+          ),
+          size,
+          stroke,
+        ),
+    ];
 
-    // 2px solid border with rounded corners
-    final borderPaint = Paint()
-      ..color = const Color(0xFFD97706)
+    // Dim everything outside the frames.
+    final holes = Path();
+    for (final r in frames) {
+      holes.addRRect(r);
+    }
+    canvas.drawPath(
+      Path.combine(
+        PathOperation.difference,
+        Path()..addRect(Offset.zero & size),
+        holes,
+      ),
+      Paint()..color = Colors.black.withValues(alpha: 0.28),
+    );
+
+    final halo = Paint()
+      ..color = Colors.white.withValues(alpha: 0.9)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..strokeWidth = stroke + 4;
+    final border = Paint()
+      ..color = _red
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke;
+    for (final r in frames) {
+      canvas.drawRRect(r, halo);
+      canvas.drawRRect(r, border);
 
-    // Small padding around the box (2.5 px scaled)
-    const double padding = 2.5;
-
-    for (final bbox in normalizedBboxes) {
-      final left = (bbox.left * size.width) - padding;
-      final top = (bbox.top * size.height) - padding;
-      final width = (bbox.width * size.width) + (2 * padding);
-      final height = (bbox.height * size.height) + (2 * padding);
-
-      final rect = Rect.fromLTWH(
-        left.clamp(0.0, size.width),
-        top.clamp(0.0, size.height),
-        width.clamp(0.0, size.width),
-        height.clamp(0.0, size.height),
-      );
-
-      final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(6));
-      canvas.drawRRect(rrect, fillPaint);
-      canvas.drawRRect(rrect, borderPaint);
+      final t = ping;
+      if (t != null) {
+        canvas.drawRRect(
+          r.inflate(t * stroke * 4),
+          Paint()
+            ..color = _red.withValues(alpha: (1 - t) * 0.7)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = stroke * 0.8,
+        );
+      }
     }
   }
 
   @override
   bool shouldRepaint(covariant _CuratedHighlightPainter oldDelegate) =>
-      oldDelegate.pulseValue != pulseValue ||
+      oldDelegate.ping != ping ||
       oldDelegate.normalizedBboxes != normalizedBboxes ||
       oldDelegate.debugEdges != debugEdges;
 }

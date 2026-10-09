@@ -5,7 +5,7 @@ import request from 'supertest';
 
 import { createApp } from '../src/app.js';
 import { buildMongoUri, config } from '../src/config.js';
-import { closeDatabase, connectToDatabase, getScreeningsCollection } from '../src/db.js';
+import { closeDatabase, connectToDatabase, getChatLogsCollection, getScreeningsCollection } from '../src/db.js';
 
 describe('Neonatal STW REST API Backend', () => {
   let mongod;
@@ -22,6 +22,9 @@ describe('Neonatal STW REST API Backend', () => {
 
     // Connect to in-memory DB
     await connectToDatabase(uri, 'neonatal_stw_test');
+    // Test keys, independent of the real keys in server/.env.
+    config.apiKeys = [testApiKey];
+    config.exportApiKey = testExportKey;
     app = createApp();
   });
 
@@ -101,7 +104,7 @@ describe('Neonatal STW REST API Backend', () => {
         assert.ok(err.message.includes('MONGODB_PASSWORD'));
         assert.ok(err.message.includes('MONGODB_HOST'));
         // Verify secrets are NOT printed in error
-        assert.ok(!err.message.includes('sBm4RQLjpzcOb6jx'));
+        assert.ok(!err.message.includes('not-a-real-password'));
         return true;
       }
     );
@@ -122,6 +125,43 @@ describe('Neonatal STW REST API Backend', () => {
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
     assert.equal(res.body.sessionId, testSessionId);
+  });
+
+  it('Session: stores selected conditions, then is closed with an end time', async () => {
+    const sessionId = '55555555-5555-4555-8555-555555555555';
+    const created = await request(app)
+      .post('/sessions')
+      .set('x-api-key', testApiKey)
+      .send({
+        _id: sessionId,
+        sessionToken: 'token-456',
+        platform: 'android',
+        appVersion: '0.1.0+18',
+        selectedConditions: ['ancs', 'hypoglycemia'],
+      });
+    assert.equal(created.status, 200);
+
+    const endedAt = '2026-10-09T10:00:00.000Z';
+    const closed = await request(app)
+      .patch(`/sessions/${sessionId}`)
+      .set('x-api-key', testApiKey)
+      .send({ status: 'completed', endedAt });
+    assert.equal(closed.status, 200);
+
+    const stored = await request(app)
+      .get(`/sessions/${sessionId}`)
+      .set('x-api-key', testApiKey);
+    assert.deepEqual(stored.body.selectedConditions, ['ancs', 'hypoglycemia']);
+    assert.equal(stored.body.status, 'completed');
+    assert.equal(stored.body.endedAt, endedAt);
+  });
+
+  it('Session: PATCH rejects fields other than status / endedAt / facilityName', async () => {
+    const res = await request(app)
+      .patch(`/sessions/${testSessionId}`)
+      .set('x-api-key', testApiKey)
+      .send({ id: testSessionId, status: 'completed' });
+    assert.equal(res.status, 400);
   });
 
   it('PUT /screenings/:id creates screening document', async () => {
@@ -298,6 +338,28 @@ describe('Neonatal STW REST API Backend', () => {
 
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
+  });
+
+  it('Chat Log: stores a not-covered answer with no source', async () => {
+    const chatLogId = '44444444-4444-4444-8444-444444444444';
+    const res = await request(app)
+      .post('/chat-logs')
+      .set('x-api-key', testApiKey)
+      .send({
+        _id: chatLogId,
+        sessionId: testSessionId,
+        userQuery: 'Phototherapy threshold for neonatal jaundice',
+        extractedAnswer: 'This information is not covered in the approved STW documents.',
+        chunkIds: [],
+        source: null,
+        found: false,
+        retrieverType: 'stw_answerer_v1:notCovered',
+      });
+    assert.equal(res.status, 200);
+
+    const stored = await getChatLogsCollection().findOne({ _id: chatLogId });
+    assert.equal(stored.source, null);
+    assert.equal(stored.found, false);
   });
 
   it('Export: rejects export access without export key', async () => {

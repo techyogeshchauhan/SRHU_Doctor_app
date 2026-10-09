@@ -19,6 +19,7 @@ class OfflineQueue {
   OfflineQueue({
     this.sessionBoxName = 'stw_session_box',
     this.queueBoxName = 'stw_sync_queue_box',
+    this.retryDelay = const Duration(seconds: 30),
     ApiClient? apiClient,
   }) : _apiClient = apiClient ?? ApiClient();
 
@@ -26,6 +27,9 @@ class OfflineQueue {
 
   final String sessionBoxName;
   final String queueBoxName;
+
+  /// Wait before retrying after a transient failure (network, 5xx, 429).
+  final Duration retryDelay;
   final ApiClient _apiClient;
 
   static const _uuid = Uuid();
@@ -34,6 +38,7 @@ class OfflineQueue {
   Box<dynamic>? _queueBox;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
   bool _isFlushing = false;
+  Timer? _retryTimer;
 
   /// Set when a flush is requested while one is running; the running flush
   /// then makes another pass so new items are not left waiting.
@@ -94,6 +99,26 @@ class OfflineQueue {
   Future<void> setSessionId(String sessionId) async {
     if (_sessionBox != null && _sessionBox!.isOpen) {
       await _sessionBox!.put('current_session_id', sessionId);
+      await _sessionBox!.delete('current_session_closed');
+    }
+  }
+
+  /// Forgets the current session; the next screening or chat opens a new one.
+  Future<void> clearSessionId() async {
+    if (_sessionBox != null && _sessionBox!.isOpen) {
+      await _sessionBox!.delete('current_session_id');
+      await _sessionBox!.delete('current_session_closed');
+    }
+  }
+
+  /// Whether the current session was already closed (its end time is set).
+  bool get isSessionClosed =>
+      (_sessionBox != null && _sessionBox!.isOpen) &&
+      _sessionBox!.get('current_session_closed') == true;
+
+  Future<void> markSessionClosed() async {
+    if (_sessionBox != null && _sessionBox!.isOpen) {
+      await _sessionBox!.put('current_session_closed', true);
     }
   }
 
@@ -205,7 +230,14 @@ class OfflineQueue {
     try {
       do {
         _flushAgain = false;
-        if (!await _flushPass()) break;
+        if (!await _flushPass()) {
+          // Retry later even if nothing new is queued meanwhile.
+          _retryTimer ??= Timer(retryDelay, () {
+            _retryTimer = null;
+            flush();
+          });
+          break;
+        }
       } while (_flushAgain);
     } finally {
       _isFlushing = false;
@@ -290,8 +322,13 @@ class OfflineQueue {
       case 'sessions':
       case 'clinical_sessions':
         if (action == 'patch') {
+          // Only the fields the API accepts (the local payload also holds
+          // the id, which is in the URL).
           final id = payload['id'] as String;
-          await _apiClient.patchSession(id, payload);
+          await _apiClient.patchSession(id, {
+            if (payload['status'] != null) 'status': payload['status'],
+            if (payload['ended_at'] != null) 'endedAt': payload['ended_at'],
+          });
         } else {
           await _apiClient.createSession({
             '_id': payload['id'] ?? payload['_id'],
@@ -300,6 +337,8 @@ class OfflineQueue {
             'platform': payload['platform'] ?? 'unknown',
             'appVersion': payload['app_version'] ?? payload['appVersion'] ?? '0.1.0+1',
             'status': payload['status'] ?? 'in_progress',
+            if (payload['selected_conditions'] is List)
+              'selectedConditions': payload['selected_conditions'],
             if (payload['created_at'] != null) 'createdAt': payload['created_at'],
           });
         }
@@ -394,20 +433,17 @@ class OfflineQueue {
         break;
 
       case 'chat_logs':
+        // Only answers have a source box; "not covered" and "did you mean"
+        // logs send null rather than a made-up document.
         final rawSource = payload['source_metadata'] ?? payload['source'];
-        Map<String, dynamic> sourceMap = {};
-        if (rawSource is Map) {
-          sourceMap = {
-            'document': rawSource['document'] ?? 'respiratory_distress_neonates_stw.pdf',
-            'page': rawSource['page'] is int ? rawSource['page'] : 1,
-            if (rawSource['section'] != null) 'section': rawSource['section'].toString(),
-          };
-        } else {
-          sourceMap = {
-            'document': 'respiratory_distress_neonates_stw.pdf',
-            'page': 1,
-          };
-        }
+        final sourceMap = rawSource is Map && rawSource['document'] != null
+            ? {
+                'document': rawSource['document'].toString(),
+                'page': rawSource['page'] is int ? rawSource['page'] : 1,
+                if (rawSource['section'] != null)
+                  'section': rawSource['section'].toString(),
+              }
+            : null;
 
         final chunkList = <String>[];
         if (payload['matched_chunk_ids'] is List) {
@@ -441,6 +477,8 @@ class OfflineQueue {
 
   /// Closes resources (used in tests/app exit).
   Future<void> dispose() async {
+    _retryTimer?.cancel();
+    _retryTimer = null;
     await _connectivitySub?.cancel();
     await _sessionBox?.close();
     await _queueBox?.close();

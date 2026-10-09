@@ -368,7 +368,7 @@ BASE_HREF=/stw/ tool/build_web.sh
 | `web/flutter_bootstrap.js` | Loads Flutter, removes the loading screen on first frame, registers `sw.js` |
 | `web/icons/` | 192/512 + maskable 192/512 + `apple-touch-icon.png` (180) from the SRHU logo |
 | `web/pdfjs/` | pdf.js 4.6.82 (`pdf.min.mjs`, `pdf.worker.min.mjs`) for the PDF viewer, offline |
-| `tool/sw_template.js` → `build/web/sw.js` | Precache: core (~7.2 MB) + the CanvasKit variant for that browser (~5.3–7 MB); STW PDFs, pdf.js and licences best-effort. Network-first for navigation/entry files, cache-first otherwise; old caches removed on update. |
+| `tool/sw_template.js` → `build/web/sw.js` | Precache: core (~7.2 MB) + the CanvasKit variant for that browser (~5.3–7 MB); STW PDFs, pdf.js and licences best-effort. Network-first (4 s timeout, then cache) for app code; cache-first for PDFs, page images and pdf.js; old caches removed on update. |
 
 ### Web-specific behaviour
 
@@ -444,8 +444,8 @@ server {
 | Run (web) | `flutter run -d chrome` (debug; no service worker) |
 | Analyze | `flutter analyze` (must report no issues) |
 | Test | `flutter test` |
-| Web release | `tool/build_web.sh` (see §9) |
-| Android release | `flutter build apk --release` / `flutter build appbundle` |
+| Web release | `scripts\deploy_web.ps1` (Windows) or `tool/build_web.sh`; see docs/RELEASE.md |
+| Android release | `scripts\build_apk.ps1` (same `build.env` and version as Web; see docs/RELEASE.md) |
 | iOS release | `flutter build ipa` (macOS + Xcode) |
 | Launcher icons | `dart run flutter_launcher_icons` (sources: `assets/images/logo_icon.png`, `logo_adaptive_foreground.png`) |
 

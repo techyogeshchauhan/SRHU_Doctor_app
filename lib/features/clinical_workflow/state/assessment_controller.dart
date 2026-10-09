@@ -66,9 +66,9 @@ class AssessmentController extends Notifier<AssessmentState> {
     final syncRepo = ref.read(screeningSyncRepositoryProvider);
 
     if (isReset) {
-      // A fresh assessment gets fresh screenings; unfinished ones are
-      // marked abandoned.
-      syncRepo.abandonActiveScreenings();
+      // A fresh assessment gets a new session and fresh screenings;
+      // unfinished ones are marked abandoned.
+      syncRepo.startAssessmentSession({for (final c in selected) diseaseCodeOf(c)});
       final ctx = _engine.evaluate(
         selected: selected,
         answers: const {},

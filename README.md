@@ -320,18 +320,21 @@ The application persists de-identified clinical screening workflows, MCQ evaluat
 - **Offline-First Resilience**: All writes are first committed locally to Hive (IndexedDB on Web/PWA, binary storage on mobile). When network connectivity is established, a background sync worker flushes pending operations via idempotent REST operations with client-generated UUIDs.
 - **Architecture**: The Flutter app communicates ONLY via REST endpoints (`/sessions`, `/screenings`, `/chat-logs`) and never stores MongoDB credentials directly.
 
-### Setting API Configuration via `--dart-define`
+### Release builds (Web, PWA, APK)
 
-Never hardcode server credentials in code. Provide the REST backend URL and API key at build or launch time:
+Web/PWA and the APK are built from this one project with the same settings
+file, `build.env` (git-ignored: `API_BASE_URL=https://…`, `API_KEY=…`):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\deploy_web.ps1   # Web + PWA: build, commit, push; server: git pull
+powershell -ExecutionPolicy Bypass -File scripts\build_apk.ps1    # APK: dist\STW-Neo-<version>.apk
+```
+
+See [docs/RELEASE.md](docs/RELEASE.md). For development, pass the same values
+with `--dart-define` to `flutter run`:
 
 ```bash
-# Web / PWA
 flutter run -d chrome \
-  --dart-define=API_BASE_URL=https://api.example.com \
-  --dart-define=API_KEY=your-client-api-key
-
-# Android / iOS Release Build
-flutter build apk \
   --dart-define=API_BASE_URL=https://api.example.com \
   --dart-define=API_KEY=your-client-api-key
 ```

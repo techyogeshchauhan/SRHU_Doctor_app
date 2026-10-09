@@ -17,6 +17,8 @@ class ChatLogRepository {
     required List<String> matchedChunkIds,
     Map<String, dynamic>? sourceMetadata,
     required bool found,
+    String? regionId,
+    String? retrieverType,
   }) async {
     final activeSessionId = sessionId ?? _queue.currentSessionId;
     final now = DateTime.now().toUtc().toIso8601String();
@@ -32,6 +34,8 @@ class ChatLogRepository {
         'matched_chunk_ids': matchedChunkIds,
         'source_metadata': sourceMetadata ?? <String, dynamic>{},
         'found': found,
+        if (regionId != null) 'region_id': regionId,
+        if (retrieverType != null) 'retriever_type': retrieverType,
         'created_at': now,
       },
     );

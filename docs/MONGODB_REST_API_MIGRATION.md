@@ -36,7 +36,7 @@ In this upgrade, **Supabase was completely eliminated** from the STW Neo project
 #### Backend (`server/.env`)
 | Variable | Description | Sample / Default |
 |---|---|---|
-| `MONGODB_USERNAME` | Atlas database username | e.g. `srhutechforge_db_user` |
+| `MONGODB_USERNAME` | Atlas database username | e.g. `<db-user>` |
 | `MONGODB_PASSWORD` | Atlas database user password | *(stored only in git-ignored server/.env)* |
 | `MONGODB_HOST` | Cluster host address | e.g. `cluster0.xxxxx.mongodb.net` |
 | `MONGODB_OPTIONS` | Connection options query string | `retryWrites=true&w=majority` |

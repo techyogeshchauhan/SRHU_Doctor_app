@@ -150,5 +150,15 @@
   ],
   "hypo_neuro_followup": [
     {"text": "NEONATES WITH SYMPTOMATIC, SEVERE, RECURRENT OR PERSISTENT HYPOGLYCEMIA SHOULD RECEIVE STRUCTURED NEURODEVELOPMENTAL FOLLOW-UP"}
+  ],
+  "hypo_asymptomatic_branch": [
+    {"text": "ASYMPTOMATIC & BG ≥25 mg/dL", "header": true},
+    {"text": "Immediate supervised feeding"},
+    {"text": "Breastfeeding or a measured volume of expressed breastmilk (Formula milk if EBM not available) by paladai or gavage"}
+  ],
+  "hypo_symptomatic_branch": [
+    {"text": "SYMPTOMATIC OR BG < 25 mg/dL", "header": true},
+    {"text": "IV bolus: 2 ml/kg of 10% of dextrose slowly over 1 minute"},
+    {"text": "Start IV infusion of dextrose at a glucose infusion rate (GIR) of 6 mg/kg/min"}
   ]
 }

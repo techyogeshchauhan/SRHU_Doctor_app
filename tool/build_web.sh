@@ -11,8 +11,11 @@ cd "$(dirname "$0")/.."
 FLUTTER="${FLUTTER:-flutter}"
 DART="${DART:-dart}"
 
+# Same build as scripts/build_web.ps1 (Windows), minus its API checks.
 # --no-web-resources-cdn bundles CanvasKit so the app also starts offline.
-# -O4 maximizes dart2js optimization; --tree-shake-icons strips unused font glyphs.
-"$FLUTTER" build web --release --no-web-resources-cdn -O4 --tree-shake-icons \
-  --base-href "${BASE_HREF:-/}" "$@"
+# build.env holds API_BASE_URL / API_KEY (see docs/RELEASE.md).
+DEFINES=()
+[ -f build.env ] && DEFINES+=(--dart-define-from-file=build.env)
+"$FLUTTER" build web --release --no-web-resources-cdn \
+  --base-href "${BASE_HREF:-/}" "${DEFINES[@]}" "$@"
 "$DART" run tool/generate_service_worker.dart

@@ -28,8 +28,30 @@ const SENSITIVE_PATTERNS = [
 
 function isEnvFile(filePath) {
   const base = path.basename(filePath);
-  return base === '.env' || (base.startsWith('.env.') && !base.endsWith('.example'));
+  return (
+    base === '.env' ||
+    base.endsWith('.env') || // build.env
+    (base.startsWith('.env.') && !base.endsWith('.example'))
+  );
 }
+
+// Real values from the local server/.env (database user, password, keys).
+// Any of them in a project file is a leak, whatever the surrounding code.
+function localSecretValues() {
+  const envPath = path.join(rootDir, 'server', '.env');
+  if (!fs.existsSync(envPath)) return [];
+  const values = [];
+  for (const line of fs.readFileSync(envPath, 'utf-8').split(/\r?\n/)) {
+    const m = line.match(/^(MONGODB_USERNAME|MONGODB_PASSWORD|API_KEYS|EXPORT_API_KEY)=(.*)$/);
+    if (!m) continue;
+    for (const v of m[1] === 'API_KEYS' ? m[2].split(',') : [m[2]]) {
+      const value = v.trim();
+      if (value.length >= 6 && !/^<.*>$/.test(value)) values.push(value);
+    }
+  }
+  return values;
+}
+const SECRET_VALUES = localSecretValues();
 
 function scanDir(dir, findings) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -49,6 +71,10 @@ function scanDir(dir, findings) {
         const lines = content.split('\n');
 
         lines.forEach((line, idx) => {
+          if (SECRET_VALUES.some((v) => line.includes(v))) {
+            findings.push({ file: path.relative(rootDir, fullPath), line: idx + 1 });
+            return;
+          }
           for (const pattern of SENSITIVE_PATTERNS) {
             if (pattern.test(line)) {
               findings.push({

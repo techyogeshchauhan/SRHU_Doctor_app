@@ -42,17 +42,41 @@ export function buildMongoUri(env = process.env) {
   return `mongodb+srv://${encodedUser}:${encodedPass}@${host}/${dbName}?${options}`;
 }
 
+// The public development keys from .env.example are refused in production:
+// a server started without real keys would accept anyone.
+const DEV_KEYS = ['stw_dev_client_key_12345', 'stw_mobile_app_prod_key', 'stw_research_export_key_67890'];
+const isProduction = process.env.NODE_ENV === 'production';
+
+function keysFrom(value, devDefault, name) {
+  const keys = (value || (isProduction ? '' : devDefault))
+    .split(',')
+    .map((k) => k.trim())
+    .filter(Boolean);
+  if (isProduction && (keys.length === 0 || keys.some((k) => DEV_KEYS.includes(k)))) {
+    throw new Error(
+      `[Startup Error] ${name} must be set to new random keys in production (see server/.env.example).`
+    );
+  }
+  return keys;
+}
+
 export const config = {
   port: parseInt(process.env.PORT || '4000', 10),
   dbName: process.env.DB_NAME?.trim() || 'stw_neo',
-  apiKeys: (process.env.API_KEYS || 'stw_dev_client_key_12345')
-    .split(',')
-    .map((k) => k.trim())
-    .filter(Boolean),
-  exportApiKey: (process.env.EXPORT_API_KEY || process.env.EXPORT_API_KEYS || 'stw_research_export_key_67890').trim(),
+  apiKeys: keysFrom(process.env.API_KEYS, 'stw_dev_client_key_12345', 'API_KEYS'),
+  exportApiKey: keysFrom(
+    process.env.EXPORT_API_KEY || process.env.EXPORT_API_KEYS,
+    'stw_research_export_key_67890',
+    'EXPORT_API_KEY'
+  )[0],
   allowedOrigins: (process.env.ALLOWED_ORIGINS || '')
     .split(',')
     .map((o) => o.trim())
     .filter(Boolean),
+  // Requests per minute per client IP.
+  rateLimitPerMinute: parseInt(process.env.RATE_LIMIT_PER_MINUTE || '120', 10),
+  // Set when behind a reverse proxy (e.g. "1" for one nginx hop) so rate
+  // limiting sees each client's IP instead of the proxy's.
+  trustProxy: process.env.TRUST_PROXY?.trim() || '',
   getMongoUri: (env = process.env) => buildMongoUri(env),
 };

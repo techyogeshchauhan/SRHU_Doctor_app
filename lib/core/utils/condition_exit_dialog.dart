@@ -83,8 +83,9 @@ bool hasConditionProgress(WidgetRef ref) {
 
 /// Clears all screening, assessment, and MCQ data for this condition.
 void clearConditionData(WidgetRef ref) {
-  // Goal B: Mark in-progress screenings as abandoned in database rather than deleting
-  ref.read(screeningSyncRepositoryProvider).abandonActiveScreenings();
+  // Goal B: Mark in-progress screenings as abandoned in database rather than
+  // deleting, and close the session.
+  ref.read(screeningSyncRepositoryProvider).endAssessmentSession();
   ref.read(assessmentProvider.notifier).reset();
   ref.read(followUpProvider.notifier).reset();
   ref.read(ropProvider.notifier).reset();

@@ -1,15 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/repositories/chat_log_repository.dart';
+import '../../../data/repositories/screening_sync_repository.dart';
 import '../data/bm25_retriever.dart';
+import '../domain/answering/answer_composer.dart';
+import '../domain/answering/stw_answer.dart';
+import '../domain/answering/stw_answerer.dart';
 import '../domain/models/chat_message.dart';
 import '../domain/models/stw_chunk.dart';
-import '../domain/retriever/stw_retriever.dart';
 
-/// Provider for the abstract STW Retriever.
-final stwRetrieverProvider = Provider<StwRetriever>((ref) {
-  final retriever = Bm25Retriever();
-  return retriever;
+/// Keyword retriever over the STW regions (assets/regions/regions.json).
+final stwRetrieverProvider = Provider<Bm25Retriever>((ref) {
+  return Bm25Retriever();
+});
+
+/// Understands the question and answers with verbatim STW lines.
+final stwAnswererProvider = Provider<StwAnswerer>((ref) {
+  return StwAnswerer(ref.watch(stwRetrieverProvider));
 });
 
 /// State for the Clinical Chatbot.
@@ -37,18 +44,18 @@ class ChatbotState {
   }
 }
 
-/// StateNotifier that handles searching and grounded message generation.
+/// StateNotifier that handles questions and grounded answers.
 class ChatbotNotifier extends StateNotifier<ChatbotState> {
-  final StwRetriever _retriever;
-  final Future<void> Function(String query, String answer, SearchResult? result)?
+  final StwAnswerer _answerer;
+  final Future<void> Function(String query, StwAnswer answer, String text)?
       onMessageLogged;
 
   ChatbotNotifier(
-    this._retriever, {
+    this._answerer, {
     this.onMessageLogged,
   }) : super(const ChatbotState(messages: []));
 
-  /// Sends a user question and retrieves grounded STW text.
+  /// Sends a user question and answers it from the STWs.
   Future<void> sendQuery(String queryText) async {
     final trimmed = queryText.trim();
     if (trimmed.isEmpty) return;
@@ -61,35 +68,8 @@ class ChatbotNotifier extends StateNotifier<ChatbotState> {
     );
 
     try {
-      final results = await _retriever.search(trimmed, limit: 1);
-      final ChatMessage botMsg;
-
-      if (results.isNotEmpty) {
-        final missingNotice = Bm25Retriever.checkMissingDosageNotice(
-          trimmed,
-          results.first.chunk.text,
-        );
-        botMsg = ChatMessage.bot(
-          result: results.first,
-          missingNotice: missingNotice,
-        );
-      } else {
-        botMsg = ChatMessage.notCovered();
-      }
-
-      state = state.copyWith(
-        messages: [...state.messages, botMsg],
-        isLoading: false,
-      );
-
-      // Async audit log callback (for database persistence in Step B)
-      if (onMessageLogged != null) {
-        onMessageLogged!(
-          trimmed,
-          botMsg.text,
-          results.isNotEmpty ? results.first : null,
-        ).catchError((_) {});
-      }
+      final answer = await _answerer.answer(trimmed);
+      _addBotAnswer(trimmed, answer);
     } catch (e) {
       final errorMsg = ChatMessage.notCovered();
       state = state.copyWith(
@@ -98,6 +78,33 @@ class ChatbotNotifier extends StateNotifier<ChatbotState> {
         error: e.toString(),
       );
     }
+  }
+
+  /// The user picked [option] from an ask-back message: show that box's
+  /// lines for the original question.
+  void chooseOption(ChatMessage clarifyMessage, StwChunk option) {
+    final asked = clarifyMessage.answer;
+    if (asked == null || asked.kind != AnswerKind.clarify) return;
+    state = state.copyWith(
+      messages: [...state.messages, ChatMessage.user(text: option.sectionTitle)],
+    );
+    _addBotAnswer(
+      asked.analysis.raw,
+      StwAnswer.answer(
+        analysis: asked.analysis,
+        region: option,
+        lines: composeAnswer(option, asked.analysis),
+      ),
+    );
+  }
+
+  void _addBotAnswer(String query, StwAnswer answer) {
+    final botMsg = ChatMessage.fromAnswer(answer);
+    state = state.copyWith(
+      messages: [...state.messages, botMsg],
+      isLoading: false,
+    );
+    onMessageLogged?.call(query, answer, botMsg.text).catchError((_) {});
   }
 
   /// Clears chat history.
@@ -109,21 +116,32 @@ class ChatbotNotifier extends StateNotifier<ChatbotState> {
 /// Provider for Chatbot StateNotifier.
 final chatbotNotifierProvider =
     StateNotifierProvider<ChatbotNotifier, ChatbotState>((ref) {
-  final retriever = ref.watch(stwRetrieverProvider);
+  final answerer = ref.watch(stwAnswererProvider);
   final chatRepo = ref.watch(chatLogRepositoryProvider);
+  final syncRepo = ref.watch(screeningSyncRepositoryProvider);
   return ChatbotNotifier(
-    retriever,
-    onMessageLogged: (query, answer, result) async {
+    answerer,
+    onMessageLogged: (query, answer, text) async {
+      final region = answer.region;
+      // Chat can come before any screening: create the session if needed,
+      // so every log belongs to one.
+      final sessionId = await syncRepo.ensureSession();
       await chatRepo.logChatQuery(
+        sessionId: sessionId,
         query: query,
-        answer: answer,
-        matchedChunkIds: result != null ? [result.chunk.chunkId] : [],
-        sourceMetadata: result != null
+        answer: text,
+        matchedChunkIds: [
+          if (region != null) region.chunkId,
+          for (final o in answer.options) o.chunkId,
+        ],
+        regionId: region?.chunkId,
+        retrieverType: 'stw_answerer_v1:${answer.kind.name}',
+        sourceMetadata: region != null
             ? {
-                'document': result.chunk.document,
-                'page': result.chunk.page,
-                'section': result.chunk.sectionTitle,
-                'bounding_boxes': result.chunk.boundingBoxes
+                'document': region.document,
+                'page': region.page,
+                'section': region.sectionTitle,
+                'bounding_boxes': region.boundingBoxes
                     .map((b) => {
                           'x': b.x,
                           'y': b.y,
@@ -133,9 +151,8 @@ final chatbotNotifierProvider =
                     .toList(),
               }
             : null,
-        found: result != null,
+        found: answer.kind == AnswerKind.answer,
       );
     },
   );
 });
-

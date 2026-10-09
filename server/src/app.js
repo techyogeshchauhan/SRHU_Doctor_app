@@ -16,6 +16,11 @@ import sessionsRouter from './routes/sessions.js';
 export function createApp() {
   const app = express();
 
+  if (config.trustProxy) {
+    const n = Number(config.trustProxy);
+    app.set('trust proxy', Number.isInteger(n) ? n : config.trustProxy);
+  }
+
   // Security headers
   app.use(helmet());
 
@@ -37,7 +42,7 @@ export function createApp() {
   // Rate Limiting (100 requests per minute per IP, or 500 in dev)
   const limiter = rateLimit({
     windowMs: 60 * 1000,
-    max: 120,
+    max: config.rateLimitPerMinute,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'TooManyRequests', message: 'Rate limit exceeded. Please slow down.' },

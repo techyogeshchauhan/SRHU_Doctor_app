@@ -72,7 +72,7 @@ This document records the complete setup of MongoDB Atlas accessed **exclusively
 ### Server (`server/.env`)
 | Variable | Description | Example / Default |
 |---|---|---|
-| `MONGODB_USERNAME` | MongoDB Atlas database username | `srhutechforge_db_user` |
+| `MONGODB_USERNAME` | MongoDB Atlas database username | `<db-user>` |
 | `MONGODB_PASSWORD` | MongoDB Atlas database user password | *(stored in .env only)* |
 | `MONGODB_HOST` | Cluster host address | `cluster0.xxxxx.mongodb.net` |
 | `MONGODB_OPTIONS` | Connection options query string | `retryWrites=true&w=majority` |

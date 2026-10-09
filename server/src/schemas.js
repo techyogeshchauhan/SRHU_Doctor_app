@@ -63,6 +63,8 @@ export const createSessionSchema = z
     platform: z.string().min(1),
     appVersion: z.string().min(1),
     status: z.enum(['in_progress', 'completed', 'abandoned']).default('in_progress'),
+    // Disease codes chosen for this assessment (empty for a chat-only session).
+    selectedConditions: z.array(z.string().min(1).max(64)).max(20).optional(),
     createdAt: z.string().datetime().optional(),
     updatedAt: z.string().datetime().optional(),
   })
@@ -73,6 +75,7 @@ export const updateSessionSchema = z
   .object({
     status: z.enum(['in_progress', 'completed', 'abandoned']).optional(),
     facilityName: z.string().nullable().optional(),
+    endedAt: z.string().datetime().nullable().optional(),
   })
   .strict()
   .superRefine(phiGuard);
@@ -165,7 +168,8 @@ export const postChatLogSchema = z
     extractedAnswer: z.string().min(1),
     regionId: z.string().nullable().optional(),
     chunkIds: z.array(z.string()).optional(),
-    source: sourceMetaSchema,
+    // null for "not covered" / "did you mean" answers (no source box).
+    source: sourceMetaSchema.nullable().optional(),
     found: z.boolean(),
     retrieverType: z.string().default('bm25_pure_dart'),
     createdAt: z.string().datetime().optional(),

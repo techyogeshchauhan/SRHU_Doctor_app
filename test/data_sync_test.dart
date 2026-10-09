@@ -261,6 +261,56 @@ void main() {
       expect(queue.pendingCount, equals(0));
     });
 
+    test('one session per assessment: opened with its conditions, closed once',
+        () async {
+      final repo = ScreeningSyncRepository(queue: queue);
+      final first = await repo.startAssessmentSession({'rop', 'ancs'});
+      await repo.startDiseaseScreening('rop');
+      await repo.endAssessmentSession(); // Home / Exit: unfinished
+      await repo.endAssessmentSession(); // nothing left to close
+      expect(queue.currentSessionId, isNull);
+      final second = await repo.startAssessmentSession({'hypoglycemia'});
+      expect(second, isNot(first));
+      await settle();
+
+      Object? body(String method, String path) => adapter.requests
+          .firstWhere((r) => r.$1 == method && r.$2 == path)
+          .$3;
+      final created = body('POST', '/sessions') as Map;
+      expect(created['_id'], first);
+      expect(created['selectedConditions'], ['ancs', 'rop']);
+      final closes = [
+        for (final r in adapter.requests)
+          if (r.$1 == 'PATCH' && r.$2 == '/sessions/$first') r.$3 as Map,
+      ];
+      expect(closes, hasLength(1), reason: 'closed exactly once');
+      expect(closes.single.keys, unorderedEquals(['status', 'endedAt']));
+      expect(closes.single['status'], 'abandoned');
+      expect(
+        adapter.requests.where((r) =>
+            r.$1 == 'PATCH' && r.$2.endsWith('/status') &&
+            (r.$3 as Map)['status'] == 'abandoned'),
+        hasLength(1),
+        reason: 'the unfinished ROP screening',
+      );
+    });
+
+    test('completing every screening completes the session', () async {
+      final repo = ScreeningSyncRepository(queue: queue);
+      final session = await repo.startAssessmentSession({'rop'});
+      await repo.startDiseaseScreening('rop');
+      await repo.completeScreening('rop');
+      await repo.endAssessmentSession(); // must not overwrite the end time
+      await settle();
+
+      final closes = [
+        for (final r in adapter.requests)
+          if (r.$1 == 'PATCH' && r.$2 == '/sessions/$session') r.$3 as Map,
+      ];
+      expect(closes, hasLength(1));
+      expect(closes.single['status'], 'completed');
+    });
+
     test('a rejected item is dropped and later items still sync', () async {
       adapter.statusFor = (path) => path.contains('/bad/') ? 400 : 200;
       await enqueueStatus('bad');
@@ -285,6 +335,9 @@ void main() {
 /// fail as a network error so items stay queued.
 class _FakeAdapter implements HttpClientAdapter {
   final List<String> paths = [];
+
+  /// (method, path, body) of every request sent.
+  final List<(String, String, Object?)> requests = [];
   int Function(String path) statusFor = (_) => 200;
   bool hold = false;
   bool inFlight = false;
@@ -304,6 +357,7 @@ class _FakeAdapter implements HttpClientAdapter {
     inFlight = true;
     try {
       paths.add(options.path);
+      requests.add((options.method, options.path, options.data));
       return ResponseBody.fromString(
         '{}',
         statusFor(options.path),

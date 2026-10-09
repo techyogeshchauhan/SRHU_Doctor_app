@@ -1,3 +1,4 @@
+import '../answering/stw_answer.dart';
 import 'stw_chunk.dart';
 
 /// A message in the STW Clinical Chatbot interface.
@@ -10,6 +11,9 @@ class ChatMessage {
   final bool isNotCovered;
   final String? missingNotice;
 
+  /// Understood answer: verbatim lines, ask-back options or not covered.
+  final StwAnswer? answer;
+
   const ChatMessage({
     required this.id,
     required this.isUser,
@@ -18,6 +22,7 @@ class ChatMessage {
     this.searchResult,
     this.isNotCovered = false,
     this.missingNotice,
+    this.answer,
   });
 
   /// Creates a user message.
@@ -63,6 +68,28 @@ class ChatMessage {
       text: 'This information is not covered in the approved STW documents.',
       timestamp: timestamp ?? DateTime.now(),
       isNotCovered: true,
+    );
+  }
+
+  /// Creates a bot message from an [StwAnswer].
+  factory ChatMessage.fromAnswer(
+    StwAnswer answer, {
+    String? id,
+    DateTime? timestamp,
+  }) {
+    final text = switch (answer.kind) {
+      AnswerKind.answer => answer.lines.map((l) => l.display).join('\n'),
+      AnswerKind.clarify => answer.prompt ?? 'Which of these do you mean?',
+      AnswerKind.notCovered =>
+        'This information is not covered in the approved STW documents.',
+    };
+    return ChatMessage(
+      id: id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+      isUser: false,
+      text: text,
+      timestamp: timestamp ?? DateTime.now(),
+      isNotCovered: answer.kind == AnswerKind.notCovered,
+      answer: answer,
     );
   }
 }

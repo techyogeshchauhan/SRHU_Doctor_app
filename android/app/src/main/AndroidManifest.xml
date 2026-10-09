@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Release builds need this to sync screenings and chat logs to the API
+         (debug/profile manifests declare it only for development). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="SRHU STW"
         android:name="${applicationName}"

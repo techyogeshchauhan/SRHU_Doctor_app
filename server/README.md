@@ -15,7 +15,7 @@ Credentials and connection strings are **never logged**, printed, or committed t
 ### Required Environment Variables (`server/.env`)
 
 ```env
-MONGODB_USERNAME=srhutechforge_db_user
+MONGODB_USERNAME=<db-user>
 MONGODB_PASSWORD=<your_password>
 MONGODB_HOST=cluster0.xxxxx.mongodb.net
 MONGODB_OPTIONS=retryWrites=true&w=majority
@@ -55,7 +55,7 @@ cp .env.example .env
 
 Edit `.env` with your Atlas credentials:
 ```env
-MONGODB_USERNAME=srhutechforge_db_user
+MONGODB_USERNAME=<db-user>
 MONGODB_PASSWORD=<your_password>
 MONGODB_HOST=cluster0.xxxxx.mongodb.net
 MONGODB_OPTIONS=retryWrites=true&w=majority
@@ -96,7 +96,7 @@ npm run check-secrets
 2. **Create Database User**:
    - Under **Security** -> **Database Access**, click **Add New Database User**.
    - Authentication Method: **Password**.
-   - Username: e.g. `srhutechforge_db_user`.
+   - Username: e.g. `<db-user>`.
    - Password: generate a strong password and save it securely.
    - Database User Privileges: Select **Built-in Role** -> **Read and write to any database** (or restrict to `stw_neo`).
    - Click **Add User**.
