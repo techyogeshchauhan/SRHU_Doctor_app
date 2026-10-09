@@ -169,7 +169,7 @@ a project file.
 | `DB_NAME` | `stw_neo` |
 | `API_KEYS` | Random write key(s); the same key is `API_KEY` in `build.env` |
 | `EXPORT_API_KEY` | Random read-only key for `/export` (research), different from `API_KEYS` |
-| `ALLOWED_ORIGINS` | Website origin(s), e.g. `https://stw.example.org` (the APK needs none) |
+| `ALLOWED_ORIGINS` | `https://stwneo.epulse.in` (+ `http://localhost:8080` for local testing; the APK needs none) |
 | `TRUST_PROXY` | `1` behind nginx |
 | `PORT` | `4000` |
 
@@ -217,22 +217,25 @@ WantedBy=multi-user.target
 sudo systemctl enable --now stwneo-api
 ```
 
-nginx + HTTPS for `api.<domain>` (then `sudo certbot --nginx -d api.<domain>`):
+The website and the API share one domain, `stwneo.epulse.in`: the site at
+`/`, the API at `/api` (one certificate, no cross-origin requests). Add this
+block inside the site's existing `server { … }` in nginx, above
+`location /`:
 
 ```nginx
-server {
-  server_name api.example.org;
-  location / {
-    proxy_pass http://127.0.0.1:4000;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
+location /api/ {
+  proxy_pass http://127.0.0.1:4000/;     # trailing slash strips /api
+  proxy_set_header Host $host;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
 
-Check: `curl https://api.<domain>/health` returns `"db":"connected"`. Then
-set `API_BASE_URL=https://api.<domain>` in `build.env` and build the apps.
+Keep port 4000 closed to the internet (`ufw allow OpenSSH && ufw allow 'Nginx Full' && ufw enable`).
+
+Check: `curl https://stwneo.epulse.in/api/health` returns `"db":"connected"`.
+`build.env` has `API_BASE_URL=https://stwneo.epulse.in/api`; local
+`flutter run` uses `dev.env` (`http://localhost:4000`) instead.
 
 Update later: `cd /opt/stwneo-api && git pull && cd server && npm ci --omit=dev && sudo systemctl restart stwneo-api`.
 
