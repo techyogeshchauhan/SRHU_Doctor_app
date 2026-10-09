@@ -9,8 +9,8 @@ async function bootstrap() {
 
     const app = createApp();
 
-    const server = app.listen(config.port, () => {
-      console.log(`[Server] REST API listening on port ${config.port}`);
+    const server = app.listen(config.port, config.host, () => {
+      console.log(`[Server] REST API listening on ${config.host ?? 'all interfaces'}, port ${config.port}`);
       console.log(`[Server] Health check available at http://localhost:${config.port}/health`);
     });
 

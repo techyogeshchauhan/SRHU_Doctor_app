@@ -1,0 +1,40 @@
+# STW Neo API — systemd unit for a SHARED server.
+# Isolated from the other sites: own system user (stwneo), own Node.js under
+# /opt/stwneo/node (the system Node is not used or changed), listens on
+# 127.0.0.1 only (HOST in .env), capped memory/CPU so it can never starve
+# the other services.
+#
+# Install: cp /opt/stwneo/api/server/deploy/stwneo-api.service /etc/systemd/system/
+#          systemctl daemon-reload && systemctl enable --now stwneo-api
+
+[Unit]
+Description=STW Neo API (stwneo.epulse.in/api)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=stwneo
+Group=stwneo
+WorkingDirectory=/opt/stwneo/api/server
+Environment=NODE_ENV=production
+ExecStart=/opt/stwneo/node/bin/node src/server.js
+Restart=on-failure
+RestartSec=5
+
+# Resource limits: protect the other sites on this server.
+MemoryMax=400M
+CPUQuota=50%
+TasksMax=64
+
+# Hardening: the service can only read its own folder.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/stwneo
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target

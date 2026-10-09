@@ -182,62 +182,112 @@ Check the connection (read-only, prints no credentials or data):
 node server\scripts\check-db.js
 ```
 
-### Deploy on the VPS
+### Deploy on the VPS (shared server)
 
-The server only needs `server/`: clone the private repository with a sparse
-checkout so `git pull` fetches nothing else.
+The server (`187.127.178.185`) also hosts other critical sites. Everything
+below stays inside our own paths and never touches theirs:
 
-```bash
-git clone --filter=blob:none --no-checkout git@github.com:techyogeshchauhan/SRHU_Doctor_app.git /opt/stwneo-api
-cd /opt/stwneo-api && git sparse-checkout set server && git checkout main
-cd server && npm ci --omit=dev
-# copy server/.env here (scp), then:
-chmod 600 .env
-```
+| Ours (created or changed) | Never touched |
+| --- | --- |
+| `/opt/stwneo/` (API, its own Node.js, deploy key) | System Node.js, apt packages |
+| `/var/www/neonatal-stw-web` (site files, as today) | Other `/var/www/*` folders |
+| nginx file for `stwneo.epulse.in` only | Other nginx files, `default` |
+| `stwneo` system user, `stwneo-api` service | Other users, services, ports, firewall |
 
-Run it as a service (`/etc/systemd/system/stwneo-api.service`):
+The only shared action is `systemctl reload nginx`, run after `nginx -t`
+passes: a reload is graceful, so no site goes offline, and a failing test
+changes nothing.
 
-```ini
-[Unit]
-Description=STW Neo API
-After=network.target
+Files used: `server/deploy/stwneo-api.service`,
+`server/deploy/nginx-stwneo.epulse.in.conf`.
 
-[Service]
-WorkingDirectory=/opt/stwneo-api/server
-Environment=NODE_ENV=production
-ExecStart=/usr/bin/node src/server.js
-Restart=always
-User=www-data
-
-[Install]
-WantedBy=multi-user.target
-```
+**1. Read-only checks (change nothing).**
 
 ```bash
-sudo systemctl enable --now stwneo-api
+grep -ls "stwneo.epulse.in" /etc/nginx/sites-available/* /etc/nginx/conf.d/* 2>/dev/null   # our nginx file
+ss -ltnp | grep -E ':4000\b' || echo "port 4000 free"
+systemctl list-unit-files | grep -i stwneo || echo "no stwneo service yet"
+id stwneo 2>/dev/null || echo "no stwneo user yet"
+git -C /var/www/neonatal-stw-web remote -v
+uname -m && git --version
+for h in mybharat.io admin.mybharat.io booth.mybharat.io campus.mybharat.io insta.mybharat.io whatsapp.mybharat.io youtube.mybharat.io sst.ved.bio stwneo.epulse.in; do
+  printf "%-24s %s\n" "$h" "$(curl -s -o /dev/null -w '%{http_code}' https://$h/)"; done > /root/sites-before.txt; cat /root/sites-before.txt
 ```
 
-The website and the API share one domain, `stwneo.epulse.in`: the site at
-`/`, the API at `/api` (one certificate, no cross-origin requests). Add this
-block inside the site's existing `server { … }` in nginx, above
-`location /`:
+If port 4000 is taken, use a free port in `.env` (`PORT=`) and in the nginx
+file's `proxy_pass`.
 
-```nginx
-location /api/ {
-  proxy_pass http://127.0.0.1:4000/;     # trailing slash strips /api
-  proxy_set_header Host $host;
-  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  proxy_set_header X-Forwarded-Proto $scheme;
-}
+**2. Own user, folders and Node.js** (system Node is not used):
+
+```bash
+useradd --system --home /opt/stwneo --shell /usr/sbin/nologin stwneo
+mkdir -p /opt/stwneo/keys
+curl -fsSL https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz -o /tmp/stwneo-node.tar.xz
+mkdir -p /opt/stwneo/node && tar -xJf /tmp/stwneo-node.tar.xz -C /opt/stwneo/node --strip-components=1 && rm /tmp/stwneo-node.tar.xz
+/opt/stwneo/node/bin/node -v
 ```
 
-Keep port 4000 closed to the internet (`ufw allow OpenSSH && ufw allow 'Nginx Full' && ufw enable`).
+**3. Read-only deploy key for the API repo** (kept in `/opt/stwneo/keys`;
+root's SSH config is not changed):
 
-Check: `curl https://stwneo.epulse.in/api/health` returns `"db":"connected"`.
-`build.env` has `API_BASE_URL=https://stwneo.epulse.in/api`; local
-`flutter run` uses `dev.env` (`http://localhost:4000`) instead.
+```bash
+ssh-keygen -t ed25519 -f /opt/stwneo/keys/api -N "" -C "stwneo-api@srv1970015"
+cat /opt/stwneo/keys/api.pub   # GitHub > SRHU_Doctor_app > Settings > Deploy keys > Add (read-only)
+```
 
-Update later: `cd /opt/stwneo-api && git pull && cd server && npm ci --omit=dev && sudo systemctl restart stwneo-api`.
+**4. API code** (`server/` only, sparse checkout):
+
+```bash
+export GIT_SSH_COMMAND="ssh -i /opt/stwneo/keys/api -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+git clone --filter=blob:none --no-checkout git@github.com:techyogeshchauhan/SRHU_Doctor_app.git /opt/stwneo/api
+cd /opt/stwneo/api && git config core.sshCommand "$GIT_SSH_COMMAND"
+git sparse-checkout set server && git checkout main
+cd server && PATH=/opt/stwneo/node/bin:$PATH npm ci --omit=dev
+```
+
+**5. Settings.** From the PC: `scp server\.env root@187.127.178.185:/opt/stwneo/api/server/.env`. Then:
+
+```bash
+printf '\nHOST=127.0.0.1\nTRUST_PROXY=1\n' >> /opt/stwneo/api/server/.env
+chown -R stwneo:stwneo /opt/stwneo && chmod 600 /opt/stwneo/api/server/.env /opt/stwneo/keys/api
+```
+
+**6. Start the API:**
+
+```bash
+cp /opt/stwneo/api/server/deploy/stwneo-api.service /etc/systemd/system/
+systemctl daemon-reload && systemctl enable --now stwneo-api
+sleep 3; curl -s http://127.0.0.1:4000/health      # "db":"connected"
+ss -ltnp | grep ':4000'                            # must show 127.0.0.1:4000, not 0.0.0.0
+```
+
+**7. nginx (our file only).** Replace `<OUR_FILE>` with the path from step 1:
+
+```bash
+cp <OUR_FILE> /root/stwneo-nginx.backup
+cp /opt/stwneo/api/server/deploy/nginx-stwneo.epulse.in.conf <OUR_FILE>
+nginx -t && systemctl reload nginx || { cp /root/stwneo-nginx.backup <OUR_FILE>; echo "nginx test failed: restored, nothing reloaded"; }
+```
+
+**8. Website.** On the PC: `scripts\deploy_web.ps1`. On the server:
+`git -C /var/www/neonatal-stw-web pull` (as before).
+
+**9. Verify, including the other sites:**
+
+```bash
+curl -s https://stwneo.epulse.in/api/health                       # "db":"connected"
+curl -s -o /dev/null -w '%{http_code}\n' https://stwneo.epulse.in/.git/HEAD   # 403
+for h in $(cut -d' ' -f1 /root/sites-before.txt); do
+  printf "%-24s %s\n" "$h" "$(curl -s -o /dev/null -w '%{http_code}' https://$h/)"; done > /root/sites-after.txt
+diff /root/sites-before.txt /root/sites-after.txt && echo "other sites unchanged"
+```
+
+**Rollback** (ours only): `cp /root/stwneo-nginx.backup <OUR_FILE> && nginx -t && systemctl reload nginx`;
+`systemctl disable --now stwneo-api`.
+
+**Update the API later:**
+`cd /opt/stwneo/api && sudo -u stwneo git pull && cd server && sudo -u stwneo env PATH=/opt/stwneo/node/bin:$PATH npm ci --omit=dev && systemctl restart stwneo-api`
+(`git pull` runs as `stwneo`, which owns the checkout and the key).
 
 ### End-to-end test against Atlas
 

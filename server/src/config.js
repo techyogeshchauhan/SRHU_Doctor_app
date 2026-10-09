@@ -62,6 +62,9 @@ function keysFrom(value, devDefault, name) {
 
 export const config = {
   port: parseInt(process.env.PORT || '4000', 10),
+  // Interface to listen on. 127.0.0.1 on a shared server: reachable only
+  // through nginx, never directly from the internet. Unset: all interfaces.
+  host: process.env.HOST?.trim() || undefined,
   dbName: process.env.DB_NAME?.trim() || 'stw_neo',
   apiKeys: keysFrom(process.env.API_KEYS, 'stw_dev_client_key_12345', 'API_KEYS'),
   exportApiKey: keysFrom(
