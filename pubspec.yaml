@@ -59,6 +59,7 @@ flutter:
     - assets/pages/Neonatal_Hypoglycemia_8th_Oct.pdf/
     - assets/regions/
     - assets/regions/crops/
+    - assets/knowledge_graph/
 
   fonts:
     - family: Poppins

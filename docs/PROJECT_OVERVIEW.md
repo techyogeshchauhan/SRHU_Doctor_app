@@ -99,6 +99,7 @@ Step by step (example: Respiratory Distress + ROP + Sepsis selected):
 | RD and ROP clinical rules and their workflow definitions | `features/rd/domain/`, `features/rop/domain/` |
 | Standalone RD and ROP tools (legacy, unlinked) | `features/rd/ui/`, `features/rop/ui/` |
 | References screen and in-app PDF viewer (pdfx; pinch-zoom, share) | `features/references/ui/` |
+| Knowledge graph: "Why?" decision path per finding, Assessment map (see below) | `features/knowledge_graph/` |
 | STW text (disclaimer, DOs/DON'Ts, checklists, references) | `content/stw_content.dart` |
 | Responsive shell, phone column, max-width helpers | `core/widgets/responsive.dart` |
 | Theme, colours (`Tone`), typography (Poppins, Inter) | `core/theme.dart` |
@@ -140,6 +141,8 @@ feature/
 | `/references` | `ReferencesScreen` | Home footer, Home card "View source PDFs →" |
 | `/pdf-viewer` | `PdfViewerScreen` (`extra: {path, title}`) | References → View PDF |
 | `/about` | `AboutScreen` | – |
+| `/stw-map` | `StwMapScreen` (STW Map; `?focus=<box id or topic>`, `?ref=<MCQ citation>`, `?file=<PDF file>`) | Condition selection app bar, References cards, chatbot answers, MCQ explanations |
+| `/assessment-map` | `AssessmentMapScreen` (knowledge graph of the current assessment) | Summary → **Assessment map**; Findings so far → **Map** |
 | `/rd`, `/rop`, `/rop/reference` | Standalone RD/ROP tools | **Not linked** (kept; covered by tests) |
 
 `MaterialApp.router(builder: …)` wraps everything in `AppShell`, which gives wide windows a centred 1024 px column.
@@ -165,6 +168,72 @@ ClinicalAssessmentContext (answers, variables, findings, completed, today)
 WorkflowScreen: current page = first group with an unconfirmed applicable question
                  → none left → AssessmentSummaryView (CombinedAssessmentSummary)
 ```
+
+### Knowledge graph (`features/knowledge_graph/`)
+
+Explains *why* each finding appeared, as a step-by-step reasoning tree built from the workflow definitions at run time. It adds no clinical content and draws no conclusions of its own, and nothing is stored.
+
+```
+START CPAP  (finding: the main node)              → View in STW PDF: §1.5 Algorithm box
+ ├─ Respiratory distress criteria met (earlier finding)   → §1.1 box
+ │   └─ Signs of RD present: Chest retractions  ✓ includes Chest retractions
+ │       └─ Your answer: Signs present
+ ├─ Gestation group: GA ≤34 weeks (computed)              → ALGORITHM box
+ │   └─ Your answers: GA known · GA 32 weeks  (shared RD + ROP)
+ ├─ SAS total: 5 (computed)                               → SAS box
+ │   └─ Your answers: the 5 SAS items
+ └─ Your answer: Other findings: None
+```
+
+- **Where:** **Why?** on any finding card opens **Assessment map** (`/assessment-map?focus=<rule id>`); the Summary and Findings so far also link to it.
+  - **Graph view** shows one finding at a time (the **Showing finding** picker switches it) as a node graph, top to bottom: **Based on** group (inputs, computed values, earlier findings) → **STW rule** (its checks, e.g. `Blood glucose 40 mg/dL: < 45 mg/dL`) → **Finding** (with its first STW action) → **STW box** and the findings that follow. Nodes are coloured Input / Computed / STW rule / Finding / STW box (legend at the top).
+  - A **+N** badge opens what that node is based on as a new group above it, one per level, so arrows (routed through the gaps between columns) never cross. Zoom −/+ and reset sit at the bottom.
+  - Tapping a node opens **Node details**: your value, threshold and result; the source (document, section, page) with **Open in PDF (highlighted)**; the box's **text in the STW PDF**, verbatim from `regions.json` (no generated explanation); and related nodes (based on, used for, findings it leads to; a finding there switches the graph to it).
+  - **List view** keeps the step-by-step list (`ReasonTree`), with answers shared by several topics first.
+- **Every node links to its source:** Open in PDF (and tapping a box in List view) opens the STW PDF scrolled to its box, highlighted (`openStwRegion`, the same as the chatbot).
+  - ANCS and Hypoglycemia sources name their box (`regionId`).
+  - RD and ROP sources cite spec sections. `clinical_workflow/domain/stw_section_regions.dart` maps each cited section to its PDF box, through `SourceReference.pdfRegionId`; the finding cards' **View PDF** now uses it too.
+  - The few sources that are not in the STW PDF (SNCU ROP record form) are listed in `sectionsOutsideStwPdf` and shown as such.
+- **How it is built** (`domain/`, pure Dart):
+  - `ReasoningBuilder` reads each rule's condition (`cond_introspection.dart`) and replays the variables and finding text through a `TracingReader` to find what they read. The engine is not changed.
+  - Computed values appear as their own step only when listed in `explained_values.dart`, with the STW box that defines them (e.g. Gestation group, SAS total, Eligible for ROP screening). Every other engine value is skipped, and its answers show directly.
+  - A threshold the rule compares directly appears as a **Rule check** (e.g. `< 45 mg/dL`).
+  - A shared answer cites the STW of the finding it explains: GA under an RD finding cites the RD algorithm; under an ROP finding, "Whom to screen".
+- **Tests** (`test/knowledge_graph_test.dart`): every clinical question, rule and computed step of all four workflows opens an existing box in its own STW's PDF, and every label in the tree comes from the workflow (finding title, question text or a listed STW value name).
+
+### STW Map (`features/knowledge_graph/`, Phase 2)
+
+What the approved STWs contain and how they connect, without a patient:
+
+```
+STW (e.g. STW Hypoglycemia)
+ └─ PDF boxes, by their verbatim heading (WHOM TO SCREEN FOR HYPOGLYCEMIA, …)
+     ├─ questions the assessment asks from that box (shared ones marked RD+ROP)
+     ├─ findings its rules produce (fixed wording; others "worded from the answers")
+     └─ links to other STWs, with the exact words that state them
+```
+
+- **Screen:** `/stw-map`.
+  - **Graph view:** an animated bubble network (`ui/bubble_graph_view.dart`, model `domain/bubble_graph.dart`).
+    - Overview: one circle per STW, joined by labelled arrows ("refers to", "mentions", "shares answers"); dashed arrows are draft links.
+    - Tapping an STW moves it to the centre and springs its PDF boxes out around it; tapping a box fans out the questions ("asks"), findings ("produces") and links ("mentions") it drives. Tapping again collapses.
+    - The camera zooms to what is open, ring labels fade in as you zoom, and pinch/drag work as usual.
+    - A bottom card shows the selected bubble with **Expand/Collapse**, **Details** and **PDF** (highlighted box). **All STWs** returns to the overview.
+  - **Search & list:** search over box headings, box text and questions.
+  - Tapping any node opens its details: verbatim PDF text, **Open in PDF (highlighted)**, and related nodes.
+- **Entry points:**
+  - the STW Map icon in the condition selection app bar;
+  - **STW Map** on the References PDF cards;
+  - **Explore related in STW Map** under chatbot answers, which opens on the answer's box;
+  - **Explore in STW Map** under MCQ explanations, which opens on the box the citation names.
+- **Data:**
+  - `buildStwMap` (`domain/stw_map.dart`) uses the workflows (questions, rules, `SourceReference.pdfRegionId`) and `assets/regions/regions.json`.
+  - `assets/knowledge_graph/stw_map.json` adds two things: the verbatim heading of every box, and the cross-STW links, each with its exact quote and `approved` flag.
+  - Topics without an approved STW (e.g. Sepsis) appear only as "Awaiting STW", listing where other STWs mention them.
+- **Links between STWs are drafts** until a clinician approves them. See `docs/STW_MAP_LINKS_REVIEW.md`.
+- **Tests:**
+  - `test/stw_map_test.dart`: headings, context lines and link quotes are word-for-word in their PDF box; every box, rule and MCQ citation lands in the right STW.
+  - `test/stw_map_widget_test.dart`: the screens and the PDF highlight.
 
 ---
 

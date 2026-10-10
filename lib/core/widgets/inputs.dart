@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../theme.dart';
+
 /// Multi-select checkbox list over an enum or any value type.
 class CheckList<T> extends StatelessWidget {
   const CheckList({
@@ -49,6 +51,7 @@ class NumberField extends StatefulWidget {
     required this.max,
     this.suffix,
     this.helper,
+    this.rangeHint,
     this.enabled = true,
   });
 
@@ -59,6 +62,9 @@ class NumberField extends StatefulWidget {
   final int max;
   final String? suffix;
   final String? helper;
+
+  /// Expected range from the STW, shown as a small line under the field.
+  final String? rangeHint;
   final bool enabled;
 
   @override
@@ -97,7 +103,7 @@ class _NumberFieldState extends State<NumberField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    final field = TextField(
       controller: _controller,
       enabled: widget.enabled,
       keyboardType: TextInputType.number,
@@ -110,6 +116,38 @@ class _NumberFieldState extends State<NumberField> {
         errorText: _error,
       ),
       onChanged: _onChanged,
+    );
+    final hint = widget.rangeHint;
+    if (hint == null) return field;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        field,
+        Padding(
+          padding: const EdgeInsets.only(left: 12, top: 4, right: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 1, right: 6),
+                child: Icon(Icons.straighten_rounded,
+                    size: 14, color: AppTheme.primaryBlue),
+              ),
+              Expanded(
+                child: Text(
+                  hint,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    height: 1.35,
+                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

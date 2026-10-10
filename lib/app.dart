@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/theme.dart';
+import 'core/widgets/chat_launcher.dart';
 import 'core/widgets/responsive.dart';
 import 'features/chatbot/ui/chat_screen.dart';
 import 'features/clinical_workflow/ui/workflow_screen.dart';
@@ -10,6 +11,8 @@ import 'features/condition_selection/ui/condition_selection_screen.dart';
 import 'features/disease_selection/ui/disease_selection_screen.dart';
 import 'features/follow_up/ui/follow_up_screen.dart';
 import 'features/home/home_screen.dart';
+import 'features/knowledge_graph/ui/assessment_map_screen.dart';
+import 'features/knowledge_graph/ui/stw_map_screen.dart';
 import 'features/landing/ui/landing_screen.dart';
 import 'features/rd/ui/rd_screen.dart';
 import 'features/references/ui/pdf_viewer_screen.dart';
@@ -60,6 +63,20 @@ GoRouter buildRouter() => GoRouter(
           },
         ),
         GoRoute(path: '/workflow', builder: (_, __) => const WorkflowScreen()),
+        GoRoute(
+          path: '/stw-map',
+          builder: (_, state) => StwMapScreen(
+            focus: state.uri.queryParameters['focus'],
+            reference: state.uri.queryParameters['ref'],
+            file: state.uri.queryParameters['file'],
+          ),
+        ),
+        GoRoute(
+          path: '/assessment-map',
+          builder: (_, state) => AssessmentMapScreen(
+            focusFindingId: state.uri.queryParameters['focus'],
+          ),
+        ),
         GoRoute(
           path: '/follow-up-assessment',
           builder: (_, __) => const FollowUpScreen(),
@@ -133,8 +150,11 @@ class _NeonatalStwAppState extends State<NeonatalStwApp> {
       theme: AppTheme.light(),
       themeMode: ThemeMode.light,
       routerConfig: _router,
-      // Centred column on wide windows (desktop web, iPad landscape).
-      builder: (context, child) => AppShell(child: child!),
+      // Centred column on wide windows (desktop web, iPad landscape), with
+      // the floating chatbot button on every screen.
+      builder: (context, child) => AppShell(
+        child: ChatLauncher(router: _router, child: child!),
+      ),
     );
   }
 }

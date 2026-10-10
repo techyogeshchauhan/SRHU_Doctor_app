@@ -133,7 +133,8 @@ const qAncsGaWeeks = ClinicalQuestion(
   min: 20,
   max: 44,
   unit: 'weeks',
-  helper: 'Eligibility window: 24+0 to 33+6 weeks',
+  // WHEN TO GIVE box.
+  stwRange: 'STW: 24+0 to 33+6 weeks of gestation',
   sources: [_srcWhenToGive, _srcEligibility, _srcNotGive],
 );
 
@@ -217,7 +218,8 @@ final qAncsDaysSincePrevious = ClinicalQuestion(
   min: 0,
   max: 120,
   unit: 'days',
-  helper: 'Repeat course only if started ≥7 days earlier',
+  // WHEN TO GIVE REPEAT COURSE box.
+  stwRange: 'STW: the previous ACS course was started ≥7 days earlier',
   visibleWhen: const Var(ancsPreviousCourseKey).eq(AncsPreviousCourse.one.name),
   sources: const [_srcRepeat],
 );

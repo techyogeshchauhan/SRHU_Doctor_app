@@ -75,6 +75,7 @@ class QuestionField extends StatelessWidget {
           min: q.min ?? 0,
           max: q.max ?? 100000,
           helper: q.helper,
+          rangeHint: q.stwRange,
           onChanged: onChanged,
         ),
       QuestionType.text => TextFormField(

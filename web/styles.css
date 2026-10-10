@@ -138,8 +138,8 @@ html {
 }
 
 #splash img {
-  width: clamp(72px, 15vw, 96px);
-  height: clamp(72px, 15vw, 96px);
+  width: clamp(96px, 26vw, 128px);
+  height: clamp(96px, 26vw, 128px);
   border-radius: 22px;
   box-shadow: 0 6px 24px rgba(11, 42, 91, 0.12);
   object-fit: cover;

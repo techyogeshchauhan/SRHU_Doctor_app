@@ -54,7 +54,7 @@ void main() {
       await tapVisible(tester, find.text('Respiratory Distress in Neonates'));
       expect(find.text('Signs of respiratory distress'), findsOneWidget);
       await tapVisible(tester, find.byType(BackToHomeButton));
-      expect(find.text('TRIGIN'), findsOneWidget);
+      expect(find.text('Triaging'), findsOneWidget);
       expect(find.text(conditionExitAlertMessage), findsNothing);
     });
 
@@ -127,7 +127,7 @@ void main() {
       await tapVisible(tester, find.text('Leave & Reset'));
 
       // Returns to main condition selection page
-      expect(find.text('TRIGIN'), findsOneWidget);
+      expect(find.text('Triaging'), findsOneWidget);
     });
 
     testWidgets(
@@ -243,7 +243,7 @@ void main() {
 
       // Tap Leave & Reset -> clears data and navigates to Home (condition selection)
       await tapVisible(tester, find.text('Leave & Reset'));
-      expect(find.text('TRIGIN'), findsOneWidget);
+      expect(find.text('Triaging'), findsOneWidget);
     });
 
     testWidgets(

@@ -34,9 +34,9 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
 }
 
 void main() {
-  testWidgets('home shows the condition selection list with TRIGIN heading', (tester) async {
+  testWidgets('home shows the condition selection list with Triaging heading', (tester) async {
     await _pumpApp(tester);
-    expect(find.text('TRIGIN'), findsOneWidget);
+    expect(find.text('Triaging'), findsOneWidget);
     expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
     expect(find.text('Select any condition.'), findsOneWidget);
     expect(find.text('STW Respiratory Distress'), findsOneWidget);
@@ -158,7 +158,7 @@ void main() {
 
     // Tap Continue to navigate to Home
     await _tap(tester, find.text('Continue'));
-    expect(find.text('TRIGIN'), findsOneWidget);
+    expect(find.text('Triaging'), findsOneWidget);
     expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
     expect(find.text('Select any condition.'), findsOneWidget);
 
@@ -172,7 +172,7 @@ void main() {
 
     // Open Home via Home icon in RD screen
     await _tap(tester, find.byIcon(Icons.home_rounded));
-    expect(find.text('TRIGIN'), findsOneWidget);
+    expect(find.text('Triaging'), findsOneWidget);
     expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
   });
 
@@ -182,13 +182,13 @@ void main() {
     expect(find.text('Continue'), findsOneWidget);
 
     await _tap(tester, find.text('Continue'));
-    expect(find.text('TRIGIN'), findsOneWidget);
+    expect(find.text('Triaging'), findsOneWidget);
     expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
     expect(find.text('Select any condition.'), findsOneWidget);
     await openStandaloneModule(tester, '/rd');
     expect(find.text('Signs of respiratory distress'), findsOneWidget);
     await _tap(tester, find.byIcon(Icons.home_rounded));
-    expect(find.text('TRIGIN'), findsOneWidget);
+    expect(find.text('Triaging'), findsOneWidget);
     expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
   });
 }

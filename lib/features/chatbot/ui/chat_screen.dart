@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../knowledge_graph/ui/stw_map_link.dart';
 import '../../references/ui/pdf_viewer_screen.dart';
 import '../domain/answering/stw_answer.dart';
 import '../domain/models/chat_message.dart';
@@ -574,6 +575,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       onPressed: () => _openInPdf(context, chunk),
                     ),
                   ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 0, 12, 4),
+                child: StwMapLinkButton(
+                  focus: chunk.chunkId,
+                  file: chunk.document,
+                  label: 'Explore related in STW Map',
                 ),
               ),
               if (condition != null && answer?.caseSummary != null)

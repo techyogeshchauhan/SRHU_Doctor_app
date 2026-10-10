@@ -34,7 +34,7 @@ void main() {
     );
 
     // 2. Main Heading as specified
-    expect(find.text('TRIGIN'), findsOneWidget);
+    expect(find.text('Triaging'), findsOneWidget);
     expect(
       find.text('Based on History and Clinical Examination.'),
       findsOneWidget,
@@ -159,7 +159,7 @@ void main() {
     await tapVisible(tester, find.byType(BackToHomeButton).first);
 
     // Back to main condition selection list with selection intact
-    expect(find.text('TRIGIN'), findsOneWidget);
+    expect(find.text('Triaging'), findsOneWidget);
     expect(
       find.text('Based on History and Clinical Examination.'),
       findsOneWidget,
@@ -211,7 +211,7 @@ void main() {
 
     // Back to Home button returns to condition selection
     await tapVisible(tester, find.byType(BackToHomeButton));
-    expect(find.text('TRIGIN'), findsOneWidget);
+    expect(find.text('Triaging'), findsOneWidget);
     expect(
       find.text('Based on History and Clinical Examination.'),
       findsOneWidget,

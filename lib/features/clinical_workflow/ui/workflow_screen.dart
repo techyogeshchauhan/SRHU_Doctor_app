@@ -408,9 +408,21 @@ class WorkflowScreen extends ConsumerWidget {
               controller: controller,
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               children: [
-                Text(
-                  'Findings so far',
-                  style: Theme.of(context).textTheme.titleMedium,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Findings so far',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    if (findings.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: () => context.push('/assessment-map'),
+                        icon: const Icon(Icons.account_tree_outlined, size: 18),
+                        label: const Text('Map'),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 if (findings.isEmpty)

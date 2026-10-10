@@ -4,6 +4,8 @@
 /// extraction of the two ICMR/DHR STW PDFs bundled in `assets/pdfs/`.
 library;
 
+import 'stw_section_regions.dart';
+
 const rdStwDocument = 'Respiratory Distress in Neonates';
 const ropStwDocument = 'Retinopathy of Prematurity (ROP)';
 const ancsStwDocument = 'Antenatal Corticosteroids for Preterm Birth';
@@ -85,6 +87,11 @@ class SourceReference {
   /// Id of the box in `assets/regions/regions.json` this content comes from;
   /// "View in PDF" highlights it.
   final String? regionId;
+
+  /// Box to highlight in the STW PDF: [regionId], else the box of this
+  /// section from [stwSectionRegions]; null when there is none.
+  String? get pdfRegionId =>
+      regionId ?? stwSectionRegions['$document|$section'];
 
   bool get isClinical => document != 'App data entry';
 

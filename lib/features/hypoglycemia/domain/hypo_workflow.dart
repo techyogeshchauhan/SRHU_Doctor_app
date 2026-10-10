@@ -196,6 +196,10 @@ const qHypoBg = ClinicalQuestion(
   max: 600,
   unit: 'mg/dL',
   helper: 'Leave blank if not measured yet',
+  // Flowchart: BLOOD GLUCOSE <45 mg/dL; SYMPTOMATIC OR BG < 25 mg/dL;
+  // ASYMPTOMATIC & BG ≥25 mg/dL.
+  stwRange: 'STW: BG <45 mg/dL starts the flowchart · BG < 25 mg/dL or '
+      'symptomatic: IV bolus · BG ≥25 mg/dL and asymptomatic: feeding',
   sources: [_srcHowToMonitor, _srcSchedule],
 );
 
@@ -256,6 +260,9 @@ const qHypoRecheckBg = ClinicalQuestion(
   min: 0,
   max: 600,
   unit: 'mg/dL',
+  // RE-CHECK BG AFTER 1 HOUR box.
+  stwRange: 'STW: BG ≥ 45 mg/dL: continue feeds · '
+      'BG < 45 mg/dL: start IV glucose infusion',
   sources: [_srcRecheck1h],
 );
 
@@ -292,6 +299,9 @@ const qHypoGir = ClinicalQuestion(
   max: 20,
   unit: 'mg/kg/min',
   helper: 'GIR calculation: see the QR code in the STW PDF',
+  // Flowchart boxes: start GIR, increase GIR, stop IV fluids.
+  stwRange: 'STW: start at 6 mg/kg/min · increase by 2 mg/kg/min '
+      '(maximum 12 mg/kg/min) · stop IV when euglycemic on GIR 4 mg/kg/min',
   sources: [_srcSymptomatic, _srcIncreaseGir, _srcWean],
 );
 
@@ -303,6 +313,9 @@ const qHypoIvBg = ClinicalQuestion(
   min: 0,
   max: 600,
   unit: 'mg/dL',
+  // Re-check every 30 min box; BG < 45 mg/dL → increase GIR box.
+  stwRange: 'STW: until 2 consecutive values are ≥45 mg/dL · '
+      'BG < 45 mg/dL: increase GIR by 2 mg/kg/min',
   sources: [_srcRecheck30],
 );
 

@@ -70,6 +70,7 @@ class ClinicalQuestion {
     this.max,
     this.unit,
     this.helper,
+    this.stwRange,
     this.pastOnly = false,
   }) : variable = variable ?? id;
 
@@ -90,6 +91,11 @@ class ClinicalQuestion {
   final int? max;
   final String? unit;
   final String? helper;
+
+  /// Value range or thresholds for this input as printed in the STW PDF
+  /// (numbers, operators and units verbatim), shown under the input. Null
+  /// when the PDF gives none; [min]/[max] are only typing limits.
+  final String? stwRange;
 
   /// Date questions: no date after the assessment date (e.g. date of birth).
   final bool pastOnly;

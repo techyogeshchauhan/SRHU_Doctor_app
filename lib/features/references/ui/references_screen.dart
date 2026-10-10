@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
+import '../../knowledge_graph/ui/stw_map_link.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
@@ -71,6 +72,7 @@ class ReferencesScreen extends StatelessWidget {
                 subtitle: rdSubtitle,
                 accentColor: AppTheme.accentRd,
                 semanticsLabel: 'Open Respiratory Distress STW PDF',
+                mapFocus: 'respiratoryDistress',
                 onViewPdf: () => _openPdf(
                   context,
                   assetPath: rdAsset,
@@ -85,6 +87,7 @@ class ReferencesScreen extends StatelessWidget {
                 subtitle: ropSubtitle,
                 accentColor: AppTheme.accentRop,
                 semanticsLabel: 'Open Retinopathy of Prematurity STW PDF',
+                mapFocus: 'rop',
                 onViewPdf: () => _openPdf(
                   context,
                   assetPath: ropAsset,
@@ -225,7 +228,11 @@ class _PdfWorkflowCard extends StatelessWidget {
     required this.accentColor,
     required this.semanticsLabel,
     required this.onViewPdf,
+    this.mapFocus,
   });
+
+  /// Topic to open in the STW Map; null hides the button.
+  final String? mapFocus;
 
   final String title;
   final String subtitle;
@@ -286,26 +293,33 @@ class _PdfWorkflowCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 14),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Semantics(
-                button: true,
-                label: semanticsLabel,
-                child: FilledButton.icon(
-                  onPressed: onViewPdf,
-                  icon: const Icon(Icons.visibility_outlined, size: 18),
-                  label: const Text('View PDF'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: accentColor,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(120, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (mapFocus != null)
+                  Flexible(
+                    child: StwMapLinkButton(focus: mapFocus, label: 'STW Map'),
+                  ),
+                const SizedBox(width: 8),
+                Semantics(
+                  button: true,
+                  label: semanticsLabel,
+                  child: FilledButton.icon(
+                    onPressed: onViewPdf,
+                    icon: const Icon(Icons.visibility_outlined, size: 18),
+                    label: const Text('View PDF'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: accentColor,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(120, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),

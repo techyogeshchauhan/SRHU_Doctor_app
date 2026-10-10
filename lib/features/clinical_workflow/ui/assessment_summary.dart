@@ -36,7 +36,7 @@ class FindingCard extends StatelessWidget {
         .bodySmall
         ?.copyWith(color: const Color(0xFF475569));
     final pdf = stwPdfForDocument(f.source.document);
-    final regionId = f.source.regionId;
+    final regionId = f.source.pdfRegionId;
 
     return ResultCard(
       tone: toneFor(f.level),
@@ -51,6 +51,14 @@ class FindingCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text('Source: ${f.source.citation}', style: small),
+              ),
+              _FooterLink(
+                icon: Icons.account_tree_outlined,
+                label: 'Why?',
+                semanticLabel: 'Why this recommendation?',
+                onTap: () => context.push(
+                  '/assessment-map?focus=${Uri.encodeComponent(f.id)}',
+                ),
               ),
               if (pdf != null)
                 InkWell(
@@ -102,6 +110,51 @@ class FindingCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Small text link in a finding card footer.
+class _FooterLink extends StatelessWidget {
+  const _FooterLink({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.semanticLabel,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? semanticLabel;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: semanticLabel ?? label,
+        excludeSemantics: semanticLabel != null,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 13, color: AppTheme.primaryBlue),
+                const SizedBox(width: 3),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 }
 
 /// Combined assessment for all selected topics.
@@ -164,6 +217,19 @@ class AssessmentSummaryView extends ConsumerWidget {
             ],
           ),
         ),
+        if (ctx.findings.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: OutlinedButton.icon(
+              onPressed: () => context.push('/assessment-map'),
+              icon: const Icon(Icons.account_tree_outlined, size: 18),
+              label: const Text('Assessment map: how your answers led here'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTheme.primaryNavy,
+                minimumSize: const Size(0, 46),
+              ),
+            ),
+          ),
         for (final t in summary.topics) ...[
           Padding(
             padding: const EdgeInsets.only(top: 8, bottom: 4),
@@ -276,9 +342,7 @@ class AssessmentSummaryView extends ConsumerWidget {
                     const SizedBox(height: 12),
                     FilledButton.icon(
                       onPressed: () {
-                        ref
-                            .read(followUpProvider.notifier)
-                            .initForCondition(
+                        ref.read(followUpProvider.notifier).initForCondition(
                               conditionWithMcqs,
                               startImmediately: true,
                             );

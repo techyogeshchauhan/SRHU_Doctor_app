@@ -10,6 +10,7 @@ import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../knowledge_graph/ui/stw_map_link.dart';
 import '../data/disease_follow_up_registry.dart';
 import '../domain/follow_up_models.dart';
 import '../state/follow_up_controller.dart';
@@ -2393,6 +2394,7 @@ class _QuestionFeedbackCard extends StatelessWidget {
                       color: Color(0xFF475569),
                     ),
                   ),
+                  StwMapLinkButton(reference: question.stwReference),
                 ],
               ],
             ),
@@ -2643,6 +2645,7 @@ class _CaseFeedbackCard extends StatelessWidget {
                       color: Color(0xFF475569),
                     ),
                   ),
+                  StwMapLinkButton(reference: question.stwReference),
                 ],
               ],
             ),

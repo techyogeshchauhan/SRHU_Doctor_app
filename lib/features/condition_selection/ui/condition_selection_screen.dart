@@ -31,7 +31,7 @@ const _topicIcons = <NeonatalCondition, IconData>{
 /// The main condition-selection screen displayed after the landing page.
 ///
 /// Features:
-/// - Main Heading: “TRIGIN — Based on history and clinical examination.”
+/// - Main Heading: “Triaging — Based on history and clinical examination.”
 ///   Subtitle: "Select any condition."
 /// - Single unified view displaying all 14 conditions in the exact same format.
 /// - Checkboxes for conditions:
@@ -155,6 +155,12 @@ class ConditionSelectionScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.account_tree_outlined,
+                color: AppTheme.primaryNavy),
+            tooltip: 'STW Map',
+            onPressed: () => context.push('/stw-map'),
+          ),
+          IconButton(
             icon: const Icon(Icons.chat_bubble_outline_rounded, color: AppTheme.primaryNavy),
             tooltip: 'STW Clinical Assistant',
             onPressed: () => context.push('/chat'),
@@ -198,7 +204,7 @@ class ConditionSelectionScreen extends ConsumerWidget {
               children: [
                 // 1. Main Heading as specified by the user
                 const Text(
-                  'TRIGIN',
+                  'Triaging',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 22,

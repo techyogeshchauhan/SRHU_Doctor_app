@@ -1,0 +1,197 @@
+{
+  "about": "STW Map data. Box headings, contexts and link quotes are copied verbatim from the bundled STW PDFs (assets/regions/regions.json); test/stw_map_test.dart checks every one. Links between STWs are drafts until a clinician sets \"approved\": true.",
+  "headings": {
+    "rd_diagnostic_criteria": "RESPIRATORY DISTRESS",
+    "rd_immediate_actions": "IMMEDIATE ACTIONS",
+    "rd_algorithm_overview": "ALGORITHM",
+    "rd_initial_preterm_cpap_caffeine": "START CPAP",
+    "rd_initial_term_moderate_severe_cpap": "START CPAP",
+    "rd_reassessment_sepsis": "REASSESS FREQUENTLY",
+    "rd_initial_term_mild_nasal_o2": "NASAL-PRONG OXYGEN 0.5–1 L/min",
+    "rd_outcome_improving_weaning": "Wean FiO₂ first to 0.21",
+    "rd_surfactant_indication": "SURFACTANT",
+    "rd_outcome_not_improving_optimize_cpap": "OPTIMIZE CPAP",
+    "rd_cpap_failure_referral": "CPAP FAILURE",
+    "rd_clinical_dos": "DOs",
+    "rd_clinical_donts": "DON’Ts",
+    "rd_kpis": "Timely CPAP initiation (%)",
+    "rd_sas_scoring_guide": "SILVERMAN ANDERSEN SCORE (SAS)",
+    "rd_improving": "IMPROVING",
+    "rd_not_improving": "NOT IMPROVING/WORSENING",
+    "rd_abbreviations": "ABBREVIATIONS",
+    "rop_whom_to_screen": "WHOM TO SCREEN",
+    "rop_how_to_arrange": "HOW TO ARRANGE SCREENING",
+    "rop_treatment_indications": "TREATMENT INDICATIONS",
+    "rop_when_to_screen": "WHEN TO SCREEN",
+    "rop_prepare_to_screen": "PREPARE TO SCREEN",
+    "rop_treatment_options": "TREATMENT OPTIONS",
+    "rop_how_to_screen": "HOW TO SCREEN",
+    "rop_when_to_stop": "WHEN TO STOP SCREENING",
+    "rop_prevention": "PREVENTION",
+    "rop_clinical_dos": "DOs",
+    "rop_clinical_donts": "DON’Ts",
+    "rop_kpis": "ROP screening coverage (%)",
+    "rop_key_clinical_message": "TIMELY ROP SCREENING SAVES SIGHT",
+    "rop_introduction": "ROP is a potentially blinding retinal vascular disorder of preterm infants.",
+    "rop_abbreviations": "ABBREVIATIONS",
+    "ancs_introduction": "INTRODUCTION",
+    "ancs_when_to_give": "WHEN TO GIVE",
+    "ancs_eligibility": "ELIGIBILITY CRITERIA",
+    "ancs_drug_dose": "DRUG & DOSE",
+    "ancs_when_not_to_give": "WHEN NOT TO GIVE",
+    "ancs_special_situations": "SPECIAL SITUATIONS",
+    "ancs_repeat_course": "WHEN TO GIVE REPEAT COURSE",
+    "ancs_documentation": "DOCUMENTATION",
+    "ancs_referral": "REFERRAL/TRANSFER",
+    "ancs_dos": "DOS",
+    "ancs_donts": "DONTS",
+    "ancs_kpis": "KEY PERFORMANCE INDICATORS (KPIs)",
+    "ancs_abbreviations": "ABBREVIATIONS",
+    "hypo_whom_to_screen": "WHOM TO SCREEN FOR HYPOGLYCEMIA",
+    "hypo_monitoring_schedule": "SCHEDULE OF BLOOD GLUCOSE MONITORING",
+    "hypo_how_to_monitor": "HOW TO MONITOR BLOOD GLUCOSE (BG)",
+    "hypo_flowchart_entry": "BLOOD GLUCOSE <45 mg/dL",
+    "hypo_symptoms": "LOOK FOR THE FOLLOWING SYMPTOMS AND SIGNS",
+    "hypo_asymptomatic_branch": "ASYMPTOMATIC & BG ≥25 mg/dL",
+    "hypo_recheck_1h": "RE-CHECK BG AFTER 1 HOUR",
+    "hypo_symptomatic_branch": "SYMPTOMATIC OR BG < 25 mg/dL",
+    "hypo_recheck_30min": "Re-check BG every 30 min",
+    "hypo_increase_gir": "Increase GIR by 2 mg/ kg/min",
+    "hypo_persistent_refractory": "Consider ENDOCRINE/ METABOLIC disorders & REFER to higher centre",
+    "hypo_euglycemic_wean": "Euglycemic for 24 hours on IV fluids",
+    "hypo_stop_iv": "Stop IV fluids when",
+    "hypo_drugs_refractory": "DRUGS FOR REFRACTORY HYPOGLYCEMIA",
+    "hypo_prevention": "PREVENTION OF HYPOGLYCEMIA",
+    "hypo_practical_points": "PRACTICAL POINTS",
+    "hypo_dos": "DO’s",
+    "hypo_donts": "DON’Ts",
+    "hypo_kpis": "KEY PERFORMANCE INDICATORS (KPIs)",
+    "hypo_neuro_followup": "NEONATES WITH SYMPTOMATIC, SEVERE, RECURRENT OR PERSISTENT HYPOGLYCEMIA SHOULD RECEIVE"
+  },
+  "contexts": {
+    "rd_initial_preterm_cpap_caffeine": [
+      "GA ≤34 weeks",
+      "Any respiratory distress"
+    ],
+    "rd_initial_term_moderate_severe_cpap": [
+      "GA >34 weeks",
+      "Moderate-severe RD (SAS ≥4)"
+    ],
+    "rd_initial_term_mild_nasal_o2": [
+      "GA >34 weeks",
+      "Mild RD (SAS ≤3)"
+    ],
+    "rd_outcome_improving_weaning": [
+      "IMPROVING"
+    ],
+    "rd_outcome_not_improving_optimize_cpap": [
+      "NOT IMPROVING/WORSENING"
+    ]
+  },
+  "links": [
+    {
+      "id": "rd-sepsis",
+      "from": "rd_reassessment_sepsis",
+      "to": "sepsis",
+      "kind": "refersTo",
+      "quote": "Consider sepsis if perinatal risk factors, systemic illness, worsening distress or rising FiO₂ (see STW: Sepsis in Neonates)",
+      "approved": false
+    },
+    {
+      "id": "rd-thermal",
+      "from": "rd_immediate_actions",
+      "to": "thermalCare",
+      "kind": "mentions",
+      "quote": "Provide thermal care",
+      "approved": false
+    },
+    {
+      "id": "rd-feeds",
+      "from": "rd_immediate_actions",
+      "to": "fluidsAndFeeds",
+      "kind": "mentions",
+      "quote": "Feed enterally if stable",
+      "approved": false
+    },
+    {
+      "id": "rop-sepsis-risk",
+      "from": "rop_whom_to_screen",
+      "to": "sepsis",
+      "kind": "mentions",
+      "quote": "significant anemia, blood transfusion, sepsis, poor postnatal weight gain",
+      "approved": false
+    },
+    {
+      "id": "rop-ancs",
+      "from": "rop_prevention",
+      "to": "ancs",
+      "kind": "mentions",
+      "quote": "Antenatal corticosteroids for fetal lung maturation",
+      "approved": false
+    },
+    {
+      "id": "rop-sepsis-prevention",
+      "from": "rop_prevention",
+      "to": "sepsis",
+      "kind": "mentions",
+      "quote": "Prevent and promptly treat sepsis",
+      "approved": false
+    },
+    {
+      "id": "rop-discharge",
+      "from": "rop_clinical_dos",
+      "to": "dischargeAndFollowUp",
+      "kind": "mentions",
+      "quote": "Document the date and place of next screening in discharge card",
+      "approved": false
+    },
+    {
+      "id": "ancs-rd",
+      "from": "ancs_introduction",
+      "to": "respiratoryDistress",
+      "kind": "mentions",
+      "quote": "reduces neonatal mortality, incidence and severity of respiratory distress syndrome",
+      "approved": false
+    },
+    {
+      "id": "hypo-rd",
+      "from": "hypo_whom_to_screen",
+      "to": "respiratoryDistress",
+      "kind": "mentions",
+      "quote": "Sick neonates, including those with sepsis, shock, birth asphyxia, respiratory distress, polycythaemia, on IV fluids",
+      "approved": false
+    },
+    {
+      "id": "hypo-sepsis-screen",
+      "from": "hypo_whom_to_screen",
+      "to": "sepsis",
+      "kind": "mentions",
+      "quote": "Sick neonates, including those with sepsis, shock, birth asphyxia, respiratory distress, polycythaemia, on IV fluids",
+      "approved": false
+    },
+    {
+      "id": "hypo-sepsis-cause",
+      "from": "hypo_practical_points",
+      "to": "sepsis",
+      "kind": "mentions",
+      "quote": "Always search for an underlying cause – polycythemia, sepsis, meningitis, hypothermia, IUGR",
+      "approved": false
+    },
+    {
+      "id": "hypo-sepsis-donts",
+      "from": "hypo_donts",
+      "to": "sepsis",
+      "kind": "mentions",
+      "quote": "Do NOT give antibiotics for hypoglycemia unless sepsis is suspected",
+      "approved": false
+    },
+    {
+      "id": "hypo-thermal",
+      "from": "hypo_prevention",
+      "to": "thermalCare",
+      "kind": "mentions",
+      "quote": "Maintain normothermia",
+      "approved": false
+    }
+  ]
+}

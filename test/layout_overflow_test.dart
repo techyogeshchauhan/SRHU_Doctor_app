@@ -44,7 +44,7 @@ void main() {
       await _tap(tester, find.text('Continue'));
 
       // 2. Home Screen
-      expect(find.text('TRIGIN'), findsOneWidget);
+      expect(find.text('Triaging'), findsOneWidget);
       expect(
         find.text('Based on History and Clinical Examination.'),
         findsOneWidget,
@@ -68,7 +68,7 @@ void main() {
 
       // Return to home screen via Home icon
       await _tap(tester, find.byIcon(Icons.home_rounded));
-      expect(find.text('TRIGIN'), findsOneWidget);
+      expect(find.text('Triaging'), findsOneWidget);
       expect(
         find.text('Based on History and Clinical Examination.'),
         findsOneWidget,
@@ -101,7 +101,7 @@ void main() {
       if (find.text('Leave & Reset').evaluate().isNotEmpty) {
         await _tap(tester, find.text('Leave & Reset'));
       }
-      expect(find.text('TRIGIN'), findsOneWidget);
+      expect(find.text('Triaging'), findsOneWidget);
       expect(
         find.text('Based on History and Clinical Examination.'),
         findsOneWidget,

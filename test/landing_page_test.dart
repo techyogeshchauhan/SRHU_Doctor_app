@@ -49,7 +49,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // 2. Home Screen checks
-        expect(find.text('TRIGIN'), findsOneWidget);
+        expect(find.text('Triaging'), findsOneWidget);
         expect(
           find.text('Based on History and Clinical Examination.'),
           findsOneWidget,
@@ -115,7 +115,7 @@ void main() {
           await tester.pumpAndSettle();
 
           // Home screen fits
-          expect(find.text('TRIGIN'), findsOneWidget);
+          expect(find.text('Triaging'), findsOneWidget);
           expect(
             find.text('Based on History and Clinical Examination.'),
             findsOneWidget,
@@ -199,14 +199,14 @@ void main() {
     });
 
     testWidgets(
-        'Home layout adheres to TRIGIN heading, condition cards, and button rules',
+        'Home layout adheres to Triaging heading, condition cards, and button rules',
         (tester) async {
       await _pumpAppAt(tester, size: const Size(360, 640));
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
 
       // 1. Heading check
-      expect(find.text('TRIGIN'), findsOneWidget);
+      expect(find.text('Triaging'), findsOneWidget);
       expect(
         find.text('Based on History and Clinical Examination.'),
         findsOneWidget,
