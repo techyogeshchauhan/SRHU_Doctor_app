@@ -17,6 +17,42 @@ class RelatedLink {
   final String? url;
 }
 
+/// An STW whose PDF is bundled with the app. App text (not from the
+/// STWs): titles, ICD-11 codes and dates as printed on each PDF.
+class BundledStw {
+  const BundledStw(this.title, this.code, this.version, this.appliesTo);
+  final String title;
+
+  /// ICD-11 code printed on the PDF; null when the PDF gives none.
+  final String? code;
+  final String version;
+
+  /// Who the workflow assesses.
+  final String appliesTo;
+}
+
+const bundledStws = [
+  BundledStw('Respiratory Distress in Neonates', 'ICD-11 KB23',
+      'August 2026', 'newborn'),
+  BundledStw('Retinopathy of Prematurity (ROP)', 'ICD-11 9B71.3',
+      'August 2026', 'newborn'),
+  BundledStw('Antenatal Corticosteroids for Preterm Birth', null,
+      'August 2026', 'pregnant woman at risk of preterm birth'),
+  BundledStw('Neonatal Hypoglycemia', 'ICD-11 KB60.4', 'August 2026',
+      'newborn'),
+  BundledStw('Neonatal Emergency Triage Assessment and Management', null,
+      'July 2020', 'newborn'),
+  BundledStw('Kangaroo Mother Care', null, 'August 2026',
+      'preterm or low-birth-weight infant'),
+];
+
+/// App text shown under [stwDisclaimer].
+const stwDisclaimerNote =
+    'Each of these STWs carries this disclaimer. The Antenatal '
+    'Corticosteroids for Preterm Birth and Neonatal Hypoglycemia STWs direct '
+    'readers to the DHR portal (stw.icmr.org.in) for more information. The '
+    'app follows the STW PDFs as published; open them under References.';
+
 const stwDisclaimer =
     'This STW has been prepared by national experts of India with feasibility '
     'considerations for various levels of healthcare system in the country. '

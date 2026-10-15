@@ -37,6 +37,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     'CPAP failure and urgent referral',
     'ACS ka dose',
     'Symptoms of neonatal hypoglycemia',
+    'What are emergency signs in neonatal triage?',
+    'What actions are listed for priority signs?',
+    'How should the baby be positioned for KMC?',
+    'What should be monitored during KMC?',
   ];
 
   @override
@@ -218,7 +222,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ask clinical questions regarding Respiratory Distress in Neonates (RD), Retinopathy of Prematurity (ROP), Antenatal Corticosteroids (ANCS) or Neonatal Hypoglycemia. Answers are extracted directly from the approved STWs with visual PDF highlighting.',
+            'Ask clinical questions about Triage, Kangaroo Mother Care (KMC), Respiratory Distress in Neonates (RD), Retinopathy of Prematurity (ROP), Antenatal Corticosteroids (ANCS) or Neonatal Hypoglycemia. Answers are extracted directly from the approved STWs with visual PDF highlighting.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.black87,
               height: 1.4,
@@ -466,6 +470,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             ),
                             label: Text(
                               option.sectionTitle,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 12.5,
                                 color: AppTheme.primaryNavy,
@@ -618,6 +624,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         StwTopic.rop => NeonatalCondition.rop,
         StwTopic.ancs => NeonatalCondition.ancs,
         StwTopic.hypo => NeonatalCondition.hypoglycemia,
+        StwTopic.triage => NeonatalCondition.triage,
+        StwTopic.kmc => NeonatalCondition.kmc,
         null => null,
       };
 

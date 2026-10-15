@@ -33,6 +33,7 @@ const qGaKnown = ClinicalQuestion(
   sources: [
     SourceReference.rd('§1.3 Inputs: BW only if GA is uncertain'),
     SourceReference.rop('§2.1 Whom to screen'),
+    SourceReference.kmc('Start KMC eligibility'),
   ],
 );
 
@@ -48,6 +49,7 @@ final qGaWeeks = ClinicalQuestion(
   sources: const [
     SourceReference.rd('§1.5 Algorithm: GA ≤34 / >34 weeks'),
     SourceReference.rop('§2.1 Whom to screen; §2.2 When to screen'),
+    SourceReference.kmc('Start KMC eligibility'),
   ],
 );
 
@@ -77,6 +79,7 @@ const qBirthWeight = ClinicalQuestion(
   sources: [
     SourceReference.rd('§1.3 BW ≤1800 g as surrogate when GA uncertain'),
     SourceReference.rop('§2.1 Whom to screen; §2.2 When to screen'),
+    SourceReference.kmc('Start KMC eligibility'),
   ],
 );
 

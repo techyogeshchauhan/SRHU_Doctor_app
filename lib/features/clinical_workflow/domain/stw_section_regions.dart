@@ -1,12 +1,9 @@
-/// PDF box of each Respiratory Distress and ROP source section. Pure Dart.
+/// PDF box of each STW source section. Pure Dart.
 ///
-/// The ANCS and Hypoglycemia workflows name their box on each
-/// `SourceReference` (`regionId`). The RD and ROP workflows cite the
-/// section numbers of `docs/STW_APP_SPEC_FROM_PDFs.md` instead; this table
-/// maps each of those sections to the box of the bundled STW PDF that
-/// states it (`assets/regions/regions.json`), so "View in PDF" can
-/// highlight it. A section citing several parts maps to the box of the
-/// first part.
+/// Workflow references name the source section; this table maps each section
+/// to the box of the bundled PDF that states it (`assets/regions/regions.json`),
+/// so "View in PDF" can highlight it. A section citing several parts maps to
+/// the box of the first part.
 ///
 /// Keys are `document|section`, exactly as written in the workflow files;
 /// `test/knowledge_graph_test.dart` fails when a cited section is missing
@@ -17,6 +14,10 @@ import 'source_reference.dart';
 
 const _rd = rdStwDocument;
 const _rop = ropStwDocument;
+const _triage = triageStwDocument;
+const _kmc = kmcStwDocument;
+const _ancs = ancsStwDocument;
+const _hypo = hypoStwDocument;
 
 const Map<String, String> stwSectionRegions = {
   // Respiratory Distress in Neonates
@@ -85,6 +86,33 @@ const Map<String, String> stwSectionRegions = {
   '$_rop|§2.8 PMA = GA at birth + postnatal age': 'rop_when_to_stop',
   "$_rop|§2.10 DOs; §2.11 DON'Ts": 'rop_clinical_dos',
   "$_rop|§2.11 DON'Ts": 'rop_clinical_donts',
+  // Neonatal Emergency Triage Assessment and Management
+  '$_triage|Initial assessment': 'triage_initial_assessment',
+  '$_triage|Triage classification': 'triage_initial_assessment',
+  '$_triage|TREAT IMMEDIATELY': 'triage_emergency_actions',
+  '$_triage|ASSESS PROMPTLY AND ACT RAPIDLY': 'triage_priority_actions',
+  '$_triage|ASSESS AND COUNSEL': 'triage_nonurgent_actions',
+  '$_triage|SPECIFIC MANAGEMENT WORKFLOWS': 'triage_shock',
+  '$_triage|DOs': 'triage_dos',
+  "$_triage|DON'Ts": 'triage_donts',
+  '$_triage|KEY PERFORMANCE INDICATORS (KPIs)': 'triage_kpis',
+
+  // Kangaroo Mother Care
+  '$_kmc|Start KMC eligibility': 'kmc_eligibility',
+  '$_kmc|KANGAROO POSITION': 'kmc_position',
+  '$_kmc|KMC PROVIDER CAN BE': 'kmc_provider',
+  '$_kmc|KANGAROO NUTRITION': 'kmc_nutrition',
+  '$_kmc|KANGAROO DISCHARGE': 'kmc_discharge',
+  '$_kmc|ENSURE BEFORE STARTING KMC': 'kmc_before_starting',
+  '$_kmc|MONITORING': 'kmc_monitoring',
+  '$_kmc|KMC DURING TRANSPORT': 'kmc_transport',
+  '$_kmc|CONTINUE KMC WHILE ON': 'kmc_continue_while_on',
+  '$_kmc|HOME KMC COUNSELLING': 'kmc_home_counselling',
+  '$_kmc|FOLLOW-UP VISITS': 'kmc_followup',
+  "$_kmc|DO's": 'kmc_dos',
+  "$_kmc|DON'Ts": 'kmc_donts',
+  '$_kmc|KEY PERFORMANCE INDICATORS (KPIs)': 'kmc_kpis',
+  '$_kmc|RELATED INFORMATION': 'kmc_related_information',
 };
 
 /// Sections cited as a source that are not printed in the bundled STW
@@ -94,4 +122,8 @@ const Set<String> sectionsOutsideStwPdf = {
   '$_rop|SNCU ROP record form (discharge card)',
   '$_rd|Whole document (ICD-11 KB23)',
   '$_rop|Whole document (ICD-11 9B71.3)',
+  '$_triage|Whole document (July 2020)',
+  '$_kmc|Whole document (August 2026)',
+  '$_ancs|Whole document (August 2026)',
+  '$_hypo|Whole document (ICD-11 KB60.4)',
 };

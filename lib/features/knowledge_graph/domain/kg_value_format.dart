@@ -25,6 +25,7 @@ String? formatKgValue(Object? v, {ClinicalQuestion? q}) {
         if (v is! Iterable) return null;
         return v.isEmpty ? 'None' : v.whereType<Object>().map(label).join(', ');
       case QuestionType.numeric:
+      case QuestionType.decimal:
         return q.unit == null ? '$v' : '$v ${q.unit}';
       case QuestionType.date || QuestionType.text || QuestionType.boolean:
         break;
@@ -62,7 +63,10 @@ String? describeCheck(
   String? Function(Object value)? valueLabel,
 }) {
   if (c.value is bool && (c.op == CmpOp.eq || c.op == CmpOp.ne)) return null;
-  final asOne = q?.type == QuestionType.numeric ? q : _single(q);
+  final asOne =
+      q?.type == QuestionType.numeric || q?.type == QuestionType.decimal
+          ? q
+          : _single(q);
   String fmt(Object? x) => x == null
       ? ''
       : (valueLabel?.call(x) ?? formatKgValue(x, q: asOne) ?? '$x');
@@ -83,14 +87,15 @@ String? describeCheck(
 
 /// [q] as a single-choice question, so one compared value (e.g. one ticked
 /// item of a checklist) maps to its option label.
-ClinicalQuestion? _single(ClinicalQuestion? q) =>
-    q == null || q.type == QuestionType.numeric
-        ? null
-        : ClinicalQuestion(
-            id: q.id,
-            group: q.group,
-            question: q.question,
-            type: QuestionType.singleChoice,
-            options: q.options,
-            sources: q.sources,
-          );
+ClinicalQuestion? _single(ClinicalQuestion? q) => q == null ||
+        q.type == QuestionType.numeric ||
+        q.type == QuestionType.decimal
+    ? null
+    : ClinicalQuestion(
+        id: q.id,
+        group: q.group,
+        question: q.question,
+        type: QuestionType.singleChoice,
+        options: q.options,
+        sources: q.sources,
+      );

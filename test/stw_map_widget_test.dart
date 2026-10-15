@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neonatal_stw/core/theme.dart';
 import 'package:neonatal_stw/features/knowledge_graph/state/stw_map_provider.dart';
+import 'package:neonatal_stw/features/knowledge_graph/ui/bubble_graph_view.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/stw_map_details_screen.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/stw_map_link.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/stw_map_screen.dart';
@@ -73,6 +74,8 @@ void main() {
         '${size.width.toInt()}x${size.height.toInt()}', (tester) async {
       await _pump(tester, '/stw-map', size: size);
       for (final t in [
+        'triage',
+        'kmc',
         'respiratoryDistress',
         'ancs',
         'hypoglycemia',
@@ -109,6 +112,64 @@ void main() {
     expect(find.text('Risk factors present'), findsNothing);
   });
 
+  group('dragging a bubble', () {
+    Matrix4 view(WidgetTester tester) => tester
+        .widget<InteractiveViewer>(find.byType(InteractiveViewer))
+        .transformationController!
+        .value
+        .clone();
+
+    testWidgets('moves the bubble, not the view, and it stays where dropped',
+        (tester) async {
+      await _pump(tester, '/stw-map');
+      final before = view(tester);
+      final start = tester.getCenter(_bubble('hub:rop'));
+
+      await tester.timedDrag(
+        _bubble('hub:rop'),
+        const Offset(90, 60),
+        const Duration(milliseconds: 400),
+      );
+      final dropped = tester.getCenter(_bubble('hub:rop'));
+      await tester.pumpAndSettle();
+
+      expect(view(tester), before, reason: 'the view must not pan');
+      expect((dropped - start).distance, greaterThan(60));
+      expect((tester.getCenter(_bubble('hub:rop')) - dropped).distance,
+          lessThan(1));
+      // Still a bubble you can open.
+      await _tap(tester, _bubble('hub:rop'));
+      expect(find.text('Collapse'), findsOneWidget);
+    });
+
+    testWidgets('an opened STW brings its PDF boxes along', (tester) async {
+      await _pump(tester, '/stw-map?focus=hypoglycemia');
+      final box = tester.getCenter(_bubble('box:hypo_whom_to_screen'));
+
+      await tester.timedDrag(
+        _bubble('hub:hypoglycemia'),
+        const Offset(80, 0),
+        const Duration(milliseconds: 400),
+      );
+      await tester.pumpAndSettle();
+
+      final moved = tester.getCenter(_bubble('box:hypo_whom_to_screen')) - box;
+      expect(moved.dx, greaterThan(30));
+      expect(moved.dy.abs(), lessThan(20));
+    });
+
+    testWidgets('dragging the background still pans the view', (tester) async {
+      await _pump(tester, '/stw-map');
+      final before = view(tester);
+      final rop = tester.getCenter(_bubble('hub:rop'));
+      final background = tester.getCenter(find.byType(BubbleGraphView));
+      await tester.dragFrom(background, const Offset(0, 120));
+      await tester.pumpAndSettle();
+      expect(view(tester), isNot(before));
+      expect(tester.getCenter(_bubble('hub:rop')).dy, greaterThan(rop.dy + 50));
+    });
+  });
+
   testWidgets('"All STWs" returns to the overview', (tester) async {
     await _pump(tester, '/stw-map?focus=hypo_whom_to_screen');
     await _tap(tester, find.text('All STWs'));
@@ -132,6 +193,25 @@ void main() {
     expect(
       find.text('PDF assets/pdfs/Neonatal_Hypoglycemia_8th_Oct.pdf '
           'region=hypo_whom_to_screen'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Triage box opens its source PDF highlighted', (tester) async {
+    await _pump(tester, '/stw-map?focus=triage_initial_assessment');
+    await _tap(tester, find.text('PDF'));
+    expect(
+      find.text('PDF assets/pdfs/Triage_13-10-26.pdf '
+          'region=triage_initial_assessment'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('KMC box opens its source PDF highlighted', (tester) async {
+    await _pump(tester, '/stw-map?focus=kmc_position');
+    await _tap(tester, find.text('PDF'));
+    expect(
+      find.text('PDF assets/pdfs/KMC-13-10-2026.pdf region=kmc_position'),
       findsOneWidget,
     );
   });

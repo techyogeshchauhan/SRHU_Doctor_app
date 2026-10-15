@@ -13,6 +13,8 @@ import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../follow_up/data/disease_follow_up_registry.dart';
 import '../../follow_up/state/follow_up_controller.dart';
 import '../state/assessment_controller.dart';
+import '../voice/voice_entry_bar.dart';
+import '../voice/voice_entry_controller.dart';
 import 'assessment_summary.dart';
 import 'question_field.dart';
 
@@ -228,19 +230,29 @@ class WorkflowScreen extends ConsumerWidget {
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 820),
-            child: SingleChildScrollView(
-              key: PageStorageKey('assessment-${group ?? 'summary'}'),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (group == null)
-                    const AssessmentSummaryView()
-                  else
-                    _QuestionPage(group: group),
-                  const DisclaimerFooter(),
-                ],
-              ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                  child: VoiceEntryBar(canStart: group != null),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    key: PageStorageKey('assessment-${group ?? 'summary'}'),
+                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (group == null)
+                          const AssessmentSummaryView()
+                        else
+                          _QuestionPage(group: group),
+                        const DisclaimerFooter(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -481,6 +493,11 @@ class _QuestionPage extends ConsumerWidget {
     final engine = ref.read(assessmentEngineProvider);
     final info = engine.groupInfo(ctx.selected, group);
     final questions = engine.pageQuestions(ctx, group);
+    final voice = ref.read(voiceEntryProvider.notifier);
+    final voiceAvailable =
+        ref.watch(voiceEntryProvider.select((s) => s.available)) != false;
+    final voiceQuestion =
+        ref.watch(voiceEntryProvider.select((s) => s.questionId));
     final sharedBy = {
       for (final rq in questions)
         if (rq.isShared) ...rq.topics,
@@ -514,21 +531,46 @@ class _QuestionPage extends ConsumerWidget {
                 for (final c in NeonatalCondition.values)
                   if (ctx.selected.contains(c))
                     if (stwPdfFor(c) case final pdf?)
-                      OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                        ),
-                        onPressed: () => openStwPdf(
-                          context,
-                          assetPath: pdf.asset,
-                          title: pdf.title,
-                        ),
-                        icon: Icon(Icons.picture_as_pdf_outlined,
-                            size: 14, color: _pdfAccent(c)),
-                        label: Text(_pdfButtonLabel(c),
-                            style: const TextStyle(fontSize: 11)),
+                      Builder(
+                        builder: (context) {
+                          final regionId = questions
+                              .where((rq) => rq.topics.contains(c))
+                              .expand((rq) => rq.question.sources)
+                              .where((s) =>
+                                  s.document == pdf.title ||
+                                  stwPdfForDocument(s.document)?.asset ==
+                                      pdf.asset)
+                              .map((s) => s.pdfRegionId)
+                              .firstWhere((id) => id != null,
+                                  orElse: () => null);
+
+                          return OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                            ),
+                            onPressed: () {
+                              if (regionId != null) {
+                                openStwRegion(
+                                  context,
+                                  pdf: pdf,
+                                  regionId: regionId,
+                                );
+                              } else {
+                                openStwPdf(
+                                  context,
+                                  assetPath: pdf.asset,
+                                  title: pdf.title,
+                                );
+                              }
+                            },
+                            icon: Icon(Icons.picture_as_pdf_outlined,
+                                size: 14, color: _pdfAccent(c)),
+                            label: Text(_pdfButtonLabel(c),
+                                style: const TextStyle(fontSize: 11)),
+                          );
+                        },
                       ),
               ],
             ),
@@ -544,6 +586,12 @@ class _QuestionPage extends ConsumerWidget {
                 isRequired: engine.isRequired(rq, ctx),
                 today: ctx.today,
                 onChanged: (v) => n.answer(rq.id, v),
+                voiceActive: voiceQuestion == rq.id,
+                onVoice: !voiceAvailable
+                    ? null
+                    : () => voiceQuestion == rq.id
+                        ? voice.stop()
+                        : voice.listenField(rq.id),
               ),
             ),
           if (info?.footnote != null)
@@ -661,11 +709,18 @@ String _pdfButtonLabel(NeonatalCondition c) => switch (c) {
       NeonatalCondition.rop => 'ROP STW PDF',
       NeonatalCondition.ancs => 'ANCS STW PDF',
       NeonatalCondition.hypoglycemia => 'Hypoglycemia STW PDF',
+      NeonatalCondition.triage => 'Triage STW PDF',
+      NeonatalCondition.kmc => 'KMC STW PDF',
       _ => '${definitionOf(c).title} PDF',
     };
 
 Color _pdfAccent(NeonatalCondition c) => switch (c) {
       NeonatalCondition.respiratoryDistress => AppTheme.accentRd,
       NeonatalCondition.rop => AppTheme.accentRop,
+      NeonatalCondition.triage => AppTheme.accentRd,
+      NeonatalCondition.kmc => AppTheme.primaryTeal,
+      NeonatalCondition.ancs => const Color(0xFF0F766E),
+      NeonatalCondition.hypoglycemia => const Color(0xFFB45309),
       _ => AppTheme.primaryNavy,
     };
+

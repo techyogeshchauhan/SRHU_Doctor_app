@@ -52,5 +52,23 @@
     "pt_width": 841.89,
     "pt_height": 1633.68,
     "image_path": "assets/pages/Neonatal_Hypoglycemia_8th_Oct.pdf/1.webp"
+  },
+  {
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/KMC-13-10-2026.pdf/1.webp"
+  },
+  {
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/Triage_13-10-26.pdf/1.webp"
   }
 ]

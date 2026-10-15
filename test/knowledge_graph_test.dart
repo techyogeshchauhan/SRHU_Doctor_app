@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/features/ancs/domain/ancs_rules.dart';
 import 'package:neonatal_stw/features/ancs/domain/ancs_workflow.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/assessment_context.dart';
+import 'package:neonatal_stw/features/clinical_workflow/domain/assessment_engine.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/condition_expr.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/shared_questions.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/source_reference.dart';
@@ -15,6 +16,7 @@ import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condit
 import 'package:neonatal_stw/features/hypoglycemia/domain/hypo_rules.dart';
 import 'package:neonatal_stw/features/hypoglycemia/domain/hypo_workflow.dart';
 import 'package:neonatal_stw/features/knowledge_graph/domain/cond_introspection.dart';
+import 'package:neonatal_stw/features/knowledge_graph/domain/bubble_graph.dart';
 import 'package:neonatal_stw/features/knowledge_graph/domain/explained_values.dart';
 import 'package:neonatal_stw/features/knowledge_graph/domain/kg_graph.dart';
 import 'package:neonatal_stw/features/knowledge_graph/domain/kg_value_format.dart';
@@ -323,6 +325,72 @@ void main() {
       final using = findingsUsing(ReasoningBuilder(babyCtx()).explainAll());
       expect(
           using['answer:$gaWeeksKey']!.map((f) => f.topic).toSet(), {rd, rop});
+    });
+  });
+
+  group('Home bubbles for the live assessment', () {
+    test('hubs, inputs and findings come from selected assessment results', () {
+      final ctx = babyCtx();
+      final trees = ReasoningBuilder(ctx).explainAll();
+      final graph = buildAssessmentBubbleGraph(context: ctx, trees: trees);
+
+      expect(graph.hubs.map((b) => b.topic).toSet(), ctx.selected);
+      expect(graph.hubs.every((b) => b.node == null), isTrue,
+          reason: 'assessment bubbles must not use static STW map nodes');
+
+      final rdHub = graph.hubOf(rd)!;
+      final initialPlan = rdHub.children
+          .singleWhere((b) => b.item?.finding?.id == rdInitialPlanId);
+      expect(initialPlan.label, 'START CPAP');
+      expect(initialPlan.children.map((b) => b.label),
+          contains('Gestation group'));
+      expect(
+        initialPlan.children
+            .singleWhere((b) => b.label == 'Gestation group')
+            .item
+            ?.value,
+        'GA ≤34 weeks',
+      );
+
+      final hypoHub = graph.hubOf(hypo)!;
+      final lowGlucose =
+          hypoHub.children.singleWhere((b) => b.item?.finding?.id == hypoLowId);
+      final bg = lowGlucose.children.singleWhere(
+        (b) => b.item?.id == 'answer:$hypoBgKey',
+      );
+      expect(bg.item?.value, '40 mg/dL');
+      expect(bg.item?.check, '< 45 mg/dL');
+
+      expect(
+        graph.hubEdges.any((e) =>
+            e.from == 'hub:${rd.name}' &&
+            e.to == 'hub:${rop.name}' &&
+            e.label == 'shares answers'),
+        isTrue,
+      );
+    });
+
+    test('partial assessments show only their actual entered values', () {
+      final ctx = const AssessmentEngine().evaluate(
+        selected: {rd},
+        answers: {rdRrKey: 50},
+        completed: const {},
+        today: testToday,
+      );
+      final graph = buildAssessmentBubbleGraph(
+        context: ctx,
+        trees: ReasoningBuilder(ctx).explainAll(),
+      );
+
+      expect(ctx.findings.map((f) => f.id), contains(rdNotMetId));
+      expect(graph.hubs.map((b) => b.topic), [rd]);
+      expect(graph.hubs.single.children, hasLength(1));
+      final notMet = graph.hubs.single.children.single;
+      expect(notMet.item?.finding?.id, rdNotMetId);
+      final rr = notMet.children.singleWhere(
+        (b) => b.item?.id == 'answer:$rdRrKey',
+      );
+      expect(rr.item?.value, '50 /min');
     });
   });
 

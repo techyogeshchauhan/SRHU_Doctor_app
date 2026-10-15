@@ -1,11 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/features/chatbot/data/bm25_retriever.dart';
+import 'package:neonatal_stw/features/chatbot/domain/answering/stw_answer.dart';
+import 'package:neonatal_stw/features/chatbot/domain/answering/stw_answerer.dart';
 import 'package:neonatal_stw/features/chatbot/domain/models/stw_chunk.dart';
 import 'package:neonatal_stw/features/chatbot/domain/retriever/stw_retriever.dart';
+import 'package:neonatal_stw/features/chatbot/domain/understanding/query_analyzer.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('Goal A Safety Layer: STW Chatbot Retrieval & Grounding Tests', () {
     late Bm25Retriever retriever;
     late List<StwChunk> allChunks;
@@ -115,6 +121,74 @@ void main() {
         expect(results.isEmpty, isTrue,
             reason: 'Out-of-scope query "$q" must return empty results (triggering "${StwRetriever.notCoveredMessage}")');
       }
+    });
+
+    test('4. Triage and KMC answers map to their PDF highlight regions', () async {
+      final answerer = StwAnswerer(retriever);
+      const expectedRegions = {
+        'What are the emergency signs in neonatal triage?':
+            'triage_emergency_signs',
+        'What actions are listed for priority signs?': 'triage_priority_actions',
+        'What should be done at a temperature below 35.5 degrees in triage?':
+          'triage_hypothermia',
+        'Phenobarbitone dose for neonatal seizures': 'triage_seizures',
+        'Which jaundice signs are listed for intensive phototherapy?':
+            'triage_jaundice',
+        'Bacche ko daure pad rahe hain, kaunsi dawa?': 'triage_seizures',
+        'What is Kangaroo Mother Care?': 'kmc_definition',
+        'Which newborns should start KMC?': 'kmc_eligibility',
+      };
+      const expectedClarifications = {
+        'What should be done at a temperature below 35.5 degrees in triage?',
+      };
+
+      for (final entry in expectedRegions.entries) {
+        final answer = await answerer.answer(entry.key);
+        expect(
+          answer.kind,
+          expectedClarifications.contains(entry.key)
+              ? AnswerKind.clarify
+              : AnswerKind.answer,
+          reason: entry.key,
+        );
+        final region = answer.kind == AnswerKind.answer
+            ? answer.region!
+            : answer.options.singleWhere((o) => o.chunkId == entry.value);
+        expect(region.chunkId, entry.value, reason: entry.key);
+        expect(topicOfDocument(region.document), isNotNull, reason: entry.key);
+        final pdfAsset = 'assets/pdfs/${region.document}';
+        expect(File(pdfAsset).existsSync(), isTrue,
+            reason: region.document);
+        await rootBundle.load(pdfAsset);
+        expect(region.boundingBoxes, isNotEmpty, reason: entry.key);
+        final pageAsset = 'assets/pages/${region.document}/${region.page}.webp';
+        expect(
+          File(pageAsset).existsSync(),
+          isTrue,
+          reason: 'PDF viewer page image for ${region.document}',
+        );
+        await rootBundle.load(pageAsset);
+      }
+    });
+
+    test('generic Triage matches preserve out-of-scope and glucose cases',
+        () async {
+      final currentRegions = (jsonDecode(
+        await File('assets/regions/regions.json').readAsString(),
+      ) as List<dynamic>)
+          .map((e) => StwChunk.fromJson(e as Map<String, dynamic>))
+          .toList();
+      final answerer = StwAnswerer(
+        Bm25Retriever(initialChunks: currentRegions),
+      );
+
+      final glucoseCase = await answerer.answer('BG 18 with seizures');
+      expect(glucoseCase.kind, AnswerKind.answer);
+      expect(glucoseCase.region?.chunkId, 'hypo_symptomatic_branch');
+
+      final therapeuticHypothermia = await answerer
+          .answer('Therapeutic hypothermia criteria for HIE');
+      expect(therapeuticHypothermia.kind, AnswerKind.notCovered);
     });
   });
 }

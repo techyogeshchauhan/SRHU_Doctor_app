@@ -9,7 +9,15 @@ library;
 import 'condition_expr.dart';
 import 'source_reference.dart';
 
-enum QuestionType { singleChoice, multipleChoice, numeric, text, date, boolean }
+enum QuestionType {
+  singleChoice,
+  multipleChoice,
+  numeric,
+  decimal,
+  text,
+  date,
+  boolean,
+}
 
 /// Answer value types by [QuestionType]: singleChoice → the option value
 /// (String/int/bool), multipleChoice → `Set<Object>` of option values,
@@ -69,6 +77,9 @@ class ClinicalQuestion {
     this.min,
     this.max,
     this.unit,
+    this.inputHint,
+    this.displayUnit,
+    this.displayFactor = 1,
     this.helper,
     this.stwRange,
     this.pastOnly = false,
@@ -90,6 +101,13 @@ class ClinicalQuestion {
   final int? min;
   final int? max;
   final String? unit;
+  final String? inputHint;
+
+  /// Unit shown in the field when it differs from the canonical [unit].
+  final String? displayUnit;
+
+  /// Displayed value is stored value divided by this factor.
+  final num displayFactor;
   final String? helper;
 
   /// Value range or thresholds for this input as printed in the STW PDF
@@ -109,6 +127,9 @@ class ClinicalQuestion {
       QuestionType.multipleChoice =>
         value is Set && value.every((v) => options.any((o) => o.value == v)),
       QuestionType.numeric => value is int &&
+          (min == null || value >= min!) &&
+          (max == null || value <= max!),
+      QuestionType.decimal => value is num &&
           (min == null || value >= min!) &&
           (max == null || value <= max!),
       QuestionType.text => value is String,

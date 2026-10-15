@@ -9,7 +9,7 @@ library;
 
 import 'hinglish_lexicon.dart';
 
-enum StwTopic { rd, rop, ancs, hypo }
+enum StwTopic { rd, rop, ancs, hypo, triage, kmc }
 
 /// Kinds of question; regions in assets/regions/regions.json list the ones
 /// they answer (tools/annotate_region_intents.py).
@@ -165,11 +165,17 @@ String normalizeQuery(String query) {
 
 /// Topics or populations the bundled STWs do not cover.
 final _outOfScope = RegExp(
-  r"\b(jaundice|bilirubin|phototherapy|kangaroo|kmc|vaccin\w*|bcg|vitamin k|"
-  r"resuscitat\w*|covid\w*|coronavirus|adults?|year old|years old|cancer|"
+  r"\b(vaccin\w*|bcg|vitamin k|covid\w*|coronavirus|adults?|year old|years old|cancer|"
   r"chemotherap\w*|copd|ards|ketoacidosis|dka|insulin|eczema|cream|lasik|"
   r"coffee|labetalol|magnesium|tocoly\w*|appendectomy|paracetamol|"
-  r"phenobarbit\w*|phenytoin|levetiracetam|diabetic retinopathy|sleep apnea|"
+  r"diabetic retinopathy|sleep apnea|therapeutic hypothermia|"
+  r"hypoxic.?ischemic encephalopathy|\bhie\b|"
+  r"phototherapy threshold|threshold for.*phototherapy|bilirubin level|bilirubin cutoff|phototherapy cutoff|"
+  r"exchange transfusion threshold|exchange transfusion level|phototherapy chart|phototherapy nomogram|"
+  r"(jaundice|bilirubin).*(when\b|threshold|cutoff|level|chart)|"
+  r"(when\b|threshold|cutoff|level|chart).*(phototherapy|exchange)|"
+  r"neonatal jaundice treatment|"
+  r"hypothermia management|"
   r"weather|cricket|cake|recipe|hypertension with)\b",
 );
 
@@ -196,6 +202,19 @@ final _topicPatterns = <StwTopic, RegExp>{
     r"glucose|hypoglyc\w*|dextrose|\bgir\b|\bbg\b|glucometer|\bidm\b|"
     r"diabetic mother|beta.?blocker|euglyc\w*|hydrocortisone|paladai|gavage|"
     r"heel prick|infusion rate",
+  ),
+  StwTopic.triage: RegExp(
+    r"\btriage\b|emergency signs?|priority signs?|non.?urgent|tabc|"
+    r"sick or at.?risk neonate|triage classification|shock|dehydrat\w*|"
+    r"persistent tachycardia|hypothermia|seizures?|convulsions?|"
+    r"phenobarbit\w*|levetiracetam|danger signs|"
+    r"jaundice|bilirubin|phototherapy|"
+    r"apnea or gasping|central cyanosis|severe pallor|major malformation",
+  ),
+  StwTopic.kmc: RegExp(
+    r"\bkmc\b|kangaroo( mother care| position| nutrition| discharge)?|"
+    r"skin.?to.?skin|low.?birth.?weight|\blbw\b|kmc provider|kmc transport|"
+    r"kmc follow.?up|alternate caregiver|kmc eligibility",
   ),
 };
 
@@ -234,7 +253,7 @@ final _intentPatterns = <QueryIntent, RegExp>{
       r"pump|peripheral|first steps|before (the )?(\w+ )?(screening|exam\w*)"),
   QueryIntent.management: RegExp(
       r"what to do|what next|treat\w*|manag\w*|support|next step|"
-      r"what should|what do|\bfed\b|give|therapy|surgery|options|available"),
+      r"what should|what do|\baction\w*\b|\bfed\b|give|therapy|surgery|options|available"),
   QueryIntent.escalate: RegExp(
       r"increase|optimi\w*|step up|maximum|\bmax\b|higher|not improving|"
       r"still low|not responding"),
@@ -339,7 +358,7 @@ QueryEntities _entities(String n) {
   };
 
   final present = RegExp(
-    r'jitter\w*|tremor\w*|letharg\w*|\blimp\w*|stupor|convuls\w*|cyanos\w*|'
+    r'jitter\w*|tremor\w*|letharg\w*|\blimp\w*|stupor|seizur\w*|convuls\w*|cyanos\w*|'
     r'tachypn\w*|high-pitched|weak cry|unable to feed|not feeding|\bapnea\b|'
     r'\bsymptomatic\b',
   );
@@ -389,6 +408,11 @@ QueryAnalysis analyzeQuery(String query) {
     for (final e in _topicPatterns.entries)
       if (e.value.hasMatch(n)) e.key,
   };
+  if (topics.contains(StwTopic.triage) &&
+      topics.any((topic) => topic != StwTopic.triage) &&
+      !RegExp(r'\btriage\b|phenobarbit\w*|levetiracetam').hasMatch(n)) {
+    topics.remove(StwTopic.triage);
+  }
 
   // "ya nahi" / "or not" asks yes-or-no, it does not negate.
   final forNegation =
@@ -423,6 +447,10 @@ QueryAnalysis analyzeQuery(String query) {
   // list of symptoms.
   if (entities.symptomatic != null &&
       !RegExp(r'\bsigns\b|features|look like').hasMatch(n)) {
+    intents.remove(QueryIntent.signs);
+  }
+  if (intents.contains(QueryIntent.management) &&
+      RegExp(r'\baction\w*\b').hasMatch(n)) {
     intents.remove(QueryIntent.signs);
   }
 
@@ -467,5 +495,7 @@ StwTopic? topicOfDocument(String document) {
   if (d.startsWith('retinopathy')) return StwTopic.rop;
   if (d.startsWith('antenatal')) return StwTopic.ancs;
   if (d.startsWith('neonatal_hypoglycemia')) return StwTopic.hypo;
+  if (d.startsWith('triage_')) return StwTopic.triage;
+  if (d.startsWith('kmc-')) return StwTopic.kmc;
   return null;
 }

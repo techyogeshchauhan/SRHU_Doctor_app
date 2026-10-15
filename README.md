@@ -1,11 +1,13 @@
 # STW Neo — Neonatal Clinical Decision Support
 
-**STW Neo** is a cross-platform mobile application built with [Flutter](https://flutter.dev) that provides bedside decision support for four ICMR / DHR (Indian Council of Medical Research / Department of Health Research) **Standard Treatment Workflows (STWs)**:
+**STW Neo** is a cross-platform mobile application built with [Flutter](https://flutter.dev) that provides bedside decision support for six ICMR / DHR (Indian Council of Medical Research / Department of Health Research) **Standard Treatment Workflows (STWs)**:
 
 1. **Respiratory Distress in Neonates** (ICD-11 KB23)
 2. **Retinopathy of Prematurity — ROP** (ICD-11 9B71.3)
 3. **Antenatal Corticosteroids for Preterm Birth — ANCS** (August 2026)
 4. **Neonatal Hypoglycemia** (ICD-11 KB60.4, August 2026)
+5. **Neonatal Emergency Triage Assessment and Management** (July 2020)
+6. **Kangaroo Mother Care (KMC)** (August 2026)
 
 The app digitises the paper-based STW algorithms into an interactive, step-by-step clinical tool that clinicians can use at the bedside. **No patient identifiers leave the device** — dates (date of birth, exam dates) and free-text entries (facility, SNCU/CR number) stay in memory only. Other answers, findings and quiz attempts are queued for the de-identified sync described under *Database & Offline Sync* below.
 
@@ -38,8 +40,8 @@ Selecting a topic means "assess this workflow", **not** "the baby has this condi
 
 | Status | Topics | Behaviour |
 |---|---|---|
-| **Available** | Respiratory Distress, ANCS, Hypoglycemia, ROP | Questions and rules from the approved STWs, delegated to the existing validated engines |
-| **Coming soon** | the other 10 | Selectable; shows *"Clinical workflow content requires the corresponding approved STW."* No questions, rules or recommendations |
+| **Available** | Triage, KMC, Respiratory Distress, ANCS, Hypoglycemia, ROP | Questions and rules from the approved STWs, delegated to the existing validated engines |
+| **Coming soon** | the other 8 | Selectable; shows *"Clinical workflow content requires the corresponding approved STW."* No questions, rules or recommendations |
 
 The standalone RD and ROP screens described below are still in the app (routes `/rd`, `/rop`) but are no longer linked from the assessment flow.
 
@@ -61,6 +63,14 @@ The standalone RD and ROP screens described below are still in the app (routes `
 | **Timing** | Enters date of birth | Calculates first screening date (2–3 weeks for early window; 4 weeks otherwise), flags overdue cases, and computes postmenstrual age |
 | **Findings** | Records per-eye findings — Zone (I/II/III), Stage (0–5), Plus disease, A-ROP, clock hours | Classifies each eye and determines treatment indication based on ICROP staging |
 | **Outcome** | Reviews the treatment/follow-up plan | Generates recommendation: **Treatment required** (laser / anti-VEGF), **Follow-up schedule** with next exam date, or **Discharge from screening** — with PMA-based follow-up intervals |
+
+### Neonatal Emergency Triage Module
+
+Records temperature, SpO₂, heart rate, weight and blood glucose when available, then checks the emergency, priority and non-urgent signs in the Triage STW. Recorded temperature, SpO₂ and weight apply the PDF thresholds; when signs match more than one category, the clinician selects the category. The summary shows the matching triage actions and any applicable specific management guidance from the PDF.
+
+### Kangaroo Mother Care (KMC) Module
+
+Checks the PDF's preterm or low-birth-weight eligibility criteria and the three KMC initiation exclusions. For eligible babies without a listed exclusion, the assessment summary presents the PDF guidance for positioning, providers, nutrition, preparation, monitoring, transport, continued KMC, discharge, home counselling, follow-up, DOs, DON'Ts and KPIs.
 
 ### ANCS Module (Antenatal Corticosteroids)
 

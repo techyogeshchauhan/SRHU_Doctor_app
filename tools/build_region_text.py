@@ -296,6 +296,14 @@ def build_region_data(only_documents=None):
             words = page.get_text("words", clip=clip_rect)
             cleaned_text = clean_extracted_words(words)
             r["segments"] = build_segments(page, clip_rect)
+
+        # Some poster content is set as part of an illustration and has no
+        # extractable PDF text. Such manually transcribed source text stays
+        # attached to its curated region while the same PDF crop is generated.
+        manual_content = r.get("manual_content")
+        if manual_content:
+            cleaned_text = manual_content["text"]
+            r["segments"] = manual_content["segments"]
         r["text"] = cleaned_text
         if rid.endswith("_abbreviations"):
             r["segments"] = split_abbreviations(cleaned_text)

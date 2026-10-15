@@ -149,6 +149,16 @@ class Bm25Retriever implements StwRetriever {
     return v1[s2.length];
   }
 
+  bool _matchesToken(String text, String token) {
+    if (token.isEmpty) return false;
+    final startsWithWord = RegExp(r'^\w').hasMatch(token);
+    final endsWithWord = RegExp(r'\w$').hasMatch(token);
+    final pattern = '${startsWithWord ? r'\b' : r'(?:^|\s|[^\w])'}'
+        '${RegExp.escape(token)}'
+        '${endsWithWord ? r'\b' : r'(?:$|\s|[^\w])'}';
+    return RegExp(pattern).hasMatch(text);
+  }
+
   List<String> _expandQueryWithSynonyms(String query) {
     final qLower = query.toLowerCase();
     final tokens = _tokenize(query);
@@ -168,13 +178,25 @@ class Bm25Retriever implements StwRetriever {
       expanded.addAll(['respiratory', 'distress']);
     }
     if (RegExp(r'\brop\b').hasMatch(qLower)) {
-      expanded.addAll(['retinopathy', 'prematurity', 'retinal']);
+      expanded.addAll(['retinopathy', 'prematurity']);
+      if (qLower.contains('retin') ||
+          qLower.contains('eye') ||
+          qLower.contains('aankh')) {
+        expanded.add('retinal');
+      }
     }
     if (RegExp(r'\bcaffeine\b').hasMatch(qLower)) {
       expanded.addAll(['citrate', 'caffeine citrate']);
     }
     if (RegExp(r'\b(sas|silverman)\b').hasMatch(qLower)) {
-      expanded.addAll(['silverman', 'andersen', 'score', 'retractions', 'grunt']);
+      expanded.addAll(['silverman', 'andersen', 'score']);
+      if (qLower.contains('score') ||
+          qLower.contains('grade') ||
+          qLower.contains('grading') ||
+          qLower.contains('calculate') ||
+          qLower.contains('criteria')) {
+        expanded.addAll(['retractions', 'grunt']);
+      }
     }
     if (RegExp(r'\bsurfactant\b').hasMatch(qLower)) {
       expanded.addAll(['surfactant', 'peep', 'fio2']);
@@ -190,8 +212,18 @@ class Bm25Retriever implements StwRetriever {
     }
 
     // 3. Hinglish clinical concept mappings
-    if (RegExp(r'\b(bacche|baccha|baby|newborn)\b').hasMatch(qLower)) {
+    if (RegExp(r'\b(bacche|baccha|baccho|bacchon|baby|newborn)\b')
+        .hasMatch(qLower)) {
       expanded.addAll(['neonate', 'preterm', 'infant']);
+    }
+    if (RegExp(r'\b(kin|kis|kisko|kaunse|konse)\b').hasMatch(qLower)) {
+      expanded.addAll(['whom', 'which', 'eligible', 'eligibility']);
+    }
+    if (RegExp(r'\b(kab|timing|schedule)\b').hasMatch(qLower)) {
+      expanded.addAll(['when', 'timing', 'schedule']);
+    }
+    if (RegExp(r'\b(pehli|pehla|pratham)\b').hasMatch(qLower)) {
+      expanded.addAll(['first', 'initial']);
     }
     if (RegExp(r'\b(saans|sans)\b').hasMatch(qLower)) {
       expanded.addAll(['respiratory', 'breathing', 'distress']);
@@ -309,7 +341,7 @@ class Bm25Retriever implements StwRetriever {
       // (a) Exact phrase match in title or text
       final rawTokens = _tokenize(query);
       for (final raw in rawTokens) {
-        if (RegExp(r'\b' + RegExp.escape(raw) + r'\b').hasMatch(chunkTextLower)) {
+        if (_matchesToken(chunkTextLower, raw)) {
           baseScore += 1.2;
         }
       }
@@ -325,7 +357,12 @@ class Bm25Retriever implements StwRetriever {
         '48-72 hours', '4 weeks', '2-3 weeks', '45 weeks', 'pma 45',
         'phenylephrine 2.5%', 'tropicamide 0.5-0.8%', 'proparacaine 0.5%',
         '20d', '28d', 'caffeine citrate', 'surfactant', 'nasal prongs',
-        'bubble cpap', 'a-rop', 'ap-rop'
+        'bubble cpap', 'a-rop', 'ap-rop',
+        'sas 4', 'sas ≥4', 'sas >=4', 'sas 3', 'sas ≤3', 'sas <=3', 'sas 2',
+        'mild distress', 'moderate-severe', 'moderate to severe',
+        'first screen', 'first screening', 'pehli screening',
+        'whom to screen', 'when to screen',
+        'antibiotics'
       ];
       for (final marker in criticalUnits) {
         if (queryLower.contains(marker) &&
@@ -335,27 +372,47 @@ class Bm25Retriever implements StwRetriever {
       }
 
       // (c) Example questions direct alignment boost (super high precision for intent)
+      final cleanQLower =
+          queryLower.replaceAll(RegExp(r'[\?\.!,]'), '').trim();
       for (final q in chunk.exampleQuestions) {
+        final cleanQ =
+            q.toLowerCase().replaceAll(RegExp(r'[\?\.!,]'), '').trim();
+        if (cleanQ == cleanQLower) {
+          baseScore += 25.0;
+          break;
+        }
         final qToks = _tokenize(q);
         int sharedCount = 0;
         for (final rt in rawTokens) {
           if (qToks.contains(rt)) sharedCount++;
         }
         if (sharedCount >= 3 || (rawTokens.length <= 2 && sharedCount >= 2)) {
-          baseScore += 5.0;
+          baseScore += 6.0;
           break;
         }
       }
 
       // (d) Title match boost
       for (final raw in rawTokens) {
-        if (RegExp(r'\b' + RegExp.escape(raw) + r'\b')
-            .hasMatch(chunk.sectionTitle.toLowerCase())) {
+        if (_matchesToken(chunk.sectionTitle.toLowerCase(), raw)) {
           baseScore += 2.0;
         }
       }
 
-      // (e) Algorithm / DOs / DON'Ts intent boost
+      // (e) Multi-word alias exact match boost
+      for (final alias in chunk.aliases) {
+        final aLower = alias.toLowerCase().trim();
+        if (aLower.isEmpty) continue;
+        if (cleanQLower.contains(aLower)) {
+          if (aLower.contains(' ')) {
+            baseScore += 8.0;
+          } else if (aLower.length >= 4) {
+            baseScore += 3.0;
+          }
+        }
+      }
+
+      // (f) Algorithm / DOs / DON'Ts intent boost
       if ((queryLower.contains('algorithm') ||
               queryLower.contains('flowchart') ||
               queryLower.contains('steps') ||

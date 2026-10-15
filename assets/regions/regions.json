@@ -74,6 +74,9 @@
     "w": 0.75438,
     "h": 0.09267,
     "aliases": [
+      "immediate actions",
+      "temperature airway breathing circulation",
+      "stabilize tabc",
       "tabc",
       "temperature",
       "airway",
@@ -527,10 +530,10 @@
     "title": "CPAP Failure Criteria & Urgent Referral Indication",
     "type": "algorithm",
     "section": "Escalation & Referral",
-    "x": 0.61079,
-    "y": 0.53582,
-    "w": 0.37844,
-    "h": 0.02805,
+    "x": 0.61,
+    "y": 0.533,
+    "w": 0.38,
+    "h": 0.033,
     "aliases": [
       "cpap failure",
       "persistent hypoxemia",
@@ -2336,7 +2339,7 @@
     "x": 0.00713,
     "y": 0.1463,
     "w": 0.97637,
-    "h": 0.11018,
+    "h": 0.128,
     "aliases": [
       "whom to screen",
       "at-risk neonates",
@@ -2407,10 +2410,10 @@
     "title": "Schedule of Blood Glucose Monitoring",
     "type": "table",
     "section": "Monitoring schedule",
-    "x": 0.01663,
-    "y": 0.26015,
-    "w": 0.33615,
-    "h": 0.101,
+    "x": 0.015,
+    "y": 0.2375,
+    "w": 0.355,
+    "h": 0.1225,
     "aliases": [
       "schedule",
       "monitoring schedule",
@@ -2540,10 +2543,10 @@
     "title": "Symptoms and Signs of Hypoglycemia",
     "type": "text",
     "section": "Symptoms and signs",
-    "x": 0.25181,
-    "y": 0.36237,
-    "w": 0.49531,
-    "h": 0.05876,
+    "x": 0.25,
+    "y": 0.362,
+    "w": 0.535,
+    "h": 0.0715,
     "aliases": [
       "symptoms",
       "signs",
@@ -2988,9 +2991,9 @@
     "type": "text",
     "section": "Prevention",
     "x": 0.01307,
-    "y": 0.54233,
+    "y": 0.5264,
     "w": 0.48344,
-    "h": 0.04774,
+    "h": 0.0625,
     "aliases": [
       "prevention",
       "prevent",
@@ -3033,9 +3036,9 @@
     "type": "text",
     "section": "Practical points",
     "x": 0.01544,
-    "y": 0.59008,
+    "y": 0.5741,
     "w": 0.48106,
-    "h": 0.08937,
+    "h": 0.0968,
     "aliases": [
       "practical points",
       "peripheral vein",
@@ -3092,9 +3095,9 @@
     "type": "text",
     "section": "DO's",
     "x": 0.0,
-    "y": 0.76208,
+    "y": 0.7406,
     "w": 0.45493,
-    "h": 0.04836,
+    "h": 0.0686,
     "aliases": [
       "dos",
       "clinical dos",
@@ -3134,9 +3137,9 @@
     "type": "text",
     "section": "DON'Ts",
     "x": 0.46799,
-    "y": 0.76208,
+    "y": 0.7406,
     "w": 0.53201,
-    "h": 0.04836,
+    "h": 0.0686,
     "aliases": [
       "donts",
       "antibiotics",
@@ -3177,9 +3180,9 @@
     "type": "table",
     "section": "KPIs",
     "x": 0.0,
-    "y": 0.8086,
+    "y": 0.7865,
     "w": 1.0,
-    "h": 0.0606,
+    "h": 0.0974,
     "aliases": [
       "kpi",
       "kpis",
@@ -3237,5 +3240,2040 @@
     "intents": [
       "followup"
     ]
+  },
+  {
+    "id": "triage_initial_assessment",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Initial Assessment: TABC",
+    "type": "text",
+    "section": "Initial assessment",
+    "x": 0.02376,
+    "y": 0.11324,
+    "w": 0.95262,
+    "h": 0.05387,
+    "aliases": [
+      "initial assessment",
+      "TABC",
+      "temperature airway breathing circulation",
+      "coma convulsions dehydration",
+      "sick or at-risk neonate"
+    ],
+    "example_questions": [
+      "What should be done on initial assessment in neonatal triage?",
+      "What does TABC mean in the triage STW?",
+      "How should a sick newborn be assessed on arrival?"
+    ],
+    "intents": [
+      "procedure",
+      "management"
+    ],
+    "segments": [
+      {
+        "text": "Place under radiant warmer"
+      },
+      {
+        "text": "Attach temperature probe and pulse oximeter"
+      },
+      {
+        "text": "Assess for emergency signs using TABC & CD"
+      },
+      {
+        "text": "T: Temperature; A: Airway; B: Breathing; C: Circulation; C: Coma/convulsions; D: Dehydration"
+      },
+      {
+        "text": "Classify into EMERGENCY, PRIORITY or NON-URGENT based on signs given below"
+      }
+    ],
+    "text": "Place under radiant warmer\nAttach temperature probe and pulse oximeter\nAssess for emergency signs using TABC & CD\nT: Temperature; A: Airway; B: Breathing; C: Circulation; C: Coma/convulsions; D: Dehydration\nClassify into EMERGENCY, PRIORITY or NON-URGENT based on signs given below",
+    "crop_image": "assets/regions/crops/triage_initial_assessment.webp"
+  },
+  {
+    "id": "triage_emergency_signs",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Emergency Signs",
+    "type": "algorithm",
+    "section": "Emergency classification",
+    "x": 0.02138,
+    "y": 0.17996,
+    "w": 0.36228,
+    "h": 0.10039,
+    "aliases": [
+      "emergency signs",
+      "emergency category",
+      "danger signs needing immediate treatment",
+      "significant hypothermia",
+      "apnea",
+      "gasping",
+      "central cyanosis",
+      "shock",
+      "convulsions",
+      "coma",
+      "severe dehydration",
+      "persistent tachycardia"
+    ],
+    "example_questions": [
+      "What are the emergency signs in neonatal triage?",
+      "When is a newborn classified as emergency?",
+      "Which signs need immediate treatment?"
+    ],
+    "intents": [
+      "criteria",
+      "signs"
+    ],
+    "segments": [
+      {
+        "text": "EMERGENCY",
+        "header": true
+      },
+      {
+        "text": "Significant hypothermia (<35.5°C)"
+      },
+      {
+        "text": "Apnea or gasping"
+      },
+      {
+        "text": "Respiratory distress (retractions, grunt)"
+      },
+      {
+        "text": "Central cyanosis or SpO₂ <91%"
+      },
+      {
+        "text": "Shock (cold peripheries, mottled/grey skin, CRT >3 s, weak pulses, low BP)"
+      },
+      {
+        "text": "Convulsions/coma"
+      },
+      {
+        "text": "Severe dehydration"
+      },
+      {
+        "text": "Persistent tachycardia >200/min"
+      }
+    ],
+    "text": "EMERGENCY\nSignificant hypothermia (<35.5°C)\nApnea or gasping\nRespiratory distress (retractions, grunt)\nCentral cyanosis or SpO₂ <91%\nShock (cold peripheries, mottled/grey skin, CRT >3 s,\nweak pulses, low BP)\nConvulsions/coma\nSevere dehydration\nPersistent tachycardia >200/min",
+    "crop_image": "assets/regions/crops/triage_emergency_signs.webp"
+  },
+  {
+    "id": "triage_priority_signs",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Priority Signs",
+    "type": "algorithm",
+    "section": "Priority classification",
+    "x": 0.38722,
+    "y": 0.17996,
+    "w": 0.38128,
+    "h": 0.10039,
+    "aliases": [
+      "priority signs",
+      "priority category",
+      "weight under 1800 g",
+      "severe jaundice",
+      "severe pallor",
+      "bleeding",
+      "major malformation",
+      "abdominal distension",
+      "irritable",
+      "restless",
+      "refusal to feed"
+    ],
+    "example_questions": [
+      "What are the priority signs in neonatal triage?",
+      "When is a newborn classified as priority?",
+      "What temperature or weight is a priority sign?"
+    ],
+    "intents": [
+      "criteria",
+      "signs"
+    ],
+    "segments": [
+      {
+        "text": "PRIORITY",
+        "header": true
+      },
+      {
+        "text": "Temperature 35.5 to 36.4°C"
+      },
+      {
+        "text": "Weight <1800 g"
+      },
+      {
+        "text": "Large for gestation with risk factors (IDM)"
+      },
+      {
+        "text": "Tachypnea without retractions or grunt"
+      },
+      {
+        "text": "Severe jaundice (onset <24 h, palm or sole staining)"
+      },
+      {
+        "text": "Severe pallor"
+      },
+      {
+        "text": "Bleeding"
+      },
+      {
+        "text": "Major malformations"
+      },
+      {
+        "text": "Abdominal distension"
+      },
+      {
+        "text": "Irritable/restless, refusal to feed, decreased activity"
+      }
+    ],
+    "text": "PRIORITY\nTemperature 35.5 to 36.4°C\nWeight <1800 g\nLarge for gestation with risk factors (IDM)\nTachypnea without retractions or grunt\nSevere jaundice (onset <24 h, palm or sole staining)\nSevere pallor\nBleeding\nMajor malformations\nAbdominal distension\nIrritable/restless, refusal to feed, decreased activity",
+    "crop_image": "assets/regions/crops/triage_priority_signs.webp"
+  },
+  {
+    "id": "triage_nonurgent_signs",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Non-urgent Signs",
+    "type": "algorithm",
+    "section": "Non-urgent classification",
+    "x": 0.77207,
+    "y": 0.17996,
+    "w": 0.20668,
+    "h": 0.07835,
+    "aliases": [
+      "non urgent",
+      "non-urgent",
+      "nonurgent category",
+      "mild jaundice",
+      "transitional stools",
+      "minor birth trauma",
+      "superficial infection",
+      "breastfeeding difficulty",
+      "regurgitation"
+    ],
+    "example_questions": [
+      "What are the non-urgent signs in neonatal triage?",
+      "When is a newborn classified as non-urgent?"
+    ],
+    "intents": [
+      "criteria",
+      "signs"
+    ],
+    "segments": [
+      {
+        "text": "NON-URGENT",
+        "header": true
+      },
+      {
+        "text": "Mild jaundice"
+      },
+      {
+        "text": "Transitional stools"
+      },
+      {
+        "text": "Minor birth trauma"
+      },
+      {
+        "text": "Minor malformations"
+      },
+      {
+        "text": "Superficial infections"
+      },
+      {
+        "text": "Breastfeeding difficulty"
+      },
+      {
+        "text": "Regurgitation"
+      }
+    ],
+    "text": "NON-URGENT\nMild jaundice\nTransitional stools\nMinor birth trauma\nMinor malformations\nSuperficial infections\nBreastfeeding difficulty\nRegurgitation",
+    "crop_image": "assets/regions/crops/triage_nonurgent_signs.webp"
+  },
+  {
+    "id": "triage_emergency_actions",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Treat Immediately: Emergency Actions",
+    "type": "text",
+    "section": "Treat immediately",
+    "x": 0.02138,
+    "y": 0.29075,
+    "w": 0.36347,
+    "h": 0.0961,
+    "aliases": [
+      "emergency treatment",
+      "treat immediately",
+      "immediate actions",
+      "maintain TABC",
+      "respiratory support",
+      "nasal prong oxygen",
+      "nasal CPAP",
+      "check glucose",
+      "antibiotic dose",
+      "IV fluids"
+    ],
+    "example_questions": [
+      "What should be done immediately for emergency signs?",
+      "What respiratory support does the triage STW recommend?",
+      "What are the immediate emergency actions?"
+    ],
+    "intents": [
+      "management",
+      "procedure",
+      "dose"
+    ],
+    "segments": [
+      {
+        "text": "TREAT IMMEDIATELY",
+        "header": true
+      },
+      {
+        "text": "Maintain TABC"
+      },
+      {
+        "text": "Respiratory support: Nasal prong O₂ if SpO₂ <91% (titrate to 91–95%); nasal CPAP if respiratory distress; intubate if gasping or poor effort."
+      },
+      {
+        "text": "Check blood glucose; send CBC and electrolytes"
+      },
+      {
+        "text": "If sepsis is likely, draw blood culture and give the first antibiotic dose without delay"
+      },
+      {
+        "text": "Start IV fluids as per weight and postnatal age"
+      },
+      {
+        "text": "Manage shock, dehydration and seizures"
+      }
+    ],
+    "text": "TREAT IMMEDIATELY\nMaintain TABC\nRespiratory support: Nasal prong O₂ if SpO₂ <91%\n(titrate to 91–95%); nasal CPAP if respiratory distress;\nintubate if gasping or poor effort.\nCheck blood glucose; send CBC and electrolytes\nIf sepsis is likely, draw blood culture and give the first\nantibiotic dose without delay\nStart IV fluids as per weight and postnatal age\nManage shock, dehydration and seizures",
+    "crop_image": "assets/regions/crops/triage_emergency_actions.webp"
+  },
+  {
+    "id": "triage_priority_actions",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Assess Promptly and Act Rapidly",
+    "type": "text",
+    "section": "Priority management",
+    "x": 0.38722,
+    "y": 0.29075,
+    "w": 0.38247,
+    "h": 0.08386,
+    "aliases": [
+      "priority management",
+      "assess promptly",
+      "act rapidly",
+      "priority actions",
+      "gavage feeds",
+      "assess risk factors for sepsis"
+    ],
+    "example_questions": [
+      "How should priority signs be assessed and managed?",
+      "What actions are listed for priority newborns?"
+    ],
+    "intents": [
+      "management",
+      "procedure"
+    ],
+    "segments": [
+      {
+        "text": "ASSESS PROMPTLY AND ACT RAPIDLY",
+        "header": true
+      },
+      {
+        "text": "Maintain TABC"
+      },
+      {
+        "text": "Nasal prong oxygen if SpO₂ <91%"
+      },
+      {
+        "text": "Check blood glucose and act accordingly"
+      },
+      {
+        "text": "Start IV fluids (if abdominal distension/GI malformation) or gavage feeds"
+      },
+      {
+        "text": "Assess the risk factors for sepsis"
+      },
+      {
+        "text": "Investigations as per clinical findings"
+      }
+    ],
+    "text": "ASSESS PROMPTLY AND ACT RAPIDLY\nMaintain TABC\nNasal prong oxygen if SpO₂ <91%\nCheck blood glucose and act accordingly\nStart IV fluids (if abdominal distension/GI malformation)\nor gavage feeds\nAssess the risk factors for sepsis\nInvestigations as per clinical findings",
+    "crop_image": "assets/regions/crops/triage_priority_actions.webp"
+  },
+  {
+    "id": "triage_nonurgent_actions",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Assess and Counsel",
+    "type": "text",
+    "section": "Non-urgent management",
+    "x": 0.77207,
+    "y": 0.29075,
+    "w": 0.20668,
+    "h": 0.06305,
+    "aliases": [
+      "non-urgent management",
+      "assess and counsel",
+      "breastfeeding counsel",
+      "danger signs",
+      "follow-up"
+    ],
+    "example_questions": [
+      "What should be done for non-urgent signs?",
+      "What counselling is advised for non-urgent newborns?"
+    ],
+    "intents": [
+      "management",
+      "procedure",
+      "followup"
+    ],
+    "segments": [
+      {
+        "text": "ASSESS AND COUNSEL",
+        "header": true
+      },
+      {
+        "text": "Treat as per indication"
+      },
+      {
+        "text": "Counsel for breastfeeding"
+      },
+      {
+        "text": "Explain danger signs and follow-up"
+      }
+    ],
+    "text": "ASSESS AND COUNSEL\nTreat as per indication\nCounsel for breastfeeding\nExplain danger signs and\nfollow-up",
+    "crop_image": "assets/regions/crops/triage_nonurgent_actions.webp"
+  },
+  {
+    "id": "triage_shock",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Specific Management: Shock",
+    "type": "text",
+    "section": "Shock",
+    "x": 0.12472,
+    "y": 0.44256,
+    "w": 0.8374,
+    "h": 0.02938,
+    "aliases": [
+      "shock treatment",
+      "normal saline",
+      "NS bolus",
+      "volume expansion",
+      "inotropes"
+    ],
+    "example_questions": [
+      "How does the triage STW manage shock?",
+      "What IV fluid dose is listed for shock?"
+    ],
+    "intents": [
+      "management",
+      "dose"
+    ],
+    "segments": [
+      {
+        "text": "SHOCK",
+        "header": true
+      },
+      {
+        "text": "IV NS 10 mL/kg if volume expansion is indicated: preterm over 30–60 min; term over 15–20 min."
+      },
+      {
+        "text": "Consider inotropes early."
+      }
+    ],
+    "text": "SHOCK\nIV NS 10 mL/kg if volume expansion is indicated: preterm over 30–60 min; term over 15–20 min.\nConsider inotropes early.",
+    "crop_image": "assets/regions/crops/triage_shock.webp"
+  },
+  {
+    "id": "triage_severe_dehydration",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Specific Management: Severe Dehydration",
+    "type": "text",
+    "section": "Severe dehydration",
+    "x": 0.04751,
+    "y": 0.47133,
+    "w": 0.91461,
+    "h": 0.03979,
+    "aliases": [
+      "severe dehydration",
+      "WHO plan C",
+      "diarrhoea",
+      "skin pinch",
+      "sunken eyes",
+      "ORS",
+      "hypernatremic dehydration"
+    ],
+    "example_questions": [
+      "How is severe dehydration managed in the triage STW?",
+      "What is the fluid plan for diarrhoeal severe dehydration?"
+    ],
+    "intents": [
+      "criteria",
+      "management",
+      "dose",
+      "schedule"
+    ],
+    "segments": [
+      {
+        "text": "SEVERE DEHYDRATION",
+        "header": true
+      },
+      {
+        "text": "(Diarrhoea plus any two of lethargy, very slow skin pinch and sunken eyes)"
+      },
+      {
+        "text": "Diarrhoeal severe dehydration: IV RL/NS 30 mL/kg in 1 h, then 70 mL/kg over 5 h (WHO Plan C)."
+      },
+      {
+        "text": "If IV not possible: ORS 20 mL/kg/h for 6 h. Assess 1–2 hourly and titrate fluids."
+      },
+      {
+        "text": "Hypernatremic dehydration related to poor feeding/hot environment: manage as per the standard neonatal protocol."
+      }
+    ],
+    "text": "SEVERE DEHYDRATION\n(Diarrhoea plus any two of lethargy,\nvery slow skin pinch and sunken eyes)\nDiarrhoeal severe dehydration: IV RL/NS 30 mL/kg in 1 h, then 70 mL/kg over 5 h (WHO Plan C).\nIf IV not possible: ORS 20 mL/kg/h for 6 h. Assess 1–2 hourly and titrate fluids.\nHypernatremic dehydration related to poor feeding/hot environment: manage as per the standard\nneonatal protocol.",
+    "crop_image": "assets/regions/crops/triage_severe_dehydration.webp"
+  },
+  {
+    "id": "triage_seizures",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Specific Management: Seizures",
+    "type": "text",
+    "section": "Seizures",
+    "x": 0.04751,
+    "y": 0.51112,
+    "w": 0.91461,
+    "h": 0.03673,
+    "aliases": [
+      "neonatal seizures",
+      "phenobarbitone",
+      "levetiracetam",
+      "correct glucose and calcium"
+    ],
+    "example_questions": [
+      "What seizure treatment is listed in the triage STW?",
+      "What is the phenobarbitone dose in this workflow?"
+    ],
+    "intents": [
+      "management",
+      "dose",
+      "refer"
+    ],
+    "segments": [
+      {
+        "text": "SEIZURES",
+        "header": true
+      },
+      {
+        "text": "(Refer to STW on neonatal seizures)"
+      },
+      {
+        "text": "Inj. phenobarbitone 20 mg/kg IV over 15 min. If seizures persist after 15 min, give a further 10 mg/kg IV over 10 min."
+      },
+      {
+        "text": "If uncontrolled, consider levetiracetam as second-line treatment."
+      },
+      {
+        "text": "Correct glucose and calcium if abnormal, concurrently."
+      }
+    ],
+    "text": "SEIZURES\n(Refer to STW on neonatal seizures)\nInj. phenobarbitone 20 mg/kg IV over 15 min. If seizures persist after 15 min, give a further 10 mg/kg IV\nover 10 min.\nIf uncontrolled, consider levetiracetam as second-line treatment.\nCorrect glucose and calcium if abnormal, concurrently.",
+    "crop_image": "assets/regions/crops/triage_seizures.webp"
+  },
+  {
+    "id": "triage_surgical",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Specific Management: Surgical Conditions",
+    "type": "text",
+    "section": "Surgical conditions",
+    "x": 0.04751,
+    "y": 0.54784,
+    "w": 0.91461,
+    "h": 0.03611,
+    "aliases": [
+      "surgical newborn",
+      "exposed skin defect",
+      "CDH",
+      "congenital diaphragmatic hernia",
+      "TEF",
+      "oesophageal atresia",
+      "nil by mouth",
+      "urgent referral surgical centre"
+    ],
+    "example_questions": [
+      "What does the triage STW say for surgical conditions?",
+      "What should be done for suspected TEF or oesophageal atresia?",
+      "What does the STW say about CDH ventilation?"
+    ],
+    "intents": [
+      "management",
+      "refer"
+    ],
+    "segments": [
+      {
+        "text": "SURGICAL",
+        "header": true
+      },
+      {
+        "text": "Cover exposed skin defects with warm saline sterile gauze; maintain hydration."
+      },
+      {
+        "text": "CDH: Avoid CPAP/bag-mask ventilation. Intubate if necessary; decompress stomach with an OG/NG tube."
+      },
+      {
+        "text": "Suspected TEF/oesophageal atresia: Nil by mouth, IV fluids, head-up position; upper-pouch suction."
+      },
+      {
+        "text": "Arrange urgent referral to a surgical centre."
+      }
+    ],
+    "text": "SURGICAL\nCover exposed skin defects with warm saline sterile gauze; maintain hydration.\nCDH: Avoid CPAP/bag-mask ventilation. Intubate if necessary; decompress stomach with an OG/NG tube.\nSuspected TEF/oesophageal atresia: Nil by mouth, IV fluids, head-up position; upper-pouch suction.\nArrange urgent referral to a surgical centre.",
+    "crop_image": "assets/regions/crops/triage_surgical.webp"
+  },
+  {
+    "id": "triage_persistent_tachycardia",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Specific Management: Persistent Heart Rate >200/min",
+    "type": "text",
+    "section": "Persistent HR >200/min",
+    "x": 0.04751,
+    "y": 0.58396,
+    "w": 0.91461,
+    "h": 0.02693,
+    "aliases": [
+      "persistent tachycardia",
+      "heart rate above 200",
+      "ECG",
+      "hyperthermia"
+    ],
+    "example_questions": [
+      "What should be done for persistent heart rate over 200 per minute?"
+    ],
+    "intents": [
+      "criteria",
+      "management",
+      "refer"
+    ],
+    "segments": [
+      {
+        "text": "PERSISTENT HR",
+        "header": true
+      },
+      {
+        "text": ">200/MIN"
+      },
+      {
+        "text": "Check ECG for arrhythmia."
+      },
+      {
+        "text": "Check and correct hyperthermia; refer for further management."
+      }
+    ],
+    "text": "PERSISTENT HR\n>200/MIN\nCheck ECG for arrhythmia.\nCheck and correct hyperthermia; refer for further management.",
+    "crop_image": "assets/regions/crops/triage_persistent_tachycardia.webp"
+  },
+  {
+    "id": "triage_hypothermia",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Specific Management: Hypothermia",
+    "type": "text",
+    "section": "Hypothermia",
+    "x": 0.04751,
+    "y": 0.61089,
+    "w": 0.91461,
+    "h": 0.03489,
+    "aliases": [
+      "hypothermia",
+      "temperature below 35.5",
+      "temperature 35.5 to 36.4",
+      "radiant warmer",
+      "skin-to-skin",
+      "recheck in 30 minutes"
+    ],
+    "example_questions": [
+      "How is hypothermia managed in the triage STW?",
+      "What should be done at a temperature below 35.5 degrees?"
+    ],
+    "intents": [
+      "criteria",
+      "management",
+      "schedule"
+    ],
+    "segments": [
+      {
+        "text": "HYPOTHERMIA",
+        "header": true
+      },
+      {
+        "text": "(Refer to STW on thermal care of newborn)"
+      },
+      {
+        "text": "Temperature <35.5°C: nurse under a radiant warmer in servo mode."
+      },
+      {
+        "text": "Temperature 35.5–36.4°C and baby is well: warm environment, skin-to-skin contact; recheck in 30 min."
+      },
+      {
+        "text": "If unwell or temperature fails to improve, nurse under a warmer."
+      }
+    ],
+    "text": "HYPOTHERMIA\n(Refer to STW on thermal care of\nnewborn)\nTemperature <35.5°C: nurse under a radiant warmer in servo mode.\nTemperature 35.5–36.4°C and baby is well: warm environment, skin-to-skin contact; recheck in 30 min.\nIf unwell or temperature fails to improve, nurse under a warmer.",
+    "crop_image": "assets/regions/crops/triage_hypothermia.webp"
+  },
+  {
+    "id": "triage_hypoglycemia",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Specific Management: Hypoglycemia",
+    "type": "text",
+    "section": "Hypoglycemia",
+    "x": 0.04751,
+    "y": 0.64578,
+    "w": 0.91461,
+    "h": 0.03367,
+    "aliases": [
+      "hypoglycemia in triage",
+      "blood glucose below 45",
+      "blood glucose below 20",
+      "asymptomatic",
+      "symptomatic",
+      "supervised breastfeeding",
+      "10% dextrose",
+      "6 mg/kg/min"
+    ],
+    "example_questions": [
+      "What does the triage STW recommend for neonatal hypoglycemia?",
+      "What glucose level and treatment are listed for symptomatic babies?"
+    ],
+    "intents": [
+      "criteria",
+      "management",
+      "dose"
+    ],
+    "segments": [
+      {
+        "text": "HYPOGLYCEMIA",
+        "header": true
+      },
+      {
+        "text": "(Refer to STW on neonatal hypoglycemia)"
+      },
+      {
+        "text": "Blood glucose <45 mg/dL and asymptomatic: supervised breastfeeding or EBM."
+      },
+      {
+        "text": "Blood glucose <20 mg/dL OR symptomatic: 2 mL/kg 10% dextrose IV, followed by infusion at 6 mg/kg/min."
+      }
+    ],
+    "text": "HYPOGLYCEMIA\n(Refer to STW on neonatal\nhypoglycemia)\nBlood glucose <45 mg/dL and asymptomatic: supervised breastfeeding or EBM.\nBlood glucose <20 mg/dL OR symptomatic: 2 mL/kg 10% dextrose IV, followed by infusion at 6\nmg/kg/min.",
+    "crop_image": "assets/regions/crops/triage_hypoglycemia.webp"
+  },
+  {
+    "id": "triage_jaundice",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Specific Management: Serious Jaundice",
+    "type": "text",
+    "section": "Jaundice",
+    "x": 0.04751,
+    "y": 0.67945,
+    "w": 0.91461,
+    "h": 0.03367,
+    "aliases": [
+      "serious jaundice",
+      "severe jaundice",
+      "jaundice onset under 24 hours",
+      "yellow palms or soles",
+      "acute bilirubin encephalopathy",
+      "intensive phototherapy",
+      "exchange transfusion"
+    ],
+    "example_questions": [
+      "What does the triage STW recommend for serious jaundice?",
+      "Which jaundice signs are listed for intensive phototherapy?"
+    ],
+    "intents": [
+      "criteria",
+      "management",
+      "refer"
+    ],
+    "segments": [
+      {
+        "text": "JAUNDICE",
+        "header": true
+      },
+      {
+        "text": "(Refer to STW on neonatal jaundice)"
+      },
+      {
+        "text": "Serious jaundice (onset <24 h, palms/soles yellow, or signs of acute bilirubin encephalopathy): intensive phototherapy; consider IV fluids if dehydrated; prepare for exchange transfusion as indicated."
+      }
+    ],
+    "text": "JAUNDICE\n(Refer to STW on neonatal jaundice)\nSerious jaundice (onset <24 h, palms/soles yellow, or signs of acute bilirubin encephalopathy): intensive\nphototherapy; consider IV fluids if dehydrated; prepare for exchange transfusion as indicated.",
+    "crop_image": "assets/regions/crops/triage_jaundice.webp"
+  },
+  {
+    "id": "triage_dos",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Triage DOs",
+    "type": "text",
+    "section": "DOs",
+    "x": 0.01782,
+    "y": 0.7223,
+    "w": 0.48106,
+    "h": 0.0661,
+    "aliases": [
+      "triage dos",
+      "what to do in triage",
+      "screen every neonate on arrival",
+      "maintain TABC",
+      "assess SpO2 and glucose",
+      "antibiotic within one hour"
+    ],
+    "example_questions": [
+      "What are the DOs in the neonatal triage STW?",
+      "What should be done for every neonate on arrival?"
+    ],
+    "intents": [
+      "dos"
+    ],
+    "segments": [
+      {
+        "text": "DOs"
+      },
+      {
+        "text": "Screen every neonate immediately on arrival for emergency and priority signs."
+      },
+      {
+        "text": "Maintain TABC, assess SpO₂ and blood glucose, and start indicated treatment promptly. Reassess after each intervention."
+      },
+      {
+        "text": "Administer the first dose of antibiotic within 1 hour if there is a high likelihood of sepsis."
+      }
+    ],
+    "text": "DOs\nScreen every neonate immediately on arrival for emergency and\npriority signs.\nMaintain TABC, assess SpO₂ and blood glucose, and start indicated\ntreatment promptly. Reassess after each intervention.\nAdminister the first dose of antibiotic within 1 hour if there is a high\nlikelihood of sepsis.",
+    "crop_image": "assets/regions/crops/triage_dos.webp"
+  },
+  {
+    "id": "triage_donts",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Triage DON'Ts",
+    "type": "text",
+    "section": "DON'Ts",
+    "x": 0.49888,
+    "y": 0.7223,
+    "w": 0.48106,
+    "h": 0.0661,
+    "aliases": [
+      "triage donts",
+      "what not to do",
+      "do not delay emergency treatment",
+      "blood culture before antibiotics",
+      "persistent emergency signs discharge"
+    ],
+    "example_questions": [
+      "What are the DON'Ts in the neonatal triage STW?",
+      "Should emergency treatment wait for investigations?"
+    ],
+    "intents": [
+      "donts",
+      "contraindication"
+    ],
+    "segments": [
+      {
+        "text": "DON Ts"
+      },
+      {
+        "text": "Do NOT delay emergency treatment for investigations or documentation."
+      },
+      {
+        "text": "Obtain blood culture before the first dose of antibiotics, but do not delay treatment."
+      },
+      {
+        "text": "Do NOT discharge a neonate with persistent emergency or priority signs; arrange admission or appropriate referral."
+      }
+    ],
+    "text": "DON Ts\nDo NOT delay emergency treatment for investigations or\ndocumentation.\nObtain blood culture before the first dose of antibiotics, but do not\ndelay treatment.\nDo NOT discharge a neonate with persistent emergency or priority\nsigns; arrange admission or appropriate referral.",
+    "crop_image": "assets/regions/crops/triage_donts.webp"
+  },
+  {
+    "id": "triage_kpis",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Triage Key Performance Indicators",
+    "type": "text",
+    "section": "KPIs",
+    "x": 0.01782,
+    "y": 0.79269,
+    "w": 0.96212,
+    "h": 0.079,
+    "aliases": [
+      "triage KPI",
+      "triage classification documented",
+      "complete triage measurements",
+      "temperature SpO2 glucose recorded"
+    ],
+    "example_questions": [
+      "What are the triage KPIs?",
+      "How is complete triage measurement percentage calculated?"
+    ],
+    "intents": [
+      "kpi"
+    ],
+    "segments": [
+      {
+        "text": "Neonates with a documented triage category at initial assessment",
+        "label": "Triage classification documented (%); All neonates assessed × 100"
+      },
+      {
+        "text": "Sick neonates with temperature, SpO₂ AND blood glucose recorded at initial assessment",
+        "label": "Complete triage measurements (%); All sick neonates assessed × 100"
+      }
+    ],
+    "text": "KEY PERFORMANCE INDICATORS (KPIs)\nTriage classification documented (%)\nNeonates with a documented triage category at initial assessment\nAll neonates assessed\n× 100\nComplete triage measurements (%)\nSick neonates with temperature, SpO₂ AND blood glucose recorded\nat initial assessment\nAll sick neonates assessed\n× 100",
+    "crop_image": "assets/regions/crops/triage_kpis.webp"
+  },
+  {
+    "id": "triage_abbreviations",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Triage Abbreviations",
+    "type": "text",
+    "section": "Abbreviations",
+    "x": 0.01782,
+    "y": 0.88145,
+    "w": 0.96212,
+    "h": 0.04897,
+    "aliases": [
+      "triage abbreviations",
+      "BP",
+      "CBC",
+      "CDH",
+      "CPAP",
+      "CRT",
+      "EBM",
+      "HR",
+      "IDM",
+      "NS",
+      "OG/NG",
+      "ORS",
+      "SpO2",
+      "TEF"
+    ],
+    "example_questions": [
+      "What do the abbreviations in the triage STW mean?",
+      "What does CRT mean in neonatal triage?"
+    ],
+    "intents": [
+      "abbreviation"
+    ],
+    "segments": [
+      {
+        "text": "BP: Blood pressure"
+      },
+      {
+        "text": "CBC: Complete blood count"
+      },
+      {
+        "text": "CDH: Congenital diaphragmatic hernia"
+      },
+      {
+        "text": "CPAP: Continuous positive airway pressure"
+      },
+      {
+        "text": "CRT: Capillary refill time"
+      },
+      {
+        "text": "EBM: Expressed breastmilk"
+      },
+      {
+        "text": "HR: Heart rate"
+      },
+      {
+        "text": "IDM: Infant of a diabetic mother"
+      },
+      {
+        "text": "NS: Normal saline"
+      },
+      {
+        "text": "OG/NG: Orogastric/nasogastric"
+      },
+      {
+        "text": "ORS: Oral rehydration solution"
+      },
+      {
+        "text": "SpO₂: Oxygen saturation"
+      },
+      {
+        "text": "TEF: Tracheoesophageal fistula"
+      }
+    ],
+    "text": "ABBREVIATIONS\nBP: Blood pressure\nCBC: Complete blood count\nCDH: Congenital diaphragmatic hernia\nCPAP: Continuous positive airway pressure\nCRT: Capillary refill time\nEBM: Expressed breastmilk\nHR: Heart rate\nIDM: Infant of a diabetic mother\nNS: Normal saline\nOG/NG: Orogastric/nasogastric\nORS: Oral rehydration solution\nSpO₂: Oxygen saturation\nTEF: Tracheoesophageal fistula",
+    "crop_image": "assets/regions/crops/triage_abbreviations.webp"
+  },
+  {
+    "id": "triage_references",
+    "document": "Triage_13-10-26.pdf",
+    "page": 1,
+    "title": "Triage References",
+    "type": "text",
+    "section": "References",
+    "x": 0.01782,
+    "y": 0.93348,
+    "w": 0.96212,
+    "h": 0.0533,
+    "aliases": [
+      "triage references",
+      "FBNC training module",
+      "WHO ETAT guideline",
+      "Paediatric Emergency Triage Assessment and Treatment"
+    ],
+    "example_questions": [
+      "Which references are listed in the neonatal triage STW?"
+    ],
+    "intents": [
+      "documentation"
+    ],
+    "segments": [
+      {
+        "text": "REFERENCES",
+        "header": true
+      },
+      {
+        "text": "FBNC: MoHFW. Facility Based Newborn Care: Training Module for Doctors and Nurses (2023)."
+      },
+      {
+        "text": "WHO: Paediatric Emergency Triage, Assessment and Treatment (ETAT): Updated guideline (2016)."
+      }
+    ],
+    "text": "REFERENCES\nFBNC: MoHFW. Facility Based Newborn Care: Training Module for Doctors and Nurses (2023).\nWHO: Paediatric Emergency Triage, Assessment and Treatment (ETAT): Updated guideline (2016).",
+    "crop_image": "assets/regions/crops/triage_references.webp"
+  },
+  {
+    "id": "kmc_definition",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Kangaroo Mother Care: Definition",
+    "type": "text",
+    "section": "Definition",
+    "x": 0.00594,
+    "y": 0.07529,
+    "w": 0.98825,
+    "h": 0.02387,
+    "aliases": [
+      "what is KMC",
+      "kangaroo mother care definition",
+      "skin-to-skin contact",
+      "exclusive breastmilk feeding",
+      "structured follow-up"
+    ],
+    "example_questions": [
+      "What is Kangaroo Mother Care?",
+      "How does the KMC STW define kangaroo mother care?"
+    ],
+    "intents": [
+      "definition",
+      "benefit"
+    ],
+    "segments": [
+      {
+        "text": "Kangaroo Mother Care (KMC) is early, continuous and prolonged skin-to-skin contact between a preterm or low birth weight newborn and the mother (or an alternate caregiver), combined with exclusive breastmilk feeding, early discharge when appropriate, and structured follow-up."
+      }
+    ],
+    "text": "Kangaroo Mother Care (KMC) is early, continuous and prolonged skin-to-skin contact between a preterm or low birth weight newborn and the\nmother (or an alternate caregiver), combined with exclusive breastmilk feeding, early discharge when appropriate, and structured follow-up.",
+    "crop_image": "assets/regions/crops/kmc_definition.webp"
+  },
+  {
+    "id": "kmc_eligibility",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Start KMC: Eligibility",
+    "type": "text",
+    "section": "Start KMC eligibility",
+    "x": 0.04157,
+    "y": 0.09794,
+    "w": 0.91698,
+    "h": 0.01836,
+    "aliases": [
+      "KMC eligibility",
+      "preterm under 37 weeks",
+      "low birth weight under 2500 g",
+      "who should start KMC",
+      "soon after birth"
+    ],
+    "example_questions": [
+      "Which newborns should start KMC?",
+      "What are the KMC eligibility criteria?"
+    ],
+    "intents": [
+      "criteria",
+      "timing"
+    ],
+    "segments": [
+      {
+        "text": "Start KMC for every preterm(<37 weeks) or low birth weight baby (<2500g) soon after birth"
+      }
+    ],
+    "text": "Start KMC for every preterm(<37 weeks) or low birth weight baby (<2500g) soon after birth",
+    "crop_image": "assets/regions/crops/kmc_eligibility.webp"
+  },
+  {
+    "id": "kmc_exclusions",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "KMC: When Not to Initiate",
+    "type": "text",
+    "section": "Initiation exclusions",
+    "x": 0.05345,
+    "y": 0.11447,
+    "w": 0.89917,
+    "h": 0.01591,
+    "aliases": [
+      "KMC exclusions",
+      "unable to breathe spontaneously after resuscitation",
+      "shock",
+      "mechanical ventilation",
+      "when not to initiate KMC"
+    ],
+    "example_questions": [
+      "When should KMC not be initiated?",
+      "Which conditions are KMC initiation exclusions?"
+    ],
+    "intents": [
+      "contraindication",
+      "donts"
+    ],
+    "segments": [
+      {
+        "text": "Except if the baby is unable to breathe spontaneously after resuscitation, is in shock or needs mechanical ventilation"
+      }
+    ],
+    "text": "Except if the baby is unable to breathe spontaneously after resuscitation, is in shock or needs mechanical ventilation",
+    "crop_image": "assets/regions/crops/kmc_exclusions.webp"
+  },
+  {
+    "id": "kmc_position",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Kangaroo Position",
+    "type": "text",
+    "section": "Kangaroo position",
+    "x": 0.00594,
+    "y": 0.12977,
+    "w": 0.34921,
+    "h": 0.15242,
+    "aliases": [
+      "KMC position",
+      "kangaroo position",
+      "skin-to-skin position",
+      "baby upright between breasts",
+      "head turned one side",
+      "airway unobstructed",
+      "binder wrap garment",
+      "KMC session duration",
+      "cap socks diaper"
+    ],
+    "example_questions": [
+      "How should the baby be positioned for KMC?",
+      "How long should a KMC session last?",
+      "What clothing should the baby wear during KMC?"
+    ],
+    "intents": [
+      "procedure",
+      "management"
+    ],
+    "manual_content": {
+      "text": "Skin-to-skin, upright, between the mother's breasts\nHead turned to one side, neck slightly extended\nHips flexed & abducted\nArms flexed\nSecure with binder / wrap / garment\nKeep face visible & airway unobstructed\nBABY'S CLOTHING\nWear cap to prevent heat loss\nSocks to keep feet warm\nDiaper or nappy\nSESSION & DURATION\nEach session at least 1 hour\nAim for 24 hours while providing AT LEAST 8 hours\nRecord cumulative duration per 24 h",
+      "segments": [
+        {
+          "text": "Skin-to-skin, upright, between the mother's breasts"
+        },
+        {
+          "text": "Head turned to one side, neck slightly extended"
+        },
+        {
+          "text": "Hips flexed & abducted"
+        },
+        {
+          "text": "Arms flexed"
+        },
+        {
+          "text": "Secure with binder / wrap / garment"
+        },
+        {
+          "text": "Keep face visible & airway unobstructed"
+        },
+        {
+          "text": "BABY'S CLOTHING",
+          "header": true
+        },
+        {
+          "text": "Wear cap to prevent heat loss"
+        },
+        {
+          "text": "Socks to keep feet warm"
+        },
+        {
+          "text": "Diaper or nappy"
+        },
+        {
+          "text": "SESSION & DURATION",
+          "header": true
+        },
+        {
+          "text": "Each session at least 1 hour"
+        },
+        {
+          "text": "Aim for 24 hours while providing AT LEAST 8 hours"
+        },
+        {
+          "text": "Record cumulative duration per 24 h"
+        }
+      ]
+    },
+    "segments": [
+      {
+        "text": "Skin-to-skin, upright, between the mother's breasts"
+      },
+      {
+        "text": "Head turned to one side, neck slightly extended"
+      },
+      {
+        "text": "Hips flexed & abducted"
+      },
+      {
+        "text": "Arms flexed"
+      },
+      {
+        "text": "Secure with binder / wrap / garment"
+      },
+      {
+        "text": "Keep face visible & airway unobstructed"
+      },
+      {
+        "text": "BABY'S CLOTHING",
+        "header": true
+      },
+      {
+        "text": "Wear cap to prevent heat loss"
+      },
+      {
+        "text": "Socks to keep feet warm"
+      },
+      {
+        "text": "Diaper or nappy"
+      },
+      {
+        "text": "SESSION & DURATION",
+        "header": true
+      },
+      {
+        "text": "Each session at least 1 hour"
+      },
+      {
+        "text": "Aim for 24 hours while providing AT LEAST 8 hours"
+      },
+      {
+        "text": "Record cumulative duration per 24 h"
+      }
+    ],
+    "text": "Skin-to-skin, upright, between the mother's breasts\nHead turned to one side, neck slightly extended\nHips flexed & abducted\nArms flexed\nSecure with binder / wrap / garment\nKeep face visible & airway unobstructed\nBABY'S CLOTHING\nWear cap to prevent heat loss\nSocks to keep feet warm\nDiaper or nappy\nSESSION & DURATION\nEach session at least 1 hour\nAim for 24 hours while providing AT LEAST 8 hours\nRecord cumulative duration per 24 h",
+    "crop_image": "assets/regions/crops/kmc_position.webp"
+  },
+  {
+    "id": "kmc_provider",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Who Can Provide KMC",
+    "type": "text",
+    "section": "KMC provider",
+    "x": 0.34446,
+    "y": 0.14323,
+    "w": 0.21856,
+    "h": 0.13895,
+    "aliases": [
+      "KMC provider",
+      "mother preferred provider",
+      "father alternate provider",
+      "trained adult family member",
+      "backup caregiver"
+    ],
+    "example_questions": [
+      "Who can provide KMC?",
+      "Can a father or another family member provide KMC?"
+    ],
+    "intents": [
+      "criteria",
+      "procedure"
+    ],
+    "segments": [
+      {
+        "text": "KMC PROVIDER CAN BE",
+        "header": true
+      },
+      {
+        "text": "1. Mother (Preferred) - the primary KMC provider."
+      },
+      {
+        "text": "2. Father “(Alternate) - preferred alternate”; identify & prepare before birth"
+      },
+      {
+        "text": "3. Another trained adult family member (Backup) when the mother is temporarily unavailable"
+      },
+      {
+        "text": "4. Return to maternal KMC as soon as the mother is able"
+      }
+    ],
+    "text": "KMC PROVIDER CAN BE\n1. Mother (Preferred) - the\nprimary KMC provider.\n2. Father “(Alternate) -\npreferred alternate”;\nidentify & prepare\nbefore birth\n3. Another trained adult\nfamily member\n(Backup) when the\nmother is temporarily\nunavailable\n4. Return to maternal\nKMC as soon as the\nmother is able",
+    "crop_image": "assets/regions/crops/kmc_provider.webp"
+  },
+  {
+    "id": "kmc_nutrition",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Kangaroo Nutrition",
+    "type": "text",
+    "section": "Kangaroo nutrition",
+    "x": 0.55827,
+    "y": 0.12977,
+    "w": 0.23281,
+    "h": 0.15242,
+    "aliases": [
+      "KMC nutrition",
+      "breastfeeding",
+      "exclusive breastmilk feeding",
+      "expressed breast milk",
+      "cup spoon paladai",
+      "OG/NG tube feeds",
+      "lactation support"
+    ],
+    "example_questions": [
+      "What feeding is recommended during KMC?",
+      "When should expressed breast milk or tube feeds be used during KMC?"
+    ],
+    "intents": [
+      "management",
+      "procedure"
+    ],
+    "segments": [
+      {
+        "text": "KANGAROO NUTRITION",
+        "header": true
+      },
+      {
+        "text": "Initiate breastfeeding as early as possible"
+      },
+      {
+        "text": "Support exclusive breastfeeding; encourage direct feeds"
+      },
+      {
+        "text": "Expressed breast milk if direct feeding not possible"
+      },
+      {
+        "text": "Express and feed in KMC position"
+      },
+      {
+        "text": "Use Cup/spoon/paladai until effective feeding established"
+      },
+      {
+        "text": "Continue OG/NG tube feeds if indicated"
+      },
+      {
+        "text": "Provide lactation support"
+      }
+    ],
+    "text": "KANGAROO NUTRITION\nInitiate breastfeeding as\nearly as possible\nSupport exclusive\nbreastfeeding; encourage\ndirect feeds\nExpressed breast milk if\ndirect feeding not possible\nExpress and feed in KMC\nposition\nUse Cup/spoon/paladai until\neffective feeding\nestablished\nContinue OG/NG tube feeds\nif indicated\nProvide lactation support",
+    "crop_image": "assets/regions/crops/kmc_nutrition.webp"
+  },
+  {
+    "id": "kmc_discharge",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Kangaroo Discharge",
+    "type": "text",
+    "section": "Kangaroo discharge",
+    "x": 0.78989,
+    "y": 0.12977,
+    "w": 0.20549,
+    "h": 0.10896,
+    "aliases": [
+      "KMC discharge",
+      "continue KMC at home",
+      "counsel before discharge",
+      "discharge criteria as per unit policy"
+    ],
+    "example_questions": [
+      "What does the KMC STW say about discharge?",
+      "Should KMC continue at home after discharge?"
+    ],
+    "intents": [
+      "criteria",
+      "procedure",
+      "followup"
+    ],
+    "segments": [
+      {
+        "text": "KANGAROO DISCHARGE",
+        "header": true
+      },
+      {
+        "text": "Discharge when the neonate meets discharge criteria as per unit policy*"
+      },
+      {
+        "text": "Counsel for continuation of KMC while going home"
+      },
+      {
+        "text": "Continue KMC at home"
+      },
+      {
+        "text": "Refer to discharge and follow-up STW module"
+      }
+    ],
+    "text": "KANGAROO DISCHARGE\nDischarge when the\nneonate meets\ndischarge criteria as per\nunit policy*\nCounsel for continuation\nof KMC while going\nhome\nContinue KMC at home\nRefer to discharge and\nfollow-up STW module",
+    "crop_image": "assets/regions/crops/kmc_discharge.webp"
+  },
+  {
+    "id": "kmc_before_starting",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Ensure Before Starting KMC",
+    "type": "text",
+    "section": "Ensure before starting KMC",
+    "x": 0.00594,
+    "y": 0.28157,
+    "w": 0.32189,
+    "h": 0.11018,
+    "aliases": [
+      "preparation before KMC",
+      "KMC bed wrap",
+      "private area",
+      "monitoring chart",
+      "trained healthcare provider",
+      "caregiver counselled",
+      "baby upright 30 degrees"
+    ],
+    "example_questions": [
+      "What should be ensured before starting KMC?",
+      "What preparation is needed for KMC?"
+    ],
+    "intents": [
+      "procedure",
+      "criteria"
+    ],
+    "segments": [
+      {
+        "text": "ENSURE BEFORE STARTING KMC",
+        "header": true
+      },
+      {
+        "text": "Appropriate KMC bed/wrap available"
+      },
+      {
+        "text": "Clean, comfortable, private area secured"
+      },
+      {
+        "text": "Documentation & monitoring chart available"
+      },
+      {
+        "text": "Trained healthcare provider available"
+      },
+      {
+        "text": "Mother/caregiver counselled"
+      },
+      {
+        "text": "Baby is upright or at least at 30 degrees"
+      }
+    ],
+    "text": "ENSURE BEFORE STARTING KMC\nAppropriate KMC bed/wrap available\nClean, comfortable, private area\nsecured\nDocumentation & monitoring chart\navailable\nTrained healthcare provider available\nMother/caregiver counselled\nBaby is upright or at least at 30\ndegrees",
+    "crop_image": "assets/regions/crops/kmc_before_starting.webp"
+  },
+  {
+    "id": "kmc_monitoring",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "KMC Monitoring",
+    "type": "text",
+    "section": "Monitoring",
+    "x": 0.33021,
+    "y": 0.28157,
+    "w": 0.31714,
+    "h": 0.11018,
+    "aliases": [
+      "monitoring during KMC",
+      "temperature",
+      "breathing",
+      "colour",
+      "positioning",
+      "airway",
+      "feeding",
+      "weight",
+      "duration",
+      "monitor heart rate SpO2 respiratory rate sick babies"
+    ],
+    "example_questions": [
+      "What should be monitored during KMC?",
+      "How are sick babies monitored during KMC?"
+    ],
+    "intents": [
+      "schedule",
+      "procedure"
+    ],
+    "segments": [
+      {
+        "text": "MONITORING",
+        "header": true
+      },
+      {
+        "text": "AT INITIATION",
+        "header": true
+      },
+      {
+        "text": "Monitor temperature after starting KMC"
+      },
+      {
+        "text": "Assess breathing & colour"
+      },
+      {
+        "text": "Assess positioning & airway"
+      },
+      {
+        "text": "Assess feeding"
+      },
+      {
+        "text": "DURING CONTINUATION",
+        "header": true
+      },
+      {
+        "text": "Monitor temperature regularly"
+      },
+      {
+        "text": "Assess feeding & weight"
+      },
+      {
+        "text": "Track & document KMC duration"
+      },
+      {
+        "text": "KMC IN SICK BABIES",
+        "header": true
+      },
+      {
+        "text": "Monitor heart rate, SpO₂ and respiratory rate/breathing and colour"
+      }
+    ],
+    "text": "MONITORING\nAT INITIATION\nMonitor temperature after starting KMC\nAssess breathing & colour\nAssess positioning & airway\nAssess feeding\nDURING CONTINUATION\nMonitor temperature regularly\nAssess feeding & weight\nTrack & document KMC duration\nKMC IN SICK BABIES\nMonitor heart rate, SpO₂ and respiratory\nrate/breathing and colour",
+    "crop_image": "assets/regions/crops/kmc_monitoring.webp"
+  },
+  {
+    "id": "kmc_transport",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "KMC During Transport",
+    "type": "text",
+    "section": "KMC during transport",
+    "x": 0.64735,
+    "y": 0.28157,
+    "w": 0.34803,
+    "h": 0.11018,
+    "aliases": [
+      "KMC transport",
+      "intra-facility transport",
+      "inter-facility transport",
+      "clinical stability before transport",
+      "binder wrap KMC bag",
+      "trained provider",
+      "minimize interruption"
+    ],
+    "example_questions": [
+      "Can KMC continue during transport?",
+      "How should KMC be maintained during transfer?"
+    ],
+    "intents": [
+      "procedure",
+      "management"
+    ],
+    "segments": [
+      {
+        "text": "KMC DURING TRANSPORT",
+        "header": true
+      },
+      {
+        "text": "Continue KMC at discharge to Home"
+      },
+      {
+        "text": "Continue during intra- & inter-facility transport where feasible"
+      },
+      {
+        "text": "Conﬁrm clinical stability before transporting in KMC position"
+      },
+      {
+        "text": "Secure safely with binder/wrap/KMC bag"
+      },
+      {
+        "text": "Accompany with trained provider when indicated"
+      },
+      {
+        "text": "Minimize interruption before, during & after transport"
+      }
+    ],
+    "text": "KMC DURING TRANSPORT\nContinue KMC at discharge to Home\nContinue during intra- & inter-facility transport\nwhere feasible\nConﬁrm clinical stability before transporting in\nKMC position\nSecure safely with binder/wrap/KMC bag\nAccompany with trained provider when indicated\nMinimize interruption before, during & after\ntransport",
+    "crop_image": "assets/regions/crops/kmc_transport.webp"
+  },
+  {
+    "id": "kmc_continue_while_on",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Continue KMC While on Treatment",
+    "type": "text",
+    "section": "Continue KMC while on",
+    "x": 0.00594,
+    "y": 0.39175,
+    "w": 0.3409,
+    "h": 0.09243,
+    "aliases": [
+      "continue KMC during oxygen",
+      "CPAP",
+      "IV fluids",
+      "medications",
+      "tube feeding",
+      "phototherapy",
+      "twins"
+    ],
+    "example_questions": [
+      "Can KMC continue while the baby is on oxygen or CPAP?",
+      "Does phototherapy require stopping KMC?",
+      "Can twins receive KMC together?"
+    ],
+    "intents": [
+      "management",
+      "donts"
+    ],
+    "segments": [
+      {
+        "text": "Oxygen therapy"
+      },
+      {
+        "text": "CPAP"
+      },
+      {
+        "text": "IV ﬂuids or medications"
+      },
+      {
+        "text": "OG/NG tube feeding"
+      },
+      {
+        "text": "Phototherapy (interrupt only during treatment, resume immediately)"
+      },
+      {
+        "text": "Twins: individually or together, depending on stability and caregiver availability"
+      }
+    ],
+    "text": "CONTINUE KMC WHILE ON\nOxygen therapy\nCPAP\nIV ﬂuids or medications\nOG/NG tube feeding\nPhototherapy (interrupt only during\ntreatment, resume immediately)\nTwins: individually or together, depending\non stability and caregiver availability\nDO’s",
+    "crop_image": "assets/regions/crops/kmc_continue_while_on.webp"
+  },
+  {
+    "id": "kmc_home_counselling",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Home KMC Counselling",
+    "type": "text",
+    "section": "Home KMC counselling",
+    "x": 0.34684,
+    "y": 0.39175,
+    "w": 0.29695,
+    "h": 0.09243,
+    "aliases": [
+      "home KMC counselling",
+      "continue KMC at home",
+      "exclusive breastfeeding",
+      "family participation",
+      "scheduled follow-up",
+      "danger signs",
+      "Neonatal Triage STW Module"
+    ],
+    "example_questions": [
+      "What counselling is given for KMC at home?",
+      "What should families do if danger signs develop?"
+    ],
+    "intents": [
+      "dos",
+      "followup",
+      "refer"
+    ],
+    "segments": [
+      {
+        "text": "HOME KMC COUNSELLING",
+        "header": true
+      },
+      {
+        "text": "Continue KMC as long as possible"
+      },
+      {
+        "text": "Continue exclusive breastfeeding"
+      },
+      {
+        "text": "Encourage family participation"
+      },
+      {
+        "text": "Attend scheduled follow-up"
+      },
+      {
+        "text": "Seek care if “danger signs” develop"
+      },
+      {
+        "text": "Go to Neonatal Triage STW Module"
+      }
+    ],
+    "text": "HOME KMC COUNSELLING\nContinue KMC as long as possible\nContinue exclusive breastfeeding\nEncourage family participation\nAttend scheduled follow-up\nSeek care if “danger signs” develop\nGo to Neonatal Triage STW Module",
+    "crop_image": "assets/regions/crops/kmc_home_counselling.webp"
+  },
+  {
+    "id": "kmc_followup",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "KMC Follow-up Visits",
+    "type": "text",
+    "section": "Follow-up visits",
+    "x": 0.64141,
+    "y": 0.39175,
+    "w": 0.35397,
+    "h": 0.09243,
+    "aliases": [
+      "KMC follow-up",
+      "weight gain",
+      "length",
+      "head circumference",
+      "feeding adequacy",
+      "ROP screening",
+      "hearing screening",
+      "neurodevelopmental assessment",
+      "reinforce KMC"
+    ],
+    "example_questions": [
+      "What is checked at KMC follow-up visits?",
+      "Which screenings are included in KMC follow-up?"
+    ],
+    "intents": [
+      "followup",
+      "schedule"
+    ],
+    "segments": [
+      {
+        "text": "FOLLOW-UP VISITS",
+        "header": true
+      },
+      {
+        "text": "Assess weight gain, length and head circumference"
+      },
+      {
+        "text": "Assess breastfeeding & feeding adequacy"
+      },
+      {
+        "text": "Assess KMC practice"
+      },
+      {
+        "text": "Screen for danger signs"
+      },
+      {
+        "text": "ROP screening, hearing screening, neurodevelopmental assessment as required"
+      },
+      {
+        "text": "Reinforce KMC & feeding counselling each visit DON’Ts"
+      }
+    ],
+    "text": "FOLLOW-UP VISITS\nAssess weight gain, length and head\ncircumference\nAssess breastfeeding & feeding adequacy\nAssess KMC practice\nScreen for danger signs\nROP screening, hearing screening,\nneurodevelopmental assessment as required\nReinforce KMC & feeding counselling each visit\nDON’Ts",
+    "crop_image": "assets/regions/crops/kmc_followup.webp"
+  },
+  {
+    "id": "kmc_dos",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "KMC DOs",
+    "type": "text",
+    "section": "DOs",
+    "x": 0.00594,
+    "y": 0.4639,
+    "w": 0.49413,
+    "h": 0.0796,
+    "aliases": [
+      "KMC dos",
+      "good KMC practices",
+      "early KMC",
+      "correct positioning",
+      "clear airway",
+      "secure support",
+      "monitor temperature breathing feeding"
+    ],
+    "example_questions": [
+      "What are the DOs for KMC?"
+    ],
+    "intents": [
+      "dos"
+    ],
+    "segments": [
+      {
+        "text": "Start KMC early in every eligible preterm or low-birth-weight baby; continue as long as possible"
+      },
+      {
+        "text": "Ensure correct positioning, a clear airway, and secure support; monitor temperature, breathing, and feeding"
+      },
+      {
+        "text": "Support exclusive breast milk feeding and counsel families to continue KMC at home with scheduled follow-up"
+      }
+    ],
+    "text": "Start KMC early in every eligible preterm or low-birth-weight\nbaby; continue as long as possible\nEnsure correct positioning, a clear airway, and secure support;\nmonitor temperature, breathing, and feeding\nSupport exclusive breast milk feeding and counsel families to\ncontinue KMC at home with scheduled follow-up\nDO s",
+    "crop_image": "assets/regions/crops/kmc_dos.webp"
+  },
+  {
+    "id": "kmc_donts",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "KMC DON'Ts",
+    "type": "text",
+    "section": "DON'Ts",
+    "x": 0.50007,
+    "y": 0.4639,
+    "w": 0.49531,
+    "h": 0.0796,
+    "aliases": [
+      "KMC donts",
+      "when not to start KMC",
+      "do not stop KMC for oxygen",
+      "CPAP IV therapy tube feeding",
+      "alternate caregiver"
+    ],
+    "example_questions": [
+      "What are the DON'Ts for KMC?",
+      "Should KMC routinely stop for IV treatment or tube feeding?"
+    ],
+    "intents": [
+      "donts",
+      "contraindication"
+    ],
+    "segments": [
+      {
+        "text": "Do not initiate KMC in babies unable to breathe spontaneously after resuscitation, in shock, or requiring mechanical ventilation"
+      },
+      {
+        "text": "Do not routinely stop KMC for oxygen, CPAP, IV therapy, or tube feeding"
+      },
+      {
+        "text": "Do not delay KMC because the mother is unavailable; involve a trained alternate caregiver"
+      }
+    ],
+    "text": "Do not initiate KMC in babies unable to breathe spontaneously\nafter resuscitation, in shock, or requiring mechanical ventilation\nDo not routinely stop KMC for oxygen, CPAP, IV therapy, or tube\nfeeding\nDo not delay KMC because the mother is unavailable; involve a\ntrained alternate caregiver\nDON Ts",
+    "crop_image": "assets/regions/crops/kmc_donts.webp"
+  },
+  {
+    "id": "kmc_kpis",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "KMC Key Performance Indicators",
+    "type": "text",
+    "section": "KPIs",
+    "x": 0.00594,
+    "y": 0.54356,
+    "w": 0.98944,
+    "h": 0.06672,
+    "aliases": [
+      "KMC KPIs",
+      "KMC coverage",
+      "eligible neonates receiving KMC",
+      "more than 8 hours KMC per 24 hours",
+      "90 percent",
+      "80 percent"
+    ],
+    "example_questions": [
+      "What are the KMC KPIs and targets?",
+      "How is KMC coverage calculated?"
+    ],
+    "intents": [
+      "kpi"
+    ],
+    "segments": [
+      {
+        "text": "No. of neonates initiated on KMC x 100",
+        "label": "KMC coverage among eligible neonates = Total eligible neonates during that period; Target: ≥90%"
+      },
+      {
+        "text": "Neonates receiving KMC for ≥8 h per 24h x 100",
+        "label": "Percentage of eligible neonates getting > 8 hours of KMC = All neonates receiving KMC; Target: ≥80%"
+      }
+    ],
+    "text": "No. of neonates initiated on KMC\nx 100\nTotal eligible neonates during that period\nNeonates receiving KMC for ≥8 h per 24h x 100\nAll neonates receiving KMC\nKEY PERFORMANCE INDICATORS (KPIs)\n(Target: ≥90%)\n(Target: ≥80%)\nKMC coverage among eligible neonates =\nPercentage of eligible neonates getting > 8 hours of KMC =",
+    "crop_image": "assets/regions/crops/kmc_kpis.webp"
+  },
+  {
+    "id": "kmc_in_position",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Activity in KMC Position",
+    "type": "text",
+    "section": "Kangaroo position",
+    "x": 0.09502,
+    "y": 0.60905,
+    "w": 0.83146,
+    "h": 0.02265,
+    "aliases": [
+      "mother can sleep stand and walk",
+      "sleep in KMC position",
+      "stand and walk while carrying baby"
+    ],
+    "example_questions": [
+      "Can the mother sleep, stand, and walk in KMC position?"
+    ],
+    "intents": [
+      "procedure",
+      "benefit"
+    ],
+    "segments": [
+      {
+        "text": "MOTHER CAN SLEEP, STAND AND WALK IN KMC POSITION"
+      }
+    ],
+    "text": "MOTHER CAN SLEEP, STAND AND WALK IN KMC POSITION",
+    "crop_image": "assets/regions/crops/kmc_in_position.webp"
+  },
+  {
+    "id": "kmc_related_information",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "Related Information",
+    "type": "text",
+    "section": "Related information",
+    "x": 0.00594,
+    "y": 0.79208,
+    "w": 0.98944,
+    "h": 0.1188,
+    "aliases": [
+      "KMC related information",
+      "QR codes",
+      "breastfeeding in KMC position",
+      "expressing milk in KMC position",
+      "initiating KMC after birth",
+      "placing in KMC position",
+      "postnatal counselling for KMC"
+    ],
+    "example_questions": [
+      "What related information is listed in the KMC STW?"
+    ],
+    "intents": [
+      "documentation",
+      "procedure"
+    ],
+    "segments": [
+      {
+        "text": "RELATED INFORMATION",
+        "header": true
+      },
+      {
+        "text": "Breastfeeding in KMC Position Expressing Milk in KMC Position Initiating KMC after Birth Placing in KMC Position Postnatal Counselling for KMC"
+      }
+    ],
+    "text": "RELATED INFORMATION\nBreastfeeding in\nKMC Position\nExpressing Milk in\nKMC Position\nInitiating KMC\nafter Birth\nPlacing in KMC\nPosition\nPostnatal Counselling\nfor KMC",
+    "crop_image": "assets/regions/crops/kmc_related_information.webp"
+  },
+  {
+    "id": "kmc_abbreviations",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "KMC Abbreviations",
+    "type": "text",
+    "section": "Abbreviations",
+    "x": 0.01782,
+    "y": 0.9071,
+    "w": 0.9645,
+    "h": 0.049,
+    "aliases": [
+      "KMC abbreviations",
+      "CPAP",
+      "EBM",
+      "LBW",
+      "OG/NG",
+      "ROP",
+      "SpO2"
+    ],
+    "example_questions": [
+      "What do the abbreviations in the KMC STW mean?",
+      "What does LBW mean?"
+    ],
+    "intents": [
+      "abbreviation"
+    ],
+    "segments": [
+      {
+        "text": "CPAP - Continuous Positive Airway Pressure"
+      },
+      {
+        "text": "EBM: Expressed Breastmilk"
+      },
+      {
+        "text": "KMC: Kangaroo Mother Care"
+      },
+      {
+        "text": "LBW: Low Birth Weight"
+      },
+      {
+        "text": "OG/NG - Orogastric/Nasogastric"
+      },
+      {
+        "text": "ROP- Retinopathy of Prematurity"
+      },
+      {
+        "text": "SpO2- Peripheral Oxygen Saturation"
+      }
+    ],
+    "text": "ABBREVIATIONS\nCPAP - Continuous Positive Airway Pressure\nEBM: Expressed Breastmilk\nKMC: Kangaroo Mother Care\nREFERENCES\nLBW: Low Birth Weight\nOG/NG - Orogastric/Nasogastric\nROP- Retinopathy of Prematurity\nSpO2- Peripheral Oxygen Saturation",
+    "crop_image": "assets/regions/crops/kmc_abbreviations.webp"
+  },
+  {
+    "id": "kmc_references",
+    "document": "KMC-13-10-2026.pdf",
+    "page": 1,
+    "title": "KMC References",
+    "type": "text",
+    "section": "References",
+    "x": 0.0095,
+    "y": 0.9402,
+    "w": 0.98231,
+    "h": 0.0331,
+    "aliases": [
+      "KMC references",
+      "WHO kangaroo mother care clinical practice guide",
+      "Operational guidelines for Kangaroo Mother Care",
+      "Facility Based Newborn Care participant manual"
+    ],
+    "example_questions": [
+      "Which references are listed in the KMC STW?"
+    ],
+    "intents": [
+      "documentation"
+    ],
+    "segments": [
+      {
+        "text": "1. World Health Organization. Kangaroo mother care: a clinical practice guide. Geneva: WHO; 2025."
+      },
+      {
+        "text": "2. Government of India. Operational guidelines for Kangaroo Mother Care (KMC) and optimal feeding of low birth weight infants. New Delhi: Ministry of Health and Family Welfare; 2014."
+      },
+      {
+        "text": "3. Ministry of Health and Family Welfare, Government of India. Facility Based Newborn Care (FBNC): Participant Manual. New Delhi: MoHFW; 2023."
+      },
+      {
+        "text": "REFERENCES",
+        "header": true
+      }
+    ],
+    "text": "1. World Health Organization. Kangaroo mother care: a clinical practice guide. Geneva: WHO; 2025.\n2. Government of India. Operational guidelines for Kangaroo Mother Care (KMC) and optimal feeding of low birth weight infants. New Delhi: Ministry of Health and Family Welfare; 2014.\n3. Ministry of Health and Family Welfare, Government of India. Facility Based Newborn Care (FBNC): Participant Manual. New Delhi: MoHFW; 2023.\nREFERENCES",
+    "crop_image": "assets/regions/crops/kmc_references.webp"
   }
 ]

@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/theme.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../domain/bubble_graph.dart';
+import '../domain/kg_graph.dart';
 import '../domain/stw_map.dart';
 import 'reasoning_tree.dart' show hasPdf, openSourceInPdf;
 
@@ -43,6 +45,24 @@ import 'reasoning_tree.dart' show hasPdf, openSourceInPdf;
           border: const Color(0xFFC0504D),
           icon: Icons.flag_outlined,
           label: 'Finding',
+        ),
+      BubbleKind.input => (
+          fill: const Color(0xFFE0F2FE),
+          border: const Color(0xFF075985),
+          icon: Icons.edit_note_rounded,
+          label: 'Assessment input',
+        ),
+      BubbleKind.computed => (
+          fill: const Color(0xFFE0E7FF),
+          border: const Color(0xFF3730A3),
+          icon: Icons.calculate_outlined,
+          label: 'Computed value',
+        ),
+      BubbleKind.rule => (
+          fill: const Color(0xFFDCFCE7),
+          border: const Color(0xFF166534),
+          icon: Icons.rule_rounded,
+          label: 'STW rule',
         ),
       BubbleKind.link => (
           fill: const Color(0xFFEEEEEE),
@@ -133,26 +153,34 @@ class _Track {
 /// Overview: one circle per STW, joined by labelled arrows. Tapping an STW
 /// moves it to the centre and springs its PDF boxes out around it; tapping
 /// a box fans out the questions, findings and links it drives. Tapping
-/// again collapses. The camera follows smoothly; pinch and drag to explore.
-/// The card at the bottom shows the selected bubble with "Details" and
-/// "Open in PDF".
+/// again collapses. The camera follows smoothly; pinch and drag the
+/// background to explore. Dragging a bubble moves only that bubble: what
+/// hangs off it follows on springs, neighbours make room, and the graph
+/// settles where it is let go. The card at the bottom shows the selected
+/// bubble with "Details" and "Open in PDF".
 class BubbleGraphView extends StatefulWidget {
   const BubbleGraphView({
     super.key,
     required this.graph,
-    required this.onDetails,
+    this.onDetails,
+    this.onAssessmentDetails,
     this.focusBox,
     this.focusTopic,
-  });
+    this.focusBubbleId,
+    this.overviewLabel = 'All STWs',
+  }) : assert(onDetails != null || onAssessmentDetails != null);
 
   final BubbleGraph graph;
-  final void Function(MapNode node) onDetails;
+  final void Function(MapNode node)? onDetails;
+  final void Function(KgItem item, KgItem? feeds)? onAssessmentDetails;
 
   /// Open on this PDF box (its STW and the box expanded).
   final String? focusBox;
 
   /// Open on this STW, expanded.
   final NeonatalCondition? focusTopic;
+  final String? focusBubbleId;
+  final String overviewLabel;
 
   @override
   State<BubbleGraphView> createState() => _BubbleGraphViewState();
@@ -165,11 +193,11 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
   static const _panelHeight = 168.0;
 
   String? _hub;
-  String? _box;
+  String? _branch;
   String? _selected;
 
   final _tracks = <String, _Track>{};
-  late final Map<String, Offset> _hubBase = _overviewPositions();
+  late Map<String, Offset> _hubBase;
 
   late final AnimationController _anim = AnimationController(
     vsync: this,
@@ -189,15 +217,38 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
   Size? _viewport;
   var _fitted = false;
 
+  // Dragging: each bubble's displacement from its layout pose, moved by
+  // springs (see [_step]). [_rest] is where a bubble rests, relative to its
+  // parent's displacement (a hub's is absolute), so a dropped bubble stays
+  // put and follows its parent afterwards.
+  final _disp = <String, Offset>{};
+  final _vel = <String, Offset>{};
+  final _rest = <String, Offset>{};
+  String? _dragId;
+
+  /// The bubble just dropped, held still while the others settle.
+  String? _settling;
+  var _settleFrames = 0;
+  Offset _grab = Offset.zero;
+  (String?, String?)? _layoutKey;
+  final _worldKey = GlobalKey();
+  final _simFrame = ValueNotifier<int>(0);
+  late final Ticker _physics = createTicker(_tick);
+  Duration _lastTick = Duration.zero;
+
   @override
   void initState() {
     super.initState();
+    _hubBase = _overviewPositions();
     final g = widget.graph;
     final box = widget.focusBox == null ? null : g.box(widget.focusBox!);
     if (box != null) {
       _hub = box.parentId;
-      _box = box.id;
+      _branch = box.id;
       _selected = box.id;
+    } else if (widget.focusBubbleId != null &&
+        g.byId(widget.focusBubbleId!) != null) {
+      _focusBubble(g.byId(widget.focusBubbleId!)!);
     } else if (widget.focusTopic != null) {
       _hub = g.hubOf(widget.focusTopic!)?.id;
       _selected = _hub;
@@ -206,7 +257,45 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
   }
 
   @override
+  void didUpdateWidget(BubbleGraphView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final graphChanged = !identical(oldWidget.graph, widget.graph);
+    final focusChanged = oldWidget.focusBubbleId != widget.focusBubbleId;
+    if (!graphChanged && !focusChanged) return;
+    if (graphChanged) {
+      _hubBase = _overviewPositions();
+      if (_hub != null && widget.graph.byId(_hub!) == null) _hub = null;
+      if (_branch != null && widget.graph.byId(_branch!) == null) {
+        _branch = null;
+      }
+      if (_selected != null && widget.graph.byId(_selected!) == null) {
+        _selected = _branch ?? _hub;
+      }
+    }
+    if (focusChanged && widget.focusBubbleId != null) {
+      final focused = widget.graph.byId(widget.focusBubbleId!);
+      if (focused != null) _focusBubble(focused);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _relayout());
+    });
+  }
+
+  void _focusBubble(Bubble focused) {
+    var root = focused;
+    while (root.parentId != null) {
+      root = widget.graph.byId(root.parentId!) ?? root;
+      if (root.isHub) break;
+    }
+    _hub = root.id;
+    _branch = focused.expandable ? focused.id : null;
+    _selected = focused.id;
+  }
+
+  @override
   void dispose() {
+    _physics.dispose();
+    _simFrame.dispose();
     _anim.dispose();
     _cam.dispose();
     _transform.dispose();
@@ -294,7 +383,7 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
     final inner = twoRings ? (n / 2).ceil() : n;
     final rIn = math.max(150.0, inner * spacing / (2 * math.pi));
     final rOut = twoRings ? rIn + 120 : rIn;
-    final box = _box == null ? null : g.byId(_box!);
+    final branch = _branch == null ? null : g.byId(_branch!);
     for (var i = 0; i < n; i++) {
       final double r;
       final double a;
@@ -308,7 +397,7 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
         r = outer ? rOut : rIn;
         a = -math.pi / 2 + k * step + (outer ? step / 2 : 0);
       }
-      final dim = box != null && kids[i].id != box.id;
+      final dim = branch != null && kids[i].id != branch.id;
       t[kids[i].id] = _Pose(
         fit(Offset.fromDirection(a, r), 0.6),
         dim ? 0.7 : 1,
@@ -316,7 +405,7 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
       );
     }
 
-    final others = rOut + (box == null ? 200 : 360);
+    final others = rOut + (branch == null ? 200 : 360);
     for (final h in g.hubs) {
       if (h.id == hub.id) continue;
       final dir = _hubBase[h.id]! - _hubBase[hub.id]!;
@@ -327,16 +416,17 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
       );
     }
 
-    if (box != null && t[box.id] != null) {
-      final bc = t[box.id]!.c;
-      final k = box.children.length;
+    if (branch != null && t[branch.id] != null) {
+      final bc = t[branch.id]!.c;
+      final k = branch.children.length;
       const step = 0.75;
       final spread =
           k <= 1 ? 0.0 : math.min(2 * math.pi * 0.92, (k - 1) * step);
       final base = bc.direction;
       for (var i = 0; i < k; i++) {
         final a = k <= 1 ? base : base - spread / 2 + i * spread / (k - 1);
-        t[box.children[i].id] = _Pose(bc + Offset.fromDirection(a, 165), 1, 1);
+        t[branch.children[i].id] =
+            _Pose(bc + Offset.fromDirection(a, 165), 1, 1);
       }
     }
     return t;
@@ -357,7 +447,18 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
 
   void _relayout({bool animate = true}) {
     final targets = _targets();
-    final now = {for (final e in _tracks.entries) e.key: _current(e.value)};
+    // A new layout (an STW or box opened or closed) starts from where the
+    // bubbles are now, dragged or not, and drops the drags. Same layout
+    // (selection, resize): the drags stay.
+    final key = (_hub, _branch);
+    final newLayout = _layoutKey != null && _layoutKey != key;
+    _layoutKey = key;
+    final now = {
+      for (final e in _tracks.entries)
+        e.key:
+            newLayout ? _shifted(e.key, _current(e.value)) : _current(e.value),
+    };
+    if (newLayout) _resetDrags();
 
     _Pose? parentPose(Bubble b, {required bool target}) {
       final pid = b.parentId;
@@ -398,6 +499,215 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
   }
 
   // -------------------------------------------------------------------------
+  // Dragging and springs
+  // -------------------------------------------------------------------------
+
+  /// Pull of a hub back to where it rests (per second², per unit mass).
+  static const _kHome = 30.0;
+
+  /// Pull of a bubble to its place around its parent: what hangs off a
+  /// dragged bubble follows it closely.
+  static const _kFollow = 45.0;
+
+  /// Pull of a bubble back on its parent: dragging a box nudges its STW.
+  static const _kTug = 4.0;
+
+  /// Pull along the links between STWs.
+  static const _kLink = 9.0;
+
+  /// Push between bubbles dragged into each other.
+  static const _kPush = 600.0;
+
+  /// Velocity lost per second.
+  static const _damping = 8.5;
+
+  /// Free space kept between two bubbles that are pushed apart.
+  static const _gap = 16.0;
+
+  Offset _d(String id) => _disp[id] ?? Offset.zero;
+
+  _Pose _shifted(String id, _Pose p) {
+    final d = _disp[id];
+    return d == null ? p : _Pose(p.c + d, p.scale, p.opacity);
+  }
+
+  void _resetDrags() {
+    _disp.clear();
+    _vel.clear();
+    _rest.clear();
+    _dragId = null;
+    _settling = null;
+    _physics.stop();
+  }
+
+  void _wake() {
+    if (_physics.isActive) return;
+    _lastTick = Duration.zero;
+    _physics.start();
+  }
+
+  /// The visible parent of [b] (null for hubs).
+  String? _parentOf(Bubble b, Map<String, Offset> live) {
+    final pid = b.parentId;
+    return pid != null && live.containsKey(pid) ? pid : null;
+  }
+
+  /// Where [id] rests: its rest offset plus where its parent rests.
+  Offset _restAt(String id) {
+    final b = widget.graph.byId(id);
+    final pid = b?.parentId;
+    final own = _rest[id] ?? Offset.zero;
+    final t = pid == null ? null : _tracks[pid];
+    return t == null || t.exiting ? own : own + _restAt(pid!);
+  }
+
+  void _tick(Duration elapsed) {
+    final dt = ((elapsed - _lastTick).inMicroseconds / 1e6).clamp(0.0, 1 / 30);
+    _lastTick = elapsed;
+    if (dt <= 0) return;
+    final steps = (dt * 120).ceil();
+    var moving = false;
+    for (var i = 0; i < steps; i++) {
+      moving = _step(dt / steps);
+    }
+    _simFrame.value++;
+    if (_dragId != null) return;
+    if (!moving || ++_settleFrames > 300) _settle();
+  }
+
+  /// Everything stays where it came to rest.
+  void _settle() {
+    final live = {
+      for (final t in _tracks.values)
+        if (!t.exiting) t.bubble.id: _d(t.bubble.id),
+    };
+    for (final t in _tracks.values) {
+      if (t.exiting) continue;
+      final pid = _parentOf(t.bubble, live);
+      _rest[t.bubble.id] =
+          _d(t.bubble.id) - (pid == null ? Offset.zero : _d(pid));
+    }
+    _vel.clear();
+    _settling = null;
+    _physics.stop();
+  }
+
+  /// One step of [dt] seconds. Returns whether anything is still moving.
+  bool _step(double dt) {
+    final force = <String, Offset>{};
+    final tracks = <_Track>[];
+    for (final t in _tracks.values) {
+      if (t.exiting) continue;
+      force[t.bubble.id] = Offset.zero;
+      tracks.add(t);
+    }
+
+    // Springs to each bubble's resting place (around its parent).
+    for (final t in tracks) {
+      final id = t.bubble.id;
+      final pid = _parentOf(t.bubble, force);
+      final want =
+          (pid == null ? Offset.zero : _d(pid)) + (_rest[id] ?? Offset.zero);
+      final stretch = want - _d(id);
+      force[id] = force[id]! + stretch * (pid == null ? _kHome : _kFollow);
+      if (pid != null) force[pid] = force[pid]! - stretch * _kTug;
+    }
+
+    // Links between STWs.
+    Offset off(String id) => _d(id) - (_rest[id] ?? Offset.zero);
+    for (final e in widget.graph.hubEdges) {
+      if (!force.containsKey(e.from) || !force.containsKey(e.to)) continue;
+      final s = (off(e.to) - off(e.from)) * _kLink;
+      force[e.from] = force[e.from]! + s;
+      force[e.to] = force[e.to]! - s;
+    }
+
+    // Bubbles pushed together make room, but never further apart than they
+    // rest.
+    final poses = [for (final t in tracks) _current(t)];
+    for (var i = 0; i < tracks.length; i++) {
+      if (poses[i].opacity < 0.3) continue;
+      final a = tracks[i].bubble;
+      final ca = poses[i].c + _d(a.id);
+      final ra = _radius(a.kind) * poses[i].scale;
+      for (var j = i + 1; j < tracks.length; j++) {
+        if (poses[j].opacity < 0.3) continue;
+        final b = tracks[j].bubble;
+        final delta = poses[j].c + _d(b.id) - ca;
+        final dist = delta.distance;
+        if (dist < 0.001) continue;
+        final rested =
+            (poses[j].c + _restAt(b.id) - poses[i].c - _restAt(a.id)).distance;
+        final minDist = math.min(
+          ra + _radius(b.kind) * poses[j].scale + _gap,
+          rested,
+        );
+        if (dist >= minDist) continue;
+        final push = delta / dist * ((minDist - dist) * _kPush);
+        force[a.id] = force[a.id]! - push;
+        force[b.id] = force[b.id]! + push;
+      }
+    }
+
+    var moving = false;
+    final keep = math.exp(-_damping * dt);
+    for (final t in tracks) {
+      final id = t.bubble.id;
+      if (id == _dragId || id == _settling) continue;
+      final mass = _radius(t.bubble.kind) / 32;
+      final a = force[id]! / mass;
+      final v = ((_vel[id] ?? Offset.zero) + a * dt) * keep;
+      _vel[id] = v;
+      _disp[id] = _d(id) + v * dt;
+      if (v.distance > 3 || a.distance > 6) moving = true;
+    }
+    return moving;
+  }
+
+  /// [global] in the coordinates bubbles are laid out in.
+  Offset? _scene(Offset global) {
+    final box = _worldKey.currentContext?.findRenderObject() as RenderBox?;
+    return box?.globalToLocal(global);
+  }
+
+  void _dragStart(Bubble b, DragStartDetails details) {
+    final t = _tracks[b.id];
+    final p = _scene(details.globalPosition);
+    if (t == null || t.exiting || p == null) return;
+    _cam.stop();
+    _grab = p - (_o + _shifted(b.id, _current(t)).c);
+    _vel.remove(b.id);
+    _settling = null;
+    _settleFrames = 0;
+    setState(() => _dragId = b.id);
+    _wake();
+  }
+
+  void _dragUpdate(Bubble b, DragUpdateDetails details) {
+    final t = _tracks[b.id];
+    final p = _scene(details.globalPosition);
+    if (_dragId != b.id || t == null || p == null) return;
+    const limit = _world / 2 - 80;
+    final c = p - _grab - _o;
+    _disp[b.id] = Offset(
+          c.dx.clamp(-limit, limit),
+          c.dy.clamp(-limit, limit),
+        ) -
+        _current(t).c;
+    _wake();
+  }
+
+  void _dragEnd(Bubble b) {
+    if (_dragId != b.id) return;
+    _settleFrames = 0;
+    setState(() {
+      _dragId = null;
+      _settling = b.id;
+    });
+    _wake();
+  }
+
+  // -------------------------------------------------------------------------
   // Camera
   // -------------------------------------------------------------------------
 
@@ -415,8 +725,8 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
     if (view == null || view.isEmpty) return;
     final g = widget.graph;
     Iterable<String> ids;
-    if (_box != null) {
-      ids = [_box!, ...g.byId(_box!)!.children.map((c) => c.id)];
+    if (_branch != null) {
+      ids = [_branch!, ...g.byId(_branch!)!.children.map((c) => c.id)];
     } else if (_hub != null) {
       ids = [_hub!, ...g.byId(_hub!)!.children.map((c) => c.id)];
     } else {
@@ -482,13 +792,13 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
       if (b.isHub) {
         if (_hub == b.id) {
           _hub = null;
-          _box = null;
+          _branch = null;
         } else {
           _hub = b.id;
-          _box = null;
+          _branch = null;
         }
-      } else if (b.kind == BubbleKind.box) {
-        _box = _box == b.id ? null : b.id;
+      } else if (b.expandable) {
+        _branch = _branch == b.id ? null : b.id;
       }
       _selected = b.id;
     });
@@ -498,7 +808,7 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
   void _overview() {
     setState(() {
       _hub = null;
-      _box = null;
+      _branch = null;
       _selected = null;
     });
     _relayout();
@@ -528,10 +838,11 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
               boundaryMargin: const EdgeInsets.all(400),
               onInteractionStart: (_) => _cam.stop(),
               child: SizedBox(
+                key: _worldKey,
                 width: _world,
                 height: _world,
                 child: AnimatedBuilder(
-                  animation: Listenable.merge([_anim, _transform]),
+                  animation: Listenable.merge([_anim, _transform, _simFrame]),
                   builder: (context, _) => _canvas(),
                 ),
               ),
@@ -547,7 +858,7 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
                   : ActionChip(
                       key: const ValueKey('back'),
                       avatar: const Icon(Icons.arrow_back_rounded, size: 18),
-                      label: const Text('All STWs'),
+                      label: Text(widget.overviewLabel),
                       onPressed: _overview,
                     ),
             ),
@@ -593,9 +904,19 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
                   : _InfoCard(
                       key: ValueKey(selected.id),
                       bubble: selected,
-                      expanded: selected.id == _hub || selected.id == _box,
+                      expanded: selected.id == _hub || selected.id == _branch,
                       onToggle: () => _tap(selected),
-                      onDetails: () => widget.onDetails(selected.node),
+                      onDetails:
+                          selected.node == null || widget.onDetails == null
+                              ? null
+                              : () => widget.onDetails!(selected.node!),
+                      onAssessmentDetails: selected.item == null ||
+                              widget.onAssessmentDetails == null
+                          ? null
+                          : () => widget.onAssessmentDetails!(
+                                selected.item!,
+                                selected.feeds,
+                              ),
                       onClose: () {
                         setState(() => _selected = null);
                         _fitCamera(_targets());
@@ -609,7 +930,10 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
   }
 
   Widget _canvas() {
-    final poses = {for (final e in _tracks.entries) e.key: _current(e.value)};
+    final poses = {
+      for (final e in _tracks.entries)
+        e.key: _shifted(e.key, _current(e.value)),
+    };
     final edges = <_Edge>[];
     final g = widget.graph;
 
@@ -688,10 +1012,10 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
     final center = _o + p.c;
     final scaled = r * p.scale;
     final selected = b.id == _selected;
-    final open = b.id == _hub || b.id == _box;
+    final open = b.id == _hub || b.id == _branch;
     if (p.opacity <= 0.01 || scaled <= 0.5) return const [];
     final zoom = _transform.value.getMaxScaleOnAxis();
-    final always = selected || b.parentId == _box || b.id == _box;
+    final always = selected || b.parentId == _branch || b.id == _branch;
     final labelOpacity = p.opacity < 0.5
         ? 0.0
         : p.opacity * (always ? 1.0 : ((zoom - 0.5) / 0.2).clamp(0.0, 1.0));
@@ -760,10 +1084,20 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
                     label: '${look.label}: ${b.label}'
                         '${b.expandable ? (open ? ', expanded' : ', tap to expand') : ''}',
                     excludeSemantics: true,
+                    // The bubble claims the drag, so the view does not pan.
                     child: GestureDetector(
                       key: ValueKey('bubble:${b.id}'),
                       onTap: () => _tap(b),
-                      child: circle,
+                      onPanStart: (d) => _dragStart(b, d),
+                      onPanUpdate: (d) => _dragUpdate(b, d),
+                      onPanEnd: (_) => _dragEnd(b),
+                      onPanCancel: () => _dragEnd(b),
+                      child: MouseRegion(
+                        cursor: _dragId == b.id
+                            ? SystemMouseCursors.grabbing
+                            : SystemMouseCursors.grab,
+                        child: circle,
+                      ),
                     ),
                   ),
           ),
@@ -988,14 +1322,16 @@ class _InfoCard extends StatelessWidget {
     required this.bubble,
     required this.expanded,
     required this.onToggle,
-    required this.onDetails,
+    this.onDetails,
+    this.onAssessmentDetails,
     required this.onClose,
   });
 
   final Bubble bubble;
   final bool expanded;
   final VoidCallback onToggle;
-  final VoidCallback onDetails;
+  final VoidCallback? onDetails;
+  final VoidCallback? onAssessmentDetails;
   final VoidCallback onClose;
 
   @override
@@ -1003,10 +1339,14 @@ class _InfoCard extends StatelessWidget {
     final b = bubble;
     final look = bubbleLook(b.kind);
     final n = b.node;
-    final src = n.source;
-    final subtitle = n.kind == MapKind.topic
-        ? n.subtitle
-        : n.subtitle ?? (n.topic == null ? null : definitionOf(n.topic!).title);
+    final item = b.item;
+    final src = n?.source ?? item?.source;
+    final label = n?.label ?? item?.label ?? b.label;
+    final subtitle = n?.kind == MapKind.topic
+        ? n?.subtitle
+        : n?.subtitle ??
+            b.subtitle ??
+            (item?.value == null ? null : 'Value: ${item!.value}');
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
       padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
@@ -1060,7 +1400,7 @@ class _InfoCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: Text(
-              n.label,
+              label,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -1081,6 +1421,17 @@ class _InfoCard extends StatelessWidget {
                     const TextStyle(fontSize: 12.5, color: AppTheme.mutedText),
               ),
             ),
+          if (item?.check != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2, right: 8),
+              child: Text(
+                'Check: ${item!.check}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.mutedText,
+                ),
+              ),
+            ),
           const SizedBox(height: 6),
           Wrap(
             spacing: 6,
@@ -1097,11 +1448,12 @@ class _InfoCard extends StatelessWidget {
                   ),
                   label: Text(expanded ? 'Collapse' : 'Expand'),
                 ),
-              OutlinedButton.icon(
-                onPressed: onDetails,
-                icon: const Icon(Icons.info_outline_rounded, size: 18),
-                label: const Text('Details'),
-              ),
+              if (onDetails != null || onAssessmentDetails != null)
+                OutlinedButton.icon(
+                  onPressed: onDetails ?? onAssessmentDetails,
+                  icon: const Icon(Icons.info_outline_rounded, size: 18),
+                  label: const Text('Details'),
+                ),
               if (hasPdf(src))
                 OutlinedButton.icon(
                   onPressed: () => openSourceInPdf(context, src!),

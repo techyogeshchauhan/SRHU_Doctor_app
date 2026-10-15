@@ -35,12 +35,14 @@ void main() {
     ]);
   });
 
-  test('RD, ANCS, Hypoglycemia and ROP are implemented; others carry no description', () {
+  test('Triage, KMC, RD, ANCS, Hypoglycemia and ROP are implemented; others carry no description', () {
     final implemented = {
       for (final d in conditionDefinitions)
         if (d.implemented) d.id,
     };
     expect(implemented, {
+      NeonatalCondition.triage,
+      NeonatalCondition.kmc,
       NeonatalCondition.respiratoryDistress,
       NeonatalCondition.ancs,
       NeonatalCondition.hypoglycemia,

@@ -446,7 +446,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFF7F1D1D),
                                 ),
-                                maxLines: 1,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
@@ -455,6 +455,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
                                   fontSize: 10.5,
                                   color: Color(0xFF991B1B),
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),

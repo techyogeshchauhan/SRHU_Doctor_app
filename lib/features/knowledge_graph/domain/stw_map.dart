@@ -492,7 +492,7 @@ String? _questionSummary(ClinicalQuestion q) => switch (q.type) {
       QuestionType.singleChoice ||
       QuestionType.multipleChoice =>
         q.options.isEmpty ? null : q.options.map((o) => o.label).join(' · '),
-      QuestionType.numeric => q.stwRange ?? q.unit,
+      QuestionType.numeric || QuestionType.decimal => q.stwRange ?? q.unit,
       QuestionType.boolean => 'Yes / No',
       QuestionType.date => 'Date',
       QuestionType.text => null,

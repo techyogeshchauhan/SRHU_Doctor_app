@@ -1,7 +1,6 @@
 /// Source metadata attached to every clinical question, rule and finding.
 ///
-/// Section numbers refer to `docs/STW_APP_SPEC_FROM_PDFs.md`, the verbatim
-/// extraction of the two ICMR/DHR STW PDFs bundled in `assets/pdfs/`.
+/// Section numbers refer to the source documents bundled in `assets/pdfs/`.
 library;
 
 import 'stw_section_regions.dart';
@@ -10,6 +9,8 @@ const rdStwDocument = 'Respiratory Distress in Neonates';
 const ropStwDocument = 'Retinopathy of Prematurity (ROP)';
 const ancsStwDocument = 'Antenatal Corticosteroids for Preterm Birth';
 const hypoStwDocument = 'Neonatal Hypoglycemia';
+const triageStwDocument = 'Neonatal Emergency Triage Assessment and Management';
+const kmcStwDocument = 'Kangaroo Mother Care';
 
 class SourceReference {
   const SourceReference({
@@ -29,6 +30,26 @@ class SourceReference {
     this.note,
     this.regionId,
   })  : document = rdStwDocument,
+        authority = 'ICMR/DHR',
+        version = 'August 2026';
+
+  /// Neonatal Emergency Triage Assessment and Management STW (July 2020).
+  const SourceReference.triage(
+    this.section, {
+    this.needsClinicalReview = false,
+    this.note,
+    this.regionId,
+  })  : document = triageStwDocument,
+        authority = 'ICMR/DHR',
+        version = 'July 2020';
+
+  /// Kangaroo Mother Care STW (August 2026).
+  const SourceReference.kmc(
+    this.section, {
+    this.needsClinicalReview = false,
+    this.note,
+    this.regionId,
+  })  : document = kmcStwDocument,
         authority = 'ICMR/DHR',
         version = 'August 2026';
 

@@ -149,26 +149,45 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                 ],
 
-                // 3. ANCS and Neonatal Hypoglycemia cards (if selected or default)
-                for (final (c, title) in const [
+                // Available workflows with PDF-backed dynamic assessments.
+                for (final (c, title, icon, accentColor) in const [
+                  (
+                    NeonatalCondition.triage,
+                    'Neonatal Emergency Triage Assessment and Management',
+                    Icons.low_priority_rounded,
+                    AppTheme.accentRd,
+                  ),
+                  (
+                    NeonatalCondition.kmc,
+                    'Kangaroo Mother Care (KMC)',
+                    Icons.favorite_border_rounded,
+                    AppTheme.primaryTeal,
+                  ),
                   (
                     NeonatalCondition.ancs,
                     'Antenatal Corticosteroids for Preterm Birth',
+                    Icons.vaccines_outlined,
+                    AppTheme.primaryNavy,
                   ),
-                  (NeonatalCondition.hypoglycemia, 'Neonatal Hypoglycemia'),
+                  (
+                    NeonatalCondition.hypoglycemia,
+                    'Neonatal Hypoglycemia',
+                    Icons.bloodtype_outlined,
+                    AppTheme.primaryNavy,
+                  ),
                 ])
                   if (show(c)) ...[
                     _DiseaseCard(
                       title: title,
-                      icon: c == NeonatalCondition.ancs
-                          ? Icons.vaccines_outlined
-                          : Icons.bloodtype_outlined,
-                      accentColor: AppTheme.primaryNavy,
+                      icon: icon,
+                      accentColor: accentColor,
                       highlighted: initialCondition == c,
                       pdfAssetPath: stwPdfFor(c)!.asset,
                       pdfTitle: stwPdfFor(c)!.title,
-                      onOpenStwText: () =>
-                          context.push(StwReferenceScreen.routeFor(c)),
+                      onOpenStwText: c == NeonatalCondition.ancs ||
+                              c == NeonatalCondition.hypoglycemia
+                          ? () => context.push(StwReferenceScreen.routeFor(c))
+                          : null,
                       onStartScreening: () => startScreening(c),
                     ),
                     const SizedBox(height: 12),

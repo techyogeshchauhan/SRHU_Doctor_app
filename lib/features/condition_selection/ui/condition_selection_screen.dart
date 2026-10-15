@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../../shared/pdf_navigation.dart';
+import '../../../shared/stw_disclaimer.dart';
 import '../domain/neonatal_condition.dart';
 import '../state/condition_selection_controller.dart';
 
@@ -35,10 +35,10 @@ const _topicIcons = <NeonatalCondition, IconData>{
 ///   Subtitle: "Select any condition."
 /// - Single unified view displaying all 14 conditions in the exact same format.
 /// - Checkboxes for conditions:
-///   - 4 available conditions (Respiratory Distress, ANCS, Hypoglycemia, ROP)
+///   - 6 available conditions (Triage, KMC, Respiratory Distress, ANCS, Hypoglycemia, ROP)
 ///     have active checkboxes
 ///     and can be selected.
-///   - 10 inactive conditions look normal as well, but their checkboxes are disabled
+///   - 8 inactive conditions look normal as well, but their checkboxes are disabled
 ///     and they are not selectable.
 /// - Live selection counter showing how many conditions have been selected.
 /// - Continue button to proceed to the next page (/disease-selection) with the selected conditions.
@@ -101,15 +101,7 @@ class ConditionSelectionScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    stwDisclaimer,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 13,
-                      height: 1.5,
-                      color: AppTheme.bodyText,
-                    ),
-                  ),
+                  const StwDisclaimerContent(),
                 ],
               ),
             ),
@@ -126,7 +118,10 @@ class ConditionSelectionScreen extends ConsumerWidget {
 
     // Active topics first (ROP, RD, then the rest in list order), then the
     // topics awaiting their STW in list order.
-    const pinned = [NeonatalCondition.rop, NeonatalCondition.respiratoryDistress];
+    const pinned = [
+      NeonatalCondition.rop,
+      NeonatalCondition.respiratoryDistress
+    ];
     final orderedConditions = [
       for (final c in pinned) definitionOf(c),
       for (final d in conditionDefinitions)
@@ -161,7 +156,8 @@ class ConditionSelectionScreen extends ConsumerWidget {
             onPressed: () => context.push('/stw-map'),
           ),
           IconButton(
-            icon: const Icon(Icons.chat_bubble_outline_rounded, color: AppTheme.primaryNavy),
+            icon: const Icon(Icons.chat_bubble_outline_rounded,
+                color: AppTheme.primaryNavy),
             tooltip: 'STW Clinical Assistant',
             onPressed: () => context.push('/chat'),
           ),
@@ -296,7 +292,8 @@ class ConditionSelectionScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: selected.isNotEmpty ? onProceedToNextPage : null,
+                      onPressed:
+                          selected.isNotEmpty ? onProceedToNextPage : null,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
@@ -350,7 +347,8 @@ class ConditionSelectionScreen extends ConsumerWidget {
                           onTap: () => _showDisclaimerSheet(context),
                           borderRadius: BorderRadius.circular(4),
                           child: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 4, vertical: 2),
                             child: Text(
                               'Disclaimer',
                               style: TextStyle(
@@ -363,7 +361,8 @@ class ConditionSelectionScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      const Text(' • ', style: TextStyle(color: Color(0xFF94A3B8))),
+                      const Text(' • ',
+                          style: TextStyle(color: Color(0xFF94A3B8))),
                       Semantics(
                         button: true,
                         label: 'Open STW references and original PDFs',
@@ -371,7 +370,8 @@ class ConditionSelectionScreen extends ConsumerWidget {
                           onTap: () => context.push('/references'),
                           borderRadius: BorderRadius.circular(4),
                           child: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 4, vertical: 2),
                             child: Text(
                               'References',
                               style: TextStyle(
@@ -432,9 +432,8 @@ class _ConditionTile extends StatelessWidget {
             color: isSelected ? AppTheme.tint : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected
-                  ? AppTheme.primaryBlue
-                  : const Color(0xFFE2E8F0),
+              color:
+                  isSelected ? AppTheme.primaryBlue : const Color(0xFFE2E8F0),
               width: isSelected ? 1.6 : 1.0,
             ),
             boxShadow: [
@@ -479,9 +478,7 @@ class _ConditionTile extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: isAvailable
-                      ? AppTheme.tint
-                      : const Color(0xFFF1F5F9),
+                  color: isAvailable ? AppTheme.tint : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(

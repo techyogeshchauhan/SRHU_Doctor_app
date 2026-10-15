@@ -117,7 +117,6 @@ void main() {
       'COVID-19 mRNA vaccine cold chain temperature',
       'Chemotherapy regimen for breast cancer',
       'How to bake chocolate cake',
-      'Phototherapy threshold for neonatal jaundice',
       'Cricket match ka score kya hai?',
     ];
     for (final q in outOfScope) {

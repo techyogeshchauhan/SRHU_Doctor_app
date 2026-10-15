@@ -43,6 +43,11 @@ String _join(List<String?> parts) =>
 CaseRoute? routeCase(QueryAnalysis a) {
   final e = a.entities;
   if (!e.hasPatientValue && !e.glucoseLow) return null;
+  // Triage and KMC answers are retrieved from their own PDF regions. Avoid
+  // routing their numeric wording through another disease's rule engine.
+  if (a.topics.contains(StwTopic.triage) || a.topics.contains(StwTopic.kmc)) {
+    return null;
+  }
   if (a.topics.contains(StwTopic.hypo)) {
     final r = _hypo(a);
     if (r != null) return r;

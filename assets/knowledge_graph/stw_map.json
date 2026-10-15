@@ -66,7 +66,47 @@
     "hypo_dos": "DO’s",
     "hypo_donts": "DON’Ts",
     "hypo_kpis": "KEY PERFORMANCE INDICATORS (KPIs)",
-    "hypo_neuro_followup": "NEONATES WITH SYMPTOMATIC, SEVERE, RECURRENT OR PERSISTENT HYPOGLYCEMIA SHOULD RECEIVE"
+    "hypo_neuro_followup": "NEONATES WITH SYMPTOMATIC, SEVERE, RECURRENT OR PERSISTENT HYPOGLYCEMIA SHOULD RECEIVE",
+    "triage_initial_assessment": "Place under radiant warmer",
+    "triage_emergency_signs": "EMERGENCY",
+    "triage_priority_signs": "PRIORITY",
+    "triage_nonurgent_signs": "NON-URGENT",
+    "triage_emergency_actions": "TREAT IMMEDIATELY",
+    "triage_priority_actions": "ASSESS PROMPTLY AND ACT RAPIDLY",
+    "triage_nonurgent_actions": "ASSESS AND COUNSEL",
+    "triage_shock": "SHOCK",
+    "triage_severe_dehydration": "SEVERE DEHYDRATION",
+    "triage_seizures": "SEIZURES",
+    "triage_surgical": "SURGICAL",
+    "triage_persistent_tachycardia": "PERSISTENT HR",
+    "triage_hypothermia": "HYPOTHERMIA",
+    "triage_hypoglycemia": "HYPOGLYCEMIA",
+    "triage_jaundice": "JAUNDICE",
+    "triage_dos": "DOs",
+    "triage_donts": "DON Ts",
+    "triage_kpis": "KEY PERFORMANCE INDICATORS (KPIs)",
+    "triage_abbreviations": "ABBREVIATIONS",
+    "triage_references": "REFERENCES",
+    "kmc_definition": "Kangaroo Mother Care (KMC)",
+    "kmc_eligibility": "Start KMC for every preterm",
+    "kmc_exclusions": "Except if the baby is unable to breathe spontaneously after resuscitation",
+    "kmc_position": "Skin-to-skin, upright, between the mother's breasts",
+    "kmc_provider": "KMC PROVIDER CAN BE",
+    "kmc_nutrition": "KANGAROO NUTRITION",
+    "kmc_discharge": "KANGAROO DISCHARGE",
+    "kmc_before_starting": "ENSURE BEFORE STARTING KMC",
+    "kmc_monitoring": "MONITORING",
+    "kmc_transport": "KMC DURING TRANSPORT",
+    "kmc_continue_while_on": "CONTINUE KMC WHILE ON",
+    "kmc_home_counselling": "HOME KMC COUNSELLING",
+    "kmc_followup": "FOLLOW-UP VISITS",
+    "kmc_dos": "Start KMC early in every eligible preterm or low-birth-weight",
+    "kmc_donts": "Do not initiate KMC in babies unable to breathe spontaneously",
+    "kmc_kpis": "No. of neonates initiated on KMC",
+    "kmc_in_position": "MOTHER CAN SLEEP, STAND AND WALK IN KMC POSITION",
+    "kmc_related_information": "RELATED INFORMATION",
+    "kmc_abbreviations": "ABBREVIATIONS",
+    "kmc_references": "World Health Organization. Kangaroo mother care: a clinical practice guide."
   },
   "contexts": {
     "rd_initial_preterm_cpap_caffeine": [
@@ -191,6 +231,62 @@
       "to": "thermalCare",
       "kind": "mentions",
       "quote": "Maintain normothermia",
+      "approved": false
+    },
+    {
+      "id": "triage-seizures",
+      "from": "triage_seizures",
+      "to": "seizures",
+      "kind": "refersTo",
+      "quote": "Refer to STW on neonatal seizures",
+      "approved": false
+    },
+    {
+      "id": "triage-thermal-care",
+      "from": "triage_hypothermia",
+      "to": "thermalCare",
+      "kind": "refersTo",
+      "quote": "Refer to STW on thermal care of newborn",
+      "approved": false
+    },
+    {
+      "id": "triage-hypoglycemia",
+      "from": "triage_hypoglycemia",
+      "to": "hypoglycemia",
+      "kind": "refersTo",
+      "quote": "Refer to STW on neonatal hypoglycemia",
+      "approved": false
+    },
+    {
+      "id": "triage-jaundice",
+      "from": "triage_jaundice",
+      "to": "jaundice",
+      "kind": "refersTo",
+      "quote": "Refer to STW on neonatal jaundice",
+      "approved": false
+    },
+    {
+      "id": "kmc-discharge-follow-up",
+      "from": "kmc_discharge",
+      "to": "dischargeAndFollowUp",
+      "kind": "refersTo",
+      "quote": "Refer to discharge and follow-up STW module",
+      "approved": false
+    },
+    {
+      "id": "kmc-triage",
+      "from": "kmc_home_counselling",
+      "to": "triage",
+      "kind": "refersTo",
+      "quote": "Go to Neonatal Triage STW Module",
+      "approved": false
+    },
+    {
+      "id": "kmc-rop-follow-up",
+      "from": "kmc_followup",
+      "to": "rop",
+      "kind": "mentions",
+      "quote": "ROP screening",
       "approved": false
     }
   ]

@@ -50,6 +50,7 @@ class NumberField extends StatefulWidget {
     required this.min,
     required this.max,
     this.suffix,
+    this.hintText,
     this.helper,
     this.rangeHint,
     this.enabled = true,
@@ -61,6 +62,7 @@ class NumberField extends StatefulWidget {
   final int min;
   final int max;
   final String? suffix;
+  final String? hintText;
   final String? helper;
 
   /// Expected range from the STW, shown as a small line under the field.
@@ -107,9 +109,14 @@ class _NumberFieldState extends State<NumberField> {
       controller: _controller,
       enabled: widget.enabled,
       keyboardType: TextInputType.number,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      inputFormatters: [
+        TextInputFormatter.withFunction((oldValue, newValue) =>
+            RegExp(r'^\d*$').hasMatch(newValue.text) ? newValue : oldValue),
+      ],
       decoration: InputDecoration(
         labelText: widget.label,
+        hintText: _controller.text.isEmpty ? widget.hintText : null,
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
         suffixText: widget.suffix,
         helperText: widget.helper,
         helperMaxLines: 2,
@@ -153,6 +160,102 @@ class _NumberFieldState extends State<NumberField> {
 }
 
 /// −/+ stepper for small integer ranges (e.g. PEEP 4–8 cm H₂O).
+/// Decimal field with range validation. Reports `null` while empty/invalid.
+class DecimalNumberField extends StatefulWidget {
+  const DecimalNumberField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    required this.min,
+    required this.max,
+    this.suffix,
+    this.hintText,
+    this.helper,
+    this.rangeHint,
+  });
+
+  final String label;
+  final num? value;
+  final ValueChanged<num?> onChanged;
+  final num min;
+  final num max;
+  final String? suffix;
+  final String? hintText;
+  final String? helper;
+  final String? rangeHint;
+
+  @override
+  State<DecimalNumberField> createState() => _DecimalNumberFieldState();
+}
+
+class _DecimalNumberFieldState extends State<DecimalNumberField> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.value?.toString() ?? '');
+  String? _error;
+
+  @override
+  void didUpdateWidget(DecimalNumberField old) {
+    super.didUpdateWidget(old);
+    if (double.tryParse(_controller.text) != widget.value && _error == null) {
+      _controller.text = widget.value?.toString() ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onChanged(String text) {
+    final value = double.tryParse(text);
+    String? error;
+    if (text.isNotEmpty &&
+        (value == null || value < widget.min || value > widget.max)) {
+      error = 'Enter ${widget.min}–${widget.max}';
+    }
+    setState(() => _error = error);
+    widget.onChanged(error == null ? value : null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final field = TextField(
+      controller: _controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        TextInputFormatter.withFunction((oldValue, newValue) =>
+            RegExp(r'^\d*\.?\d*$').hasMatch(newValue.text)
+                ? newValue
+                : oldValue),
+      ],
+      decoration: InputDecoration(
+        labelText: widget.label,
+        hintText: _controller.text.isEmpty ? widget.hintText : null,
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+        suffixText: widget.suffix,
+        helperText: widget.helper,
+        helperMaxLines: 2,
+        errorText: _error,
+      ),
+      onChanged: _onChanged,
+    );
+    final hint = widget.rangeHint;
+    if (hint == null) return field;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        field,
+        Padding(
+          padding: const EdgeInsets.only(left: 12, top: 4, right: 4),
+          child: Text(hint, style: const TextStyle(fontSize: 12)),
+        ),
+      ],
+    );
+  }
+}
+
 class IntStepper extends StatelessWidget {
   const IntStepper({
     super.key,

@@ -1,0 +1,156 @@
+--- PAGE 1 ---
+SICK OR AT-RISK NEONATE PRESENTING TO HEALTH FACILITY
+This STW has been prepared by national experts of India with feasibility considerations for various levels of healthcare system in the country. These broad guidelines are advisory, and 
+are based on expert opinions and available scientiﬁc evidence. There may be variations in the management of an individual patient based on his/her speciﬁc condition, as decided by 
+the treating physician. There will be no indemnity for direct or indirect consequences. Kindly visit the website of DHR for more information: (stw.icmr.org.in) for more information.
+©Department of Health Research, Ministry of Health & Family Welfare, Government of India.
+Standard Treatment Workﬂow (STW)
+NEONATAL EMERGENCY TRIAGE ASSESSMENT AND MANAGEMENT
+July/ 2020
+Department of Health Research
+Ministry of Health and Family Welfare, 
+Government of India
+SHOCK
+• IV NS 10 mL/kg if volume expansion is indicated: preterm over 30–60 min; term over 15–20 min.
+• Consider inotropes early.
+SEVERE DEHYDRATION
+(Diarrhoea plus any two of lethargy,
+very slow skin pinch and sunken eyes)
+• Diarrhoeal severe dehydration: IV RL/NS 30 mL/kg in 1 h, then 70 mL/kg over 5 h (WHO Plan C).
+• If IV not possible: ORS 20 mL/kg/h for 6 h. Assess 1–2 hourly and titrate fluids.
+• Hypernatremic dehydration related to poor feeding/hot environment: manage as per the standard
+neonatal protocol.
+SEIZURES
+(Refer to STW on neonatal seizures)
+• Inj. phenobarbitone 20 mg/kg IV over 15 min. If seizures persist after 15 min, give a further 10 mg/kg IV
+over 10 min.
+• If uncontrolled, consider levetiracetam as second-line treatment.
+• Correct glucose and calcium if abnormal, concurrently.
+SURGICAL
+• Cover exposed skin defects with warm saline sterile gauze; maintain hydration.
+• CDH: Avoid CPAP/bag-mask ventilation. Intubate if necessary; decompress stomach with an OG/NG tube.
+• Suspected TEF/oesophageal atresia: Nil by mouth, IV fluids, head-up position; upper-pouch suction.
+• Arrange urgent referral to a surgical centre.
+PERSISTENT HR
+>200/MIN
+• Check ECG for arrhythmia.
+• Check and correct hyperthermia; refer for further management.
+HYPOTHERMIA
+(Refer to STW on thermal care of
+newborn)
+• Temperature <35.5°C: nurse under a radiant warmer in servo mode.
+• Temperature 35.5–36.4°C and baby is well: warm environment, skin-to-skin contact; recheck in 30 min.
+• If unwell or temperature fails to improve, nurse under a warmer.
+HYPOGLYCEMIA
+(Refer to STW on neonatal
+hypoglycemia)
+• Blood glucose <45 mg/dL and asymptomatic: supervised breastfeeding or EBM.
+• Blood glucose <20 mg/dL OR symptomatic: 2 mL/kg 10% dextrose IV, followed by infusion at 6
+mg/kg/min.
+JAUNDICE
+(Refer to STW on neonatal jaundice)
+• Serious jaundice (onset <24 h, palms/soles yellow, or signs of acute bilirubin encephalopathy): intensive
+phototherapy; consider IV fluids if dehydrated; prepare for exchange transfusion as indicated.
+DOs
+DON’Ts
+• Screen every neonate immediately on arrival for emergency and
+priority signs.
+• Maintain TABC, assess SpO₂ and blood glucose, and start indicated
+treatment promptly. Reassess after each intervention.
+• Administer the first dose of antibiotic within 1 hour if there is a high
+likelihood of sepsis.
+• Do NOT delay emergency treatment for investigations or
+documentation.
+• Obtain blood culture before the first dose of antibiotics, but do not
+delay treatment.
+• Do NOT discharge a neonate with persistent emergency or priority
+signs; arrange admission or appropriate referral.
+KEY PERFORMANCE INDICATORS (KPIs)
+Triage classification documented (%)
+Neonates with a documented triage category at initial assessment
+All neonates assessed
+× 100
+Complete triage measurements (%)
+Sick neonates with temperature, SpO₂ AND blood glucose recorded
+at initial assessment
+All sick neonates assessed
+× 100
+TRIAGE EVERY NEONATE ON ARRIVAL — TREAT EMERGENCY SIGNS IMMEDIATELY
+AND ASSESS PRIORITY SIGNS PROMPTLY
+ABBREVIATIONS
+BP: Blood pressure
+CBC: Complete blood count
+CDH: Congenital diaphragmatic hernia
+CPAP: Continuous positive airway pressure
+CRT: Capillary refill time
+EBM: Expressed breastmilk
+HR: Heart rate
+IDM: Infant of a diabetic mother
+NS: Normal saline
+OG/NG: Orogastric/nasogastric
+ORS: Oral rehydration solution
+SpO₂: Oxygen saturation
+TEF: Tracheoesophageal fistula
+REFERENCES
+• FBNC: MoHFW. Facility Based Newborn Care: Training Module for Doctors and Nurses (2023).
+• WHO: Paediatric Emergency Triage, Assessment and Treatment (ETAT): Updated guideline (2016).
+• Place under radiant warmer
+• Attach temperature probe and pulse oximeter
+• Assess for emergency signs using TABC & CD
+T: Temperature; A: Airway; B: Breathing; C: Circulation; C: Coma/convulsions; D: Dehydration
+Classify into EMERGENCY, PRIORITY or NON-URGENT based on signs given below
+EMERGENCY
+• Significant hypothermia (<35.5°C)
+• Apnea or gasping
+• Respiratory distress (retractions, grunt)
+• Central cyanosis or SpO₂ <91%
+• Shock (cold peripheries, mottled/grey skin, CRT >3 s,
+weak pulses, low BP)
+• Convulsions/coma
+• Severe dehydration
+• Persistent tachycardia >200/min
+PRIORITY
+• Temperature 35.5 to 36.4°C
+• Weight <1800 g
+• Large for gestation with risk factors (IDM)
+• Tachypnea without retractions or grunt
+• Severe jaundice (onset <24 h, palm or sole staining)
+• Severe pallor
+• Bleeding
+• Major malformations
+• Abdominal distension
+• Irritable/restless, refusal to feed, decreased activity
+NON-URGENT
+• Mild jaundice
+• Transitional stools
+• Minor birth trauma
+• Minor malformations
+• Superficial infections
+• Breastfeeding difficulty
+• Regurgitation
+TREAT IMMEDIATELY
+• Maintain TABC
+• Respiratory support: Nasal prong O₂ if SpO₂ <91%
+(titrate to 91–95%); nasal CPAP if respiratory distress;
+intubate if gasping or poor effort.
+• Check blood glucose; send CBC and electrolytes
+• If sepsis is likely, draw blood culture and give the first
+antibiotic dose without delay
+• Start IV fluids as per weight and postnatal age
+• Manage shock, dehydration and seizures
+ASSESS PROMPTLY AND ACT RAPIDLY
+• Maintain TABC
+• Nasal prong oxygen if SpO₂ <91%
+• Check blood glucose and act accordingly
+• Start IV fluids (if abdominal distension/GI malformation)
+or gavage feeds
+• Assess the risk factors for sepsis
+• Investigations as per clinical findings
+ASSESS AND COUNSEL
+• Treat as per indication
+• Counsel for breastfeeding
+• Explain danger signs and
+follow-up
+Follow specific STWs
+A neonate may have more than one condition
+SPECIFIC MANAGEMENT WORKFLOWS

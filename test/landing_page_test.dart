@@ -220,9 +220,9 @@ void main() {
       expect(find.text('STW ROP'), findsOneWidget);
       expect(find.text('Reference'), findsWidgets);
 
-      // 3. Status badges: 4 available, 10 awaiting STW
-      expect(find.text('Available'), findsNWidgets(4));
-      expect(find.text('Awaiting STW'), findsNWidgets(10));
+      // 3. Status badges: 6 available, 8 awaiting STW
+      expect(find.text('Available'), findsNWidgets(6));
+      expect(find.text('Awaiting STW'), findsNWidgets(8));
     });
 
     testWidgets(

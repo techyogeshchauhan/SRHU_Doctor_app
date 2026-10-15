@@ -187,5 +187,54 @@
   ],
   "withhold": [
     "withheld"
+  ],
+  "triage": [
+    "neonatal triage",
+    "emergency triage",
+    "triage classification",
+    "emergency signs",
+    "priority signs",
+    "non-urgent signs",
+    "TABC"
+  ],
+  "neonatal triage": [
+    "triage",
+    "emergency assessment",
+    "priority assessment"
+  ],
+  "emergency signs": [
+    "emergency category",
+    "danger signs",
+    "immediate treatment"
+  ],
+  "priority signs": [
+    "priority category",
+    "assess promptly"
+  ],
+  "non-urgent": [
+    "nonurgent",
+    "assess and counsel"
+  ],
+  "kmc": [
+    "kangaroo mother care",
+    "skin-to-skin",
+    "KMC position",
+    "KMC eligibility",
+    "KMC provider"
+  ],
+  "kangaroo mother care": [
+    "KMC",
+    "skin-to-skin",
+    "low birth weight",
+    "preterm newborn"
+  ],
+  "skin-to-skin": [
+    "KMC",
+    "kangaroo position"
+  ],
+  "alternate caregiver": [
+    "KMC provider",
+    "father",
+    "trained adult family member"
   ]
 }

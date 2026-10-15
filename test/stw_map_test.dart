@@ -116,6 +116,7 @@ void main() {
         expect(ga.topics, {
           NeonatalCondition.respiratoryDistress,
           NeonatalCondition.rop,
+          NeonatalCondition.kmc,
         });
       }
     });
@@ -131,7 +132,7 @@ void main() {
     final g = buildBubbleGraph(map);
 
     test('one hub per map root, with the same children', () {
-      expect(g.hubs.map((h) => h.node.id), map.roots.map((r) => r.id));
+      expect(g.hubs.map((h) => h.node!.id), map.roots.map((r) => r.id));
       final hypo = g.hubOf(NeonatalCondition.hypoglycemia)!;
       expect(
           hypo.children.map((c) => c.id), contains('box:hypo_whom_to_screen'));

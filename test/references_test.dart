@@ -76,7 +76,7 @@ Widget _buildTestApp({
 }
 
 void main() {
-  testWidgets('References screen displays two STW cards and cited sources',
+  testWidgets('References screen displays the four STW cards and sources',
       (tester) async {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/references'));
     await tester.pumpAndSettle();
@@ -99,11 +99,24 @@ void main() {
       findsOneWidget,
     );
 
-    // Two "View PDF" buttons
-    expect(find.text('View PDF'), findsNWidgets(2));
+    // RD and ROP "View PDF" buttons first; the list builds the rest lazily.
+    expect(find.text('View PDF'), findsAtLeastNWidgets(2));
+
+    // The two newer STWs (ANCS gives no ICD-11 code on its PDF).
+    final ancs = find.text('Antenatal Corticosteroids for Preterm Birth');
+    await tester.scrollUntilVisible(ancs.first, 200);
+    expect(
+      find.textContaining('for pregnant women at risk of preterm birth'),
+      findsOneWidget,
+    );
+    final hypo = find.textContaining('ICD-11 KB60.4 · ICMR / DHR · August 2026');
+    await tester.scrollUntilVisible(hypo, 200);
+    expect(find.text('Neonatal Hypoglycemia'), findsWidgets);
 
     // 3. Verify cited sources section
-    expect(find.text('Sources cited in the STWs'), findsOneWidget);
+    final sources = find.text('Sources cited in the STWs');
+    await tester.scrollUntilVisible(sources, 200);
+    expect(sources, findsOneWidget);
     expect(
       find.textContaining('National Neonatology Forum India'),
       findsWidgets,
@@ -121,6 +134,20 @@ void main() {
       find.textContaining('This STW has been prepared by national experts'),
       findsOneWidget,
     );
+    expect(find.text('STWs in this app'), findsOneWidget);
+    expect(find.textContaining('DHR portal (stw.icmr.org.in)'), findsOneWidget);
+  });
+
+  testWidgets('cited sources of the two newer STWs are listed',
+      (tester) async {
+    await tester.pumpWidget(_buildTestApp(initialLocation: '/references'));
+    await tester.pumpAndSettle();
+    final who = find.textContaining('WHO recommendations on antenatal');
+    await tester.scrollUntilVisible(who, 200);
+    expect(who, findsOneWidget);
+    final nnf = find.textContaining('Management of Neonatal Hypoglycemia');
+    await tester.scrollUntilVisible(nnf, 200);
+    expect(nnf, findsOneWidget);
   });
 
   testWidgets(
@@ -130,7 +157,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final viewPdfButtons = find.text('View PDF');
-    expect(viewPdfButtons, findsNWidgets(2));
+    expect(viewPdfButtons, findsAtLeastNWidgets(2));
 
     // Tap first card (Respiratory Distress)
     await tester.tap(viewPdfButtons.first);
@@ -160,10 +187,10 @@ void main() {
     await tester.pumpAndSettle();
 
     final viewPdfButtons = find.text('View PDF');
-    expect(viewPdfButtons, findsNWidgets(2));
+    expect(viewPdfButtons, findsAtLeastNWidgets(2));
 
     // Tap second card (Retinopathy of Prematurity)
-    await tester.tap(viewPdfButtons.last);
+    await tester.tap(viewPdfButtons.at(1));
     await tester.pumpAndSettle();
 
     // Verify viewer screen opened with ROP title

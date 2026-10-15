@@ -1,15 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
 import '../../knowledge_graph/ui/stw_map_link.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../shared/pdf_navigation.dart';
+import '../../../shared/stw_disclaimer.dart';
+import '../../ancs/domain/ancs_content.dart';
+import '../../hypoglycemia/domain/hypo_content.dart';
 
-/// Screen displaying the two bundled ICMR / DHR STW reference PDFs,
+const triageReferences = [
+  'MoHFW, Government of India. Facility Based Newborn Care: Training '
+      'Module for Doctors and Nurses (2023).',
+  'World Health Organization. Paediatric Emergency Triage, Assessment and '
+      'Treatment (ETAT): Updated guideline (2016).',
+];
+
+const kmcReferences = [
+  'World Health Organization. Kangaroo mother care: a clinical practice '
+      'guide. Geneva: WHO; 2025.',
+  'Government of India. Operational guidelines for Kangaroo Mother Care '
+      '(KMC) and optimal feeding of low birth weight infants. New Delhi: '
+      'Ministry of Health and Family Welfare; 2014.',
+  'Ministry of Health and Family Welfare, Government of India. Facility '
+      'Based Newborn Care (FBNC): Participant Manual. New Delhi: MoHFW; 2023.',
+];
+
+/// Screen displaying the bundled ICMR / DHR STW reference PDFs,
 /// external clinical guidelines cited in the STWs, and standard disclaimer.
 class ReferencesScreen extends StatelessWidget {
   const ReferencesScreen({super.key});
@@ -23,6 +42,23 @@ class ReferencesScreen extends StatelessWidget {
   static const ropTitle = 'Retinopathy of Prematurity (ROP)';
   static const ropSubtitle =
       'Standard Treatment Workflow · ICD-11 9B71.3 · ICMR / DHR · August 2026';
+
+  // As printed on each PDF: the ANCS STW gives no ICD-11 code.
+  static const ancsSubtitle =
+      'Standard Treatment Workflow · ICMR / DHR · August 2026 · '
+      'for pregnant women at risk of preterm birth';
+  static const hypoSubtitle =
+      'Standard Treatment Workflow · ICD-11 KB60.4 · ICMR / DHR · August 2026';
+
+  static const triageTitle = triagePdfTitle;
+  static const triageSubtitle =
+      'Standard Treatment Workflow · ICMR / DHR · July 2020';
+  static const kmcTitle = kmcPdfTitle;
+  static const kmcSubtitle =
+      'Standard Treatment Workflow · ICMR / DHR · August 2026';
+
+  static const _accentAncs = Color(0xFF0F766E);
+  static const _accentHypo = Color(0xFFB45309);
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +101,6 @@ class ReferencesScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-
               // 1. Respiratory Distress Card
               _PdfWorkflowCard(
                 title: rdTitle,
@@ -94,9 +129,70 @@ class ReferencesScreen extends StatelessWidget {
                   title: ropTitle,
                 ),
               ),
+              const SizedBox(height: 12),
+
+              // 3. Antenatal Corticosteroids Card
+              _PdfWorkflowCard(
+                title: ancsPdfTitle,
+                subtitle: ancsSubtitle,
+                accentColor: _accentAncs,
+                semanticsLabel:
+                    'Open Antenatal Corticosteroids for Preterm Birth STW PDF',
+                mapFocus: 'ancs',
+                onViewPdf: () => _openPdf(
+                  context,
+                  assetPath: ancsPdfAsset,
+                  title: ancsPdfTitle,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // 4. Neonatal Hypoglycemia Card
+              _PdfWorkflowCard(
+                title: hypoPdfTitle,
+                subtitle: hypoSubtitle,
+                accentColor: _accentHypo,
+                semanticsLabel: 'Open Neonatal Hypoglycemia STW PDF',
+                mapFocus: 'hypoglycemia',
+                onViewPdf: () => _openPdf(
+                  context,
+                  assetPath: hypoPdfAsset,
+                  title: hypoPdfTitle,
+                ),
+              ),
               const SizedBox(height: 20),
 
-              // 3. Sources cited in the STWs
+              // 5. Neonatal emergency triage
+              _PdfWorkflowCard(
+                title: triageTitle,
+                subtitle: triageSubtitle,
+                accentColor: AppTheme.accentRd,
+                semanticsLabel: 'Open Neonatal Emergency Triage STW PDF',
+                mapFocus: 'triage',
+                onViewPdf: () => _openPdf(
+                  context,
+                  assetPath: triagePdfAsset,
+                  title: triageTitle,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // 6. Kangaroo Mother Care
+              _PdfWorkflowCard(
+                title: kmcTitle,
+                subtitle: kmcSubtitle,
+                accentColor: AppTheme.primaryTeal,
+                semanticsLabel: 'Open Kangaroo Mother Care STW PDF',
+                mapFocus: 'kmc',
+                onViewPdf: () => _openPdf(
+                  context,
+                  assetPath: kmcPdfAsset,
+                  title: kmcTitle,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Sources cited in the STWs
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -179,13 +275,42 @@ class ReferencesScreen extends StatelessWidget {
                           color: Color(0xFF334155),
                         ),
                       ),
+                      for (final (title, color, refs) in [
+                        (ancsPdfTitle, _accentAncs, ancsReferences),
+                        (hypoPdfTitle, _accentHypo, hypoReferences),
+                        (triageTitle, AppTheme.accentRd, triageReferences),
+                        (kmcTitle, AppTheme.primaryTeal, kmcReferences),
+                      ]) ...[
+                        const SizedBox(height: 16),
+                        const Divider(height: 1, color: AppTheme.borderColor),
+                        const SizedBox(height: 16),
+                        Text(
+                          title,
+                          style: text.labelLarge?.copyWith(
+                            color: color,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        for (final r in refs) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            r,
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 13,
+                              height: 1.45,
+                              color: Color(0xFF334155),
+                            ),
+                          ),
+                        ],
+                      ],
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 16),
 
-              // 4. Disclaimer
+              // 6. Disclaimer
               Text(
                 'Disclaimer (from the STW)',
                 style: text.labelSmall?.copyWith(
@@ -194,12 +319,7 @@ class ReferencesScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                stwDisclaimer,
-                style: text.bodySmall?.copyWith(
-                  color: const Color(0xFF64748B),
-                ),
-              ),
+              const StwDisclaimerContent(color: Color(0xFF64748B)),
               const SizedBox(height: 24),
             ],
           ),

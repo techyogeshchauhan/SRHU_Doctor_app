@@ -55,10 +55,22 @@ const pendingStwMessage =
     'Clinical workflow content requires the corresponding approved STW.';
 
 const List<ConditionDefinition> conditionDefinitions = [
-  ConditionDefinition(id: NeonatalCondition.triage, title: 'STW Triage'),
+  ConditionDefinition(
+    id: NeonatalCondition.triage,
+    title: 'STW Triage',
+    description:
+        'Emergency triage assessment and management workflow as per ICMR/DHR STW.',
+    status: ConditionStatus.available,
+  ),
   ConditionDefinition(
       id: NeonatalCondition.thermalCare, title: 'STW Thermal Care'),
-  ConditionDefinition(id: NeonatalCondition.kmc, title: 'STW KMC'),
+  ConditionDefinition(
+    id: NeonatalCondition.kmc,
+    title: 'STW KMC',
+    description:
+        'Kangaroo Mother Care eligibility and care workflow as per ICMR/DHR STW.',
+    status: ConditionStatus.available,
+  ),
   ConditionDefinition(
       id: NeonatalCondition.fluidsAndFeeds, title: 'STW Fluids & Feeds'),
   ConditionDefinition(
@@ -70,7 +82,8 @@ const List<ConditionDefinition> conditionDefinitions = [
   ConditionDefinition(
     id: NeonatalCondition.ancs,
     title: 'STW ANCS',
-    description: 'Antenatal corticosteroid eligibility workflow as per ICMR/DHR '
+    description:
+        'Antenatal corticosteroid eligibility workflow as per ICMR/DHR '
         'STW.',
     status: ConditionStatus.available,
   ),

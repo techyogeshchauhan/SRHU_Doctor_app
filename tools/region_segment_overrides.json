@@ -160,5 +160,62 @@
     {"text": "SYMPTOMATIC OR BG < 25 mg/dL", "header": true},
     {"text": "IV bolus: 2 ml/kg of 10% of dextrose slowly over 1 minute"},
     {"text": "Start IV infusion of dextrose at a glucose infusion rate (GIR) of 6 mg/kg/min"}
+  ],
+  "triage_initial_assessment": [
+    {"text": "Place under radiant warmer"},
+    {"text": "Attach temperature probe and pulse oximeter"},
+    {"text": "Assess for emergency signs using TABC & CD"},
+    {"text": "T: Temperature; A: Airway; B: Breathing; C: Circulation; C: Coma/convulsions; D: Dehydration"},
+    {"text": "Classify into EMERGENCY, PRIORITY or NON-URGENT based on signs given below"}
+  ],
+  "triage_kpis": [
+    {"text": "Neonates with a documented triage category at initial assessment", "label": "Triage classification documented (%); All neonates assessed × 100"},
+    {"text": "Sick neonates with temperature, SpO₂ AND blood glucose recorded at initial assessment", "label": "Complete triage measurements (%); All sick neonates assessed × 100"}
+  ],
+  "triage_abbreviations": [
+    {"text": "BP: Blood pressure"},
+    {"text": "CBC: Complete blood count"},
+    {"text": "CDH: Congenital diaphragmatic hernia"},
+    {"text": "CPAP: Continuous positive airway pressure"},
+    {"text": "CRT: Capillary refill time"},
+    {"text": "EBM: Expressed breastmilk"},
+    {"text": "HR: Heart rate"},
+    {"text": "IDM: Infant of a diabetic mother"},
+    {"text": "NS: Normal saline"},
+    {"text": "OG/NG: Orogastric/nasogastric"},
+    {"text": "ORS: Oral rehydration solution"},
+    {"text": "SpO₂: Oxygen saturation"},
+    {"text": "TEF: Tracheoesophageal fistula"}
+  ],
+  "kmc_continue_while_on": [
+    {"text": "Oxygen therapy"},
+    {"text": "CPAP"},
+    {"text": "IV ﬂuids or medications"},
+    {"text": "OG/NG tube feeding"},
+    {"text": "Phototherapy (interrupt only during treatment, resume immediately)"},
+    {"text": "Twins: individually or together, depending on stability and caregiver availability"}
+  ],
+  "kmc_dos": [
+    {"text": "Start KMC early in every eligible preterm or low-birth-weight baby; continue as long as possible"},
+    {"text": "Ensure correct positioning, a clear airway, and secure support; monitor temperature, breathing, and feeding"},
+    {"text": "Support exclusive breast milk feeding and counsel families to continue KMC at home with scheduled follow-up"}
+  ],
+  "kmc_donts": [
+    {"text": "Do not initiate KMC in babies unable to breathe spontaneously after resuscitation, in shock, or requiring mechanical ventilation"},
+    {"text": "Do not routinely stop KMC for oxygen, CPAP, IV therapy, or tube feeding"},
+    {"text": "Do not delay KMC because the mother is unavailable; involve a trained alternate caregiver"}
+  ],
+  "kmc_kpis": [
+    {"text": "No. of neonates initiated on KMC x 100", "label": "KMC coverage among eligible neonates = Total eligible neonates during that period; Target: ≥90%"},
+    {"text": "Neonates receiving KMC for ≥8 h per 24h x 100", "label": "Percentage of eligible neonates getting > 8 hours of KMC = All neonates receiving KMC; Target: ≥80%"}
+  ],
+  "kmc_abbreviations": [
+    {"text": "CPAP - Continuous Positive Airway Pressure"},
+    {"text": "EBM: Expressed Breastmilk"},
+    {"text": "KMC: Kangaroo Mother Care"},
+    {"text": "LBW: Low Birth Weight"},
+    {"text": "OG/NG - Orogastric/Nasogastric"},
+    {"text": "ROP- Retinopathy of Prematurity"},
+    {"text": "SpO2- Peripheral Oxygen Saturation"}
   ]
 }

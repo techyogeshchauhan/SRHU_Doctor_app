@@ -16,6 +16,10 @@ const rdPdfTitle = 'Respiratory Distress in Neonates';
 
 const ropPdfAsset = 'assets/pdfs/retinopathy_of_prematurity_stw.pdf';
 const ropPdfTitle = 'Retinopathy of Prematurity (ROP)';
+const triagePdfAsset = 'assets/pdfs/Triage_13-10-26.pdf';
+const triagePdfTitle = 'Neonatal Emergency Triage Assessment and Management';
+const kmcPdfAsset = 'assets/pdfs/KMC-13-10-2026.pdf';
+const kmcPdfTitle = 'Kangaroo Mother Care';
 
 /// A bundled STW PDF.
 class StwPdf {
@@ -32,15 +36,35 @@ StwPdf? stwPdfFor(NeonatalCondition c) => switch (c) {
       NeonatalCondition.ancs => const StwPdf(ancsPdfAsset, ancsPdfTitle),
       NeonatalCondition.hypoglycemia =>
         const StwPdf(hypoPdfAsset, hypoPdfTitle),
+      NeonatalCondition.triage => const StwPdf(triagePdfAsset, triagePdfTitle),
+      NeonatalCondition.kmc => const StwPdf(kmcPdfAsset, kmcPdfTitle),
       _ => null,
     };
 
 /// The STW PDF a [SourceReference.document] refers to.
 StwPdf? stwPdfForDocument(String document) => switch (document) {
-      rdStwDocument => stwPdfFor(NeonatalCondition.respiratoryDistress),
-      ropStwDocument => stwPdfFor(NeonatalCondition.rop),
-      ancsStwDocument => stwPdfFor(NeonatalCondition.ancs),
-      hypoStwDocument => stwPdfFor(NeonatalCondition.hypoglycemia),
+      rdStwDocument ||
+      'respiratory_distress_neonates_stw.pdf' ||
+      'Respiratory distress in neonates_New.pdf' =>
+        stwPdfFor(NeonatalCondition.respiratoryDistress),
+      ropStwDocument ||
+      'retinopathy_of_prematurity_stw.pdf' ||
+      'Retinopathy of Prematurity (ROP).pdf' =>
+        stwPdfFor(NeonatalCondition.rop),
+      ancsStwDocument ||
+      ancsPdfFile ||
+      'Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf' =>
+        stwPdfFor(NeonatalCondition.ancs),
+      hypoStwDocument ||
+      hypoPdfFile ||
+      'Neonatal_Hypoglycemia_8th_Oct.pdf' =>
+        stwPdfFor(NeonatalCondition.hypoglycemia),
+      triageStwDocument ||
+      'Triage_13-10-26.pdf' =>
+        stwPdfFor(NeonatalCondition.triage),
+      kmcStwDocument ||
+      'KMC-13-10-2026.pdf' =>
+        stwPdfFor(NeonatalCondition.kmc),
       _ => null,
     };
 

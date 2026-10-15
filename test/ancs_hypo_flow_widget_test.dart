@@ -106,8 +106,46 @@ void main() {
       findsWidgets,
     );
     expect(find.textContaining('2 ml/kg × 1.5 kg = 3 ml'), findsOneWidget);
-    expect(find.text('At-risk infant — screen for hypoglycemia'),
+    expect(
+        find.text('At-risk infant — screen for hypoglycemia'), findsOneWidget);
+  });
+
+  testWidgets(
+      'KMC: unknown GA and BW 2500 asks preterm status before exclusions',
+      (tester) async {
+    await _openCard(tester, 'STW KMC', 'Kangaroo Mother Care (KMC)');
+
+    await tapVisible(tester, find.text('GA uncertain'));
+    await _enter(tester, 'Birth weight *', '2500');
+    await _continue(tester);
+
+    expect(find.text('Assess preterm status'), findsOneWidget);
+    expect(
+        find.textContaining('Has the clinician assessed the baby as preterm?'),
         findsOneWidget);
+    expect(find.text('Yes, preterm (<37 weeks)'), findsOneWidget);
+    expect(find.text('No, not preterm'), findsOneWidget);
+
+    await tapVisible(tester, find.text('Yes, preterm (<37 weeks)'));
+    await _continue(tester);
+    expect(find.text('KMC initiation exclusions'), findsOneWidget);
+    expect(find.text('Do any of these conditions apply? (tick all that apply)'),
+        findsOneWidget);
+  });
+
+  testWidgets('KMC: clinician confirms not preterm, no undetermined status',
+      (tester) async {
+    await _openCard(tester, 'STW KMC', 'Kangaroo Mother Care (KMC)');
+
+    await tapVisible(tester, find.text('GA uncertain'));
+    await _enter(tester, 'Birth weight *', '2500');
+    await _continue(tester);
+    await tapVisible(tester, find.text('No, not preterm'));
+    await _continue(tester);
+
+    expect(find.text('Clinical Assessment Summary'), findsOneWidget);
+    expect(find.text('KMC eligibility criteria not met'), findsOneWidget);
+    expect(find.text('KMC eligibility undetermined'), findsNothing);
   });
 
   testWidgets('STW text button opens the verbatim reference with disclaimer',
@@ -121,11 +159,11 @@ void main() {
     expect(find.text('Hypoglycemia Reference'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('DON’Ts'), 300,
         scrollable: find.byType(Scrollable).first);
-    expect(find.text('Do NOT give antibiotics for hypoglycemia unless sepsis '
+    expect(
+        find.text('Do NOT give antibiotics for hypoglycemia unless sepsis '
             'is suspected'),
         findsOneWidget);
-    await tester.scrollUntilVisible(
-        find.text('DISCLAIMER (FROM THE STW)'), 300,
+    await tester.scrollUntilVisible(find.text('DISCLAIMER (FROM THE STW)'), 300,
         scrollable: find.byType(Scrollable).first);
     expect(find.textContaining('Kindly visit the DHR portal'), findsOneWidget);
   });

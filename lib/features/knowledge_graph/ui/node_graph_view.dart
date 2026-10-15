@@ -255,7 +255,7 @@ class _NodeGraphViewState extends State<NodeGraphView> {
     const gap = 14.0;
     const groupPad = 10.0;
     const headerH = 30.0;
-    const nodeH = 104.0;
+    const nodeH = 112.0;
     const blockGap = 44.0;
     final width = math.max(viewWidth, 300.0);
     final cols = width < 560 ? 2 : (width < 860 ? 3 : 4);
@@ -314,8 +314,8 @@ class _NodeGraphViewState extends State<NodeGraphView> {
       final grp = groups[level];
       frames[level] = group(grp, level: level, feeds: grp.target);
     }
-    final rule = single(g.rule, 104, feeds: g.finding);
-    final finding = single(g.finding, 112);
+    final rule = single(g.rule, 112, feeds: g.finding);
+    final finding = single(g.finding, 116);
     final next = [if (g.stwBox != null) g.stwBox!, ...g.leadsTo];
     final nextFrame = next.isEmpty
         ? null

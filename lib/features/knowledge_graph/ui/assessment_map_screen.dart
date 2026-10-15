@@ -3,24 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/widgets/responsive.dart';
+import '../../clinical_workflow/domain/assessment_context.dart';
 import '../../clinical_workflow/domain/clinical_finding.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
 import '../../clinical_workflow/ui/assessment_summary.dart' show toneFor;
 import '../../condition_selection/domain/neonatal_condition.dart';
+import '../domain/bubble_graph.dart';
 import '../domain/kg_graph.dart';
 import '../domain/reasoning.dart';
 import '../state/kg_providers.dart';
+import 'bubble_graph_view.dart';
 import 'node_details_screen.dart';
-import 'node_graph_view.dart';
+import 'node_graph_view.dart' show KgPlacement;
 import 'reasoning_tree.dart';
 
 /// The knowledge graph of the current assessment.
 ///
-/// Graph view: one finding at a time as a node graph (what it is based on →
-/// STW rule → finding → STW box and the findings that follow), with
-/// expandable nodes and a details page per node. List view: every finding
-/// as an expandable step-by-step list. Updates live while the assessment
-/// continues.
+/// Graph view reuses the Home bubble graph, but projects only the selected
+/// conditions, entered answers and findings in the current assessment.
+/// List view keeps the step-by-step explanation for every triggered finding.
 class AssessmentMapScreen extends ConsumerStatefulWidget {
   const AssessmentMapScreen({super.key, this.focusFindingId});
 
@@ -59,145 +60,81 @@ class _AssessmentMapScreenState extends ConsumerState<AssessmentMapScreen> {
       ),
       body: ctx.selected.isEmpty
           ? const _Empty('No assessment in progress.')
-          : trees.isEmpty
-              ? const _Empty('No STW pathway triggered yet.')
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                      child: SegmentedButton<bool>(
-                        showSelectedIcon: false,
-                        segments: const [
-                          ButtonSegment(
-                            value: false,
-                            icon: Icon(Icons.account_tree_outlined),
-                            label: Text('Graph view'),
-                          ),
-                          ButtonSegment(
-                            value: true,
-                            icon: Icon(Icons.format_list_bulleted),
-                            label: Text('List view'),
-                          ),
-                        ],
-                        selected: {_listView},
-                        onSelectionChanged: (s) =>
-                            setState(() => _listView = s.first),
-                      ),
-                    ),
-                    Expanded(
-                      child: _listView
-                          ? _ListView(trees: trees)
-                          : _graph(context, trees),
-                    ),
-                  ],
-                ),
-    );
-  }
-
-  Widget _graph(BuildContext context, List<ReasonNode> trees) {
-    final tree = trees.firstWhere(
-      (t) => t.finding!.id == _focus,
-      orElse: () => trees.first,
-    );
-    final graph = focusGraphOf(tree, trees);
-    final usedBy = findingsUsing(trees);
-
-    void showFinding(ClinicalFinding f) {
-      NodeDetailsScreen.closeAll(context);
-      setState(() => _focus = f.id);
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const KgLegend(),
-              const SizedBox(height: 8),
-              _FindingPicker(
-                trees: trees,
-                selected: tree.finding!,
-                onSelected: showFinding,
-              ),
-            ],
-          ),
-        ),
-        const Divider(height: 1),
-        Expanded(
-          child: ColoredBox(
-            color: const Color(0xFFF1F5F9),
-            child: NodeGraphView(
-              key: ValueKey(graph.finding.id),
-              graph: graph,
-              onOpen: (p) => NodeDetailsScreen.open(
-                context,
-                placement: p,
-                usedBy: usedBy,
-                onShowFinding: showFinding,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Which finding the graph shows.
-class _FindingPicker extends StatelessWidget {
-  const _FindingPicker({
-    required this.trees,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final List<ReasonNode> trees;
-  final ClinicalFinding selected;
-  final void Function(ClinicalFinding f) onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final findings = [for (final t in trees) t.finding!];
-    return DropdownButtonFormField<String>(
-      key: ValueKey(selected.id),
-      initialValue: selected.id,
-      isExpanded: true,
-      decoration: const InputDecoration(
-        labelText: 'Showing finding',
-        isDense: true,
-        border: OutlineInputBorder(),
-      ),
-      items: [
-        for (final f in findings)
-          DropdownMenuItem(
-            value: f.id,
-            child: Row(
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(
-                  toneFor(f.level).icon,
-                  size: 16,
-                  color: toneFor(f.level).foreground(),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    '${topicShort(f.topic)}: ${f.title}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: SegmentedButton<bool>(
+                    showSelectedIcon: false,
+                    segments: const [
+                      ButtonSegment(
+                        value: false,
+                        icon: Icon(Icons.account_tree_outlined),
+                        label: Text('Graph view'),
+                      ),
+                      ButtonSegment(
+                        value: true,
+                        icon: Icon(Icons.format_list_bulleted),
+                        label: Text('List view'),
+                      ),
+                    ],
+                    selected: {_listView},
+                    onSelectionChanged: (s) =>
+                        setState(() => _listView = s.first),
                   ),
+                ),
+                Expanded(
+                  child: _listView
+                      ? _ListView(trees: trees)
+                      : _graph(context, ctx, trees),
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _graph(
+    BuildContext context,
+    ClinicalAssessmentContext ctx,
+    List<ReasonNode> trees,
+  ) {
+    final graph = buildAssessmentBubbleGraph(context: ctx, trees: trees);
+    final usedBy = findingsUsing(trees);
+
+    void showFinding(ClinicalFinding finding) {
+      NodeDetailsScreen.closeAll(context);
+      setState(() => _focus = finding.id);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: BubbleLegend(),
           ),
-      ],
-      onChanged: (id) {
-        if (id == null) return;
-        onSelected(findings.firstWhere((f) => f.id == id));
-      },
+          const Divider(height: 1),
+          Expanded(
+            child: ColoredBox(
+              color: const Color(0xFFF8FAFC),
+              child: BubbleGraphView(
+                key: ValueKey(ctx.selected.map((c) => c.name).join(',')),
+                graph: graph,
+                focusBubbleId: _focus == null ? null : 'finding:$_focus',
+                overviewLabel: 'All selected conditions',
+                onAssessmentDetails: (item, feeds) => NodeDetailsScreen.open(
+                  context,
+                  placement: KgPlacement(item: item, feeds: feeds),
+                  usedBy: usedBy,
+                  onShowFinding: showFinding,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -229,11 +166,16 @@ class _ListView extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           const ReasonLegend(),
+          if (trees.isEmpty)
+            const Padding(
+              padding: EdgeInsets.only(top: 16),
+              child: Text('No STW pathway triggered yet.'),
+            ),
           if (shared.isNotEmpty) ...[
             const SizedBox(height: 16),
             Text('Answers used by more than one topic', style: heading),
             const SizedBox(height: 8),
-            for (final s in shared) _SharedAnswerCard(shared: s),
+            for (final answer in shared) _SharedAnswerCard(shared: answer),
           ],
           for (final topic in NeonatalCondition.values)
             if (trees.any((t) => t.finding!.topic == topic)) ...[
@@ -242,11 +184,11 @@ class _ListView extends ConsumerWidget {
                 topic: topic,
                 count: trees.where((t) => t.finding!.topic == topic).length,
               ),
-              for (final t in trees)
-                if (t.finding!.topic == topic)
+              for (final tree in trees)
+                if (tree.finding!.topic == topic)
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
-                    child: ReasonTree(root: t, initiallyOpen: false),
+                    child: ReasonTree(root: tree, initiallyOpen: false),
                   ),
             ],
         ],
@@ -323,16 +265,16 @@ class _SharedAnswerCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final a in shared.answers)
+            for (final answer in shared.answers)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(text: a.label),
-                      if (a.value != null)
+                      TextSpan(text: answer.label),
+                      if (answer.value != null)
                         TextSpan(
-                          text: ':  ${a.value}',
+                          text: ':  ${answer.value}',
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
                             color: AppTheme.primaryNavy,
@@ -350,20 +292,20 @@ class _SharedAnswerCard extends StatelessWidget {
               style: const TextStyle(fontSize: 12, color: AppTheme.mutedText),
             ),
             const SizedBox(height: 6),
-            for (final f in shared.findings)
+            for (final finding in shared.findings)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Row(
                   children: [
                     Icon(
-                      toneFor(f.level).icon,
+                      toneFor(finding.level).icon,
                       size: 15,
-                      color: toneFor(f.level).foreground(),
+                      color: toneFor(finding.level).foreground(),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        '${topicShort(f.topic)}: ${f.title}',
+                        '${topicShort(finding.topic)}: ${finding.title}',
                         style: const TextStyle(fontSize: 12.5),
                       ),
                     ),

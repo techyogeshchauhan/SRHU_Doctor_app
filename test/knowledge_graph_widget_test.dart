@@ -6,13 +6,23 @@ import 'package:neonatal_stw/core/theme.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/assessment_context.dart';
 import 'package:neonatal_stw/features/clinical_workflow/state/assessment_controller.dart';
 import 'package:neonatal_stw/features/clinical_workflow/ui/assessment_summary.dart';
+import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
+import 'package:neonatal_stw/features/hypoglycemia/domain/hypo_workflow.dart'
+    show hypoLowId;
+import 'package:neonatal_stw/features/knowledge_graph/domain/bubble_graph.dart';
+import 'package:neonatal_stw/features/knowledge_graph/domain/kg_graph.dart';
+import 'package:neonatal_stw/features/knowledge_graph/domain/reasoning.dart';
+import 'package:neonatal_stw/features/rd/domain/rd_workflow.dart'
+    show rdInitialPlanId, rdPresentId, rdRrKey;
 import 'package:neonatal_stw/features/knowledge_graph/state/stw_regions.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/assessment_map_screen.dart';
+import 'package:neonatal_stw/features/knowledge_graph/ui/bubble_graph_view.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/node_details_screen.dart';
 import 'package:neonatal_stw/features/references/ui/pdf_viewer_screen.dart'
     show HighlightTarget;
 import 'package:neonatal_stw/shared/pdf_navigation.dart';
 
+import 'assessment_test_utils.dart' show walk;
 import 'knowledge_graph_test.dart' show babyCtx;
 
 class _Fixed extends AssessmentController {
@@ -21,6 +31,10 @@ class _Fixed extends AssessmentController {
 
   @override
   AssessmentState build() => AssessmentState(context: ctx);
+
+  void setContext(ClinicalAssessmentContext next) {
+    state = AssessmentState(context: next);
+  }
 }
 
 /// Stand-in for the PDF viewer: shows what it was asked to open.
@@ -37,7 +51,12 @@ class _PdfProbe extends StatelessWidget {
   }
 }
 
-Future<void> _pump(WidgetTester tester, Size size, {String home = '/'}) async {
+Future<_Fixed> _pump(
+  WidgetTester tester,
+  Size size, {
+  String home = '/',
+  ClinicalAssessmentContext? context,
+}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -47,7 +66,8 @@ Future<void> _pump(WidgetTester tester, Size size, {String home = '/'}) async {
     await loadStwRegions();
     await stwRegionTarget('rd_diagnostic_criteria');
   });
-  final ctx = babyCtx();
+  final ctx = context ?? babyCtx();
+  late final _Fixed controller;
   final router = GoRouter(initialLocation: home, routes: [
     GoRoute(
       path: '/',
@@ -68,11 +88,16 @@ Future<void> _pump(WidgetTester tester, Size size, {String home = '/'}) async {
   ]);
   addTearDown(router.dispose);
   await tester.pumpWidget(ProviderScope(
-    overrides: [assessmentProvider.overrideWith(() => _Fixed(ctx))],
+    overrides: [
+      assessmentProvider.overrideWith(() => controller = _Fixed(ctx)),
+    ],
     child: MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
   ));
   await tester.pumpAndSettle();
+  return controller;
 }
+
+Finder _bubble(String id) => find.byKey(ValueKey('bubble:$id'));
 
 Future<void> _tap(WidgetTester tester, Finder f) async {
   await tester.ensureVisible(f);
@@ -93,57 +118,82 @@ Future<void> _openWhy(WidgetTester tester, String findingTitle) async {
 void main() {
   for (final size in const [Size(320, 568), Size(412, 915), Size(1280, 800)]) {
     testWidgets(
-        'Why? opens the node graph of that finding at '
+        'Why? opens the Home bubble graph for that finding at '
         '${size.width.toInt()}x${size.height.toInt()}', (tester) async {
       await _pump(tester, size);
       await _openWhy(tester, 'START CPAP');
 
       expect(find.byType(AssessmentMapScreen), findsOneWidget);
+      expect(find.byType(BubbleGraphView), findsOneWidget);
       expect(find.text('Graph view'), findsOneWidget);
-      // Based on → STW rule → finding.
-      expect(find.text('Gestation group'), findsOneWidget);
-      expect(find.text('SAS total'), findsOneWidget);
-      expect(
-          find.text('§1.5 Algorithm: choosing initial support'), findsWidgets);
+      expect(_bubble('hub:respiratoryDistress'), findsOneWidget);
+      expect(_bubble('finding:rd.initialPlan'), findsOneWidget);
       expect(find.text('START CPAP'), findsWidgets);
-      // Inputs behind a computed value stay closed until opened.
-      expect(find.text('Gestational age (completed weeks)'), findsNothing);
     });
   }
 
-  testWidgets('+N opens what a node is based on; − closes it', (tester) async {
-    await _pump(tester, const Size(412, 915),
-        home: '/assessment-map?focus=rd.initialPlan');
-    await _tap(tester, find.text('+2'));
-    expect(find.text('Gestation group: based on'), findsOneWidget);
-    expect(find.text('Gestational age (completed weeks)'), findsOneWidget);
-    expect(find.text('32 weeks'), findsOneWidget);
+  testWidgets('graph includes only selected conditions and current results',
+      (tester) async {
+    final partial = walk(
+      {NeonatalCondition.respiratoryDistress},
+      {rdRrKey: 50},
+    ).ctx;
+    final controller = await _pump(
+      tester,
+      const Size(412, 915),
+      home: '/assessment-map',
+      context: partial,
+    );
 
-    await _tap(tester, find.text('−'));
-    expect(find.text('Gestational age (completed weeks)'), findsNothing);
+    expect(_bubble('hub:respiratoryDistress'), findsOneWidget);
+    expect(_bubble('hub:rop'), findsNothing);
+    expect(_bubble('hub:hypoglycemia'), findsNothing);
+    expect(_bubble('box:rd_diagnostic_criteria'), findsNothing);
+
+    await _tap(tester, _bubble('hub:respiratoryDistress'));
+    expect(find.text('Respiratory distress criteria not met'), findsOneWidget);
+
+    controller.setContext(
+      walk(
+        {NeonatalCondition.respiratoryDistress},
+        {rdRrKey: 70},
+      ).ctx,
+    );
+    await tester.pumpAndSettle();
+    expect(_bubble('hub:rop'), findsNothing);
+    expect(_bubble('finding:$rdPresentId'), findsOneWidget);
+
+    controller.setContext(babyCtx());
+    await tester.pumpAndSettle();
+    expect(_bubble('hub:rop'), findsOneWidget);
+    expect(_bubble('hub:hypoglycemia'), findsOneWidget);
   });
 
-  testWidgets('node details: value, source, PDF highlight, related nodes',
+  testWidgets('live finding details retain values, source and PDF highlight',
       (tester) async {
+    final ctx = babyCtx();
     await _pump(tester, const Size(412, 915),
         home: '/assessment-map?focus=rd.initialPlan');
-    await _tap(tester, find.text('Gestation group'));
+    final trees = ReasoningBuilder(ctx).explainAll();
+    final graph = buildAssessmentBubbleGraph(context: ctx, trees: trees);
+    final initialPlan = graph
+        .hubOf(NeonatalCondition.respiratoryDistress)!
+        .children
+        .singleWhere((b) => b.item?.finding?.id == rdInitialPlanId);
+    final gestation = initialPlan.children
+        .singleWhere((b) => b.item?.label == 'Gestation group');
+    await _tap(tester, _bubble(gestation.id));
+    await _tap(tester, find.text('Details'));
 
     expect(find.byType(NodeDetailsScreen), findsOneWidget);
-    expect(find.text('Computed value'), findsOneWidget);
-    expect(find.text('GA ≤34 weeks'), findsOneWidget);
+    expect(find.text('Gestation group'), findsWidgets);
+    expect(find.textContaining('GA ≤34 weeks'), findsWidgets);
     expect(find.text('ICMR/DHR STW: Respiratory Distress in Neonates'),
         findsOneWidget);
     // Verbatim box text from the PDF.
     await tester.scrollUntilVisible(find.text('Text in the STW PDF'), 200,
         scrollable: find.byType(Scrollable).last);
     expect(find.textContaining('If GA is uncertain'), findsOneWidget);
-    // Related: the answers it is based on, and what it is used for.
-    await tester.scrollUntilVisible(
-        find.text('Gestational age (completed weeks)'), 200,
-        scrollable: find.byType(Scrollable).last);
-    expect(find.text('Used for'), findsOneWidget);
-
     await tester.scrollUntilVisible(
         find.text('Open in PDF (highlighted)'), -200,
         scrollable: find.byType(Scrollable).last);
@@ -157,31 +207,26 @@ void main() {
 
   testWidgets('rule details show your value, threshold and result',
       (tester) async {
+    final ctx = babyCtx();
     await _pump(tester, const Size(412, 915),
         home: '/assessment-map?focus=hypo.low');
-    await _tap(tester, find.text('HOW TO MONITOR BLOOD GLUCOSE (BG)').first);
+    final trees = ReasoningBuilder(ctx).explainAll();
+    final graph = buildAssessmentBubbleGraph(context: ctx, trees: trees);
+    final lowGlucose = graph
+        .hubOf(NeonatalCondition.hypoglycemia)!
+        .children
+        .singleWhere((b) => b.item?.finding?.id == hypoLowId);
+    final rule =
+        lowGlucose.children.singleWhere((b) => b.item?.kind == KgKind.rule);
+    await _tap(tester, _bubble(rule.id));
+    await _tap(tester, find.text('Details'));
+    expect(find.byType(NodeDetailsScreen), findsOneWidget);
     expect(find.text('STW rule'), findsOneWidget);
-    expect(find.text('40 mg/dL'), findsOneWidget);
-    expect(find.text('< 45 mg/dL'), findsOneWidget);
+    expect(find.textContaining('40 mg/dL'), findsOneWidget);
+    expect(find.textContaining('45 mg/dL'), findsWidgets);
     expect(find.text('✓ Met'), findsOneWidget);
     expect(find.textContaining('Measure BG using a point-of-care'),
         findsOneWidget);
-  });
-
-  testWidgets('a finding in related nodes switches the graph to it',
-      (tester) async {
-    await _pump(tester, const Size(412, 915),
-        home: '/assessment-map?focus=rd.initialPlan');
-    await _tap(tester, find.text('+2'));
-    await _tap(tester, find.text('Gestational age (completed weeks)'));
-    // GA leads to ROP findings too.
-    final rop = find.text('Screening eligible — SCREEN FOR ROP');
-    await tester.scrollUntilVisible(rop, 200,
-        scrollable: find.byType(Scrollable).last);
-    await _tap(tester, rop);
-    expect(find.byType(NodeDetailsScreen), findsNothing);
-    expect(
-        find.text('ROP: Screening eligible — SCREEN FOR ROP'), findsOneWidget);
   });
 
   testWidgets('list view: shared answers and topics', (tester) async {

@@ -2,6 +2,11 @@
     <!-- Release builds need this to sync screenings and chat logs to the API
          (debug/profile manifests declare it only for development). -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Voice data entry (speech_to_text); Bluetooth so headsets can be used. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <application
         android:label="SRHU STW"
         android:name="${applicationName}"
@@ -43,6 +48,13 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Voice data entry: speech recognition and text-to-speech engines. -->
+        <intent>
+            <action android:name="android.speech.RecognitionService"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE"/>
         </intent>
     </queries>
 </manifest>
