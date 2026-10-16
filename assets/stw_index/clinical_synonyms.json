@@ -42,7 +42,7 @@
   ],
   "surfactant": [
     "exogenous surfactant",
-    "peep >6",
+    "cpap ≥6",
     "fio2 >0.30",
     "intubation surfactant extubation",
     "insure"
@@ -69,11 +69,11 @@
   "rr": [
     "respiratory rate",
     "breaths per minute",
-    ">60/min",
+    "≥60/min",
     "tachypnea"
   ],
   "tachypnea": [
-    "rr >60/min",
+    "rr ≥60/min",
     "respiratory rate",
     "fast breathing"
   ],

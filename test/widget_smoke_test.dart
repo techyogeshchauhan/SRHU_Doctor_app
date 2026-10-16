@@ -34,10 +34,12 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
 }
 
 void main() {
-  testWidgets('home shows the condition selection list with Triaging heading', (tester) async {
+  testWidgets('home shows the condition selection list with Triaging heading',
+      (tester) async {
     await _pumpApp(tester);
     expect(find.text('Triaging'), findsOneWidget);
-    expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
+    expect(find.text('Based on History and Clinical Examination.'),
+        findsOneWidget);
     expect(find.text('Select any condition.'), findsOneWidget);
     expect(find.text('STW Respiratory Distress'), findsOneWidget);
     expect(find.text('STW ROP'), findsOneWidget);
@@ -64,6 +66,9 @@ void main() {
     await _tap(tester, find.text('Nasal flaring'));
     await tester.enterText(
         find.widgetWithText(TextField, 'Gestational age'), '37');
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Initial SpO₂'), '90');
     await tester.pumpAndSettle();
 
     for (final label in [
@@ -104,8 +109,12 @@ void main() {
         ),
         findsOneWidget);
 
-    for (final next in ['Next: Timing', 'Next: Prepare', 'Next: Findings',
-        'Next: Follow-up']) {
+    for (final next in [
+      'Next: Timing',
+      'Next: Prepare',
+      'Next: Findings',
+      'Next: Follow-up'
+    ]) {
       await _tap(tester, find.text(next));
     }
     expect(
@@ -123,11 +132,13 @@ void main() {
 
     final scroll = find.byType(Scrollable).last;
     for (final label in ['Zone II', 'Stage 3', 'Plus present']) {
-      await tester.scrollUntilVisible(find.text(label), 150, scrollable: scroll);
+      await tester.scrollUntilVisible(find.text(label), 150,
+          scrollable: scroll);
       await tester.tap(find.text(label));
       await tester.pumpAndSettle();
     }
-    expect(find.text('Right eye (OD): Treatment-requiring ROP'), findsOneWidget);
+    expect(
+        find.text('Right eye (OD): Treatment-requiring ROP'), findsOneWidget);
     expect(find.text('Treat urgently — within 48–72 h of decision'),
         findsOneWidget);
 
@@ -150,7 +161,8 @@ void main() {
     expect(find.text('Recommendation pending'), findsOneWidget);
   });
 
-  testWidgets('renders at 360x640 small phone without overflow', (tester) async {
+  testWidgets('renders at 360x640 small phone without overflow',
+      (tester) async {
     await _pumpApp(tester, size: const Size(360, 640), tapContinue: false);
     // Landing page
     expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
@@ -159,7 +171,8 @@ void main() {
     // Tap Continue to navigate to Home
     await _tap(tester, find.text('Continue'));
     expect(find.text('Triaging'), findsOneWidget);
-    expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
+    expect(find.text('Based on History and Clinical Examination.'),
+        findsOneWidget);
     expect(find.text('Select any condition.'), findsOneWidget);
 
     // Open RD via condition selection
@@ -173,22 +186,26 @@ void main() {
     // Open Home via Home icon in RD screen
     await _tap(tester, find.byIcon(Icons.home_rounded));
     expect(find.text('Triaging'), findsOneWidget);
-    expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
+    expect(find.text('Based on History and Clinical Examination.'),
+        findsOneWidget);
   });
 
-  testWidgets('renders at 412x915 standard phone without overflow', (tester) async {
+  testWidgets('renders at 412x915 standard phone without overflow',
+      (tester) async {
     await _pumpApp(tester, size: const Size(412, 915), tapContinue: false);
     expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
     expect(find.text('Continue'), findsOneWidget);
 
     await _tap(tester, find.text('Continue'));
     expect(find.text('Triaging'), findsOneWidget);
-    expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
+    expect(find.text('Based on History and Clinical Examination.'),
+        findsOneWidget);
     expect(find.text('Select any condition.'), findsOneWidget);
     await openStandaloneModule(tester, '/rd');
     expect(find.text('Signs of respiratory distress'), findsOneWidget);
     await _tap(tester, find.byIcon(Icons.home_rounded));
     expect(find.text('Triaging'), findsOneWidget);
-    expect(find.text('Based on History and Clinical Examination.'), findsOneWidget);
+    expect(find.text('Based on History and Clinical Examination.'),
+        findsOneWidget);
   });
 }

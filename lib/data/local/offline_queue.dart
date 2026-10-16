@@ -66,8 +66,7 @@ class OfflineQueue {
       _connectivitySub = Connectivity()
           .onConnectivityChanged
           .listen((List<ConnectivityResult> results) {
-        final hasConnection =
-            results.any((r) => r != ConnectivityResult.none);
+        final hasConnection = results.any((r) => r != ConnectivityResult.none);
         if (hasConnection) {
           flush();
         }
@@ -90,10 +89,9 @@ class OfflineQueue {
   // ---------------------------------------------------------------------------
 
   /// Retrieves or restores the current session ID.
-  String? get currentSessionId =>
-      (_sessionBox != null && _sessionBox!.isOpen)
-          ? _sessionBox!.get('current_session_id') as String?
-          : null;
+  String? get currentSessionId => (_sessionBox != null && _sessionBox!.isOpen)
+      ? _sessionBox!.get('current_session_id') as String?
+      : null;
 
   /// Sets the active session ID.
   Future<void> setSessionId(String sessionId) async {
@@ -143,7 +141,8 @@ class OfflineQueue {
     return <String, String>{};
   }
 
-  Future<void> setActiveScreening(String diseaseCode, String screeningId) async {
+  Future<void> setActiveScreening(
+      String diseaseCode, String screeningId) async {
     if (_sessionBox != null && _sessionBox!.isOpen) {
       final current = getActiveScreenings();
       current[diseaseCode] = screeningId;
@@ -170,6 +169,27 @@ class OfflineQueue {
       final current = getCompletedScreenings()..add(diseaseCode);
       await _sessionBox!.put('completed_screenings', current.toList());
     }
+  }
+
+  /// Completed timing records survive queue flushes, Home and app restarts.
+  /// They are stored separately from active mappings and queued API writes.
+  List<Map<String, dynamic>> getScreeningTimings() {
+    if (_sessionBox == null || !_sessionBox!.isOpen) return [];
+    final raw = _sessionBox!.get('screening_timings');
+    if (raw is! Map) return [];
+    return [
+      for (final value in raw.values)
+        if (value is Map) Map<String, dynamic>.from(value)
+    ];
+  }
+
+  Future<void> saveScreeningTiming(Map<String, dynamic> timing) async {
+    if (_sessionBox == null || !_sessionBox!.isOpen) return;
+    final raw = _sessionBox!.get('screening_timings');
+    final timings =
+        raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+    timings[timing['id'] as String] = timing;
+    await _sessionBox!.put('screening_timings', timings);
   }
 
   // ---------------------------------------------------------------------------
@@ -332,14 +352,17 @@ class OfflineQueue {
         } else {
           await _apiClient.createSession({
             '_id': payload['id'] ?? payload['_id'],
-            'sessionToken': payload['session_token'] ?? payload['sessionToken'] ?? '',
+            'sessionToken':
+                payload['session_token'] ?? payload['sessionToken'] ?? '',
             'facilityName': payload['facility_name'] ?? payload['facilityName'],
             'platform': payload['platform'] ?? 'unknown',
-            'appVersion': payload['app_version'] ?? payload['appVersion'] ?? '0.1.0+1',
+            'appVersion':
+                payload['app_version'] ?? payload['appVersion'] ?? '0.1.0+1',
             'status': payload['status'] ?? 'in_progress',
             if (payload['selected_conditions'] is List)
               'selectedConditions': payload['selected_conditions'],
-            if (payload['created_at'] != null) 'createdAt': payload['created_at'],
+            if (payload['created_at'] != null)
+              'createdAt': payload['created_at'],
           });
         }
         break;
@@ -347,10 +370,15 @@ class OfflineQueue {
       case 'screenings':
       case 'disease_screenings':
         final screeningId = (payload['id'] ?? payload['_id']) as String;
-        final progressState = payload['progress_state'] ?? payload['progressState'] ?? payload['status'];
-        if (action == 'patch_status' || progressState == 'completed' || progressState == 'abandoned') {
+        final progressState = payload['progress_state'] ??
+            payload['progressState'] ??
+            payload['status'];
+        if (action == 'patch_status' ||
+            progressState == 'completed' ||
+            progressState == 'abandoned') {
           final status = (progressState ?? 'completed') as String;
-          final completedAt = (payload['completed_at'] ?? payload['completedAt']) as String?;
+          final completedAt =
+              (payload['completed_at'] ?? payload['completedAt']) as String?;
           await _apiClient.patchScreeningStatus(
             screeningId,
             status,
@@ -360,18 +388,24 @@ class OfflineQueue {
           await _apiClient.putScreening(screeningId, {
             'sessionId': payload['session_id'] ?? payload['sessionId'],
             'diseaseCode': payload['disease_code'] ?? payload['diseaseCode'],
-            'progressState': payload['progress_state'] ?? payload['progressState'] ?? 'in_progress',
+            'progressState': payload['progress_state'] ??
+                payload['progressState'] ??
+                'in_progress',
             'isEligible': payload['is_eligible'] ?? payload['isEligible'],
-            'status': payload['status'] ?? payload['progress_state'] ?? 'in_progress',
-            if (payload['started_at'] != null) 'startedAt': payload['started_at'],
-            if (payload['completed_at'] != null) 'completedAt': payload['completed_at'],
+            'status':
+                payload['status'] ?? payload['progress_state'] ?? 'in_progress',
+            if (payload['started_at'] != null)
+              'startedAt': payload['started_at'],
+            if (payload['completed_at'] != null)
+              'completedAt': payload['completed_at'],
           });
         }
         break;
 
       case 'responses':
       case 'screening_responses':
-        final sId = (payload['screening_id'] ?? payload['screeningId']) as String;
+        final sId =
+            (payload['screening_id'] ?? payload['screeningId']) as String;
         final qId = (payload['question_id'] ?? payload['questionId']) as String;
         final responseData = payload['response_data'];
         final val = (responseData is Map && responseData.containsKey('value'))
@@ -384,29 +418,39 @@ class OfflineQueue {
           data: {
             'value': val,
             if (payload['unit'] != null) 'unit': payload['unit'],
-            if (payload['input_mode'] != null) 'inputMode': payload['input_mode'],
-            if (payload['answered_at'] != null) 'answeredAt': payload['answered_at'],
+            if (payload['input_mode'] != null)
+              'inputMode': payload['input_mode'],
+            if (payload['answered_at'] != null)
+              'answeredAt': payload['answered_at'],
           },
         );
         break;
 
       case 'findings':
       case 'clinical_findings':
-        final sId = (payload['screening_id'] ?? payload['screeningId']) as String;
+        final sId =
+            (payload['screening_id'] ?? payload['screeningId']) as String;
         List<Map<String, dynamic>> findingsList;
 
         if (payload.containsKey('findings') && payload['findings'] is List) {
-          findingsList = List<Map<String, dynamic>>.from(payload['findings'] as List);
+          findingsList =
+              List<Map<String, dynamic>>.from(payload['findings'] as List);
         } else {
           findingsList = [
             {
               'type': payload['finding_type'] ?? payload['type'] ?? 'primary',
-              'title': payload['finding_title'] ?? payload['title'] ?? 'Finding',
-              'severity': payload['severity_grade'] ?? payload['severity'] ?? 'moderate',
+              'title':
+                  payload['finding_title'] ?? payload['title'] ?? 'Finding',
+              'severity': payload['severity_grade'] ??
+                  payload['severity'] ??
+                  'moderate',
               'recommendations': payload['recommendations'] ?? <String>[],
-              if (payload['stw_reference'] != null || payload['stwReference'] != null)
-                'stwReference': payload['stw_reference'] ?? payload['stwReference'],
-              if (payload['generated_at'] != null) 'generatedAt': payload['generated_at'],
+              if (payload['stw_reference'] != null ||
+                  payload['stwReference'] != null)
+                'stwReference':
+                    payload['stw_reference'] ?? payload['stwReference'],
+              if (payload['generated_at'] != null)
+                'generatedAt': payload['generated_at'],
             }
           ];
         }
@@ -423,12 +467,15 @@ class OfflineQueue {
         break;
 
       case 'mcq_attempts':
-        final sId = (payload['screening_id'] ?? payload['screeningId']) as String;
+        final sId =
+            (payload['screening_id'] ?? payload['screeningId']) as String;
         await _apiClient.postMcqAttempt(sId, {
           'questionId': payload['question_id'] ?? payload['questionId'],
-          'selectedOption': payload['selected_option'] ?? payload['selectedOption'],
+          'selectedOption':
+              payload['selected_option'] ?? payload['selectedOption'],
           'isCorrect': payload['is_correct'] ?? payload['isCorrect'],
-          if (payload['answered_at'] != null) 'answeredAt': payload['answered_at'],
+          if (payload['answered_at'] != null)
+            'answeredAt': payload['answered_at'],
         });
         break;
 
@@ -447,9 +494,11 @@ class OfflineQueue {
 
         final chunkList = <String>[];
         if (payload['matched_chunk_ids'] is List) {
-          chunkList.addAll((payload['matched_chunk_ids'] as List).map((e) => e.toString()));
+          chunkList.addAll(
+              (payload['matched_chunk_ids'] as List).map((e) => e.toString()));
         } else if (payload['chunkIds'] is List) {
-          chunkList.addAll((payload['chunkIds'] as List).map((e) => e.toString()));
+          chunkList
+              .addAll((payload['chunkIds'] as List).map((e) => e.toString()));
         }
 
         await _apiClient.postChatLog({
@@ -457,13 +506,16 @@ class OfflineQueue {
           if (payload['session_id'] != null || payload['sessionId'] != null)
             'sessionId': payload['session_id'] ?? payload['sessionId'],
           'userQuery': payload['user_query'] ?? payload['userQuery'] ?? '',
-          'extractedAnswer': payload['extracted_answer'] ?? payload['extractedAnswer'] ?? '',
+          'extractedAnswer':
+              payload['extracted_answer'] ?? payload['extractedAnswer'] ?? '',
           if (payload['region_id'] != null || payload['regionId'] != null)
             'regionId': payload['region_id'] ?? payload['regionId'],
           'chunkIds': chunkList,
           'source': sourceMap,
           'found': payload['found'] ?? true,
-          'retrieverType': payload['retriever_type'] ?? payload['retrieverType'] ?? 'bm25_pure_dart',
+          'retrieverType': payload['retriever_type'] ??
+              payload['retrieverType'] ??
+              'bm25_pure_dart',
           if (payload['created_at'] != null) 'createdAt': payload['created_at'],
         });
         break;

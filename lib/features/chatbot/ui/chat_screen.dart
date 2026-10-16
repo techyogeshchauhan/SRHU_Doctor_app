@@ -6,7 +6,7 @@ import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../knowledge_graph/ui/stw_map_link.dart';
-import '../../references/ui/pdf_viewer_screen.dart';
+import '../../../shared/pdf_navigation.dart';
 import '../domain/answering/stw_answer.dart';
 import '../domain/models/chat_message.dart';
 import '../domain/understanding/query_analyzer.dart';
@@ -41,6 +41,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     'What actions are listed for priority signs?',
     'How should the baby be positioned for KMC?',
     'What should be monitored during KMC?',
+    'What are the red flags for neonatal sepsis?',
+    'What is the antibiotic duration for sepsis?',
   ];
 
   @override
@@ -74,18 +76,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _openInPdf(BuildContext context, StwChunk chunk) {
     final assetPath = 'assets/pdfs/${chunk.document}';
-    final target = HighlightTarget(
-      document: chunk.document,
-      page: chunk.page,
-      normalizedBboxes: chunk.boundingBoxes
-          .map((b) => Rect.fromLTWH(b.x, b.y, b.width, b.height))
-          .toList(),
-      sectionTitle: chunk.sectionTitle,
-      regionId: chunk.chunkId,
-    );
+    final target = stwChunkTarget(chunk);
 
     context.push(
-      '/pdf-viewer?path=$assetPath&title=${Uri.encodeComponent(chunk.sectionTitle)}',
+      '/pdf-viewer?path=${Uri.encodeComponent(assetPath)}&title=${Uri.encodeComponent(chunk.sectionTitle)}',
       extra: {
         'path': assetPath,
         'title': chunk.sectionTitle,
@@ -222,7 +216,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ask clinical questions about Triage, Kangaroo Mother Care (KMC), Respiratory Distress in Neonates (RD), Retinopathy of Prematurity (ROP), Antenatal Corticosteroids (ANCS) or Neonatal Hypoglycemia. Answers are extracted directly from the approved STWs with visual PDF highlighting.',
+            'Ask clinical questions about Triage, Kangaroo Mother Care (KMC), Respiratory Distress in Neonates (RD), Retinopathy of Prematurity (ROP), Antenatal Corticosteroids (ANCS) Neonatal Hypoglycemia or Sepsis in Neonates. Answers are extracted directly from the approved STWs with visual PDF highlighting.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.black87,
               height: 1.4,
@@ -626,6 +620,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         StwTopic.hypo => NeonatalCondition.hypoglycemia,
         StwTopic.triage => NeonatalCondition.triage,
         StwTopic.kmc => NeonatalCondition.kmc,
+        StwTopic.sepsis => NeonatalCondition.sepsis,
         null => null,
       };
 

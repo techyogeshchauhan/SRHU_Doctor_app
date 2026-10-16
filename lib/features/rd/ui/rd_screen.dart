@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../content/stw_content.dart';
 import '../../../core/theme.dart';
@@ -73,11 +74,36 @@ class _RdScreenState extends ConsumerState<RdScreen>
           const SizedBox(width: 4),
           Semantics(
             button: true,
-            label: 'Clear RD assessment',
-            child: IconButton(
-              tooltip: 'Clear RD assessment',
-              icon: const Icon(Icons.restart_alt),
-              onPressed: () => ref.read(rdProvider.notifier).reset(),
+            label: 'Reset Screening',
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: OutlinedButton.icon(
+                onPressed: () => _confirmResetRd(context, ref),
+                icon: const Icon(
+                  Icons.restart_alt_rounded,
+                  size: 16,
+                  color: Color(0xFFDC2626),
+                ),
+                label: const Text(
+                  'Reset Screening',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFDC2626),
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFDC2626),
+                  side: const BorderSide(color: Color(0xFFFCA5A5), width: 1.2),
+                  backgroundColor: const Color(0xFFFEF2F2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -103,6 +129,83 @@ class _RdScreenState extends ConsumerState<RdScreen>
       ),
       bottomNavigationBar: bar,
     );
+  }
+
+  Future<void> _confirmResetRd(BuildContext context, WidgetRef ref) async {
+    final action = await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(
+              Icons.restart_alt_rounded,
+              color: Color(0xFFDC2626),
+              size: 24,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Reset Screening',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w700,
+                color: AppTheme.primaryNavy,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Choose whether to restart Respiratory Distress assessment from the beginning or reset all screening data and return to condition selection.',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            color: Color(0xFF334155),
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.of(ctx).pop('restart'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.primaryNavy,
+            ),
+            child: const Text('Restart Screening'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop('home'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Reset & Go to Home'),
+          ),
+        ],
+      ),
+    );
+
+    if (action == null || !context.mounted) return;
+
+    if (action == 'restart') {
+      ref.read(rdProvider.notifier).reset();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Respiratory Distress assessment restarted.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } else if (action == 'home') {
+      resetAllScreeningData(ref);
+      if (context.mounted) {
+        context.go('/home');
+      }
+    }
   }
 }
 
@@ -136,13 +239,30 @@ class _AssessTab extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Apnoea/gasping, poor effort or shock'),
+                subtitle: const Text(
+                    'Stabilize immediately; ventilate when indicated.'),
+                value: s.emergency,
+                onChanged: (v) => n.setEmergency(v ?? false),
+              ),
+              NumberField(
+                label: 'Initial SpO₂',
+                suffix: '%',
+                value: s.initialSpo2,
+                min: 0,
+                max: 100,
+                helper: 'Mild RD: oxygen only if SpO₂ <91%.',
+                onChanged: n.setInitialSpo2,
+              ),
               NumberField(
                 label: 'Respiratory rate (optional)',
                 suffix: '/min',
                 value: s.rr,
                 min: 0,
                 max: 150,
-                helper: 'Ticks "RR >60/min" automatically',
+                helper: 'Ticks "RR ≥60/min" automatically',
                 onChanged: n.setRr,
               ),
               const SizedBox(height: 4),
@@ -323,9 +443,22 @@ class _ReassessTab extends ConsumerWidget {
               const SizedBox(height: 8),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
+                title: const Text('Suspected worsening RDS'),
+                value: s.suspectedWorseningRds,
+                onChanged: (v) => n.setSuspectedWorseningRds(v ?? false),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Stable or reducing respiratory support'),
+                value: s.stableOrReducingSupport,
+                onChanged: (v) => n.setStableOrReducingSupport(v ?? false),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
                 title: const Text('Comfortable breathing'),
-                subtitle: const Text('Required for improving / weaning per STW'),
+                subtitle:
+                    const Text('Required for improving / weaning per STW'),
                 value: s.comfortableBreathing,
                 onChanged: (v) => n.setComfortableBreathing(v ?? false),
               ),
@@ -355,8 +488,10 @@ class _ReassessTab extends ConsumerWidget {
               ('shock', 'Shock'),
               ('deterioration', 'Clinical deterioration'),
               if (onCpap)
-                ('hypoxemia',
-                    'Persistent hypoxemia / high FiO₂ despite optimised CPAP'),
+                (
+                  'hypoxemia',
+                  'Persistent hypoxemia / high FiO₂ despite optimised CPAP'
+                ),
             ],
             selected: {
               if (s.risingO2Need) 'rising',
@@ -374,16 +509,6 @@ class _ReassessTab extends ConsumerWidget {
               deterioration: v.contains('deterioration'),
               persistentHypoxemia: v.contains('hypoxemia'),
             ),
-          ),
-        ),
-        SectionCard(
-          number: 4,
-          title: 'Sepsis triggers',
-          subtitle: 'Any one → consider sepsis',
-          child: CheckList<SepsisTrigger>(
-            items: [for (final t in SepsisTrigger.values) (t, t.label)],
-            selected: s.sepsisTriggers,
-            onChanged: n.setSepsisTriggers,
           ),
         ),
         if (!ResponsiveSplit.isWide(context))

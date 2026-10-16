@@ -82,7 +82,7 @@ void main() {
         expect(r.children, isNotEmpty, reason: '${r.topic} has no links');
         expect(r.children.every((c) => c.kind == MapKind.link), isTrue);
       }
-      expect(map.root(NeonatalCondition.sepsis)?.pending, isTrue);
+      expect(map.root(NeonatalCondition.sepsis)?.pending, isFalse);
     });
 
     test('every PDF box appears once, under its own STW', () {

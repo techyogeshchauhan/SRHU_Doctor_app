@@ -2,7 +2,8 @@
 ///
 /// Pure Dart, no Flutter imports, so every branch can be unit-tested and
 /// reviewed independently of the UI. Gestational age thresholds use
-/// completed weeks (e.g. 34+3 counts as 34 weeks).
+/// completed weeks, preserving the existing GA convention for the unchanged
+/// ≤34 / >34-week split in the updated PDF.
 library;
 
 import 'sas.dart';
@@ -12,7 +13,7 @@ import 'sas.dart';
 // ---------------------------------------------------------------------------
 
 enum RdSign {
-  rrAbove60('RR >60/min'),
+  rrAbove60('RR ≥60/min'),
   retractions('Chest retractions'),
   nasalFlaring('Nasal flaring'),
   grunting('Grunting');
@@ -24,7 +25,7 @@ enum RdSign {
 /// "Presence of ANY ONE" of the signs.
 bool meetsRdCriteria(Set<RdSign> signs) => signs.isNotEmpty;
 
-/// "RR >60/min": a measured RR above this counts as the sign.
+/// "RR ≥60/min": a measured RR at or above this counts as the sign.
 const int rrThresholdPerMin = 60;
 
 // ---------------------------------------------------------------------------
@@ -56,7 +57,6 @@ class Gestation {
     if (gaKnown) {
       final w = gaWeeks;
       if (w == null) return null;
-      // TO CONFIRM WITH SUPERVISOR: GA 34+3 weeks is currently treated as "<=34 weeks" (completed weeks).
       return w <= 34 ? GaBand.upTo34 : GaBand.above34;
     }
     final bw = birthWeightG;
@@ -70,11 +70,6 @@ class Gestation {
     if (!gaKnown || w == null) return null;
     return w < 34;
   }
-
-  /// Whether the "<34 weeks" criterion (caffeine, surfactant) is met.
-  /// With the birth-weight surrogate this is presumed and must be confirmed.
-  bool get meetsBelow34OrSurrogate =>
-      isBelow34 == true || (usesBwSurrogate && band == GaBand.upTo34);
 
   String describe() {
     if (gaKnown) {
@@ -101,8 +96,9 @@ enum RespSupport {
 
 enum CaffeineAdvice {
   indicated('Start caffeine citrate (<34 weeks requiring respiratory '
-      'support).'),
-  notIndicated('Caffeine: not indicated (GA ≥34 weeks).'),
+      'support), as per protocol.'),
+  notIndicated(
+      'STW caffeine criterion (<34 weeks requiring respiratory support) not met.'),
   confirmGa('Start caffeine citrate if GA is <34 weeks.');
 
   const CaffeineAdvice(this.text);
@@ -111,8 +107,10 @@ enum CaffeineAdvice {
 
 enum FeedingAdvice {
   directBreastfeed('Direct breastfeed (mild distress, stable).'),
-  gastricTube('Gastric-tube feeds (moderate–severe distress or on CPAP), if stable.'),
-  ivFluids('IV fluids; start enteral feeds once stable.');
+  gastricTube(
+      'OG feeds when appropriate on CPAP, if stable; decompress stomach.'),
+  ivFluids(
+      'Withhold feeds; give IV fluids for severe RD, recurrent apnoea, poor perfusion or abdominal concerns.');
 
   const FeedingAdvice(this.text);
   final String text;
@@ -144,7 +142,7 @@ class RdInitialPlan {
 
   List<String> get supportActions => switch (support) {
         RespSupport.cpap => const [
-            'START CPAP 5–6 cm H₂O (within 30 min of diagnosis/admission).',
+            'START CPAP 5–6 cm H₂O (within 30 min of identification of indication).',
             'Use blended O₂; titrate FiO₂ to maintain SpO₂ 91–95%.',
           ],
         RespSupport.nasalO2 => const [
@@ -157,26 +155,38 @@ class RdInitialPlan {
 
 /// Either a plan, or a message saying which input is still needed.
 class RdInitialResult {
-  const RdInitialResult.pending(String this.pending) : plan = null;
-  const RdInitialResult.ready(RdInitialPlan this.plan) : pending = null;
+  const RdInitialResult.pending(String this.pending, {this.emergency = false})
+      : plan = null;
+  const RdInitialResult.ready(RdInitialPlan this.plan)
+      : pending = null,
+        emergency = false;
 
   final String? pending;
   final RdInitialPlan? plan;
+  final bool emergency;
 }
 
 RdInitialResult initialPlan({
   required Set<RdSign> signs,
   required Gestation gestation,
   required SasScore sas,
+  int? initialSpo2,
+  bool emergency = false,
   bool severeDistress = false,
   bool recurrentApnea = false,
   bool poorPerfusion = false,
   bool abdominalSigns = false,
 }) {
+  if (emergency) {
+    return const RdInitialResult.pending(
+      'Apnoea/gasping, poor effort or shock: stabilize immediately; ventilate when indicated.',
+      emergency: true,
+    );
+  }
   if (!meetsRdCriteria(signs)) {
     return const RdInitialResult.pending(
       'Tick at least one sign of respiratory distress '
-      '(RR >60/min, chest retractions, nasal flaring or grunting).',
+      '(RR ≥60/min, chest retractions, nasal flaring or grunting).',
     );
   }
   final band = gestation.band;
@@ -212,16 +222,22 @@ RdInitialResult initialPlan({
     why.add('GA >34 weeks with moderate–severe RD (SAS ${sas.total} ≥4) '
         '→ START CPAP.');
   } else {
-    support = RespSupport.nasalO2;
+    if (initialSpo2 == null) {
+      return const RdInitialResult.pending(
+        'Mild RD with GA >34 weeks: enter SpO₂; nasal-prong oxygen is indicated only if SpO₂ <91%.',
+      );
+    }
+    support =
+        initialSpo2 < spo2TargetLow ? RespSupport.nasalO2 : RespSupport.none;
     why.add('GA >34 weeks with mild RD (SAS ${sas.total} ≤3) '
-        '→ nasal-prong oxygen.');
+        '→ nasal-prong oxygen only if SpO₂ <91% (measured $initialSpo2%).');
   }
 
   final CaffeineAdvice caffeine;
-  if (gestation.isBelow34 == true) {
+  if (gestation.isBelow34 == true && support != RespSupport.none) {
     caffeine = CaffeineAdvice.indicated;
     why.add('GA <34 weeks on respiratory support → start caffeine citrate.');
-  } else if (gestation.usesBwSurrogate && band == GaBand.upTo34) {
+  } else if (!gestation.gaKnown) {
     caffeine = CaffeineAdvice.confirmGa;
   } else {
     caffeine = CaffeineAdvice.notIndicated;
@@ -237,7 +253,8 @@ RdInitialResult initialPlan({
   final FeedingAdvice feeding;
   if (ivReasons.isNotEmpty) {
     feeding = FeedingAdvice.ivFluids;
-  } else if (support == RespSupport.cpap || severity == RdSeverity.moderateSevere) {
+  } else if (support == RespSupport.cpap ||
+      severity == RdSeverity.moderateSevere) {
     feeding = FeedingAdvice.gastricTube;
   } else {
     feeding = FeedingAdvice.directBreastfeed;
@@ -272,16 +289,6 @@ const int spo2TargetHigh = 95;
 const int peepMin = 4;
 const int peepMax = 8;
 
-enum SepsisTrigger {
-  perinatalRisk('Perinatal risk factors'),
-  systemicIllness('Systemic illness'),
-  worseningDistress('Worsening distress'),
-  risingFio2('Rising FiO₂');
-
-  const SepsisTrigger(this.label);
-  final String label;
-}
-
 class ReassessInput {
   const ReassessInput({
     required this.gestation,
@@ -298,7 +305,8 @@ class ReassessInput {
     this.deterioration = false,
     this.persistentHypoxemia = false,
     this.comfortableBreathing = false,
-    this.sepsisTriggers = const {},
+    this.suspectedWorseningRds = false,
+    this.stableOrReducingSupport = false,
   });
 
   final Gestation gestation;
@@ -325,7 +333,8 @@ class ReassessInput {
 
   /// Clinical finding: comfortable breathing (required for "improving" per STW).
   final bool comfortableBreathing;
-  final Set<SepsisTrigger> sepsisTriggers;
+  final bool suspectedWorseningRds;
+  final bool stableOrReducingSupport;
 
   /// FiO₂ as an integer percentage, avoiding floating-point comparisons.
   int get fio2Percent => (fio2 * 100).round();
@@ -334,6 +343,7 @@ class ReassessInput {
 enum ReassessStatus {
   incomplete,
   cpapFailure,
+  emergency,
   surfactant,
   notImproving,
   improving,
@@ -359,33 +369,33 @@ class ReassessOutcome {
   final List<String> alerts;
 }
 
-/// Surfactant criteria: <34 weeks on CPAP needing PEEP >6 cm H₂O AND
-/// FiO₂ >0.30 to keep SpO₂ 91–95%.
+/// Early rescue requires every criterion in the updated source PDF.
 bool meetsSurfactantCriteria(ReassessInput i) =>
+    i.suspectedWorseningRds &&
     i.support == RespSupport.cpap &&
-    i.gestation.meetsBelow34OrSurrogate &&
-    i.peep > 6 &&
-    i.fio2Percent > 30;
+    i.gestation.isBelow34 == true &&
+    i.peep >= 6 &&
+    i.fio2 > 0.30;
 
-/// Next weaning step on CPAP: FiO₂ first to 0.21, then PEEP down in
-/// 1 cm H₂O steps to 4–5 cm H₂O, then stop.
+const rdMonitoringActions = [
+  'Monitor SpO₂ continuously while on oxygen/CPAP.',
+  'Reassess clinical status, SAS and FiO₂ requirement within 15–30 min of starting/changing support.',
+  'Reassess at least 1 hourly while on respiratory support; immediately if any worsening.',
+];
+
+/// Use the PDF's trial-off window without adding pressure decrements.
 List<String> cpapWeanSteps({required int peep, required double fio2}) {
-  if ((fio2 * 100).round() > 21) {
-    return [
-      'Wean FiO₂ first (now ${fio2.toStringAsFixed(2)}) towards 0.21, '
-          'keeping SpO₂ 91–95%.',
-      'Keep PEEP at $peep cm H₂O until FiO₂ is 0.21.',
+  if (peep == 5 && fio2 >= 0.21 && fio2 <= 0.25) {
+    return const [
+      'Trial off CPAP only when stable: comfortable breathing, no significant apnoea and low oxygen requirement; on CPAP 5 cm H₂O and FiO₂ 0.21–0.25.',
+      'Monitor SpO₂ for 24 h after stopping.',
     ];
   }
-  if (peep > 5) {
-    return [
-      'FiO₂ is 0.21 → reduce CPAP by 1 cm H₂O: $peep → ${peep - 1} cm H₂O.',
-      'Continue stepwise reduction to 4–5 cm H₂O.',
-    ];
-  }
-  return [
-    'FiO₂ 0.21 and PEEP $peep cm H₂O → stop CPAP when stable.',
-    'Continue SpO₂ monitoring for 24 h after stopping.',
+  return const [
+    'Wean when stable: comfortable breathing; no significant apnoea; low oxygen requirement.',
+    'Reduce FiO₂, then CPAP as per protocol.',
+    'Trial off when stable on CPAP 5 cm H₂O and FiO₂ 0.21–0.25.',
+    'Monitor SpO₂ for 24 h after stopping.',
   ];
 }
 
@@ -397,9 +407,20 @@ ReassessOutcome reassess(ReassessInput i) {
   final alerts = <String>[
     if (spo2 != null && spo2 > spo2TargetHigh && i.support != RespSupport.none)
       'SpO₂ above target range (91–95%).',
-    if (i.sepsisTriggers.isNotEmpty || i.risingO2Need)
-      'Consider sepsis (see STW: Sepsis in Neonates).',
   ];
+
+  if (i.support != RespSupport.cpap &&
+      (i.recurrentApneaBrady || i.shock || i.fatigue)) {
+    return ReassessOutcome(
+      status: ReassessStatus.emergency,
+      title: 'ESCALATE SUPPORT PROMPTLY',
+      actions: const [
+        'Stabilize immediately; ventilate when indicated.',
+        'Escalate support; intubate/ventilate when indicated; stabilize and refer urgently.',
+      ],
+      alerts: alerts,
+    );
+  }
 
   // Off support: monitor, restart if distress recurs.
   if (i.support == RespSupport.none) {
@@ -443,10 +464,10 @@ ReassessOutcome reassess(ReassessInput i) {
         status: ReassessStatus.cpapFailure,
         title: 'CPAP FAILURE — refer urgently',
         actions: [
-          'Refer urgently for mechanical ventilation / higher-level care.',
+          'Escalate support; intubate/ventilate when indicated; stabilize and refer urgently.',
           'Do NOT delay mechanical ventilation or referral.',
           if (meetsSurfactantCriteria(i))
-            'Surfactant criteria are also met — consider surfactant.',
+            'Early rescue surfactant criteria also met; give promptly when indicated without delaying escalation.',
         ],
         why: failure,
         alerts: alerts,
@@ -458,18 +479,16 @@ ReassessOutcome reassess(ReassessInput i) {
   if (meetsSurfactantCriteria(i)) {
     return ReassessOutcome(
       status: ReassessStatus.surfactant,
-      title: 'SURFACTANT indicated',
+      title: 'EARLY RESCUE SURFACTANT indicated',
       actions: const [
-        'Administer surfactant (STW: within 2 hours).',
+        'Give early rescue surfactant promptly when indicated—before established CPAP failure.',
         'Continue CPAP; titrate FiO₂ to SpO₂ 91–95%.',
-        'Reassess frequently.',
+        ...rdMonitoringActions,
       ],
       why: [
-        i.gestation.isBelow34 == true
-            ? 'GA <34 weeks on CPAP'
-            : 'GA uncertain, BW ≤$bwSurrogateThresholdG g on CPAP '
-                '(confirm GA <34 weeks)',
-        'PEEP ${i.peep} cm H₂O (>6)',
+        'GA <34 weeks on CPAP',
+        'Suspected worsening RDS in a preterm neonate <34 weeks',
+        'CPAP ${i.peep} cm H₂O (≥6)',
         'FiO₂ ${i.fio2.toStringAsFixed(2)} (>0.30)',
       ],
       alerts: alerts,
@@ -480,8 +499,10 @@ ReassessOutcome reassess(ReassessInput i) {
   final notImproving = <String>[
     if (sasTotal != null && prev != null && sasTotal > prev)
       'SAS increasing ($prev → $sasTotal)'
-    else if (sasTotal != null && (prev == null || sasTotal == prev) && sasTotal >= 4)
-      'SAS persisting at $sasTotal (≥4)',
+    else if (sasTotal != null &&
+        (prev != null && sasTotal == prev) &&
+        sasTotal > 0)
+      'SAS persisting at $sasTotal',
     if (spo2 != null && spo2 < spo2TargetLow) 'SpO₂ $spo2% (<91%)',
     if (i.risingO2Need) 'Rising oxygen need',
     // On CPAP these were already handled as CPAP failure.
@@ -495,16 +516,13 @@ ReassessOutcome reassess(ReassessInput i) {
         status: ReassessStatus.notImproving,
         title: 'NOT IMPROVING — optimise CPAP',
         actions: [
-          if (i.peep < peepMax)
-            'Increase PEEP stepwise: ${i.peep} → ${i.peep + 1} cm H₂O '
-                '(up to 7–8 cm H₂O).'
-          else
-            'PEEP already at $peepMax cm H₂O — if no response, treat as '
-                'CPAP failure and refer.',
+          'Increase CPAP up to 7–8 cm H₂O; titrate FiO₂.',
           'Titrate FiO₂ to target SpO₂ 91–95%.',
-          'Look for/treat underlying cause.',
-          'Consider surfactant if criteria met '
-              '(<34 wk, PEEP >6 cm H₂O and FiO₂ >0.30).',
+          'Check prongs, circuit and delivered pressure.',
+          'Exclude pneumothorax (transillumination, X-ray).',
+          'Consider sepsis (Refer to sepsis STW).',
+          'Consider early rescue surfactant: suspected worsening RDS, GA <34 weeks, CPAP ≥6 cm H₂O and FiO₂ >0.30.',
+          ...rdMonitoringActions,
         ],
         why: notImproving,
         alerts: alerts,
@@ -515,9 +533,12 @@ ReassessOutcome reassess(ReassessInput i) {
       status: ReassessStatus.notImproving,
       title: 'NOT IMPROVING / WORSENING',
       actions: const [
-        'Titrate oxygen to keep SpO₂ 91–95%.',
-        'Look for/treat underlying cause.',
-        'Consider sepsis if risk factors or triggers present.',
+        'If on nasal-prong oxygen with rising oxygen need or distress: START CPAP.',
+        'Check prongs, circuit and delivered pressure.',
+        'Increase CPAP up to 7–8 cm H₂O; titrate FiO₂.',
+        'Exclude pneumothorax (transillumination, X-ray).',
+        'Consider sepsis (Refer to sepsis STW); consider surfactant.',
+        ...rdMonitoringActions,
       ],
       why: notImproving,
       alerts: alerts,
@@ -535,13 +556,15 @@ ReassessOutcome reassess(ReassessInput i) {
 
   // 4. Improving (per STW: decreasing SAS AND SpO₂ 91–95% on stable/reducing support AND comfortable breathing).
   final sasDecreasing = prev != null && sasTotal < prev;
-  final spo2InTarget =
-      spo2 >= spo2TargetLow && spo2 <= spo2TargetHigh;
-  final improving = sasDecreasing && spo2InTarget && i.comfortableBreathing;
+  final spo2InTarget = spo2 >= spo2TargetLow && spo2 <= spo2TargetHigh;
+  final improving = sasDecreasing &&
+      spo2InTarget &&
+      i.comfortableBreathing &&
+      i.stableOrReducingSupport;
   if (improving) {
     return ReassessOutcome(
       status: ReassessStatus.improving,
-      title: 'IMPROVING — wean support',
+      title: 'IMPROVING — assess stability for weaning',
       actions: i.support == RespSupport.cpap
           ? cpapWeanSteps(peep: i.peep, fio2: i.fio2)
           : const [
@@ -562,7 +585,7 @@ ReassessOutcome reassess(ReassessInput i) {
     title: 'Stable — continue current support',
     actions: const [
       'Continue current support; titrate to SpO₂ 91–95%.',
-      'Reassess frequently: clinical status, SAS, SpO₂, FiO₂ requirement.',
+      ...rdMonitoringActions,
     ],
     why: ['SAS $sasTotal, SpO₂ $spo2%'],
     alerts: alerts,

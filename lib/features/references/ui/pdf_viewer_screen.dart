@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io' show File;
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -74,9 +76,13 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
   final ScrollController _scrollController = ScrollController();
   final TransformationController _transformController =
       TransformationController();
+  final _pageKey = GlobalKey();
+  final _viewportKey = GlobalKey();
+  Timer? _autoScrollTimer;
+  Size? _viewportSize;
+  double _pageAspectRatio = kPageAspectRatio;
 
   bool _isSharing = false;
-  bool _showBanner = true;
   bool _showHighlight = true;
   bool _hasAutoScrolled = false;
 
@@ -94,6 +100,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKey);
+    _loadPageGeometry();
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -117,6 +124,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
 
   @override
   void dispose() {
+    _autoScrollTimer?.cancel();
     HardwareKeyboard.instance.removeHandler(_onKey);
     _pulseController.dispose();
     _scrollController.dispose();
@@ -138,24 +146,65 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
     return 'assets/pages/$docName/$pageNum.webp';
   }
 
+  Future<void> _loadPageGeometry() async {
+    final path = _resolvePageImagePath();
+    final pages = jsonDecode(
+      await rootBundle.loadString('assets/pages/pages.json'),
+    ) as List<dynamic>;
+    if (!mounted || path != _resolvePageImagePath()) return;
+    for (final p in pages.cast<Map<String, dynamic>>()) {
+      if (p['image_path'] == path) {
+        final ratio = (p['width'] as num) / (p['height'] as num);
+        if (ratio.isFinite && ratio > 0 && ratio != _pageAspectRatio) {
+          setState(() => _pageAspectRatio = ratio);
+          _scheduleAutoScroll();
+        }
+        break;
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant PdfViewerScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.highlightTarget != oldWidget.highlightTarget ||
+        widget.assetPath != oldWidget.assetPath) {
+      _hasAutoScrolled = false;
+      _transformController.value = Matrix4.identity();
+      _loadPageGeometry();
+      if (widget.highlightTarget != null) {
+        _pulseController.repeat(count: 3);
+        _scheduleAutoScroll();
+      }
+    }
+  }
+
   void _scheduleAutoScroll({int delayMs = 150}) {
     if (!mounted || widget.highlightTarget == null) return;
     final bboxes = widget.highlightTarget!.normalizedBboxes;
     if (bboxes.isEmpty) return;
 
-    Future.delayed(Duration(milliseconds: delayMs), () {
+    _autoScrollTimer?.cancel();
+    _autoScrollTimer = Timer(Duration(milliseconds: delayMs), () {
       if (!mounted || !_scrollController.hasClients) return;
-
-      final targetBbox = bboxes.first;
+      final page = _pageKey.currentContext?.findRenderObject() as RenderBox?;
+      final viewport =
+          _viewportKey.currentContext?.findRenderObject() as RenderBox?;
+      if (page == null || viewport == null || !page.hasSize) return;
+      final targetBbox = bboxes.reduce((a, b) => a.expandToInclude(b));
       final maxScroll = _scrollController.position.maxScrollExtent;
-      final viewportHeight = _scrollController.position.viewportDimension;
-      final totalRenderedHeight = maxScroll + viewportHeight;
-
-      // Vertical center of target highlight in rendered pixel coordinates
-      final targetCenterY =
-          (targetBbox.top + targetBbox.height / 2.0) * totalRenderedHeight;
-      final desiredOffset =
-          (targetCenterY - viewportHeight / 2.0).clamp(0.0, maxScroll);
+      final viewportCenter = viewport.localToGlobal(Offset(
+        viewport.size.width / 2,
+        viewport.size.height / 2,
+      ));
+      final targetCenter = page.localToGlobal(Offset(
+        targetBbox.center.dx * page.size.width,
+        targetBbox.center.dy * page.size.height,
+      ));
+      final scale = _transformController.value.getMaxScaleOnAxis();
+      final desiredOffset = (_scrollController.offset +
+              (targetCenter.dy - viewportCenter.dy) / scale)
+          .clamp(0.0, maxScroll);
 
       _scrollController.animateTo(
         desiredOffset,
@@ -307,9 +356,17 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
         final screenWidth = constraints.maxWidth;
         // On wide screens (e.g. desktop/web), cap max width to comfortable reading width
         final renderedWidth = math.min(screenWidth, 1000.0);
-        final renderedHeight = renderedWidth / kPageAspectRatio;
+        final renderedHeight = renderedWidth / _pageAspectRatio;
+        final viewportSize = Size(constraints.maxWidth, constraints.maxHeight);
+        if (_viewportSize != viewportSize) {
+          _viewportSize = viewportSize;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _scheduleAutoScroll();
+          });
+        }
 
         return Stack(
+          key: _viewportKey,
           children: [
             // Scrollable & zoomable page container
             InteractiveViewer(
@@ -329,157 +386,90 @@ class _PdfViewerScreenState extends State<PdfViewerScreen>
                 // Mouse wheel scrolls the page; Ctrl/⌘ + wheel zooms.
                 child: Listener(
                   onPointerSignal: _onPointerSignal,
-                  child: Center(
-                    child: Container(
-                      width: renderedWidth,
-                      height: renderedHeight,
-                      color: Colors.white,
-                      child: Stack(
-                        children: [
-                          // 1. Page image
-                          Positioned.fill(
-                            child: Image.asset(
-                              imagePath,
-                              fit: BoxFit.fill,
-                              frameBuilder: (context, child, frame, wasSync) {
-                                if (frame != null && !_hasAutoScrolled) {
-                                  _scheduleAutoScroll(delayMs: 100);
-                                }
-                                return child;
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(24),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(
-                                          Icons.broken_image_outlined,
-                                          size: 48,
-                                          color: Colors.redAccent,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Text(
-                                          'Unable to load page image: $imagePath',
-                                          style: const TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 13,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-
-                          // 2. High-precision Highlight Overlay
-                          if (widget.highlightTarget != null && _showHighlight)
+                  child: Padding(
+                    // Allow even the first / last row (or a page shorter than
+                    // the viewport) to reach the viewport's reading center.
+                    padding: EdgeInsets.symmetric(
+                      vertical: widget.highlightTarget == null
+                          ? 0
+                          : constraints.maxHeight / 2,
+                    ),
+                    child: Center(
+                      child: Container(
+                        key: _pageKey,
+                        width: renderedWidth,
+                        height: renderedHeight,
+                        color: Colors.white,
+                        child: Stack(
+                          children: [
+                            // 1. Page image
                             Positioned.fill(
-                              child: AnimatedBuilder(
-                                animation: _pulseController,
-                                builder: (context, _) {
-                                  return CustomPaint(
-                                    painter: _CuratedHighlightPainter(
-                                      normalizedBboxes: widget
-                                          .highlightTarget!.normalizedBboxes,
-                                      ping: _pulseController.isAnimating
-                                          ? _pulseController.value
-                                          : null,
-                                      debugEdges: widget.debugHighlights,
+                              child: Image.asset(
+                                imagePath,
+                                fit: BoxFit.fill,
+                                frameBuilder: (context, child, frame, wasSync) {
+                                  if (frame != null && !_hasAutoScrolled) {
+                                    _scheduleAutoScroll(delayMs: 100);
+                                  }
+                                  return child;
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.broken_image_outlined,
+                                            size: 48,
+                                            color: Colors.redAccent,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            'Unable to load page image: $imagePath',
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 13,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   );
                                 },
                               ),
                             ),
-                        ],
+
+                            // 2. High-precision Highlight Overlay
+                            if (widget.highlightTarget != null &&
+                                _showHighlight)
+                              Positioned.fill(
+                                child: AnimatedBuilder(
+                                  animation: _pulseController,
+                                  builder: (context, _) {
+                                    return CustomPaint(
+                                      painter: _CuratedHighlightPainter(
+                                        normalizedBboxes: widget
+                                            .highlightTarget!.normalizedBboxes,
+                                        ping: _pulseController.isAnimating
+                                            ? _pulseController.value
+                                            : null,
+                                        debugEdges: widget.debugHighlights,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-
-            // 3. Top Floating Clinical Banner
-            if (widget.highlightTarget != null && _showBanner)
-              Positioned(
-                top: 12,
-                left: 16,
-                right: 16,
-                child: Material(
-                  elevation: 6,
-                  borderRadius: BorderRadius.circular(10),
-                  color: const Color(0xFFFEF2F2),
-                  shadowColor: Colors.black38,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF2F2),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: const Color(0xFFDC2626),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.highlight_alt_rounded,
-                          color: Color(0xFFDC2626),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                widget.highlightTarget!.sectionTitle ??
-                                    'Highlighted STW Section',
-                                style: const TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF7F1D1D),
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                'Page ${widget.highlightTarget!.page} • Highlighted in red • Tap icon above to toggle',
-                                style: const TextStyle(
-                                  fontSize: 10.5,
-                                  color: Color(0xFF991B1B),
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.close_rounded,
-                            size: 18,
-                            color: Color(0xFFDC2626),
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          tooltip: 'Dismiss Banner (keeps highlight visible)',
-                          onPressed: () {
-                            // Dismiss only the floating banner; the highlight remains visible on the page
-                            setState(() => _showBanner = false);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
           ],
         );
       },

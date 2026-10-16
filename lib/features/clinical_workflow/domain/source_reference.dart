@@ -11,8 +11,18 @@ const ancsStwDocument = 'Antenatal Corticosteroids for Preterm Birth';
 const hypoStwDocument = 'Neonatal Hypoglycemia';
 const triageStwDocument = 'Neonatal Emergency Triage Assessment and Management';
 const kmcStwDocument = 'Kangaroo Mother Care';
+const sepsisStwDocument = 'Sepsis in Neonates';
 
 class SourceReference {
+  const SourceReference.sepsis(
+    this.section, {
+    this.needsClinicalReview = false,
+    this.note,
+    this.regionId,
+  })  : document = sepsisStwDocument,
+        authority = 'ICMR/DHR',
+        version = 'August 2026';
+
   const SourceReference({
     required this.document,
     required this.section,

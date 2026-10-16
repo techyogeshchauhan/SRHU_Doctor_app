@@ -1,6 +1,6 @@
 [
   {"q": "What signs mean a newborn has respiratory distress?", "expect": "answer", "regions": ["rd_diagnostic_criteria"], "tags": ["en"]},
-  {"q": "Respiratory rate cutoff to call it respiratory distress in a neonate", "expect": "answer", "regions": ["rd_diagnostic_criteria"], "lines": ["RR >60/min"], "tags": ["en"]},
+  {"q": "Respiratory rate cutoff to call it respiratory distress in a neonate", "expect": "answer", "regions": ["rd_diagnostic_criteria"], "lines": ["RR ≥60/min"], "tags": ["en"]},
   {"q": "Navjat shishu me saans ki takleef kaise pehchane?", "expect": "answer", "regions": ["rd_diagnostic_criteria"], "tags": ["hinglish"]},
   {"q": "Is grunting alone enough to diagnose RD?", "expect": "answer", "regions": ["rd_diagnostic_criteria"], "tags": ["en"]},
 
@@ -46,9 +46,9 @@
   {"q": "CPAP pe sudhar nahi ho raha to PEEP kitna badhayein?", "expect": "answer", "regions": ["rd_outcome_not_improving_optimize_cpap"], "tags": ["hinglish"]},
 
   {"q": "When is surfactant indicated?", "expect": "answer", "regions": ["rd_surfactant_indication"], "tags": ["en"]},
-  {"q": "PEEP and FiO2 thresholds for giving surfactant", "expect": "answer", "regions": ["rd_surfactant_indication"], "lines": ["needing PEEP >6 cm H₂O"], "tags": ["en"]},
+  {"q": "PEEP and FiO2 thresholds for giving surfactant", "expect": "answer", "regions": ["rd_surfactant_indication"], "lines": ["CPAP ≥6 cm H₂O"], "tags": ["en"]},
   {"q": "Surfactant kab dena chahiye?", "expect": "answer", "regions": ["rd_surfactant_indication"], "tags": ["hinglish"]},
-  {"q": "Within how many hours should surfactant be given?", "expect": "answer", "regions": ["rd_clinical_dos"], "lines": ["Administer surfactant within 2 hours"], "tags": ["en"]},
+  {"q": "When should early rescue surfactant be given?", "expect": "answer", "regions": ["rd_surfactant_indication"], "lines": ["Give promptly when indicated"], "tags": ["en"]},
 
   {"q": "What defines CPAP failure?", "expect": "answer", "regions": ["rd_cpap_failure_referral"], "tags": ["en"]},
   {"q": "When should a baby on CPAP be referred urgently?", "expect": "answer", "regions": ["rd_cpap_failure_referral"], "tags": ["en"]},
@@ -305,8 +305,8 @@
 
   {"q": "Phototherapy threshold for neonatal jaundice", "expect": "not_covered", "tags": ["oos"]},
   {"q": "Bilirubin level for exchange transfusion", "expect": "not_covered", "tags": ["oos"]},
-  {"q": "Antibiotics for neonatal sepsis", "expect": "not_covered", "tags": ["oos"]},
-  {"q": "Empirical antibiotic choice for late onset sepsis", "expect": "not_covered", "tags": ["oos"]},
+  {"q": "Antibiotics for neonatal sepsis", "expect": "answer", "regions": ["sepsis_high_probability"], "tags": ["en"]},
+  {"q": "Empirical antibiotic choice for late onset sepsis", "expect": "answer", "regions": ["sepsis_high_probability"], "tags": ["en"]},
   {"q": "Phenobarbitone loading dose for neonatal seizures", "expect": "answer", "regions": ["triage_seizures"], "tags": ["en"]},
   {"q": "Therapeutic hypothermia criteria for HIE", "expect": "not_covered", "tags": ["oos"]},
   {"q": "How to do kangaroo mother care?", "expect": "clarify", "regions": ["kmc_position"], "tags": ["en"]},

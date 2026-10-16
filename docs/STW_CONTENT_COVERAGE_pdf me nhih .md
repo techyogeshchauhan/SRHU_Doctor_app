@@ -11,7 +11,7 @@ The app lists 14 neonatal topics, but only **Respiratory Distress** and **ROP** 
 | File | Content | Pages | Notes |
 |---|---|---|---|
 | `respiratory_distress_neonates_stw.pdf` | ICMR/DHR STW *Respiratory Distress in Neonates* (ICD-11 KB23) | 1 | ~710 words. Used by the app. |
-| `Respiratory distress in neonates_New.pdf` | Same document | 1 | Byte-for-byte duplicate of the file above. |
+| the removed superseded RD duplicate | Same document | 1 | Byte-for-byte duplicate of the file above. |
 | `retinopathy_of_prematurity_stw.pdf` | ICMR/DHR STW *Retinopathy of Prematurity (ROP)* (ICD-11 9B71.3) | 1 | ~830 words. Used by the app. |
 | `Retinopathy of Prematurity (ROP).pdf` | Same document | 1 | Byte-for-byte duplicate of the file above. |
 
@@ -77,4 +77,4 @@ The topic selection screen, the assessment engine and the combined summary pick 
 
 ## 5. Housekeeping
 
-The two duplicate PDFs (`Respiratory distress in neonates_New.pdf` and `Retinopathy of Prematurity (ROP).pdf`, 8.4 MB in total) can be deleted. `pubspec.yaml` now lists only the two `*_stw.pdf` files, so the duplicates are no longer bundled into the Android, iOS or web builds; removing them only tidies the repository.
+The two duplicate PDFs (the removed superseded RD duplicate and `Retinopathy of Prematurity (ROP).pdf`, 8.4 MB in total) can be deleted. `pubspec.yaml` now lists only the two `*_stw.pdf` files, so the duplicates are no longer bundled into the Android, iOS or web builds; removing them only tidies the repository.

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neonatal_stw/core/theme.dart';
 import 'package:neonatal_stw/features/knowledge_graph/state/stw_map_provider.dart';
-import 'package:neonatal_stw/features/knowledge_graph/ui/bubble_graph_view.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/stw_map_details_screen.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/stw_map_link.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/stw_map_screen.dart';
@@ -68,6 +71,17 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
 }
 
 void main() {
+  setUpAll(() async {
+    if (Platform.environment['STW_SEPSIS_SCREENSHOTS'] == '1') {
+      for (final (family, asset) in [
+        ('Inter', 'assets/fonts/Inter-Regular.ttf'),
+        ('Poppins', 'assets/fonts/Poppins-Regular.ttf'),
+        ('MaterialIcons', 'fonts/MaterialIcons-Regular.otf')
+      ]) {
+        await (FontLoader(family)..addFont(rootBundle.load(asset))).load();
+      }
+    }
+  });
   for (final size in const [Size(320, 568), Size(412, 915), Size(1280, 800)]) {
     testWidgets(
         'overview: every STW as a bubble at '
@@ -162,7 +176,8 @@ void main() {
       await _pump(tester, '/stw-map');
       final before = view(tester);
       final rop = tester.getCenter(_bubble('hub:rop'));
-      final background = tester.getCenter(find.byType(BubbleGraphView));
+      final background = tester.getTopLeft(find.byType(InteractiveViewer)) +
+          const Offset(20, 120);
       await tester.dragFrom(background, const Offset(0, 120));
       await tester.pumpAndSettle();
       expect(view(tester), isNot(before));
@@ -216,14 +231,80 @@ void main() {
     );
   });
 
-  testWidgets('a topic without an approved STW lists where it is mentioned',
+  testWidgets('Sepsis box opens only the new source PDF with its highlight',
       (tester) async {
-    await _pump(tester, '/stw-map?focus=sepsis');
-    final link = find.text('STW Respiratory Distress: REASSESS FREQUENTLY');
+    await _pump(tester, '/stw-map?focus=sepsis_high_probability');
+    await _tap(tester, find.text('PDF'));
+    expect(
+        find.text(
+            'PDF assets/pdfs/Sepsis_STW_Final_15-10-26.pdf region=sepsis_high_probability'),
+        findsOneWidget);
+  });
+
+  for (final size in const [Size(320, 568), Size(1280, 800)]) {
+    testWidgets('Sepsis source graph has all 20 cards at ${size.width}',
+        (tester) async {
+      await _pump(tester, '/stw-map?focus=sepsis', size: size);
+      expect(_bubble('hub:sepsis'), findsOneWidget);
+      expect(_bubble('box:sepsis_assessment'), findsOneWidget);
+      final seen = <String>{};
+      for (var page = 0; page < 20; page++) {
+        final visible = find
+            .byWidgetPredicate((w) =>
+                w.key is ValueKey<String> &&
+                (w.key as ValueKey<String>)
+                    .value
+                    .startsWith('bubble:box:sepsis_'))
+            .evaluate()
+            .toList();
+        expect(visible.length, lessThanOrEqualTo(size.width >= 1000 ? 8 : 4));
+        final bounds = <Rect>[];
+        final canvas = tester.getRect(find.byType(InteractiveViewer));
+        for (final element in visible) {
+          final key = (element.widget.key as ValueKey<String>).value;
+          final id = key.substring('bubble:'.length);
+          seen.add(id);
+          final rect = tester
+              .getRect(find.byKey(ValueKey(key)))
+              .expandToInclude(
+                  tester.getRect(find.byKey(ValueKey('bubble-label:$id'))));
+          for (final other in bounds) {
+            expect(rect.overlaps(other), isFalse);
+          }
+          bounds.add(rect);
+          expect(canvas.inflate(1).contains(rect.topLeft), isTrue);
+          expect(canvas.inflate(1).contains(rect.bottomRight), isTrue);
+        }
+        final next = tester
+            .widget<IconButton>(find.byKey(const ValueKey('evidence-next')));
+        if (next.onPressed == null) break;
+        await tester.tap(find.byKey(const ValueKey('evidence-next')));
+        await tester.pumpAndSettle();
+      }
+      expect(seen, hasLength(20));
+      expect(tester.takeException(), isNull);
+      if (Platform.environment['STW_SEPSIS_SCREENSHOTS'] == '1') {
+        final boundary = tester.renderObject<RenderRepaintBoundary>(
+            find.byType(RepaintBoundary).first);
+        await tester.runAsync(() async {
+          final image = await boundary.toImage();
+          final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+          await File(
+                  '${Platform.environment['TEMP']}/stw-sepsis-graph-${size.width.toInt()}.png')
+              .writeAsBytes(bytes!.buffer.asUint8List());
+          image.dispose();
+        });
+      }
+    });
+  }
+
+  testWidgets('a pending topic lists its incoming draft links', (tester) async {
+    await _pump(tester, '/stw-map?focus=thermalCare');
+    final link = find.text('STW Respiratory Distress: IMMEDIATE ACTIONS');
     expect(link, findsOneWidget);
     expect(find.textContaining('Awaiting STW'), findsWidgets);
 
-    await _tap(tester, _bubble('hub:sepsis>linkin:rd-sepsis'));
+    await _tap(tester, _bubble('hub:thermalCare>linkin:rd-thermal'));
     expect(
         find.textContaining('draft, awaiting clinical review'), findsOneWidget);
     await _tap(tester, find.text('Details'));
@@ -232,18 +313,26 @@ void main() {
         findsOneWidget);
 
     // From the link back to its box in the map.
-    final fromTile = find.text('REASSESS FREQUENTLY');
+    final fromTile = find.text('IMMEDIATE ACTIONS');
     await tester.scrollUntilVisible(fromTile, 200,
-        scrollable: find.byType(Scrollable).last);
+        scrollable: find
+            .descendant(
+                of: find.byType(StwMapDetailsScreen).last,
+                matching: find.byType(Scrollable))
+            .first);
     await tester.tap(fromTile.last);
     await tester.pumpAndSettle();
     final show = find.text('Show in the map');
     await tester.scrollUntilVisible(show, 200,
-        scrollable: find.byType(Scrollable).last);
+        scrollable: find
+            .descendant(
+                of: find.byType(StwMapDetailsScreen).last,
+                matching: find.byType(Scrollable))
+            .first);
     await tester.tap(show);
     await tester.pumpAndSettle();
     expect(find.byType(StwMapDetailsScreen), findsNothing);
-    expect(_bubble('box:rd_reassessment_sepsis'), findsOneWidget);
+    expect(_bubble('box:rd_immediate_actions'), findsOneWidget);
     expect(find.text('Collapse'), findsOneWidget);
   });
 
@@ -276,8 +365,8 @@ void main() {
     await _tap(tester, find.text('Search & list'));
     await tester.enterText(find.byType(TextField), 'surfactant');
     await tester.pumpAndSettle();
-    expect(find.text('SURFACTANT'), findsOneWidget);
-    await _tap(tester, find.text('SURFACTANT'));
+    expect(find.text('EARLY RESCUE SURFACTANT'), findsOneWidget);
+    await _tap(tester, find.text('EARLY RESCUE SURFACTANT'));
     expect(find.byType(StwMapDetailsScreen), findsOneWidget);
   });
 }

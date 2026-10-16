@@ -244,5 +244,5 @@ The total went from **92 → 167**, all passing.
 | 7 | **Accessibility** | Two SAS options ("1 · Just visible", under Lower chest and Xiphoid) have identical accessible names. |
 | 8 | **Cut-off helper text** | The next-ROP-exam date help text is cut after one line. |
 | 9 | **Unlinked screens** | `/rd` and `/rop` (standalone RD/ROP tools) and `/about` are not reachable from the UI: re-link them or delete them. |
-| 10 | **Repository tidying** | Duplicate PDFs (`Respiratory distress in neonates_New.pdf`, `Retinopathy of Prematurity (ROP).pdf`) and unused images are still on disk, though not bundled. |
+| 10 | **Repository tidying** | The superseded RD duplicate was removed; the ROP duplicate and unused images remain on disk, though not bundled. |
 | 11 | **12 pending topics** | Each needs its approved ICMR/DHR STW PDF before it can be implemented. |

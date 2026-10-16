@@ -47,7 +47,6 @@ class RopScreen extends ConsumerWidget {
             ),
           ),
           const AppRefreshButton(),
-          const SizedBox(width: 4),
           Semantics(
             button: true,
             label: 'ROP reference',
@@ -59,11 +58,36 @@ class RopScreen extends ConsumerWidget {
           ),
           Semantics(
             button: true,
-            label: 'Clear ROP screening',
-            child: IconButton(
-              tooltip: 'Clear ROP screening',
-              icon: const Icon(Icons.restart_alt),
-              onPressed: n.reset,
+            label: 'Reset Screening',
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+              child: OutlinedButton.icon(
+                onPressed: () => _confirmResetRop(context, ref),
+                icon: const Icon(
+                  Icons.restart_alt_rounded,
+                  size: 15,
+                  color: Color(0xFFDC2626),
+                ),
+                label: const Text(
+                  'Reset Screening',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFDC2626),
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFDC2626),
+                  side: const BorderSide(color: Color(0xFFFCA5A5), width: 1.2),
+                  backgroundColor: const Color(0xFFFEF2F2),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  visualDensity: VisualDensity.compact,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -132,6 +156,40 @@ class RopScreen extends ConsumerWidget {
                       fontFamily: 'Poppins',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Semantics(
+                  button: true,
+                  label: 'Reset Screening',
+                  child: OutlinedButton.icon(
+                    onPressed: () => _confirmResetRop(context, ref),
+                    icon: const Icon(
+                      Icons.restart_alt_rounded,
+                      size: 15,
+                      color: Color(0xFFDC2626),
+                    ),
+                    label: const Text(
+                      'Reset',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFDC2626),
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFFDC2626),
+                      side: const BorderSide(color: Color(0xFFFCA5A5)),
+                      backgroundColor: const Color(0xFFFEF2F2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
+                      minimumSize: const Size(0, 44),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ),
@@ -221,6 +279,83 @@ class RopScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmResetRop(BuildContext context, WidgetRef ref) async {
+    final action = await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(
+              Icons.restart_alt_rounded,
+              color: Color(0xFFDC2626),
+              size: 24,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Reset Screening',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w700,
+                color: AppTheme.primaryNavy,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Choose whether to restart ROP screening from the beginning or reset all screening data and return to condition selection.',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            color: Color(0xFF334155),
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.of(ctx).pop('restart'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.primaryNavy,
+            ),
+            child: const Text('Restart Screening'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop('home'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Reset & Go to Home'),
+          ),
+        ],
+      ),
+    );
+
+    if (action == null || !context.mounted) return;
+
+    if (action == 'restart') {
+      ref.read(ropProvider.notifier).reset();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('ROP screening restarted from the beginning.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } else if (action == 'home') {
+      resetAllScreeningData(ref);
+      if (context.mounted) {
+        context.go('/home');
+      }
+    }
   }
 }
 

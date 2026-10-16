@@ -47,12 +47,14 @@ The standalone RD and ROP screens described below are still in the app (routes `
 
 ### Respiratory Distress (RD) Module
 
+Source: `Respiratory_Distress_STW_Final 15-10-26.pdf`, bundled as `respiratory_distress_neonates_stw.pdf`. Source, evidence geometry and crops: `python tools/validate_rd_source.py`.
+
 | Step | What the clinician does | What the app does |
 |---|---|---|
-| **Diagnose** | Ticks one or more signs — RR >60/min, chest retractions, nasal flaring, grunting | Confirms Respiratory Distress criteria are met |
+| **Diagnose** | Ticks one or more signs — RR ≥60/min, chest retractions, nasal flaring, grunting | Confirms Respiratory Distress criteria are met |
 | **Enter GA** | Enters gestational age (weeks + days), or birth weight if GA is uncertain | Classifies baby as **≤34 weeks** or **>34 weeks** (uses BW ≤1800 g as surrogate when GA unknown) |
 | **Grade severity** | Grades all 5 items of the **Silverman-Andersen Score (SAS)** — each 0/1/2, with visual illustrations | Calculates total SAS (0–10), classifies as **Mild (≤3)** or **Moderate–Severe (≥4)** |
-| **Get initial plan** | Reviews the generated treatment plan | Produces a complete initial management plan: respiratory support mode (CPAP / nasal O₂), caffeine advice, feeding guidance, IV fluid indications, and "Do NOT" reminders — all with cited reasoning |
+| **Get initial plan** | Reviews the generated treatment plan | Produces a complete initial management plan: respiratory support mode (CPAP / nasal O₂ only if SpO₂ <91% in mild RD), caffeine advice, feeding guidance, IV fluid indications, and "Do NOT" reminders — all with cited reasoning |
 | **Reassess** | Enters follow-up SpO₂, updated SAS, and clinical flags (apnea, shock, fatigue, etc.) | Determines outcome: **Improving → wean**, **Not improving → optimise**, **CPAP failure → refer urgently**, or **Surfactant indicated** — with step-by-step actions |
 
 ### ROP Screening Module

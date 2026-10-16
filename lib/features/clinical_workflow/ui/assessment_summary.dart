@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/theme.dart';
+import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../shared/pdf_navigation.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
@@ -460,8 +461,36 @@ class AssessmentSummaryView extends ConsumerWidget {
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: () {
+              resetAllScreeningData(ref);
+              context.go('/home');
+            },
+            icon: const Icon(Icons.restart_alt_rounded, size: 20),
+            label: const Text('Reset Screening & Start New'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+              minimumSize: const Size(0, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
           child: OutlinedButton.icon(
-            onPressed: () => context.go('/home'),
+            onPressed: () {
+              resetAllScreeningData(ref);
+              context.go('/home');
+            },
             icon: const Icon(Icons.home_rounded, size: 18),
             label: const Text('Back to Home (Condition Selection)'),
             style: OutlinedButton.styleFrom(
@@ -470,6 +499,11 @@ class AssessmentSummaryView extends ConsumerWidget {
               side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),

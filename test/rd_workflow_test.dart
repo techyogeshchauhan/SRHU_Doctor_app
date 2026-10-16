@@ -20,6 +20,7 @@ Map<String, Object?> rdBase({
 }) =>
     {
       rdSignsKey: signs,
+      rdInitialSpo2Key: 90,
       gaKnownKey: true,
       gaWeeksKey: ga,
       ...sas(sasGrade),
@@ -42,11 +43,11 @@ void main() {
     test('negative: no sign → criteria not met, nothing else asked', () {
       final w = walk({rd}, {});
       expect(findingIds(w.ctx), {rdNotMetId});
-      expect(w.asked, [rdRrKey, rdSignsKey]);
+      expect(w.asked, [rdEmergencyKey, rdRrKey, rdSignsKey]);
       expect(finding(w, rdNotMetId).category, FindingCategory.notMet);
     });
 
-    test('measured RR >60 counts as the sign; RR ≤60 overrides a tick', () {
+    test('measured RR ≥60 counts as the sign; RR <60 overrides a tick', () {
       expect(findingIds(evalCtx({rd}, {rdRrKey: 72})), contains(rdPresentId));
       final ctx = evalCtx({
         rd
@@ -131,6 +132,7 @@ void main() {
         signs: {RdSign.grunting},
         gestation: const Gestation(gaWeeks: 37),
         sas: SasScore.of(),
+        initialSpo2: 90,
       ).plan!;
       expect(finding(w, rdInitialPlanId).why, direct.why);
       expect(finding(w, rdAvoidId).actions, direct.avoid);
@@ -162,6 +164,8 @@ void main() {
           rdFio2Key: fio2,
           rdSpo2Key: spo2,
           rdComfortableKey: comfortable,
+          rdStableSupportKey: comfortable,
+          rdSuspectedRdsKey: true,
           ...sas(reGrade, repeat: true),
           rdWarningsKey: warnings,
         };
@@ -180,11 +184,13 @@ void main() {
       expect(f.title, 'CPAP FAILURE — refer urgently');
     });
 
-    test('surfactant: GA <34, CPAP, PEEP >6 and FiO₂ >0.30', () {
+    test(
+        'early rescue: suspected worsening RDS, GA <34, CPAP ≥6 and FiO₂ >0.30',
+        () {
       final w = walk({rd}, re(peep: 7, fio2: 35));
       final f = finding(w, rdReassessId(ReassessStatus.surfactant));
       expect(f.category, FindingCategory.treatment);
-      expect(f.title, 'SURFACTANT indicated');
+      expect(f.title, 'EARLY RESCUE SURFACTANT indicated');
     });
 
     test('no surfactant at FiO₂ 0.30 (must be >0.30)', () {
@@ -202,7 +208,7 @@ void main() {
     test('improving: SAS down, SpO₂ in range, comfortable → wean', () {
       final w = walk({rd}, re(reGrade: 0, comfortable: true));
       final f = finding(w, rdReassessId(ReassessStatus.improving));
-      expect(f.title, 'IMPROVING — wean support');
+      expect(f.title, 'IMPROVING — assess stability for weaning');
       expect(f.level, FindingLevel.ok);
     });
 

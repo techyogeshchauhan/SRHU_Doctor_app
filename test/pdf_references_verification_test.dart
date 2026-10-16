@@ -19,6 +19,7 @@ import 'package:neonatal_stw/features/rd/domain/rd_workflow.dart';
 import 'package:neonatal_stw/features/references/ui/pdf_viewer_screen.dart';
 import 'package:neonatal_stw/features/references/ui/references_screen.dart';
 import 'package:neonatal_stw/features/rop/domain/rop_workflow.dart';
+import 'package:neonatal_stw/features/sepsis/domain/sepsis_workflow.dart';
 import 'package:neonatal_stw/features/triage/domain/triage_workflow.dart';
 import 'package:neonatal_stw/shared/pdf_navigation.dart';
 
@@ -82,15 +83,15 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('PDF Assets & File System Verification', () {
-    test('all 8 bundled PDF assets exist on disk', () {
+    test('all 8 source PDF assets exist on disk', () {
       final expectedPdfs = [
+        'assets/pdfs/Sepsis_STW_Final_15-10-26.pdf',
         'assets/pdfs/Triage_13-10-26.pdf',
         'assets/pdfs/KMC-13-10-2026.pdf',
         'assets/pdfs/Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf',
         'assets/pdfs/Neonatal_Hypoglycemia_8th_Oct.pdf',
         'assets/pdfs/respiratory_distress_neonates_stw.pdf',
         'assets/pdfs/retinopathy_of_prematurity_stw.pdf',
-        'assets/pdfs/Respiratory distress in neonates_New.pdf',
         'assets/pdfs/Retinopathy of Prematurity (ROP).pdf',
       ];
       for (final path in expectedPdfs) {
@@ -115,13 +116,13 @@ void main() {
       }
 
       final expectedDocs = [
+        'Sepsis_STW_Final_15-10-26.pdf',
         'Triage_13-10-26.pdf',
         'KMC-13-10-2026.pdf',
         'Antenatal_Corticosteroids_for_Preterm_Birth_8th_Oct.pdf',
         'Neonatal_Hypoglycemia_8th_Oct.pdf',
         'respiratory_distress_neonates_stw.pdf',
         'retinopathy_of_prematurity_stw.pdf',
-        'Respiratory distress in neonates_New.pdf',
         'Retinopathy of Prematurity (ROP).pdf',
       ];
 
@@ -137,6 +138,7 @@ void main() {
 
   group('PDF Mapping Verification for All Conditions', () {
     const conditions = [
+      (NeonatalCondition.sepsis, sepsisPdfAsset, sepsisPdfTitle),
       (
         NeonatalCondition.triage,
         'assets/pdfs/Triage_13-10-26.pdf',
@@ -195,7 +197,7 @@ void main() {
         'assets/pdfs/respiratory_distress_neonates_stw.pdf',
       );
       expect(
-        stwPdfForDocument('Respiratory distress in neonates_New.pdf')?.asset,
+        stwPdfForDocument('Respiratory_Distress_STW_Final 15-10-26.pdf')?.asset,
         'assets/pdfs/respiratory_distress_neonates_stw.pdf',
       );
       expect(
@@ -211,6 +213,7 @@ void main() {
 
   group('Clinical Workflow Source Reference & Region Accuracy', () {
     final workflows = <(NeonatalCondition, StwWorkflow)>[
+      (NeonatalCondition.sepsis, sepsisWorkflow),
       (NeonatalCondition.triage, triageWorkflow),
       (NeonatalCondition.kmc, kmcWorkflow),
       (NeonatalCondition.ancs, ancsWorkflow),
@@ -270,7 +273,7 @@ void main() {
       });
     }
 
-    test('regions.json contains regions for all 6 STWs without corrupted bounds',
+    test('regions.json contains regions for all 7 STWs without corrupted bounds',
         () {
       final regionsFile = File('assets/regions/regions.json');
       expect(regionsFile.existsSync(), isTrue);
@@ -325,7 +328,7 @@ void main() {
   }
 
   group('References Screen UI & PDF Launching', () {
-    testWidgets('all 6 STW reference cards are present with View PDF buttons',
+    testWidgets('all 7 STW reference cards are present with View PDF buttons',
         (tester) async {
       await tester.pumpWidget(_buildTestApp(initialLocation: '/references'));
       await tester.pumpAndSettle();
@@ -352,6 +355,9 @@ void main() {
       final kmc = find.text('Kangaroo Mother Care');
       await scrollListViewUntil(tester, kmc);
       expect(kmc, findsWidgets);
+      final sepsis = find.text(sepsisPdfTitle);
+      await scrollListViewUntil(tester, sepsis);
+      expect(sepsis, findsWidgets);
 
       final sources = find.text('Sources cited in the STWs');
       await scrollListViewUntil(tester, sources);
@@ -414,7 +420,7 @@ void main() {
   });
 
   group('Disease Selection Screen UI & PDF Reference Buttons', () {
-    testWidgets('all 6 diseases display Reference buttons opening correct PDFs',
+    testWidgets('all 7 diseases display Reference buttons opening correct PDFs',
         (tester) async {
       tester.view.physicalSize = const Size(600, 1400);
       tester.view.devicePixelRatio = 1;
@@ -427,6 +433,7 @@ void main() {
       expect(find.text('Available Clinical Workflows'), findsOneWidget);
 
       final diseaseChecks = [
+        ('Sepsis in Neonates', 'Sepsis_STW_Final_15-10-26.pdf', sepsisPdfTitle),
         (
           'Retinopathy of Prematurity',
           'retinopathy_of_prematurity_stw.pdf',

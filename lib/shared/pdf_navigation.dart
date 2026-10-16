@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/ancs/domain/ancs_content.dart';
+import '../features/chatbot/domain/models/stw_chunk.dart';
 import '../features/clinical_workflow/domain/source_reference.dart';
 import '../features/condition_selection/domain/neonatal_condition.dart';
 import '../features/hypoglycemia/domain/hypo_content.dart';
@@ -20,6 +21,8 @@ const triagePdfAsset = 'assets/pdfs/Triage_13-10-26.pdf';
 const triagePdfTitle = 'Neonatal Emergency Triage Assessment and Management';
 const kmcPdfAsset = 'assets/pdfs/KMC-13-10-2026.pdf';
 const kmcPdfTitle = 'Kangaroo Mother Care';
+const sepsisPdfAsset = 'assets/pdfs/Sepsis_STW_Final_15-10-26.pdf';
+const sepsisPdfTitle = 'Sepsis in Neonates';
 
 /// A bundled STW PDF.
 class StwPdf {
@@ -38,6 +41,7 @@ StwPdf? stwPdfFor(NeonatalCondition c) => switch (c) {
         const StwPdf(hypoPdfAsset, hypoPdfTitle),
       NeonatalCondition.triage => const StwPdf(triagePdfAsset, triagePdfTitle),
       NeonatalCondition.kmc => const StwPdf(kmcPdfAsset, kmcPdfTitle),
+      NeonatalCondition.sepsis => const StwPdf(sepsisPdfAsset, sepsisPdfTitle),
       _ => null,
     };
 
@@ -45,7 +49,7 @@ StwPdf? stwPdfFor(NeonatalCondition c) => switch (c) {
 StwPdf? stwPdfForDocument(String document) => switch (document) {
       rdStwDocument ||
       'respiratory_distress_neonates_stw.pdf' ||
-      'Respiratory distress in neonates_New.pdf' =>
+      'Respiratory_Distress_STW_Final 15-10-26.pdf' =>
         stwPdfFor(NeonatalCondition.respiratoryDistress),
       ropStwDocument ||
       'retinopathy_of_prematurity_stw.pdf' ||
@@ -65,6 +69,9 @@ StwPdf? stwPdfForDocument(String document) => switch (document) {
       kmcStwDocument ||
       'KMC-13-10-2026.pdf' =>
         stwPdfFor(NeonatalCondition.kmc),
+      sepsisStwDocument ||
+      'Sepsis_STW_Final_15-10-26.pdf' =>
+        stwPdfFor(NeonatalCondition.sepsis),
       _ => null,
     };
 
@@ -86,6 +93,19 @@ void openStwPdf(
 const _regionsAsset = 'assets/regions/regions.json';
 Map<String, HighlightTarget>? _regionTargets;
 
+/// Frame the cited section on the PDF, including its heading and content.
+/// Chat answer excerpts must not turn this into separate line-level frames.
+HighlightTarget stwChunkTarget(StwChunk chunk) => HighlightTarget(
+      document: chunk.document,
+      page: chunk.page,
+      normalizedBboxes: [
+        for (final b in chunk.boundingBoxes)
+          Rect.fromLTWH(b.x, b.y, b.width, b.height),
+      ],
+      sectionTitle: chunk.sectionTitle,
+      regionId: chunk.chunkId,
+    );
+
 /// Highlight for region [regionId] of `assets/regions/regions.json`, or null
 /// when it is not there.
 Future<HighlightTarget?> stwRegionTarget(String regionId) async {
@@ -96,20 +116,7 @@ Future<HighlightTarget?> stwRegionTarget(String regionId) async {
           jsonDecode(await rootBundle.loadString(_regionsAsset)) as List;
       targets = {
         for (final r in raw.cast<Map<String, dynamic>>())
-          r['id'] as String: HighlightTarget(
-            document: r['document'] as String,
-            page: r['page'] as int? ?? 1,
-            normalizedBboxes: [
-              Rect.fromLTWH(
-                (r['x'] as num).toDouble(),
-                (r['y'] as num).toDouble(),
-                (r['w'] as num).toDouble(),
-                (r['h'] as num).toDouble(),
-              ),
-            ],
-            sectionTitle: r['title'] as String?,
-            regionId: r['id'] as String,
-          ),
+          r['id'] as String: stwChunkTarget(StwChunk.fromJson(r)),
       };
     } catch (_) {
       targets = const {};
@@ -126,7 +133,10 @@ Future<void> openStwRegion(
   required StwPdf pdf,
   required String regionId,
 }) async {
-  final target = await stwRegionTarget(regionId);
+  final resolved = await stwRegionTarget(regionId);
+  final target = resolved != null && pdf.asset.endsWith('/${resolved.document}')
+      ? resolved
+      : null;
   if (!context.mounted) return;
   context.push(
     '/pdf-viewer?path=${Uri.encodeComponent(pdf.asset)}&title=${Uri.encodeComponent(pdf.title)}',

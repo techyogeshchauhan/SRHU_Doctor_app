@@ -1,4 +1,9 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +18,21 @@ import 'package:neonatal_stw/features/knowledge_graph/domain/bubble_graph.dart';
 import 'package:neonatal_stw/features/knowledge_graph/domain/kg_graph.dart';
 import 'package:neonatal_stw/features/knowledge_graph/domain/reasoning.dart';
 import 'package:neonatal_stw/features/rd/domain/rd_workflow.dart'
-    show rdInitialPlanId, rdPresentId, rdRrKey;
+    show
+        rdInitialPlanId,
+        rdPresentId,
+        rdRrKey,
+        rdInitialSpo2Key,
+        rdReassessNowKey,
+        rdSupportKey,
+        rdPeepKey,
+        rdFio2Key,
+        rdSpo2Key,
+        rdWarningsKey,
+        rdSasKey,
+        rdReSasKey;
+import 'package:neonatal_stw/features/rd/domain/sas.dart';
+import 'package:neonatal_stw/features/clinical_workflow/domain/shared_questions.dart';
 import 'package:neonatal_stw/features/knowledge_graph/state/stw_regions.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/assessment_map_screen.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/bubble_graph_view.dart';
@@ -91,7 +110,10 @@ Future<_Fixed> _pump(
     overrides: [
       assessmentProvider.overrideWith(() => controller = _Fixed(ctx)),
     ],
-    child: MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+    child: RepaintBoundary(
+      key: const ValueKey('assessment-map-capture'),
+      child: MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+    ),
   ));
   await tester.pumpAndSettle();
   return controller;
@@ -116,6 +138,95 @@ Future<void> _openWhy(WidgetTester tester, String findingTitle) async {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    for (final (family, asset) in [
+      ('Inter', 'assets/fonts/Inter-Regular.ttf'),
+      ('Poppins', 'assets/fonts/Poppins-Regular.ttf'),
+      ('MaterialIcons', 'fonts/MaterialIcons-Regular.otf'),
+    ]) {
+      await (FontLoader(family)..addFont(rootBundle.load(asset))).load();
+    }
+  });
+  for (final size in const [Size(1280, 800), Size(320, 568)]) {
+    testWidgets(
+        'dense CPAP failure evidence stays separate and reachable at $size',
+        (tester) async {
+      final ctx = walk({
+        NeonatalCondition.respiratoryDistress
+      }, {
+        rdRrKey: 70,
+        gaKnownKey: true,
+        gaWeeksKey: 30,
+        rdInitialSpo2Key: 90,
+        for (final item in SasItem.values) rdSasKey(item): 1,
+        rdReassessNowKey: true,
+        rdSupportKey: 'cpap',
+        rdPeepKey: 6,
+        rdFio2Key: 40,
+        rdSpo2Key: 88,
+        rdWarningsKey: <Object>{'hypoxemia'},
+        for (final item in SasItem.values) rdReSasKey(item): 2,
+      }).ctx;
+      final graph = buildAssessmentBubbleGraph(
+          context: ctx, trees: ReasoningBuilder(ctx).explainAll());
+      final finding = graph.byId('finding:rd.reassess.cpapFailure')!;
+      expect(finding.children.length, greaterThan(20));
+      await _pump(tester, size,
+          context: ctx, home: '/assessment-map?focus=rd.reassess.cpapFailure');
+      final seen = <String>{};
+      for (var page = 0; page < 30; page++) {
+        final visible = finding.children
+            .where((b) => _bubble(b.id).evaluate().isNotEmpty)
+            .toList();
+        expect(visible, isNotEmpty);
+        expect(visible.length, lessThanOrEqualTo(size.width >= 1000 ? 8 : 4));
+        final bounds = <Rect>[];
+        final canvas = tester.getRect(find.byType(InteractiveViewer));
+        for (final b in visible) {
+          seen.add(b.id);
+          final label = find.byKey(ValueKey('bubble-label:${b.id}'));
+          expect(label, findsOneWidget);
+          final rect = tester
+              .getRect(_bubble(b.id))
+              .expandToInclude(tester.getRect(label));
+          for (final other in bounds) {
+            expect(rect.overlaps(other), isFalse,
+                reason: 'Evidence labels overlap on page $page');
+          }
+          bounds.add(rect);
+          expect(canvas.inflate(1).contains(rect.topLeft), isTrue,
+              reason: '${b.label}: clipped at top/left: $rect canvas $canvas');
+          expect(canvas.inflate(1).contains(rect.bottomRight), isTrue,
+              reason:
+                  '${b.label}: clipped at bottom/right: $rect canvas $canvas');
+        }
+        if (page == 0) {
+          final boundary = tester.renderObject<RenderRepaintBoundary>(
+              find.byKey(const ValueKey('assessment-map-capture')));
+          await tester.runAsync(() async {
+            final snapshot = await boundary.toImage();
+            final bytes =
+                await snapshot.toByteData(format: ui.ImageByteFormat.png);
+            final path =
+                '${Directory.systemTemp.path}/stw-graph-fixed-${size.width.toInt()}.png';
+            await File(path).writeAsBytes(bytes!.buffer.asUint8List());
+            snapshot.dispose();
+          });
+        }
+        final next = tester
+            .widget<IconButton>(find.byKey(const ValueKey('evidence-next')));
+        if (next.onPressed == null) break;
+        await tester.tap(find.byKey(const ValueKey('evidence-next')));
+        await tester.pumpAndSettle();
+      }
+      expect(seen, finding.children.map((b) => b.id).toSet());
+      await tester.tap(find.byKey(const ValueKey('evidence-previous')));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final size in const [Size(320, 568), Size(412, 915), Size(1280, 800)]) {
     testWidgets(
         'Why? opens the Home bubble graph for that finding at '
@@ -222,7 +333,7 @@ void main() {
     await _tap(tester, find.text('Details'));
     expect(find.byType(NodeDetailsScreen), findsOneWidget);
     expect(find.text('STW rule'), findsOneWidget);
-    expect(find.textContaining('40 mg/dL'), findsOneWidget);
+    expect(find.textContaining('40 mg/dL'), findsWidgets);
     expect(find.textContaining('45 mg/dL'), findsWidgets);
     expect(find.text('✓ Met'), findsOneWidget);
     expect(find.textContaining('Measure BG using a point-of-care'),

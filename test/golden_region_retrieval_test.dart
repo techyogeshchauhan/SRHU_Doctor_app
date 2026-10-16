@@ -102,7 +102,7 @@ void main() {
         'expected': 'rd_diagnostic_criteria',
       },
       {
-        'query': 'Respiratory rate >60 in newborn',
+        'query': 'Respiratory rate ≥60 in newborn',
         'expected': 'rd_diagnostic_criteria',
       },
       {
@@ -272,7 +272,7 @@ void main() {
     test('Multi-part query completeness check flags missing dosage notice', () {
       const q = 'Caffeine citrate indication and dosage';
       const retrievedText =
-          'START CPAP\nCPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%\nStart caffeine citrate in neonates <34 weeks who require respiratory support';
+          'START CPAP\nCPAP 5–6 cm H₂O; blended oxygen; titrate FiO₂ to SpO₂ 91–95%\nCaffeine citrate for babies <34 weeks requiring respiratory support, as per protocol';
 
       final notice = Bm25Retriever.checkMissingDosageNotice(q, retrievedText);
       expect(notice, isNotNull);
@@ -282,7 +282,7 @@ void main() {
     test('Single-part query without dosage request does not flag notice', () {
       const q = 'Caffeine citrate indication';
       const retrievedText =
-          'Start caffeine citrate in neonates <34 weeks who require respiratory support';
+          'Caffeine citrate for babies <34 weeks requiring respiratory support, as per protocol';
 
       final notice = Bm25Retriever.checkMissingDosageNotice(q, retrievedText);
       expect(notice, isNull);

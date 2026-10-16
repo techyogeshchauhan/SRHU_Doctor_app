@@ -142,8 +142,8 @@ void main() {
     expect(rrTries, 2);
     expect(answerOf(c, rdSignsKey), {'grunting', 'nasalFlaring'});
     expect(
-        tts.spoken.first, 'Respiratory rate (optional). 0 to 150 per minute.');
-    expect(tts.spoken[1], '$retry It should be between 0 and 150 per minute.');
+        tts.spoken.first, 'Apnoea/gasping, poor effort or shock. Yes or no?');
+    expect(tts.spoken, contains('$retry It should be between 0 and 150 per minute.'));
     expect(tts.spoken, contains(startsWith('Signs present')));
     expect(tts.spoken,
         contains('This page is complete. Say next to continue, or stop.'));

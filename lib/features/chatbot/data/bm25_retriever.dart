@@ -17,6 +17,7 @@ class Bm25Retriever implements StwRetriever {
   // Inverted index: term -> Map<chunk_id, term_frequency>
   final Map<String, Map<String, int>> _invertedIndex = {};
   final Map<String, int> _docLengths = {};
+  final Map<String, Set<String>> _evidenceTerms = {};
   double _avgDocLength = 0.0;
 
   // BM25 tuning constants
@@ -48,7 +49,8 @@ class Bm25Retriever implements StwRetriever {
       indexJson = await rootBundle.loadString(indexPath);
     } catch (_) {
       // Fallback to stw_index.json if regions.json is not yet built
-      indexJson = await rootBundle.loadString('assets/stw_index/stw_index.json');
+      indexJson =
+          await rootBundle.loadString('assets/stw_index/stw_index.json');
     }
 
     final List<dynamic> rawChunks = jsonDecode(indexJson) as List<dynamic>;
@@ -77,9 +79,12 @@ class Bm25Retriever implements StwRetriever {
   void _buildIndex() {
     _invertedIndex.clear();
     _docLengths.clear();
+    _evidenceTerms.clear();
 
     int totalLength = 0;
     for (final chunk in _chunks) {
+      final evidence = _tokenize(chunk.text).toSet();
+      _evidenceTerms[chunk.chunkId] = evidence;
       final fullContent = [
         chunk.sectionTitle,
         chunk.text,
@@ -107,7 +112,10 @@ class Bm25Retriever implements StwRetriever {
     final cleaned =
         text.toLowerCase().replaceAll(RegExp(r'[^\w\s\.\-%/<≥≤]'), ' ');
     final rawTokens = cleaned.split(RegExp(r'\s+'));
-    return rawTokens.where((t) => t.length > 1 && !_isStopWord(t)).toList();
+    return rawTokens
+        .where((t) => t.length > 1 && !_isStopWord(t))
+        .map((t) => t == 'weaned' || t == 'weaning' ? 'wean' : t)
+        .toList();
   }
 
   bool _isStopWord(String word) {
@@ -275,6 +283,28 @@ class Bm25Retriever implements StwRetriever {
     final queryTokens = _expandQueryWithSynonyms(query);
     if (queryTokens.isEmpty) return [];
 
+    // An explicitly named drug must occur in the evidence, rather than only
+    // in expanded synonyms / examples. "Wean CPAP" similarly asks for the
+    // weaning instruction, even though starting CPAP shares pressure units.
+    const namedTreatments = {
+      'caffeine',
+      'surfactant',
+      'hydrocortisone',
+      'dexamethasone',
+      'betamethasone',
+      'antibiotics',
+      'phenylephrine',
+      'tropicamide',
+      'proparacaine',
+    };
+    final literalTerms = _tokenize(query).toSet();
+    final requestedAnchors = literalTerms.contains('wean')
+        ? {'wean'}
+        : literalTerms.intersection(namedTreatments);
+    final anchors = requestedAnchors
+        .where((t) => _evidenceTerms.values.any((terms) => terms.contains(t)))
+        .toSet();
+
     final scores = <String, double>{};
     final matchedTokensMap = <String, Set<String>>{};
     final numDocs = _chunks.length;
@@ -348,32 +378,78 @@ class Bm25Retriever implements StwRetriever {
 
       // (b) Exact boost for numbers, clinical cutoff markers, and units
       final criticalUnits = [
-        '5-6 cm h2o', '4-5 cm h2o', '7-8 cm h2o', '5 cm h2o',
-        '>60/min', '>60', '<34 weeks', '≤34 weeks', '>34 weeks', '<28 weeks',
-        '<2000 g', '<2000g', '<1200 g', '<1200g', '34-36 weeks',
-        '91-95%', 'fio2 >0.30', 'peep >6', '0.21',
-        'zone i', 'zone ii', 'zone iii', 'zone 1', 'zone 2', 'zone 3',
-        'stage 2', 'stage 3', 'stage 4', 'stage 5', 'plus disease',
-        '48-72 hours', '4 weeks', '2-3 weeks', '45 weeks', 'pma 45',
-        'phenylephrine 2.5%', 'tropicamide 0.5-0.8%', 'proparacaine 0.5%',
-        '20d', '28d', 'caffeine citrate', 'surfactant', 'nasal prongs',
-        'bubble cpap', 'a-rop', 'ap-rop',
-        'sas 4', 'sas ≥4', 'sas >=4', 'sas 3', 'sas ≤3', 'sas <=3', 'sas 2',
-        'mild distress', 'moderate-severe', 'moderate to severe',
-        'first screen', 'first screening', 'pehli screening',
-        'whom to screen', 'when to screen',
+        '5-6 cm h2o',
+        '7-8 cm h2o',
+        '5 cm h2o',
+        '≥60/min',
+        '≥60',
+        '<34 weeks',
+        '≤34 weeks',
+        '>34 weeks',
+        '<28 weeks',
+        '<2000 g',
+        '<2000g',
+        '<1200 g',
+        '<1200g',
+        '34-36 weeks',
+        '91-95%',
+        'fio2 >0.30',
+        'cpap ≥6',
+        '0.21',
+        'zone i',
+        'zone ii',
+        'zone iii',
+        'zone 1',
+        'zone 2',
+        'zone 3',
+        'stage 2',
+        'stage 3',
+        'stage 4',
+        'stage 5',
+        'plus disease',
+        '48-72 hours',
+        '4 weeks',
+        '2-3 weeks',
+        '45 weeks',
+        'pma 45',
+        'phenylephrine 2.5%',
+        'tropicamide 0.5-0.8%',
+        'proparacaine 0.5%',
+        '20d',
+        '28d',
+        'caffeine citrate',
+        'surfactant',
+        'nasal prongs',
+        'bubble cpap',
+        'a-rop',
+        'ap-rop',
+        'sas 4',
+        'sas ≥4',
+        'sas >=4',
+        'sas 3',
+        'sas ≤3',
+        'sas <=3',
+        'sas 2',
+        'mild distress',
+        'moderate-severe',
+        'moderate to severe',
+        'first screen',
+        'first screening',
+        'pehli screening',
+        'whom to screen',
+        'when to screen',
         'antibiotics'
       ];
       for (final marker in criticalUnits) {
         if (queryLower.contains(marker) &&
-            (chunkTextLower.contains(marker) || questionsLower.contains(marker))) {
+            (chunkTextLower.contains(marker) ||
+                questionsLower.contains(marker))) {
           baseScore += 4.5;
         }
       }
 
       // (c) Example questions direct alignment boost (super high precision for intent)
-      final cleanQLower =
-          queryLower.replaceAll(RegExp(r'[\?\.!,]'), '').trim();
+      final cleanQLower = queryLower.replaceAll(RegExp(r'[\?\.!,]'), '').trim();
       for (final q in chunk.exampleQuestions) {
         final cleanQ =
             q.toLowerCase().replaceAll(RegExp(r'[\?\.!,]'), '').trim();
@@ -432,12 +508,40 @@ class Bm25Retriever implements StwRetriever {
       }
 
       // Safety check: require at least one specific clinical match
+      if (anchors.isNotEmpty &&
+          !anchors.any((_evidenceTerms[chunk.chunkId] ?? const {}).contains)) {
+        baseScore *= 0.25;
+      }
       final matchedTokens = matchedTokensMap[chunk.chunkId] ?? {};
       const genericNonSpecific = {
-        'treat', 'treatment', 'care', 'manage', 'management', 'give', 'given',
-        'technique', 'procedure', 'method', 'approach', 'guideline', 'protocol',
-        'how', 'what', 'when', 'who', 'where', 'why', 'can', 'should', 'must',
-        'adult', 'infant', 'baby', 'child', 'doctor', 'patient'
+        'treat',
+        'treatment',
+        'care',
+        'manage',
+        'management',
+        'give',
+        'given',
+        'technique',
+        'procedure',
+        'method',
+        'approach',
+        'guideline',
+        'protocol',
+        'how',
+        'what',
+        'when',
+        'who',
+        'where',
+        'why',
+        'can',
+        'should',
+        'must',
+        'adult',
+        'infant',
+        'baby',
+        'child',
+        'doctor',
+        'patient'
       };
       final hasSpecificClinicalMatch =
           matchedTokens.any((t) => !genericNonSpecific.contains(t));

@@ -232,7 +232,7 @@ void main() {
     });
 
     test('speakable text', () {
-      expect(speakable('RR >60/min'), 'RR more than 60 per minute');
+      expect(speakable('RR ≥60/min'), 'RR at least 60 per minute');
       expect(speakable('Nasal-prong O₂'), 'Nasal-prong O2');
       expect(speakable('0 · Synchronized'), '0, Synchronized');
     });

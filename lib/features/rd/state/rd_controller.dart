@@ -7,6 +7,10 @@ import '../domain/sas.dart';
 /// In-memory state of the RD module for the current baby.
 class RdState {
   const RdState({
+    this.initialSpo2,
+    this.emergency = false,
+    this.suspectedWorseningRds = false,
+    this.stableOrReducingSupport = false,
     this.signs = const {},
     this.rr,
     this.immediateDone = const {},
@@ -28,11 +32,14 @@ class RdState {
     this.shock = false,
     this.deterioration = false,
     this.persistentHypoxemia = false,
-    this.sepsisTriggers = const {},
     this.sasHistory = const [],
   });
 
   // Assess
+  final int? initialSpo2;
+  final bool emergency;
+  final bool suspectedWorseningRds;
+  final bool stableOrReducingSupport;
   final Set<RdSign> signs;
   final int? rr;
   final Set<int> immediateDone;
@@ -56,12 +63,15 @@ class RdState {
   final bool shock;
   final bool deterioration;
   final bool persistentHypoxemia;
-  final Set<SepsisTrigger> sepsisTriggers;
 
   /// SAS totals of recorded reassessments, oldest first.
   final List<int> sasHistory;
 
   RdState copyWith({
+    int? Function()? initialSpo2,
+    bool? emergency,
+    bool? suspectedWorseningRds,
+    bool? stableOrReducingSupport,
     Set<RdSign>? signs,
     int? Function()? rr,
     Set<int>? immediateDone,
@@ -83,10 +93,15 @@ class RdState {
     bool? shock,
     bool? deterioration,
     bool? persistentHypoxemia,
-    Set<SepsisTrigger>? sepsisTriggers,
     List<int>? sasHistory,
   }) =>
       RdState(
+        initialSpo2: initialSpo2 != null ? initialSpo2() : this.initialSpo2,
+        emergency: emergency ?? this.emergency,
+        suspectedWorseningRds:
+            suspectedWorseningRds ?? this.suspectedWorseningRds,
+        stableOrReducingSupport:
+            stableOrReducingSupport ?? this.stableOrReducingSupport,
         signs: signs ?? this.signs,
         rr: rr != null ? rr() : this.rr,
         immediateDone: immediateDone ?? this.immediateDone,
@@ -101,15 +116,13 @@ class RdState {
         fio2: fio2 ?? this.fio2,
         spo2: spo2 != null ? spo2() : this.spo2,
         reSas: reSas ?? this.reSas,
-        comfortableBreathing:
-            comfortableBreathing ?? this.comfortableBreathing,
+        comfortableBreathing: comfortableBreathing ?? this.comfortableBreathing,
         risingO2Need: risingO2Need ?? this.risingO2Need,
         apneaBrady: apneaBrady ?? this.apneaBrady,
         fatigue: fatigue ?? this.fatigue,
         shock: shock ?? this.shock,
         deterioration: deterioration ?? this.deterioration,
         persistentHypoxemia: persistentHypoxemia ?? this.persistentHypoxemia,
-        sepsisTriggers: sepsisTriggers ?? this.sepsisTriggers,
         sasHistory: sasHistory ?? this.sasHistory,
       );
 
@@ -124,21 +137,36 @@ class RdController extends Notifier<RdState> {
   @override
   RdState build() => const RdState();
 
-  void setSigns(Set<RdSign> v) => state = state.copyWith(signs: v);
+  void setInitialSpo2(int? v) => state = state.copyWith(initialSpo2: () => v);
+  void setEmergency(bool v) => state = state.copyWith(emergency: v);
+  void setSuspectedWorseningRds(bool v) =>
+      state = state.copyWith(suspectedWorseningRds: v);
+  void setStableOrReducingSupport(bool v) =>
+      state = state.copyWith(stableOrReducingSupport: v);
 
-  /// Entering RR auto-ticks / unticks "RR >60/min".
+  void setSigns(Set<RdSign> v) {
+    final signs = {...v};
+    final rr = state.rr;
+    if (rr != null) {
+      rr >= rrThresholdPerMin
+          ? signs.add(RdSign.rrAbove60)
+          : signs.remove(RdSign.rrAbove60);
+    }
+    state = state.copyWith(signs: signs);
+  }
+
+  /// Entering RR auto-ticks / unticks "RR ≥60/min".
   void setRr(int? rr) {
     var signs = state.signs;
     if (rr != null) {
-      signs = rr > 60
+      signs = rr >= rrThresholdPerMin
           ? {...signs, RdSign.rrAbove60}
           : ({...signs}..remove(RdSign.rrAbove60));
     }
     state = state.copyWith(rr: () => rr, signs: signs);
   }
 
-  void setImmediateDone(Set<int> v) =>
-      state = state.copyWith(immediateDone: v);
+  void setImmediateDone(Set<int> v) => state = state.copyWith(immediateDone: v);
   void setGaKnown(bool v) => state = state.copyWith(gaKnown: v);
   void setSasGrade(SasItem item, int grade) =>
       state = state.copyWith(sas: state.sas.withGrade(item, grade));
@@ -180,8 +208,6 @@ class RdController extends Notifier<RdState> {
         deterioration: deterioration,
         persistentHypoxemia: persistentHypoxemia,
       );
-  void setSepsisTriggers(Set<SepsisTrigger> v) =>
-      state = state.copyWith(sepsisTriggers: v);
 
   /// Keeps support settings, stores the SAS for the trend, and clears the
   /// per-assessment findings ready for the next reassessment.
@@ -189,6 +215,8 @@ class RdController extends Notifier<RdState> {
     if (!state.reSas.isComplete) return;
     state = RdState(
       signs: state.signs,
+      initialSpo2: state.initialSpo2,
+      emergency: state.emergency,
       rr: state.rr,
       immediateDone: state.immediateDone,
       gaKnown: state.gaKnown,
@@ -227,6 +255,8 @@ final rdInitialProvider = Provider<RdInitialResult>((ref) {
     signs: s.signs,
     gestation: ref.watch(rdGestationProvider),
     sas: s.sas,
+    initialSpo2: s.initialSpo2,
+    emergency: s.emergency,
     severeDistress: s.severeDistress,
     recurrentApnea: s.recurrentApnea,
     poorPerfusion: s.poorPerfusion,
@@ -253,12 +283,13 @@ final rdReassessProvider = Provider<ReassessOutcome>((ref) {
     previousSasTotal: s.previousSasTotal,
     sas: s.reSas,
     comfortableBreathing: s.comfortableBreathing,
+    suspectedWorseningRds: s.suspectedWorseningRds,
+    stableOrReducingSupport: s.stableOrReducingSupport,
     risingO2Need: s.risingO2Need,
     recurrentApneaBrady: s.apneaBrady,
     fatigue: s.fatigue,
     shock: s.shock,
     deterioration: s.deterioration,
     persistentHypoxemia: s.persistentHypoxemia,
-    sepsisTriggers: s.sepsisTriggers,
   ));
 });

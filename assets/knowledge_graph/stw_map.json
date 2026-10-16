@@ -6,18 +6,18 @@
     "rd_algorithm_overview": "ALGORITHM",
     "rd_initial_preterm_cpap_caffeine": "START CPAP",
     "rd_initial_term_moderate_severe_cpap": "START CPAP",
-    "rd_reassessment_sepsis": "REASSESS FREQUENTLY",
-    "rd_initial_term_mild_nasal_o2": "NASAL-PRONG OXYGEN 0.5–1 L/min",
-    "rd_outcome_improving_weaning": "Wean FiO₂ first to 0.21",
-    "rd_surfactant_indication": "SURFACTANT",
-    "rd_outcome_not_improving_optimize_cpap": "OPTIMIZE CPAP",
-    "rd_cpap_failure_referral": "CPAP FAILURE",
+    "rd_reassessment_sepsis": "MONITORING",
+    "rd_initial_term_mild_nasal_o2": "NASAL PRONGS OXYGEN",
+    "rd_outcome_improving_weaning": "WEAN WHEN STABLE",
+    "rd_surfactant_indication": "EARLY RESCUE SURFACTANT",
+    "rd_outcome_not_improving_optimize_cpap": "OPTIMIZE RESPIRATORY SUPPORT",
+    "rd_cpap_failure_referral": "CPAP FAILURE — ESCALATE PROMPTLY",
     "rd_clinical_dos": "DOs",
     "rd_clinical_donts": "DON’Ts",
-    "rd_kpis": "Timely CPAP initiation (%)",
-    "rd_sas_scoring_guide": "SILVERMAN ANDERSEN SCORE (SAS)",
+    "rd_kpis": "KEY PERFORMANCE INDICATORS (KPIs)",
+    "rd_sas_scoring_guide": "SILVERMAN–ANDERSEN SCORE",
     "rd_improving": "IMPROVING",
-    "rd_not_improving": "NOT IMPROVING/WORSENING",
+    "rd_not_improving": "NOT IMPROVING / WORSENING",
     "rd_abbreviations": "ABBREVIATIONS",
     "rop_whom_to_screen": "WHOM TO SCREEN",
     "rop_how_to_arrange": "HOW TO ARRANGE SCREENING",
@@ -106,7 +106,29 @@
     "kmc_in_position": "MOTHER CAN SLEEP, STAND AND WALK IN KMC POSITION",
     "kmc_related_information": "RELATED INFORMATION",
     "kmc_abbreviations": "ABBREVIATIONS",
-    "kmc_references": "World Health Organization. Kangaroo mother care: a clinical practice guide."
+    "kmc_references": "World Health Organization. Kangaroo mother care: a clinical practice guide.",
+    "rd_related_information": "RELATED INFORMATION",
+    "rd_references": "REFERENCES",
+    "sepsis_assessment": "Assess every neonate",
+    "sepsis_red_flags": "RED FLAGS",
+    "sepsis_yellow_signs": "YELLOW FLAGS: SIGNS OR MATERNAL RISK FACTORS",
+    "sepsis_maternal_risks": "Any of the maternal risk factors",
+    "sepsis_high_probability": "HIGH PROBABILITY OF SEPSIS",
+    "sepsis_observation": "AT-RISK / SUSPECT SEPSIS",
+    "sepsis_seizure": "Neonatal seizure",
+    "sepsis_review_disappeared": "SIGNS OF SEPSIS DISAPPEARED",
+    "sepsis_review_improving": "SIGNS OF SEPSIS IMPROVING BUT STILL PRESENT",
+    "sepsis_review_worsened": "SIGNS OF SEPSIS WORSENED, OR A RED FLAG APPEARED AFTER STARTING TREATMENT",
+    "sepsis_review_day5": "review at 5 days",
+    "sepsis_early_stopping": "early stopping of antibiotics",
+    "sepsis_duration": "DURATION OF ANTIBIOTICS",
+    "sepsis_dos": "DOs",
+    "sepsis_donts": "DON’Ts",
+    "sepsis_kpis": "KEY PERFORMANCE INDICATORS (KPIs)",
+    "sepsis_prevention": "PREVENT SEPSIS",
+    "sepsis_related_information": "RELATED INFORMATION",
+    "sepsis_abbreviations": "ABBREVIATIONS",
+    "sepsis_references": "REFERENCES"
   },
   "contexts": {
     "rd_initial_preterm_cpap_caffeine": [
@@ -115,7 +137,7 @@
     ],
     "rd_initial_term_moderate_severe_cpap": [
       "GA >34 weeks",
-      "Moderate-severe RD (SAS ≥4)"
+      "Moderate–severe RD (SAS ≥4)"
     ],
     "rd_initial_term_mild_nasal_o2": [
       "GA >34 weeks",
@@ -125,16 +147,16 @@
       "IMPROVING"
     ],
     "rd_outcome_not_improving_optimize_cpap": [
-      "NOT IMPROVING/WORSENING"
+      "NOT IMPROVING / WORSENING"
     ]
   },
   "links": [
     {
       "id": "rd-sepsis",
-      "from": "rd_reassessment_sepsis",
+      "from": "rd_not_improving",
       "to": "sepsis",
       "kind": "refersTo",
-      "quote": "Consider sepsis if perinatal risk factors, systemic illness, worsening distress or rising FiO₂ (see STW: Sepsis in Neonates)",
+      "quote": "Consider sepsis (Refer to sepsis STW)",
       "approved": false
     },
     {
@@ -142,7 +164,7 @@
       "from": "rd_immediate_actions",
       "to": "thermalCare",
       "kind": "mentions",
-      "quote": "Provide thermal care",
+      "quote": "provide warmth",
       "approved": false
     },
     {
@@ -150,7 +172,7 @@
       "from": "rd_immediate_actions",
       "to": "fluidsAndFeeds",
       "kind": "mentions",
-      "quote": "Feed enterally if stable",
+      "quote": "Feed when stable",
       "approved": false
     },
     {

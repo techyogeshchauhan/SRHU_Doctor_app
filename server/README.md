@@ -4,6 +4,25 @@ Secure, de-identified REST API backend for the STW Neo clinical decision support
 
 ---
 
+## Screening timing contract
+
+`PUT /screenings/:id` accepts the existing UTC `startedAt` and optional
+`completedAt` timestamps. `PATCH /screenings/:id/status` accepts `status` and
+the existing optional `completedAt`. The app captures these at workflow entry
+and first completion, rather than when an offline queue is eventually synced.
+
+Newly completed documents returned by the screening read/export endpoints include
+`startedAt`, `completedAt`, and a server-derived, non-negative integer
+`durationMs = completedAt - startedAt`. In-progress documents have
+`durationMs: null`. Completion before the start time returns HTTP 400.
+Repeating completion preserves the first completion timestamp and duration.
+Existing request payloads remain valid; clients do not submit a duration.
+
+The Flutter app separately retains timing-only history in local storage, even
+after successful queue flushes and screening resets. Follow-up MCQs do not
+extend a completed screening. A fresh screening creates a new timing record;
+unfinished screenings are abandoned, not listed as completed history.
+
 ## 1. Secrets & Environment Configuration
 
 The backend reads credentials **strictly** from environment variables and constructs the connection string in memory at runtime:

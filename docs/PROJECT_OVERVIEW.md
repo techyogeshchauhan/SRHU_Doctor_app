@@ -391,11 +391,11 @@ Section numbers refer to `docs/STW_APP_SPEC_FROM_PDFs.md`.
 
 | Decision | Rule |
 |---|---|
-| RD present (§1.1) | ANY ONE of RR >60/min, chest retractions, nasal flaring, grunting. A measured RR decides the RR sign. |
-| Gestation (§1.3, §1.5) | GA ≤34 vs >34 (completed weeks). If GA is uncertain, BW ≤1800 g is the surrogate. |
+| RD present (§1.1) | ANY ONE of RR ≥60/min, chest retractions, nasal flaring, grunting. A measured RR decides the RR sign. |
+| Gestation (§1.3, §1.5) | GA ≤34 vs >34 (existing completed-week convention). If GA is uncertain, BW ≤1800 g is the surrogate. |
 | Severity (§1.4) | SAS total: mild ≤3, moderate–severe ≥4 (no further split). |
-| Initial support (§1.5) | GA ≤34 → START CPAP. GA >34 + SAS ≥4 → CPAP. GA >34 + SAS ≤3 → nasal-prong O₂ 0.5–1 L/min. Caffeine if <34 wk. Feeding / IV fluids per §1.2. DON'Ts per §1.12. |
-| Reassessment (§1.7–1.10) | In order: CPAP failure (clinician-ticked) → refer; surfactant (<34 wk, CPAP, PEEP >6, FiO₂ >0.30); not improving → optimise; improving (SAS down + SpO₂ 91–95 + comfortable) → wean; otherwise stable. Alerts: SpO₂ >95, consider sepsis. |
+| Initial support (§1.5) | GA ≤34 → START CPAP. GA >34 + SAS ≥4 → CPAP. GA >34 + SAS ≤3 → nasal-prong O₂ 0.5–1 L/min only if SpO₂ <91%. Caffeine if <34 wk. Feeding / IV fluids per §1.2. DON'Ts per §1.12. |
+| Reassessment (§1.7–1.10) | Updated source: suspected worsening RDS + GA <34 + CPAP ≥6 + FiO₂ >0.30 for early rescue surfactant; 15–30 min / hourly monitoring; worsening nasal oxygen → CPAP; exclude pneumothorax; stable/reducing support required for improving; trial off at CPAP 5 and FiO₂ 0.21–0.25; prompt ventilation/escalation/referral for failure. |
 
 ### ROP (`rop_rules.dart`, `rop_workflow.dart`)
 

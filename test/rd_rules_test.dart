@@ -30,6 +30,7 @@ RdInitialPlan _plan(Gestation g, SasScore sas,
     signs: _signs,
     gestation: g,
     sas: sas,
+    initialSpo2: 90,
     severeDistress: severeDistress,
     recurrentApnea: apnea,
     poorPerfusion: perfusion,
@@ -105,10 +106,11 @@ void main() {
       expect(p.avoid.join(), contains('CBC, CRP'));
     });
 
-    test('GA uncertain + BW 1700 g → CPAP via surrogate, confirm GA for caffeine',
+    test(
+        'GA uncertain + BW 1700 g → CPAP via surrogate, confirm GA for caffeine',
         () {
-      final p = _plan(
-          const Gestation(gaKnown: false, birthWeightG: 1700), _sas(1));
+      final p =
+          _plan(const Gestation(gaKnown: false, birthWeightG: 1700), _sas(1));
       expect(p.support, RespSupport.cpap);
       expect(p.caffeine, CaffeineAdvice.confirmGa);
       expect(p.why.first, contains('surrogate'));
@@ -131,22 +133,24 @@ void main() {
 
   group('IV fluids', () {
     test('severe distress checkbox → IV fluids', () {
-      final p = _plan(const Gestation(gaWeeks: 37), _sas(8), severeDistress: true);
+      final p =
+          _plan(const Gestation(gaWeeks: 37), _sas(8), severeDistress: true);
       expect(p.ivFluids, isTrue);
       expect(p.feeding, FeedingAdvice.ivFluids);
-      expect(p.ivFluidReasons, contains('Severe distress (clinician judgement)'));
+      expect(
+          p.ivFluidReasons, contains('Severe distress (clinician judgement)'));
     });
 
     test('no IV fluids from SAS 8 alone (without severeDistress checkbox)', () {
-      final p = _plan(const Gestation(gaWeeks: 37), _sas(8), severeDistress: false);
+      final p =
+          _plan(const Gestation(gaWeeks: 37), _sas(8), severeDistress: false);
       expect(p.ivFluids, isFalse);
       expect(p.ivFluidReasons, isEmpty);
       expect(p.avoid.join(), contains('IV fluids'));
     });
 
     test('poor perfusion → IV fluids even when mild', () {
-      final p =
-          _plan(const Gestation(gaWeeks: 37), _sas(2), perfusion: true);
+      final p = _plan(const Gestation(gaWeeks: 37), _sas(2), perfusion: true);
       expect(p.ivFluidReasons, ['Poor perfusion']);
     });
 
@@ -165,6 +169,7 @@ void main() {
         gestation: preterm,
         support: RespSupport.cpap,
         peep: 7,
+        suspectedWorseningRds: true,
         fio2: 0.35,
         spo2: 92,
       ));
@@ -181,16 +186,18 @@ void main() {
         sas: _sas(3),
         previousSasTotal: 5,
         comfortableBreathing: true,
+        stableOrReducingSupport: true,
       );
       expect(meetsSurfactantCriteria(i), isFalse);
       expect(reassess(i).status, ReassessStatus.improving);
     });
 
-    test('no surfactant at FiO₂ exactly 0.30 or PEEP 6', () {
+    test('no surfactant at FiO₂ exactly 0.30 or CPAP below 6', () {
       expect(
           meetsSurfactantCriteria(const ReassessInput(
               gestation: preterm,
               support: RespSupport.cpap,
+              suspectedWorseningRds: true,
               peep: 7,
               fio2: 0.30)),
           isFalse);
@@ -198,7 +205,8 @@ void main() {
           meetsSurfactantCriteria(const ReassessInput(
               gestation: preterm,
               support: RespSupport.cpap,
-              peep: 6,
+              suspectedWorseningRds: true,
+              peep: 5,
               fio2: 0.40)),
           isFalse);
     });
@@ -222,7 +230,9 @@ void main() {
       expect(o.status, ReassessStatus.cpapFailure);
     });
 
-    test('no auto CPAP failure at SpO2 88 PEEP 8 unless a failure checkbox is ticked', () {
+    test(
+        'no auto CPAP failure at SpO2 88 PEEP 8 unless a failure checkbox is ticked',
+        () {
       final o = reassess(const ReassessInput(
         gestation: Gestation(gaWeeks: 36),
         support: RespSupport.cpap,
@@ -244,7 +254,7 @@ void main() {
       expect(oFailure.status, ReassessStatus.cpapFailure);
     });
 
-    test('SpO₂ <91 at PEEP 6 → optimise CPAP, suggest PEEP 7', () {
+    test('SpO₂ <91 at PEEP 6 → optimize CPAP up to 7–8', () {
       final o = reassess(ReassessInput(
         gestation: const Gestation(gaWeeks: 36),
         support: RespSupport.cpap,
@@ -255,10 +265,12 @@ void main() {
         previousSasTotal: 5,
       ));
       expect(o.status, ReassessStatus.notImproving);
-      expect(o.actions.first, contains('6 → 7'));
+      expect(o.actions.first, contains('7–8 cm H₂O'));
     });
 
-    test('increasing SAS on nasal O₂ → NOT IMPROVING / WORSENING (no invented escalate to CPAP)', () {
+    test(
+        'increasing SAS on nasal O₂ → NOT IMPROVING / WORSENING (start CPAP as in the updated PDF)',
+        () {
       final o = reassess(ReassessInput(
         gestation: const Gestation(gaWeeks: 37),
         support: RespSupport.nasalO2,
@@ -280,18 +292,20 @@ void main() {
         sas: _sas(2),
         previousSasTotal: 5,
         comfortableBreathing: true,
+        stableOrReducingSupport: true,
       ));
       expect(o.status, ReassessStatus.improving);
-      expect(o.actions.first, contains('Wean FiO₂ first'));
+      expect(o.actions.first, contains('Wean when stable'));
     });
 
-    test('FiO₂ 0.21 + PEEP 6 → reduce to 5', () {
-      expect(cpapWeanSteps(peep: 6, fio2: 0.21).first, contains('6 → 5'));
+    test('FiO₂ reduced before CPAP as per protocol', () {
+      expect(cpapWeanSteps(peep: 6, fio2: 0.21),
+          contains('Reduce FiO₂, then CPAP as per protocol.'));
     });
 
     test('FiO₂ 0.21 + PEEP 5 → stop CPAP, monitor 24 h', () {
       final steps = cpapWeanSteps(peep: 5, fio2: 0.21);
-      expect(steps.first, contains('stop CPAP'));
+      expect(steps.first, contains('Trial off CPAP'));
       expect(steps.last, contains('24 h'));
     });
 
@@ -304,6 +318,7 @@ void main() {
         sas: _sas(1),
         previousSasTotal: 3,
         comfortableBreathing: true,
+        stableOrReducingSupport: true,
       ));
       expect(o.alerts.join(), contains('above target range (91–95%)'));
     });
@@ -318,6 +333,7 @@ void main() {
         sas: _sas(5),
         previousSasTotal: 8,
         comfortableBreathing: true,
+        stableOrReducingSupport: true,
       ));
       expect(o.status, ReassessStatus.improving);
       expect(o.why, contains('SAS decreasing (8 → 5)'));
@@ -348,23 +364,24 @@ void main() {
         sas: _sas(3),
         previousSasTotal: null,
         comfortableBreathing: true,
+        stableOrReducingSupport: true,
       ));
       expect(o.status, isNot(ReassessStatus.improving));
       expect(o.status, ReassessStatus.stable);
     });
 
-    test('sepsis trigger raises an alert', () {
+    test('worsening respiratory distress prompts sepsis consideration', () {
       final o = reassess(const ReassessInput(
         gestation: preterm,
         support: RespSupport.cpap,
-        sepsisTriggers: {SepsisTrigger.perinatalRisk},
+        risingO2Need: true,
       ));
-      expect(o.alerts.join(), contains('Consider sepsis'));
+      expect(o.actions.join(), contains('Consider sepsis'));
     });
 
     test('missing SpO₂ and SAS → incomplete', () {
-      final o = reassess(const ReassessInput(
-          gestation: preterm, support: RespSupport.cpap));
+      final o = reassess(
+          const ReassessInput(gestation: preterm, support: RespSupport.cpap));
       expect(o.status, ReassessStatus.incomplete);
     });
 

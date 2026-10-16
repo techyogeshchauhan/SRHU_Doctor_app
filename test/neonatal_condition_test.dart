@@ -35,7 +35,7 @@ void main() {
     ]);
   });
 
-  test('Triage, KMC, RD, ANCS, Hypoglycemia and ROP are implemented; others carry no description', () {
+  test('the seven supplied workflows are implemented; others carry no description', () {
     final implemented = {
       for (final d in conditionDefinitions)
         if (d.implemented) d.id,
@@ -46,6 +46,7 @@ void main() {
       NeonatalCondition.respiratoryDistress,
       NeonatalCondition.ancs,
       NeonatalCondition.hypoglycemia,
+      NeonatalCondition.sepsis,
       NeonatalCondition.rop,
     });
     for (final d in conditionDefinitions) {

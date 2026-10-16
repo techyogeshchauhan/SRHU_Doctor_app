@@ -1,27 +1,5 @@
 #!/usr/bin/env python3
-"""
-tools/fix_rd_rop_regions.py
-
-Corrects RD/ROP regions in assets/regions/regions.json whose box was on the
-wrong PDF card (the title/aliases described one box, the coordinates - and so
-the answer text, crop and "View in PDF" highlight - were another):
-
-  rd_initial_term_mild_nasal_o2         was NOT IMPROVING/WORSENING -> NASAL-PRONG OXYGEN box
-  rd_initial_term_moderate_severe_cpap  was NASAL-PRONG OXYGEN      -> START CPAP box (the
-                                        GA >34 wk moderate-severe arrow leads to START CPAP)
-  rop_how_to_screen                     was WHEN TO STOP SCREENING  -> HOW TO SCREEN box
-  rop_when_to_stop                      was HOW TO SCREEN           -> WHEN TO STOP SCREENING box
-
-and adds regions for PDF boxes that had none: rd_improving, rd_not_improving,
-rd_abbreviations, rop_introduction, rop_abbreviations.
-
-Boxes are the PDF's own card rectangles (PDF points). Idempotent. Run
-tools/build_region_text.py afterwards for the two documents:
-
-    python tools/fix_rd_rop_regions.py
-    python tools/build_region_text.py respiratory_distress_neonates_stw.pdf \
-        retinopathy_of_prematurity_stw.pdf
-"""
+"""Legacy ROP region repair. RD is rebuilt only by update_rd_source.py."""
 
 import json
 import os
@@ -63,8 +41,6 @@ def norm(doc, box):
 
 
 MOVE = {
-    "rd_initial_term_mild_nasal_o2": (RD, (544, 504, 833, 563)),
-    "rd_initial_term_moderate_severe_cpap": (RD, (9, 504, 502, 563)),
     "rop_how_to_screen": (ROP, (287, 726, 562, 929)),
     "rop_when_to_stop": (ROP, (4, 726, 285, 929)),
 }
@@ -72,34 +48,6 @@ MOVE = {
 
 def new_regions():
     return [
-        dict(id="rd_improving", document=RD, page=1,
-             title="Reassessment: Improving (Criteria)", type="algorithm",
-             section="Improving", box=(9, 676, 271, 756),
-             aliases=["improving", "decreasing sas", "comfortable breathing",
-                      "stable support", "sudhar", "improve ho raha"],
-             example_questions=[
-                 "How do I know the baby with respiratory distress is improving?",
-                 "Improving criteria on reassessment of RD",
-                 "Baby sudhar raha hai kaise pata karein?"]),
-        dict(id="rd_not_improving", document=RD, page=1,
-             title="Reassessment: Not Improving / Worsening (Criteria)",
-             type="algorithm", section="Not improving/worsening",
-             box=(540, 676, 833, 756),
-             aliases=["not improving", "worsening", "persisting sas",
-                      "increasing sas", "spo2 <91%", "rising oxygen need",
-                      "bigad raha", "sudhar nahi"],
-             example_questions=[
-                 "What are the signs that respiratory distress is worsening?",
-                 "When is the baby considered not improving on reassessment?",
-                 "Baby ki saans ki takleef bigad rahi hai, kaise pehchanein?"]),
-        dict(id="rd_abbreviations", document=RD, page=1,
-             title="Respiratory Distress Abbreviations", type="text",
-             section="Abbreviations",
-             box=between_headers(RD, "ABBREVIATIONS", "REFERENCES"),
-             aliases=["abbreviations", "full form", "crt full form",
-                      "peep full form", "fio2 full form"],
-             example_questions=["What is the full form of CRT?",
-                                "PEEP ka full form kya hai?"]),
         dict(id="rop_introduction", document=ROP, page=1,
              title="ROP: What It Is and Why Screening Matters", type="text",
              section="Introduction", box=(21, 190, 665, 251),

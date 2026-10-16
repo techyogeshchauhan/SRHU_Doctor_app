@@ -33,6 +33,10 @@ router.put('/:id', async (req, res, next) => {
       completedAt: data.completedAt ? new Date(data.completedAt) : null,
       updatedAt: now,
     };
+    if (doc.completedAt && doc.completedAt < doc.startedAt) {
+      return res.status(400).json({ error: 'ValidationError', message: 'Completion time must not precede screening start time.' });
+    }
+    doc.durationMs = doc.completedAt ? doc.completedAt - doc.startedAt : null;
 
     await screenings.updateOne(
       { _id: id },
@@ -237,10 +241,23 @@ router.patch('/:id/status', async (req, res, next) => {
     };
 
     if (data.status === 'completed') {
-      updates.completedAt = data.completedAt ? new Date(data.completedAt) : now;
+      const existing = await screenings.findOne({ _id: id });
+      if (!existing) {
+        return res.status(404).json({ error: 'NotFound', message: 'Screening not found.' });
+      }
+      updates.completedAt = existing.completedAt || (data.completedAt ? new Date(data.completedAt) : now);
+      if (updates.completedAt < existing.startedAt) {
+        return res.status(400).json({ error: 'ValidationError', message: 'Completion time must not precede screening start time.' });
+      }
+      updates.durationMs = updates.completedAt - existing.startedAt;
     }
 
-    const result = await screenings.updateOne({ _id: id }, { $set: updates });
+    // Preserve the first completion atomically, including concurrent retries.
+    const update = data.status === 'completed' ? [
+      { $set: { ...updates, completedAt: { $ifNull: ['$completedAt', updates.completedAt] } } },
+      { $set: { durationMs: { $subtract: ['$completedAt', '$startedAt'] } } },
+    ] : { $set: updates };
+    const result = await screenings.updateOne({ _id: id }, update);
 
     if (result.matchedCount === 0) {
       return res.status(404).json({ error: 'NotFound', message: 'Screening not found.' });

@@ -1,221 +1,753 @@
 {
   "_comment": "Curated answer segments for table-like / multi-box regions where the automatic split is unclear. build_region_text.py verifies that every word of every override occurs in the region's PDF text (no new words can be introduced).",
-  "rd_algorithm_overview": [
-    {"text": "RESPIRATORY DISTRESS Assess gestation (GA) + SAS"},
-    {"text": "If GA is uncertain, BW ≤1800 g may be used as an operational surrogate"},
-    {"text": "GA ≤34 weeks Any respiratory distress"},
-    {"text": "GA >34 weeks Moderate-severe RD (SAS ≥4)"},
-    {"text": "GA >34 weeks Mild RD (SAS ≤3)"}
-  ],
-  "rd_initial_preterm_cpap_caffeine": [
-    {"text": "START CPAP", "header": true},
-    {"text": "CPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%", "label": "START CPAP"},
-    {"text": "Start caffeine citrate in neonates <34 weeks who require respiratory support"}
-  ],
-  "rd_initial_term_moderate_severe_cpap": [
-    {"text": "START CPAP", "header": true},
-    {"text": "CPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%", "label": "START CPAP"},
-    {"text": "Start caffeine citrate in neonates <34 weeks who require respiratory support"}
-  ],
-  "rd_initial_term_mild_nasal_o2": [
-    {"text": "NASAL-PRONG OXYGEN 0.5–1 L/min"},
-    {"text": "Titrate to SpO₂ 91–95%"}
-  ],
-  "rd_reassessment_sepsis": [
-    {"text": "REASSESS FREQUENTLY: clinical status, SAS, SpO₂, FiO₂ requirement"},
-    {"text": "Consider sepsis if perinatal risk factors, systemic illness, worsening distress or rising FiO₂ (see STW: Sepsis in Neonates)"}
-  ],
-  "rd_surfactant_indication": [
-    {"text": "SURFACTANT", "header": true},
-    {"text": "<34 weeks on CPAP needing PEEP >6 cm H₂O AND FiO₂ >0.30 to keep SpO₂ between 91-95%", "label": "SURFACTANT"}
-  ],
-  "rd_clinical_dos": [
-    {"text": "DOs", "header": true},
-    {"text": "Assess severity using SAS and monitor SpO₂ continuously"},
-    {"text": "Maintain SpO₂ 91%-95%."},
-    {"text": "Start CPAP within 30 minutes"},
-    {"text": "Administer surfactant within 2 hours"}
-  ],
-  "rd_clinical_donts": [
-    {"text": "DON’Ts", "header": true},
-    {"text": "DO NOT give unmonitored supplemental oxygen."},
-    {"text": "DO NOT perform routine CBC, CRP, Chest X-ray or blood gas in uncomplicated mild RD"},
-    {"text": "DO NOT give IV ﬂuids, antibiotics, or blood products routinely"},
-    {"text": "DO NOT delay mechanical ventilation or referral in case of CPAP failure"}
-  ],
-  "rd_kpis": [
-    {"text": "Timely CPAP initiation (%) = Neonates ≤34 weeks with RD started on CPAP within 30 min of diagnosis or admission x 100 / Neonates ≤34 weeks diagnosed with RD (Target >90%)"},
-    {"text": "SpO₂ target compliance (%) = Neonates receiving supplemental oxygen or CPAP with continuous pulse oximetry and SpO2 in target range × 100 / Neonates receiving supplemental oxygen or CPAP (Target >90%)"}
-  ],
   "rop_whom_to_screen": [
-    {"text": "Screen if any ONE of the following is present:", "header": true},
-    {"text": "Gestation <34 weeks", "label": "Screen if any ONE of the following is present:"},
-    {"text": "Birth weight <2000 g", "label": "Screen if any ONE of the following is present:"},
-    {"text": "Gestation 34-36 weeks with speciﬁed risk factors* or an unstable clinical course", "label": "Screen if any ONE of the following is present:"},
-    {"text": "*Signiﬁcant cardiorespiratory support, prolonged/poorly controlled oxygen therapy, signiﬁcant anemia, blood transfusion, sepsis, poor postnatal weight gain"}
+    {
+      "text": "Screen if any ONE of the following is present:",
+      "header": true
+    },
+    {
+      "text": "Gestation <34 weeks",
+      "label": "Screen if any ONE of the following is present:"
+    },
+    {
+      "text": "Birth weight <2000 g",
+      "label": "Screen if any ONE of the following is present:"
+    },
+    {
+      "text": "Gestation 34-36 weeks with speciﬁed risk factors* or an unstable clinical course",
+      "label": "Screen if any ONE of the following is present:"
+    },
+    {
+      "text": "*Signiﬁcant cardiorespiratory support, prolonged/poorly controlled oxygen therapy, signiﬁcant anemia, blood transfusion, sepsis, poor postnatal weight gain"
+    }
   ],
   "rop_treatment_indications": [
-    {"text": "Zone I: Any stage with plus disease, or stage 3 without plus"},
-    {"text": "Zone II: Stage 2-3 with plus disease"},
-    {"text": "Aggressive ROP (A-ROP): Urgent treatment"},
-    {"text": "Reactivation/signiﬁcant PAR after anti-VEGF; stage 2–3; stage 4–5"},
-    {"text": "Advanced ROP (Stage 4-5): Requires referral for surgery"},
-    {"text": "Treatment-requiring ROP should be treated urgently, preferably within 48-72 hours of the decision to treat"}
+    {
+      "text": "Zone I: Any stage with plus disease, or stage 3 without plus"
+    },
+    {
+      "text": "Zone II: Stage 2-3 with plus disease"
+    },
+    {
+      "text": "Aggressive ROP (A-ROP): Urgent treatment"
+    },
+    {
+      "text": "Reactivation/signiﬁcant PAR after anti-VEGF; stage 2–3; stage 4–5"
+    },
+    {
+      "text": "Advanced ROP (Stage 4-5): Requires referral for surgery"
+    },
+    {
+      "text": "Treatment-requiring ROP should be treated urgently, preferably within 48-72 hours of the decision to treat"
+    }
   ],
   "rop_clinical_dos": [
-    {"text": "DOs", "header": true},
-    {"text": "Ensure timely ROP screening and follow-up"},
-    {"text": "Document the date and place of next screening in discharge card"},
-    {"text": "Counsel the family regarding need for follow-up and risk of vision loss if screening is delayed"}
+    {
+      "text": "DOs",
+      "header": true
+    },
+    {
+      "text": "Ensure timely ROP screening and follow-up"
+    },
+    {
+      "text": "Document the date and place of next screening in discharge card"
+    },
+    {
+      "text": "Counsel the family regarding need for follow-up and risk of vision loss if screening is delayed"
+    }
   ],
   "rop_clinical_donts": [
-    {"text": "DON’Ts", "header": true},
-    {"text": "DO NOT discharge/transfer an at-risk neonate without a documented ROP follow-up plan"},
-    {"text": "DO NOT delay referral/treatment when indicated"},
-    {"text": "DO NOT stop ROP follow-up without advice of ROP-trained ophthalmologist"}
+    {
+      "text": "DON’Ts",
+      "header": true
+    },
+    {
+      "text": "DO NOT discharge/transfer an at-risk neonate without a documented ROP follow-up plan"
+    },
+    {
+      "text": "DO NOT delay referral/treatment when indicated"
+    },
+    {
+      "text": "DO NOT stop ROP follow-up without advice of ROP-trained ophthalmologist"
+    }
   ],
   "rop_kpis": [
-    {"text": "ROP screening coverage (%) = Eligible infants who received at least one ROP eye examination x 100 / Total eligible infants for ROP screening"},
-    {"text": "Timely ﬁrst ROP screening (%) = Eligible infants screened within the recommended ﬁrst-screen window x 100 / Eligible infants due for ﬁrst screening"},
-    {"text": "All SNCUs/NICUs should periodically assess the KPIs and undertake quality improvement measures to achieve 95-100% compliance"}
+    {
+      "text": "ROP screening coverage (%) = Eligible infants who received at least one ROP eye examination x 100 / Total eligible infants for ROP screening"
+    },
+    {
+      "text": "Timely ﬁrst ROP screening (%) = Eligible infants screened within the recommended ﬁrst-screen window x 100 / Eligible infants due for ﬁrst screening"
+    },
+    {
+      "text": "All SNCUs/NICUs should periodically assess the KPIs and undertake quality improvement measures to achieve 95-100% compliance"
+    }
   ],
   "ancs_eligibility": [
-    {"text": "GIVE ACS WHEN ALL CONDITIONS ARE MET IN WOMEN AT 24+0 TO 33+6 WEEKS OF GESTATION:"},
-    {"text": "1. High likelihood of preterm birth within the next 7 days due to any one:", "header": true},
-    {"text": "Spontaneous preterm labour: regular contractions with cervical change consider (dilatation or effacement)", "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"},
-    {"text": "PPROM without clinical infection", "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"},
-    {"text": "Antepartum Hemorrhage", "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"},
-    {"text": "Severe pre-eclampsia/eclampsia", "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"},
-    {"text": "Planned preterm birth for maternal/fetal indication", "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"},
-    {"text": "2. Gestational age assessed accurately, preferably by early USG"},
-    {"text": "3. No clinical chorioamnionitis or systemic maternal infection"},
-    {"text": "4. Adequate childbirth care is available at the facility or at the referral facility"},
-    {"text": "5. Adequate preterm newborn care be ensured(including CPAP) at the facility or the receiving facility"},
-    {"text": "IMPORTANT: Start ACS promptly once eligibility criteria are met, even if the full course may not be completed before birth"}
+    {
+      "text": "GIVE ACS WHEN ALL CONDITIONS ARE MET IN WOMEN AT 24+0 TO 33+6 WEEKS OF GESTATION:"
+    },
+    {
+      "text": "1. High likelihood of preterm birth within the next 7 days due to any one:",
+      "header": true
+    },
+    {
+      "text": "Spontaneous preterm labour: regular contractions with cervical change consider (dilatation or effacement)",
+      "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+    },
+    {
+      "text": "PPROM without clinical infection",
+      "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+    },
+    {
+      "text": "Antepartum Hemorrhage",
+      "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+    },
+    {
+      "text": "Severe pre-eclampsia/eclampsia",
+      "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+    },
+    {
+      "text": "Planned preterm birth for maternal/fetal indication",
+      "label": "1. High likelihood of preterm birth within the next 7 days due to any one:"
+    },
+    {
+      "text": "2. Gestational age assessed accurately, preferably by early USG"
+    },
+    {
+      "text": "3. No clinical chorioamnionitis or systemic maternal infection"
+    },
+    {
+      "text": "4. Adequate childbirth care is available at the facility or at the referral facility"
+    },
+    {
+      "text": "5. Adequate preterm newborn care be ensured(including CPAP) at the facility or the receiving facility"
+    },
+    {
+      "text": "IMPORTANT: Start ACS promptly once eligibility criteria are met, even if the full course may not be completed before birth"
+    }
   ],
   "ancs_kpis": [
-    {"text": "ACS coverage = Women at 24+0–33+6 weeks identiﬁed with high likelihood of preterm birth who received ≥1 ACS dose × 100 / All women at 24+0-33+6 weeks identiﬁed with high likelihood of preterm birth (Target: ≥80%)"},
-    {"text": "Appropriate ACS use = (Target: ≥95%)"}
+    {
+      "text": "ACS coverage = Women at 24+0–33+6 weeks identiﬁed with high likelihood of preterm birth who received ≥1 ACS dose × 100 / All women at 24+0-33+6 weeks identiﬁed with high likelihood of preterm birth (Target: ≥80%)"
+    },
+    {
+      "text": "Appropriate ACS use = (Target: ≥95%)"
+    }
   ],
   "hypo_monitoring_schedule": [
-    {"text": "SCHEDULE OF BLOOD GLUCOSE MONITORING", "header": true},
-    {"text": "At-risk infants: 1, 2, 6, 12, 24, 48, 72 hours"},
-    {"text": "*in IDM, monitoring can be stopped between 24-36 hours provided feeding is established"},
-    {"text": "Infants on IV ﬂuids: Every 6-8 hours"},
-    {"text": "BG should be measured pre-feeding"}
+    {
+      "text": "SCHEDULE OF BLOOD GLUCOSE MONITORING",
+      "header": true
+    },
+    {
+      "text": "At-risk infants: 1, 2, 6, 12, 24, 48, 72 hours"
+    },
+    {
+      "text": "*in IDM, monitoring can be stopped between 24-36 hours provided feeding is established"
+    },
+    {
+      "text": "Infants on IV ﬂuids: Every 6-8 hours"
+    },
+    {
+      "text": "BG should be measured pre-feeding"
+    }
   ],
   "hypo_symptoms": [
-    {"text": "LOOK FOR THE FOLLOWING SYMPTOMS AND SIGNS", "header": true},
-    {"text": "Stupor, lethargy, limpness"},
-    {"text": "Jitteriness, tremors, convulsions"},
-    {"text": "Episodes of cyanosis, apnoea or tachypnoea"},
-    {"text": "Weak or high-pitched cry"},
-    {"text": "Unable to feed"}
+    {
+      "text": "LOOK FOR THE FOLLOWING SYMPTOMS AND SIGNS",
+      "header": true
+    },
+    {
+      "text": "Stupor, lethargy, limpness"
+    },
+    {
+      "text": "Jitteriness, tremors, convulsions"
+    },
+    {
+      "text": "Episodes of cyanosis, apnoea or tachypnoea"
+    },
+    {
+      "text": "Weak or high-pitched cry"
+    },
+    {
+      "text": "Unable to feed"
+    }
   ],
   "hypo_recheck_1h": [
-    {"text": "RE-CHECK BG AFTER 1 HOUR", "header": true},
-    {"text": "If BG ≥ 45 mg/dL: Continue feeds; Continue BG monitoring 6 hourly for 24 hours"},
-    {"text": "Start IV glucose infusion if: BG < 45 mg/dL OR Symptoms develop"}
+    {
+      "text": "RE-CHECK BG AFTER 1 HOUR",
+      "header": true
+    },
+    {
+      "text": "If BG ≥ 45 mg/dL: Continue feeds; Continue BG monitoring 6 hourly for 24 hours"
+    },
+    {
+      "text": "Start IV glucose infusion if: BG < 45 mg/dL OR Symptoms develop"
+    }
   ],
   "hypo_increase_gir": [
-    {"text": "BG < 45 mg/dL", "header": true},
-    {"text": "Increase GIR by 2 mg/ kg/min (maximum 12 mg/kg/min)", "label": "BG < 45 mg/dL"}
+    {
+      "text": "BG < 45 mg/dL",
+      "header": true
+    },
+    {
+      "text": "Increase GIR by 2 mg/ kg/min (maximum 12 mg/kg/min)",
+      "label": "BG < 45 mg/dL"
+    }
   ],
   "hypo_persistent_refractory": [
-    {"text": "Persistent (GIR requirement >3-7 days) or Refractory (GIR > 10-12 mg/kg/min for 24 hours) hypoglycemia"},
-    {"text": "Consider ENDOCRINE/ METABOLIC disorders & REFER to higher centre"}
+    {
+      "text": "Persistent (GIR requirement >3-7 days) or Refractory (GIR > 10-12 mg/kg/min for 24 hours) hypoglycemia"
+    },
+    {
+      "text": "Consider ENDOCRINE/ METABOLIC disorders & REFER to higher centre"
+    }
   ],
   "hypo_euglycemic_wean": [
-    {"text": "BG ≥ 45 mg/dL", "header": true},
-    {"text": "Euglycemic for 24 hours on IV ﬂuids", "label": "BG ≥ 45 mg/dL"},
-    {"text": "Reduce GIR by 2 mg/ kg/min every 6 hours"},
-    {"text": "Increase oral feeds"},
-    {"text": "Monitor BG every 6 hours"}
+    {
+      "text": "BG ≥ 45 mg/dL",
+      "header": true
+    },
+    {
+      "text": "Euglycemic for 24 hours on IV ﬂuids",
+      "label": "BG ≥ 45 mg/dL"
+    },
+    {
+      "text": "Reduce GIR by 2 mg/ kg/min every 6 hours"
+    },
+    {
+      "text": "Increase oral feeds"
+    },
+    {
+      "text": "Monitor BG every 6 hours"
+    }
   ],
   "hypo_dos": [
-    {"text": "DO’s", "header": true},
-    {"text": "Monitor BG in all; as per protocol"},
-    {"text": "Support early and frequent breastfeeding"},
-    {"text": "Treat symptomatic hypoglycemia immediately"}
+    {
+      "text": "DO’s",
+      "header": true
+    },
+    {
+      "text": "Monitor BG in all; as per protocol"
+    },
+    {
+      "text": "Support early and frequent breastfeeding"
+    },
+    {
+      "text": "Treat symptomatic hypoglycemia immediately"
+    }
   ],
   "hypo_donts": [
-    {"text": "DON’Ts", "header": true},
-    {"text": "Do NOT substitute dextrose solutions for breastmilk"},
-    {"text": "Do NOT separate a stable mother-infant dyad solely for glucose monitoring"},
-    {"text": "Do NOT give antibiotics for hypoglycemia unless sepsis is suspected"}
+    {
+      "text": "DON’Ts",
+      "header": true
+    },
+    {
+      "text": "Do NOT substitute dextrose solutions for breastmilk"
+    },
+    {
+      "text": "Do NOT separate a stable mother-infant dyad solely for glucose monitoring"
+    },
+    {
+      "text": "Do NOT give antibiotics for hypoglycemia unless sepsis is suspected"
+    }
   ],
   "hypo_kpis": [
-    {"text": "Blood glucose screening coverage = At-risk neonates monitored for BG as per protocol × 100 / Total at-risk neonates eligible for BG monitoring (Target ≥90%)"},
-    {"text": "Timely BG re-check after treatment = Hypoglycemic episodes with repeat BG within prescribed interval × 100 / No. of hypoglycemic episodes treated (Target ≥90%)"}
+    {
+      "text": "Blood glucose screening coverage = At-risk neonates monitored for BG as per protocol × 100 / Total at-risk neonates eligible for BG monitoring (Target ≥90%)"
+    },
+    {
+      "text": "Timely BG re-check after treatment = Hypoglycemic episodes with repeat BG within prescribed interval × 100 / No. of hypoglycemic episodes treated (Target ≥90%)"
+    }
   ],
   "hypo_neuro_followup": [
-    {"text": "NEONATES WITH SYMPTOMATIC, SEVERE, RECURRENT OR PERSISTENT HYPOGLYCEMIA SHOULD RECEIVE STRUCTURED NEURODEVELOPMENTAL FOLLOW-UP"}
+    {
+      "text": "NEONATES WITH SYMPTOMATIC, SEVERE, RECURRENT OR PERSISTENT HYPOGLYCEMIA SHOULD RECEIVE STRUCTURED NEURODEVELOPMENTAL FOLLOW-UP"
+    }
   ],
   "hypo_asymptomatic_branch": [
-    {"text": "ASYMPTOMATIC & BG ≥25 mg/dL", "header": true},
-    {"text": "Immediate supervised feeding"},
-    {"text": "Breastfeeding or a measured volume of expressed breastmilk (Formula milk if EBM not available) by paladai or gavage"}
+    {
+      "text": "ASYMPTOMATIC & BG ≥25 mg/dL",
+      "header": true
+    },
+    {
+      "text": "Immediate supervised feeding"
+    },
+    {
+      "text": "Breastfeeding or a measured volume of expressed breastmilk (Formula milk if EBM not available) by paladai or gavage"
+    }
   ],
   "hypo_symptomatic_branch": [
-    {"text": "SYMPTOMATIC OR BG < 25 mg/dL", "header": true},
-    {"text": "IV bolus: 2 ml/kg of 10% of dextrose slowly over 1 minute"},
-    {"text": "Start IV infusion of dextrose at a glucose infusion rate (GIR) of 6 mg/kg/min"}
+    {
+      "text": "SYMPTOMATIC OR BG < 25 mg/dL",
+      "header": true
+    },
+    {
+      "text": "IV bolus: 2 ml/kg of 10% of dextrose slowly over 1 minute"
+    },
+    {
+      "text": "Start IV infusion of dextrose at a glucose infusion rate (GIR) of 6 mg/kg/min"
+    }
   ],
   "triage_initial_assessment": [
-    {"text": "Place under radiant warmer"},
-    {"text": "Attach temperature probe and pulse oximeter"},
-    {"text": "Assess for emergency signs using TABC & CD"},
-    {"text": "T: Temperature; A: Airway; B: Breathing; C: Circulation; C: Coma/convulsions; D: Dehydration"},
-    {"text": "Classify into EMERGENCY, PRIORITY or NON-URGENT based on signs given below"}
+    {
+      "text": "Place under radiant warmer"
+    },
+    {
+      "text": "Attach temperature probe and pulse oximeter"
+    },
+    {
+      "text": "Assess for emergency signs using TABC & CD"
+    },
+    {
+      "text": "T: Temperature; A: Airway; B: Breathing; C: Circulation; C: Coma/convulsions; D: Dehydration"
+    },
+    {
+      "text": "Classify into EMERGENCY, PRIORITY or NON-URGENT based on signs given below"
+    }
   ],
   "triage_kpis": [
-    {"text": "Neonates with a documented triage category at initial assessment", "label": "Triage classification documented (%); All neonates assessed × 100"},
-    {"text": "Sick neonates with temperature, SpO₂ AND blood glucose recorded at initial assessment", "label": "Complete triage measurements (%); All sick neonates assessed × 100"}
+    {
+      "text": "Neonates with a documented triage category at initial assessment",
+      "label": "Triage classification documented (%); All neonates assessed × 100"
+    },
+    {
+      "text": "Sick neonates with temperature, SpO₂ AND blood glucose recorded at initial assessment",
+      "label": "Complete triage measurements (%); All sick neonates assessed × 100"
+    }
   ],
   "triage_abbreviations": [
-    {"text": "BP: Blood pressure"},
-    {"text": "CBC: Complete blood count"},
-    {"text": "CDH: Congenital diaphragmatic hernia"},
-    {"text": "CPAP: Continuous positive airway pressure"},
-    {"text": "CRT: Capillary refill time"},
-    {"text": "EBM: Expressed breastmilk"},
-    {"text": "HR: Heart rate"},
-    {"text": "IDM: Infant of a diabetic mother"},
-    {"text": "NS: Normal saline"},
-    {"text": "OG/NG: Orogastric/nasogastric"},
-    {"text": "ORS: Oral rehydration solution"},
-    {"text": "SpO₂: Oxygen saturation"},
-    {"text": "TEF: Tracheoesophageal fistula"}
+    {
+      "text": "BP: Blood pressure"
+    },
+    {
+      "text": "CBC: Complete blood count"
+    },
+    {
+      "text": "CDH: Congenital diaphragmatic hernia"
+    },
+    {
+      "text": "CPAP: Continuous positive airway pressure"
+    },
+    {
+      "text": "CRT: Capillary refill time"
+    },
+    {
+      "text": "EBM: Expressed breastmilk"
+    },
+    {
+      "text": "HR: Heart rate"
+    },
+    {
+      "text": "IDM: Infant of a diabetic mother"
+    },
+    {
+      "text": "NS: Normal saline"
+    },
+    {
+      "text": "OG/NG: Orogastric/nasogastric"
+    },
+    {
+      "text": "ORS: Oral rehydration solution"
+    },
+    {
+      "text": "SpO₂: Oxygen saturation"
+    },
+    {
+      "text": "TEF: Tracheoesophageal fistula"
+    }
   ],
   "kmc_continue_while_on": [
-    {"text": "Oxygen therapy"},
-    {"text": "CPAP"},
-    {"text": "IV ﬂuids or medications"},
-    {"text": "OG/NG tube feeding"},
-    {"text": "Phototherapy (interrupt only during treatment, resume immediately)"},
-    {"text": "Twins: individually or together, depending on stability and caregiver availability"}
+    {
+      "text": "Oxygen therapy"
+    },
+    {
+      "text": "CPAP"
+    },
+    {
+      "text": "IV ﬂuids or medications"
+    },
+    {
+      "text": "OG/NG tube feeding"
+    },
+    {
+      "text": "Phototherapy (interrupt only during treatment, resume immediately)"
+    },
+    {
+      "text": "Twins: individually or together, depending on stability and caregiver availability"
+    }
   ],
   "kmc_dos": [
-    {"text": "Start KMC early in every eligible preterm or low-birth-weight baby; continue as long as possible"},
-    {"text": "Ensure correct positioning, a clear airway, and secure support; monitor temperature, breathing, and feeding"},
-    {"text": "Support exclusive breast milk feeding and counsel families to continue KMC at home with scheduled follow-up"}
+    {
+      "text": "Start KMC early in every eligible preterm or low-birth-weight baby; continue as long as possible"
+    },
+    {
+      "text": "Ensure correct positioning, a clear airway, and secure support; monitor temperature, breathing, and feeding"
+    },
+    {
+      "text": "Support exclusive breast milk feeding and counsel families to continue KMC at home with scheduled follow-up"
+    }
   ],
   "kmc_donts": [
-    {"text": "Do not initiate KMC in babies unable to breathe spontaneously after resuscitation, in shock, or requiring mechanical ventilation"},
-    {"text": "Do not routinely stop KMC for oxygen, CPAP, IV therapy, or tube feeding"},
-    {"text": "Do not delay KMC because the mother is unavailable; involve a trained alternate caregiver"}
+    {
+      "text": "Do not initiate KMC in babies unable to breathe spontaneously after resuscitation, in shock, or requiring mechanical ventilation"
+    },
+    {
+      "text": "Do not routinely stop KMC for oxygen, CPAP, IV therapy, or tube feeding"
+    },
+    {
+      "text": "Do not delay KMC because the mother is unavailable; involve a trained alternate caregiver"
+    }
   ],
   "kmc_kpis": [
-    {"text": "No. of neonates initiated on KMC x 100", "label": "KMC coverage among eligible neonates = Total eligible neonates during that period; Target: ≥90%"},
-    {"text": "Neonates receiving KMC for ≥8 h per 24h x 100", "label": "Percentage of eligible neonates getting > 8 hours of KMC = All neonates receiving KMC; Target: ≥80%"}
+    {
+      "text": "No. of neonates initiated on KMC x 100",
+      "label": "KMC coverage among eligible neonates = Total eligible neonates during that period; Target: ≥90%"
+    },
+    {
+      "text": "Neonates receiving KMC for ≥8 h per 24h x 100",
+      "label": "Percentage of eligible neonates getting > 8 hours of KMC = All neonates receiving KMC; Target: ≥80%"
+    }
   ],
   "kmc_abbreviations": [
-    {"text": "CPAP - Continuous Positive Airway Pressure"},
-    {"text": "EBM: Expressed Breastmilk"},
-    {"text": "KMC: Kangaroo Mother Care"},
-    {"text": "LBW: Low Birth Weight"},
-    {"text": "OG/NG - Orogastric/Nasogastric"},
-    {"text": "ROP- Retinopathy of Prematurity"},
-    {"text": "SpO2- Peripheral Oxygen Saturation"}
+    {
+      "text": "CPAP - Continuous Positive Airway Pressure"
+    },
+    {
+      "text": "EBM: Expressed Breastmilk"
+    },
+    {
+      "text": "KMC: Kangaroo Mother Care"
+    },
+    {
+      "text": "LBW: Low Birth Weight"
+    },
+    {
+      "text": "OG/NG - Orogastric/Nasogastric"
+    },
+    {
+      "text": "ROP- Retinopathy of Prematurity"
+    },
+    {
+      "text": "SpO2- Peripheral Oxygen Saturation"
+    }
+  ],
+  "rd_diagnostic_criteria": [
+    {
+      "text": "RESPIRATORY DISTRESS",
+      "header": true
+    },
+    {
+      "text": "Presence of ANY ONE: RR ≥60/min; Chest retractions; Nasal flaring; Grunting"
+    }
+  ],
+  "rd_immediate_actions": [
+    {
+      "text": "IMMEDIATE ACTIONS",
+      "header": true
+    },
+    {
+      "text": "Apnoea/gasping, poor effort or shock: Stabilize immediately; ventilate when indicated"
+    },
+    {
+      "text": "Maintain TABC; provide warmth; admit to SNCU/NICU"
+    },
+    {
+      "text": "Attach pulse oximeter; monitor HR, RR, SpO₂ and CRT; assess SAS"
+    },
+    {
+      "text": "Feed when stable: breastfeed if mild RD; OG feeds when appropriate on CPAP; decompress stomach"
+    },
+    {
+      "text": "Withhold feeds; give IV fluids for severe RD, recurrent apnoea, poor perfusion or abdominal concerns"
+    }
+  ],
+  "rd_algorithm_overview": [
+    {
+      "text": "ALGORITHM",
+      "header": true
+    },
+    {
+      "text": "ASSESS GESTATIONAL AGE (GA)* + SILVERMAN–ANDERSEN SCORE (SAS)"
+    },
+    {
+      "text": "*If GA is uncertain, BW ≤1800 g may be used as an operational surrogate"
+    },
+    {
+      "text": "GA ≤34 weeks Any respiratory distress"
+    },
+    {
+      "text": "GA >34 weeks Moderate–severe RD (SAS ≥4)"
+    },
+    {
+      "text": "GA >34 weeks Mild RD (SAS ≤3)"
+    }
+  ],
+  "rd_initial_preterm_cpap_caffeine": [
+    {
+      "text": "START CPAP",
+      "header": true
+    },
+    {
+      "text": "CPAP 5–6 cm H₂O; blended oxygen; titrate FiO₂ to SpO₂ 91–95%"
+    },
+    {
+      "text": "Caffeine citrate for babies <34 weeks requiring respiratory support, as per protocol"
+    }
+  ],
+  "rd_initial_term_moderate_severe_cpap": [
+    {
+      "text": "START CPAP",
+      "header": true
+    },
+    {
+      "text": "CPAP 5–6 cm H₂O; blended oxygen; titrate FiO₂ to SpO₂ 91–95%"
+    },
+    {
+      "text": "Caffeine citrate for babies <34 weeks requiring respiratory support, as per protocol"
+    }
+  ],
+  "rd_initial_term_mild_nasal_o2": [
+    {
+      "text": "NASAL PRONGS OXYGEN",
+      "header": true
+    },
+    {
+      "text": "If SpO₂ <91%: 0.5–1 L/min; Titrate to SpO₂ 91–95%"
+    }
+  ],
+  "rd_reassessment_sepsis": [
+    {
+      "text": "MONITORING",
+      "header": true
+    },
+    {
+      "text": "Monitor SpO₂ continuously while on oxygen/CPAP"
+    },
+    {
+      "text": "Reassess clinical status, SAS and FiO₂ requirement within 15–30 min of starting/changing support"
+    },
+    {
+      "text": "Reassess at least 1 hourly while on respiratory support; immediately if any worsening"
+    }
+  ],
+  "rd_improving": [
+    {
+      "text": "IMPROVING",
+      "header": true
+    },
+    {
+      "text": "Decreasing SAS; SpO₂ 91–95% on stable/reducing support; Comfortable breathing"
+    }
+  ],
+  "rd_not_improving": [
+    {
+      "text": "NOT IMPROVING / WORSENING",
+      "header": true
+    },
+    {
+      "text": "Persisting/increasing SAS"
+    },
+    {
+      "text": "SpO₂ <91% or rising oxygen need"
+    },
+    {
+      "text": "Recurrent apnoea/bradycardia"
+    },
+    {
+      "text": "Consider sepsis (Refer to sepsis STW)"
+    }
+  ],
+  "rd_surfactant_indication": [
+    {
+      "text": "EARLY RESCUE SURFACTANT",
+      "header": true
+    },
+    {
+      "text": "Suspected worsening RDS in a preterm neonate <34 weeks, AND FiO₂ >0.30 on CPAP ≥6 cm H₂O to maintain SpO₂ 91–95%"
+    },
+    {
+      "text": "Give promptly when indicated—before established CPAP failure"
+    }
+  ],
+  "rd_outcome_improving_weaning": [
+    {
+      "text": "WEAN WHEN STABLE",
+      "header": true
+    },
+    {
+      "text": "Comfortable breathing; no significant apnoea; low oxygen requirement"
+    },
+    {
+      "text": "Reduce FiO₂, then CPAP as per protocol"
+    },
+    {
+      "text": "Trial off when stable on CPAP 5 cm H₂O and FiO₂ 0.21–0.25"
+    },
+    {
+      "text": "Monitor SpO₂ for 24 h after stopping"
+    }
+  ],
+  "rd_outcome_not_improving_optimize_cpap": [
+    {
+      "text": "OPTIMIZE RESPIRATORY SUPPORT",
+      "header": true
+    },
+    {
+      "text": "If on Nasal Prongs oxygen, rising oxygen need or distress: Start CPAP"
+    },
+    {
+      "text": "Check prongs, circuit and delivered pressure"
+    },
+    {
+      "text": "Increase CPAP up to 7–8 cm H₂O; Titrate FiO₂"
+    },
+    {
+      "text": "Exclude pneumothorax (Transillumination, X-ray)"
+    },
+    {
+      "text": "Consider surfactant"
+    }
+  ],
+  "rd_cpap_failure_referral": [
+    {
+      "text": "CPAP FAILURE — ESCALATE PROMPTLY",
+      "header": true
+    },
+    {
+      "text": "Persistent hypoxaemia/rising FiO₂ despite optimized CPAP, recurrent apnoea, shock or fatigue"
+    },
+    {
+      "text": "Escalate support; intubate/ventilate when indicated; stabilize and refer urgently"
+    }
+  ],
+  "rd_clinical_dos": [
+    {
+      "text": "DOs",
+      "header": true
+    },
+    {
+      "text": "Assess severity using SAS; monitor SpO₂ continuously"
+    },
+    {
+      "text": "Maintain SpO₂ 91–95%"
+    },
+    {
+      "text": "Start CPAP within 30 min of identification of indication"
+    },
+    {
+      "text": "Give early rescue surfactant promptly when indicated"
+    }
+  ],
+  "rd_clinical_donts": [
+    {
+      "text": "DON’Ts",
+      "header": true
+    },
+    {
+      "text": "Do NOT give unmonitored supplemental oxygen"
+    },
+    {
+      "text": "Do NOT order routine CBC/CRP, chest X-ray or blood gas in uncomplicated mild RD"
+    },
+    {
+      "text": "Do NOT give IV fluids, antibiotics or blood products routinely"
+    },
+    {
+      "text": "Do NOT delay ventilation or referral when CPAP fails"
+    }
+  ],
+  "rd_kpis": [
+    {
+      "text": "KEY PERFORMANCE INDICATORS (KPIs)",
+      "header": true
+    },
+    {
+      "text": "Timely CPAP initiation (%)\nEligible neonates with RD started on CPAP within 30 min of identification\n÷ All neonates with RD meeting the STW criteria for CPAP\n× 100\nTarget >90%"
+    },
+    {
+      "text": "Continuous pulse-oximetry coverage (%)\nNeonates receiving oxygen or CPAP with documented continuous pulse oximetry\n÷ All neonates receiving oxygen or CPAP\n× 100\nTarget >90%"
+    }
+  ],
+  "rd_related_information": [
+    {
+      "text": "RELATED INFORMATION",
+      "header": true
+    },
+    {
+      "text": "Bubble CPAP setup"
+    },
+    {
+      "text": "Fixing binasal prongs"
+    },
+    {
+      "text": "SAS scoring"
+    },
+    {
+      "text": "Surfactant"
+    },
+    {
+      "text": "administration"
+    }
+  ],
+  "rd_sas_scoring_guide": [
+    {
+      "text": "SILVERMAN–ANDERSEN SCORE",
+      "header": true
+    },
+    {
+      "text": "SAS: Avery & Fletcher (1974); W. A. Silverman"
+    }
+  ],
+  "rd_abbreviations": [
+    {
+      "text": "ABBREVIATIONS",
+      "header": true
+    },
+    {
+      "text": "BW: Birth weight"
+    },
+    {
+      "text": "CPAP: Continuous positive airway pressure"
+    },
+    {
+      "text": "CRT: Capillary refill time"
+    },
+    {
+      "text": "GA: Gestational age"
+    },
+    {
+      "text": "FiO₂: Fraction of inspired oxygen"
+    },
+    {
+      "text": "PEEP: Positive end-expiratory pressure"
+    },
+    {
+      "text": "RD: Respiratory distress"
+    },
+    {
+      "text": "RR: Respiratory rate"
+    },
+    {
+      "text": "SAS: Silverman–Andersen score"
+    },
+    {
+      "text": "SpO₂: Peripheral oxygen saturation"
+    },
+    {
+      "text": "TABC: Temperature, airway, breathing, circulation"
+    }
+  ],
+  "rd_references": [
+    {
+      "text": "REFERENCES",
+      "header": true
+    },
+    {
+      "text": "1. National Neonatology Forum India. Oxygen Therapy in Neonates; Surfactant Replacement Therapy in Neonates. Evidence-based Clinical Practice Guidelines. nnfi.org/cpg.php"
+    },
+    {
+      "text": "2. Sweet DG et al. European Consensus Guidelines on the Management of Respiratory Distress Syndrome: 2022 Update. Neonatology. 2023;120:3–23."
+    }
   ]
 }

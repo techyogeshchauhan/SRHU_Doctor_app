@@ -14,123 +14,141 @@ Sources (both: ICMR / Department of Health Research, MoHFW, Govt. of India, Augu
 
 ---
 
-## 1. Module A: Respiratory Distress (RD) in Neonates
+## 1. Respiratory Distress in Neonates
 
-### 1.1 Definition: when RD is present
-RD is present if **ANY ONE** of these is present:
-- RR > 60/min
-- Chest retractions
-- Nasal flaring
-- Grunting
+Single source: `assets/pdfs/respiratory_distress_neonates_stw.pdf`, byte-for-byte copy of `Respiratory_Distress_STW_Final 15-10-26.pdf`. Replaces all earlier RD content. Printed date: August 2026.
 
-### 1.2 Immediate actions (show as a checklist)
-- Assess and stabilize **TABC** (temperature, airway, breathing, circulation)
-- Admit to SNCU/NICU
-  - Provide thermal care
-  - Attach pulse oximeter
-  - Monitor HR, RR, SpO₂ and CRT; grade severity using the Silverman-Andersen score (SAS)
-- Feed enterally if stable
-  - Direct breastfeed if **mild** distress; gastric-tube feeds if **moderate** distress, or on CPAP
-- IV fluids if **severe** distress, recurrent apnea, poor perfusion, or abdominal signs
+### RESPIRATORY DISTRESS
 
-### 1.3 Inputs the app may ask
-| Input | Used for |
-|---|---|
-| Gestational age (GA) in weeks | Choosing the pathway |
-| Birth weight (BW), only if GA is uncertain | "If GA is uncertain, BW ≤ 1800 g may be used as an operational surrogate" (surrogate for GA ≤ 34 weeks) |
-| 5 SAS items (each grade 0, 1, 2) | SAS total and mild vs moderate-severe |
-| SpO₂, FiO₂, PEEP (cm H₂O) | Reassessment, surfactant criteria |
-| Tick boxes (see 1.7 to 1.9) | Improving / not improving / CPAP failure |
+- Presence of ANY ONE: RR ≥60/min; Chest retractions; Nasal flaring; Grunting
 
-### 1.4 Silverman-Andersen Score (SAS)
-Each of the 5 items is graded 0, 1 or 2. SAS total = sum of the 5 grades.
+### IMMEDIATE ACTIONS
 
-| Item | Grade 0 | Grade 1 | Grade 2 |
-|---|---|---|---|
-| Upper chest | Synchronized | Lag on inspiration | See-saw |
-| Lower chest | No retractions | Just visible | Marked |
-| Xiphoid retractions | None | Just visible | Marked |
-| Nares dilatation | None | Minimal | Marked |
-| Expiratory grunt | None | Heard with stethoscope | Audible |
+- Apnoea/gasping, poor effort or shock: Stabilize immediately; ventilate when indicated
+- Maintain TABC; provide warmth; admit to SNCU/NICU
+- Attach pulse oximeter; monitor HR, RR, SpO₂ and CRT; assess SAS
+- Feed when stable: breastfeed if mild RD; OG feeds when appropriate on CPAP; decompress stomach
+- Withhold feeds; give IV fluids for severe RD, recurrent apnoea, poor perfusion or abdominal concerns
 
-Figure credit (must be shown with the figure): *The Silverman score for assessing the magnitude of respiratory distress. (From Avery, M.E., and Fletcher, B.D.: The Lung and Its Disorders in the Newborn. Philadelphia, W.B. Saunders Company, 1974) (Courtesy of W.A. Silverman).*
+### ALGORITHM
 
-Severity classes that exist in the PDF (and only these):
-- **Mild RD: SAS ≤ 3**
-- **Moderate-severe RD: SAS ≥ 4**
+- ASSESS GESTATIONAL AGE (GA)* + SILVERMAN–ANDERSEN SCORE (SAS)
+- *If GA is uncertain, BW ≤1800 g may be used as an operational surrogate
+- GA ≤34 weeks Any respiratory distress
+- GA >34 weeks Moderate–severe RD (SAS ≥4)
+- GA >34 weeks Mild RD (SAS ≤3)
 
-The PDF does not split moderate from severe by SAS value. The app must not do that.
+### START CPAP
 
-### 1.5 Algorithm: choosing initial support
-"RESPIRATORY DISTRESS: Assess gestation (GA) + SAS"
+- CPAP 5–6 cm H₂O; blended oxygen; titrate FiO₂ to SpO₂ 91–95%
+- Caffeine citrate for babies <34 weeks requiring respiratory support, as per protocol
 
-| Pathway | Condition | Action |
-|---|---|---|
-| 1 | GA ≤ 34 weeks, any respiratory distress | **START CPAP** |
-| 2 | GA > 34 weeks, moderate-severe RD (SAS ≥ 4) | **START CPAP** |
-| 3 | GA > 34 weeks, mild RD (SAS ≤ 3) | **NASAL-PRONG OXYGEN 0.5-1 L/min**, titrate to SpO₂ 91-95% |
+### NASAL PRONGS OXYGEN
 
-**START CPAP** box: CPAP 5-6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91-95%. Start caffeine citrate in neonates < 34 weeks who require respiratory support.
+- If SpO₂ <91%: 0.5–1 L/min; Titrate to SpO₂ 91–95%
 
-Then (all pathways): **REASSESS FREQUENTLY**: clinical status, SAS, SpO₂, FiO₂ requirement. Consider sepsis if perinatal risk factors, systemic illness, worsening distress or rising FiO₂ (see STW: Sepsis in Neonates).
+### MONITORING
 
-### 1.6 Target
-Maintain **SpO₂ 91-95%** at all times (the PDF banner: "ASSESS SAS • PROVIDE APPROPRIATE RESPIRATORY SUPPORT • TARGET SpO₂ 91-95% • ESCALATE SUPPORT PROMPTLY IF NOT IMPROVING").
+- Monitor SpO₂ continuously while on oxygen/CPAP
+- Reassess clinical status, SAS and FiO₂ requirement within 15–30 min of starting/changing support
+- Reassess at least 1 hourly while on respiratory support; immediately if any worsening
 
-### 1.7 IMPROVING (show when the clinician confirms all three)
-- Decreasing SAS
-- SpO₂ 91-95% on stable/reducing support
-- Comfortable breathing
+### IMPROVING
 
-Action: Wean FiO₂ first to 0.21, then reduce CPAP in 1 cm H₂O steps to 4-5 cm H₂O and stop when stable; continue SpO₂ monitoring for 24 h after stopping.
+- Decreasing SAS; SpO₂ 91–95% on stable/reducing support; Comfortable breathing
 
-### 1.8 NOT IMPROVING / WORSENING (show if any of these is present)
+### NOT IMPROVING / WORSENING
+
 - Persisting/increasing SAS
-- SpO₂ < 91% or rising oxygen need
-- Recurrent apnea/bradycardia
-- Fatigue, shock or deterioration
+- SpO₂ <91% or rising oxygen need
+- Recurrent apnoea/bradycardia
+- Consider sepsis (Refer to sepsis STW)
 
-Action: **OPTIMIZE CPAP**
-- Increase PEEP stepwise up to 7-8 cm H₂O
-- Titrate FiO₂ to target SpO₂ 91-95%
-- Look for/treat underlying cause
-- Consider surfactant if criteria met (see 1.9)
+### EARLY RESCUE SURFACTANT
 
-### 1.9 SURFACTANT criteria (all must be true)
-- GA < 34 weeks
-- on CPAP needing PEEP > 6 cm H₂O
-- AND FiO₂ > 0.30 to keep SpO₂ between 91-95%
+- Suspected worsening RDS in a preterm neonate <34 weeks, AND FiO₂ >0.30 on CPAP ≥6 cm H₂O to maintain SpO₂ 91–95%
+- Give promptly when indicated—before established CPAP failure
 
-### 1.10 CPAP FAILURE
-Persistent hypoxemia/high FiO₂ requirement, recurrent apnea, shock or fatigue → **Refer urgently**.
-(Clinician-ticked criteria only. The app must not auto-declare failure from a number.)
+### WEAN WHEN STABLE
 
-### 1.11 DOs
-- Assess severity using SAS and monitor SpO₂ continuously
-- Maintain SpO₂ 91%-95%.
-- Start CPAP within 30 minutes
-- Administer surfactant within 2 hours
+- Comfortable breathing; no significant apnoea; low oxygen requirement
+- Reduce FiO₂, then CPAP as per protocol
+- Trial off when stable on CPAP 5 cm H₂O and FiO₂ 0.21–0.25
+- Monitor SpO₂ for 24 h after stopping
 
-### 1.12 DON'Ts
-- DO NOT give unmonitored supplemental oxygen.
-- DO NOT perform routine CBC, CRP, Chest X-ray or blood gas in uncomplicated mild RD
-- DO NOT give IV fluids, antibiotics, or blood products routinely
-- DO NOT delay mechanical ventilation or referral in case of CPAP failure
+### OPTIMIZE RESPIRATORY SUPPORT
 
-### 1.13 Key Performance Indicators (KPIs)
-- **Timely CPAP initiation (%)** = (Neonates ≤ 34 weeks with RD started on CPAP within 30 min of diagnosis or admission ÷ Neonates ≤ 34 weeks diagnosed with RD) × 100. Target > 90%
-- **SpO₂ target compliance (%)** = (Neonates receiving supplemental oxygen or CPAP with continuous pulse oximetry and SpO₂ in target range ÷ Neonates receiving supplemental oxygen or CPAP) × 100. Target > 90%
+- If on Nasal Prongs oxygen, rising oxygen need or distress: Start CPAP
+- Check prongs, circuit and delivered pressure
+- Increase CPAP up to 7–8 cm H₂O; Titrate FiO₂
+- Exclude pneumothorax (Transillumination, X-ray)
+- Consider surfactant
 
-### 1.14 Related information (links to be supplied)
-How to set up a bubble CPAP · How to connect a ventilator CPAP · How to fix binasal prongs · Silverman-Andersen scoring · Surfactant administration
+### CPAP FAILURE — ESCALATE PROMPTLY
 
-### 1.15 Abbreviations
-BW: Birth Weight · CRT: Capillary Refill Time · CPAP: Continuous Positive Airway Pressure · GA: Gestational Age · IV: Intravenous · SpO₂: Peripheral Oxygen Saturation · RD: Respiratory Distress · FiO₂: Fraction of Inspired Oxygen · RR: Respiratory Rate · PEEP: Positive End-Expiratory Pressure · SAS: Silverman-Andersen Score
+- Persistent hypoxaemia/rising FiO₂ despite optimized CPAP, recurrent apnoea, shock or fatigue
+- Escalate support; intubate/ventilate when indicated; stabilize and refer urgently
 
-### 1.16 Reference
-1. Oxygen therapy in neonates, and Surfactant Replacement therapy in neonates. Evidence-based Clinical Practice Guidelines. National Neonatology Forum India. Available at www.nnfi.org/cpg
+### DOs
 
----
+- Assess severity using SAS; monitor SpO₂ continuously
+- Maintain SpO₂ 91–95%
+- Start CPAP within 30 min of identification of indication
+- Give early rescue surfactant promptly when indicated
+
+### DON’Ts
+
+- Do NOT give unmonitored supplemental oxygen
+- Do NOT order routine CBC/CRP, chest X-ray or blood gas in
+- uncomplicated mild RD
+- Do NOT give IV fluids, antibiotics or blood products routinely
+- Do NOT delay ventilation or referral when CPAP fails
+
+### KEY PERFORMANCE INDICATORS (KPIs)
+
+- Timely CPAP initiation (%)
+- Eligible neonates with RD started on CPAP within 30 min of
+- identification
+- All neonates with RD meeting the STW criteria for CPAP
+- × 100
+- Target >90%
+- Continuous pulse-oximetry coverage (%)
+- Neonates receiving oxygen or CPAP with documented
+- continuous pulse oximetry
+- All neonates receiving oxygen or CPAP
+- × 100
+- Target >90%
+
+### RELATED INFORMATION
+
+- Bubble CPAP setup
+- Fixing binasal prongs
+- SAS scoring
+- Surfactant
+- administration
+
+### SILVERMAN–ANDERSEN SCORE
+
+- SAS: Avery & Fletcher (1974); W. A. Silverman
+
+### ABBREVIATIONS
+
+- BW: Birth weight
+- CPAP: Continuous positive airway pressure
+- CRT: Capillary refill time
+- GA: Gestational age
+- FiO₂: Fraction of inspired oxygen
+- PEEP: Positive end-expiratory pressure
+- RD: Respiratory distress
+- RR: Respiratory rate
+- SAS: Silverman–Andersen score
+- SpO₂: Peripheral oxygen saturation
+- TABC: Temperature, airway, breathing, circulation
+
+### REFERENCES
+
+- 1. National Neonatology Forum India. Oxygen Therapy in Neonates; Surfactant Replacement Therapy in Neonates. Evidence-based Clinical Practice Guidelines. nnfi.org/cpg.php
+- 2. Sweet DG et al. European Consensus Guidelines on the Management of Respiratory Distress Syndrome: 2022 Update. Neonatology. 2023;120:3–23.
 
 ## 2. Module B: Retinopathy of Prematurity (ROP)
 
@@ -232,7 +250,7 @@ A-ROP: Aggressive ROP · BW: Birth weight · EBM: Expressed Breastmilk · GA: Ge
 | SAS total | Sum of the 5 item grades (0-2 each) |
 | Mild vs moderate-severe | SAS ≤ 3 = mild; SAS ≥ 4 = moderate-severe |
 | RD pathway | Table in 1.5 |
-| Surfactant criteria met | GA < 34 wk AND on CPAP AND PEEP > 6 AND FiO₂ > 0.30 (SpO₂ 91-95%) |
+| Surfactant criteria met | Suspected worsening RDS AND confirmed GA <34 wk AND CPAP ≥6 cm H₂O AND FiO₂ >0.30 to maintain SpO₂ 91–95% |
 | SpO₂ in target range | 91-95% |
 | ROP eligibility | Rules in 2.1 |
 | ROP first-screen deadline | DOB + 4 weeks; or DOB + 2-3 weeks if GA < 28 wk or BW < 1200 g; if past the deadline show "overdue: screen ASAP" |
@@ -246,7 +264,7 @@ A-ROP: Aggressive ROP · BW: Birth weight · EBM: Expressed Breastmilk · GA: Ge
 - Split moderate and severe RD by SAS value (e.g. 4-6 / 7-10)
 - Treat SAS ≤ 3 on its own as "improving"
 - Auto-declare CPAP failure from a number (e.g. SpO₂ < 91% at PEEP 8)
-- Say "escalate to CPAP" for nasal-prong oxygen, or "reduce FiO₂" for high SpO₂
+- Add numerical surfactant deadlines or CPAP-weaning increments absent from the revised RD PDF
 - Invent "due soon" windows (e.g. within 7 days) for ROP
 - Auto-fill the next ROP exam date (e.g. +2, +7, +14 days). The clinician enters it
 - Show drug doses other than those written in the PDFs (phenylephrine 2.5%, tropicamide 0.5-0.8%, 25% dextrose, caffeine citrate named without dose)
@@ -260,12 +278,6 @@ Source line: "Based on ICMR / DHR Standard Treatment Workflows, August 2026".
 
 ## 6. Open points (PDF is ambiguous: confirm with supervisor, do not guess)
 
-1. **GA boundary:** the PDF says "GA ≤ 34 weeks" and "GA > 34 weeks". The app currently uses completed weeks (so 34+3 counts as ≤ 34). Confirm whether to use completed weeks or weeks+days.
-2. **"Moderate" and "severe" distress** (feeding and IV-fluid lines in 1.2): the PDF defines only mild (SAS ≤ 3) and moderate-severe (SAS ≥ 4). Proposed handling: feeding follows mild vs moderate-severe; "severe distress" for IV fluids is a clinician tick box, not a SAS cut-off.
-3. **"Persisting SAS"** in Not improving: the PDF gives no numeric rule. Proposed handling: SAS higher than the previous reading = increasing; equal and ≥ 4 = persisting; lower = decreasing (never "persisting").
-4. **Improving:** the PDF lists three bullets without saying "all". Proposed handling: require all three.
-5. **Nasal-prong pathway when not improving:** the PDF flowchart shows both pathways joining the same Reassess and Not improving boxes, whose action is "Optimize CPAP". Proposed handling: show the PDF box as written, no extra escalation text.
-6. **Surfactant "PEEP > 6"** vs "CPAP 5-6 cm H₂O" start: PEEP above 6 is reached only after increasing PEEP. No change needed, just keep both numbers as written.
-7. **"Within 30 minutes" / "within 2 hours":** the PDF does not state the starting point for surfactant's 2 hours. Show the time rule as written.
-8. **BW surrogate:** "BW ≤ 1800 g may be used" only when GA is uncertain. Show as an optional input.
+RD decisions follow the revised source above; superseded RD open points have been removed. The unchanged GA split retains the existing completed-week convention. Severe RD for feeding remains clinician assessed because no separate SAS cutoff is specified.
+
 9. **ROP treatment line "Reactivation/significant PAR after anti-VEGF; stage 2-3; stage 4-5":** the PDF text is not clear on how these combine. Show the line as written; do not auto-decide.

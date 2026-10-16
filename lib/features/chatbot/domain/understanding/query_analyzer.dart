@@ -9,7 +9,7 @@ library;
 
 import 'hinglish_lexicon.dart';
 
-enum StwTopic { rd, rop, ancs, hypo, triage, kmc }
+enum StwTopic { rd, rop, ancs, hypo, triage, kmc, sepsis }
 
 /// Kinds of question; regions in assets/regions/regions.json list the ones
 /// they answer (tools/annotate_region_intents.py).
@@ -135,8 +135,9 @@ String _basic(String q) => q
     .replaceAll('optimis', 'optimiz');
 
 final _phrasePatterns = [
-  for (final e in (hinglishPhrases.entries.toList()
-    ..sort((a, b) => b.key.length.compareTo(a.key.length))))
+  for (final e
+      in (hinglishPhrases.entries.toList()
+        ..sort((a, b) => b.key.length.compareTo(a.key.length))))
     (RegExp('\\b${RegExp.escape(e.key)}\\b'), e.value),
 ];
 
@@ -147,7 +148,8 @@ String normalizeQuery(String query) {
     s = s.replaceAll(re, repl);
   }
   final out = <String>[];
-  for (final m in RegExp(r"[a-z0-9][a-z0-9'./%+-]*|[<>]=?|[?,]").allMatches(s)) {
+  for (final m
+      in RegExp(r"[a-z0-9][a-z0-9'./%+-]*|[<>]=?|[?,]").allMatches(s)) {
     final w = m.group(0)!;
     final mapped = hinglishWords[w];
     if (mapped == null) {
@@ -180,6 +182,10 @@ final _outOfScope = RegExp(
 );
 
 final _topicPatterns = <StwTopic, RegExp>{
+  StwTopic.sepsis: RegExp(
+    r'\bsepsis\b|\bseptic\b|sclerema|blood culture|lumbar puncture|\bcsf\b|'
+    r'procalcitonin|yellow flags?|red flags?|antibiotic duration|meningitis',
+  ),
   StwTopic.rd: RegExp(
     r"respiratory distress|\brds?\b|breath\w*|\bcpap\b|silverman|\bsas\b|"
     r"surfactant|caffeine|grunt\w*|retraction|flaring|nasal.?prong|\bpeep\b|"
@@ -225,23 +231,23 @@ final _topicPatterns = <StwTopic, RegExp>{
 final _intentPatterns = <QueryIntent, RegExp>{
   QueryIntent.abbreviation: RegExp(
       r"full form|stands? for|abbreviat\w*|meaning of|what does \S+ mean"),
-  QueryIntent.dose: RegExp(
-      r"\bdoses?\b|dosage|how much|regimen|\broute\b|\bmg\b|ml/kg|"
-      r"pressure|flow|volume|\bdrug|medicine|how many doses"),
-  QueryIntent.dos: RegExp(
-      r"\bdos\b|\bdo's\b|good practices?|important things|key things|"
-      r"best practices?|things to do"),
+  QueryIntent.dose:
+      RegExp(r"\bdoses?\b|dosage|how much|regimen|\broute\b|\bmg\b|ml/kg|"
+          r"pressure|flow|volume|\bdrug|medicine|how many doses"),
+  QueryIntent.dos:
+      RegExp(r"\bdos\b|\bdo's\b|good practices?|important things|key things|"
+          r"best practices?|things to do"),
   QueryIntent.donts: RegExp(
       r"don'?ts|\bdonts\b|mistake|avoid\w*|must not|should not|not be done|"
       r"what not do|routinely|separated?|discharg\w* without"),
-  QueryIntent.kpi: RegExp(
-      r"\bkpis?\b|indicators?|quality|coverage|compliance|targets? for"),
-  QueryIntent.timing: RegExp(
-      r"\bwhen\b|how soon|within how|at what|first|timing|how long|"
-      r"which weeks|gestational age range|age range|range for"),
-  QueryIntent.schedule: RegExp(
-      r"how often|frequency|schedule|\bevery\b|interval|\brepeat\b|"
-      r"at what hours|before or after|recheck|re-check|check"),
+  QueryIntent.kpi:
+      RegExp(r"\bkpis?\b|indicators?|quality|coverage|compliance|targets? for"),
+  QueryIntent.timing:
+      RegExp(r"\bwhen\b|how soon|within how|at what|first|timing|how long|"
+          r"which weeks|gestational age range|age range|range for"),
+  QueryIntent.schedule:
+      RegExp(r"how often|frequency|schedule|\bevery\b|interval|\brepeat\b|"
+          r"at what hours|before or after|recheck|re-check|check"),
   QueryIntent.criteria: RegExp(
       r"which (babies|newborns?|neonates|women|patients)|\bwhom?\b|\bwho\b|"
       r"eligib\w*|criteria|indicat\w*|need\w*|enough|conditions|"
@@ -254,9 +260,9 @@ final _intentPatterns = <QueryIntent, RegExp>{
   QueryIntent.management: RegExp(
       r"what to do|what next|treat\w*|manag\w*|support|next step|"
       r"what should|what do|\baction\w*\b|\bfed\b|give|therapy|surgery|options|available"),
-  QueryIntent.escalate: RegExp(
-      r"increase|optimi\w*|step up|maximum|\bmax\b|higher|not improving|"
-      r"still low|not responding"),
+  QueryIntent.escalate:
+      RegExp(r"increase|optimi\w*|step up|maximum|\bmax\b|higher|not improving|"
+          r"still low|not responding"),
   QueryIntent.wean: RegExp(r"wean\w*|taper\w*|reduce|lower|decrease"),
   QueryIntent.stop: RegExp(r"\bstop\w*|discontinu\w*|band|end screening"),
   QueryIntent.refer: RegExp(r"refer\w*|transfer|higher cent\w*|urgently"),
@@ -268,8 +274,8 @@ final _intentPatterns = <QueryIntent, RegExp>{
   QueryIntent.definition: RegExp(
       r"what is\b|\bdefin\w*|cutoff|cut-off|threshold|level is|considered|"
       r"what glucose level|disease|what does \w+ reduce|low to low"),
-  QueryIntent.documentation: RegExp(
-      r"document\w*|record\w*|written|write|discharge card|case sheet"),
+  QueryIntent.documentation:
+      RegExp(r"document\w*|record\w*|written|write|discharge card|case sheet"),
   QueryIntent.followup: RegExp(r"follow-?up|developmental"),
   QueryIntent.benefit: RegExp(
       r"\bwhy\b|benefit|useful|important|purpose|main message|reduce in"),
@@ -287,14 +293,15 @@ final _negation = RegExp(
 // Entities
 // ---------------------------------------------------------------------------
 
-final _comparator =
-    RegExp(r"(above|below|over|under|more than|less than|after|before|>|<)\s*=?\s*$");
+final _comparator = RegExp(
+    r"(above|below|over|under|more than|less than|after|before|>|<)\s*=?\s*$");
 
 int? _num(String? s) => s == null ? null : int.tryParse(s);
 
 /// First number after one of [keys] that is not preceded by a comparator.
 int? _valueAfter(String n, String keys, {int maxGap = 25}) {
-  final re = RegExp('(?:$keys)([^0-9]{0,$maxGap}?)(\\d{1,4})(?![0-9.]*\\s*(?:weeks?|days?|hours?|%))');
+  final re = RegExp(
+      '(?:$keys)([^0-9]{0,$maxGap}?)(\\d{1,4})(?![0-9.]*\\s*(?:weeks?|days?|hours?|%))');
   for (final m in re.allMatches(n)) {
     if (_comparator.hasMatch(m.group(1)!)) continue;
     return _num(m.group(2));
@@ -319,13 +326,15 @@ QueryEntities _entities(String n) {
     final before = n.substring(0, m.start);
     final after = n.substring(m.end);
     if (RegExp(r'^\s*pma').hasMatch(after)) continue;
-    final cmp = RegExp(r'(above|over|more than|after|>)\s*=?\s*$').hasMatch(before) ||
-            RegExp(r'^\s*(above|or more|and above|plus)\b').hasMatch(after)
-        ? '>'
-        : RegExp(r'(below|under|less than|before|<)\s*=?\s*$').hasMatch(before) ||
-                RegExp(r'^\s*(below|or less|and below)\b').hasMatch(after)
-            ? '<'
-            : null;
+    final cmp =
+        RegExp(r'(above|over|more than|after|>)\s*=?\s*$').hasMatch(before) ||
+                RegExp(r'^\s*(above|or more|and above|plus)\b').hasMatch(after)
+            ? '>'
+            : RegExp(r'(below|under|less than|before|<)\s*=?\s*$')
+                        .hasMatch(before) ||
+                    RegExp(r'^\s*(below|or less|and below)\b').hasMatch(after)
+                ? '<'
+                : null;
     e.gaWeeks = _num(m.group(1));
     e.gaComparator = cmp;
     break;
@@ -333,7 +342,8 @@ QueryEntities _entities(String n) {
   e.term = RegExp(r'\bterm (baby|neonate|newborn|infant)').hasMatch(n);
 
   final w = RegExp(r'(\d{3,4})\s*(?:g|gm|grams?)\b').firstMatch(n);
-  e.weightG = _num(w?.group(1)) ?? _valueAfter(n, r'birth weight|\bbw\b', maxGap: 10);
+  e.weightG =
+      _num(w?.group(1)) ?? _valueAfter(n, r'birth weight|\bbw\b', maxGap: 10);
   e.sas = _valueAfter(n, r'\bsas\b', maxGap: 8);
   e.gir = _valueAfter(n, r'\bgir\b', maxGap: 8);
   e.peep = _valueAfter(n, r'\bpeep\b', maxGap: 6);
@@ -342,7 +352,8 @@ QueryEntities _entities(String n) {
     final v = double.parse(f.group(1)!);
     e.fio2Percent = v <= 1 ? v * 100 : v;
   }
-  final d = RegExp(r'(\d{1,2})\s*days?\s*(ago|before|earlier|back)').firstMatch(n);
+  final d =
+      RegExp(r'(\d{1,2})\s*days?\s*(ago|before|earlier|back)').firstMatch(n);
   e.daysSincePreviousCourse = _num(d?.group(1));
   e.repeatCourseGiven = RegExp(
     r'already (had|received|given|got) (a |the )?repeat|repeat course (already|was given)',
@@ -382,12 +393,13 @@ QueryEntities _entities(String n) {
   ).hasMatch(n);
   e.euglycemic24h =
       RegExp(r'normal for 24|euglyc\w* (for )?24|24 hours? normal').hasMatch(n);
-  e.feedingWell =
-      RegExp(r'feeding well|tolerating|enteral feeds').hasMatch(n);
+  e.feedingWell = RegExp(r'feeding well|tolerating|enteral feeds').hasMatch(n);
   e.glucoseNormal =
-      RegExp(r'(blood glucose|\bbg) (is )?normal|normal blood glucose').hasMatch(n);
-  e.glucoseLow = RegExp(r'low blood glucose|blood glucose low|\bbg low|hypoglyc')
-      .hasMatch(n);
+      RegExp(r'(blood glucose|\bbg) (is )?normal|normal blood glucose')
+          .hasMatch(n);
+  e.glucoseLow =
+      RegExp(r'low blood glucose|blood glucose low|\bbg low|hypoglyc')
+          .hasMatch(n);
   e.onCpap = RegExp(r'on cpap').hasMatch(n);
   if (RegExp(r'\bmild\b').hasMatch(n)) {
     e.severityWord = 'mild';
@@ -408,6 +420,14 @@ QueryAnalysis analyzeQuery(String query) {
     for (final e in _topicPatterns.entries)
       if (e.value.hasMatch(n)) e.key,
   };
+  // Explicit Sepsis questions use its own source even when its signs or
+  // maternal factors also occur in other workflows. Explicit cross-STW
+  // requests retain both topics (e.g. sepsis in respiratory distress).
+  if (topics.contains(StwTopic.sepsis) &&
+      !RegExp(r'\btriage\b|\brop\b|\bancs\b|\bacs\b|antenatal|kangaroo|\bkmc\b|respiratory distress|\brds?\b|hypoglyc\w*|\bbg\b|\bgir\b')
+          .hasMatch(n)) {
+    topics.removeWhere((t) => t != StwTopic.sepsis);
+  }
   if (topics.contains(StwTopic.triage) &&
       topics.any((topic) => topic != StwTopic.triage) &&
       !RegExp(r'\btriage\b|phenobarbit\w*|levetiracetam').hasMatch(n)) {
@@ -415,11 +435,10 @@ QueryAnalysis analyzeQuery(String query) {
   }
 
   // "ya nahi" / "or not" asks yes-or-no, it does not negate.
-  final forNegation =
-      n.replaceAll(RegExp(r'\bor (no|not)\b'), ' ').replaceAll(
-            RegExp(r'\bnot (improving|responding|known|feeding)\b'),
-            ' ',
-          );
+  final forNegation = n.replaceAll(RegExp(r'\bor (no|not)\b'), ' ').replaceAll(
+        RegExp(r'\bnot (improving|responding|known|feeding)\b'),
+        ' ',
+      );
   final negated = _negation.hasMatch(forNegation);
 
   final intents = {
@@ -491,6 +510,7 @@ QueryAnalysis analyzeQuery(String query) {
 /// Topic of a region by its document.
 StwTopic? topicOfDocument(String document) {
   final d = document.toLowerCase();
+  if (d.startsWith('sepsis_')) return StwTopic.sepsis;
   if (d.startsWith('respiratory')) return StwTopic.rd;
   if (d.startsWith('retinopathy')) return StwTopic.rop;
   if (d.startsWith('antenatal')) return StwTopic.ancs;

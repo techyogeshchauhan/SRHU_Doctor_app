@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/theme.dart';
@@ -43,34 +44,99 @@ class FollowUpScreen extends ConsumerWidget {
           const SizedBox(width: 4),
           Semantics(
             button: true,
-            label: 'Reset follow-up assessment',
-            child: IconButton(
-              tooltip: 'Reset assessment',
-              icon: const Icon(Icons.restart_alt),
-              onPressed: () {
-                showDialog<void>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Reset Follow-up Assessment?'),
-                    content: const Text(
-                      'All progress, recorded MCQ answers, and case scenario choices will be reset.',
+            label: 'Reset Screening',
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final action = await showDialog<String>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Row(
+                        children: [
+                          Icon(
+                            Icons.restart_alt_rounded,
+                            color: Color(0xFFDC2626),
+                            size: 24,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Reset Screening',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.primaryNavy,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+                      content: const Text(
+                        'Choose whether to restart follow-up assessment from the beginning or reset all screening data and return to condition selection.',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          color: Color(0xFF334155),
+                          height: 1.4,
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const Text('Cancel'),
+                        ),
+                        OutlinedButton(
+                          onPressed: () => Navigator.of(ctx).pop('restart'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.primaryNavy,
+                          ),
+                          child: const Text('Restart Follow-up'),
+                        ),
+                        FilledButton(
+                          onPressed: () => Navigator.of(ctx).pop('home'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFDC2626),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text('Reset & Go to Home'),
+                        ),
+                      ],
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(),
-                        child: const Text('Cancel'),
-                      ),
-                      FilledButton(
-                        onPressed: () {
-                          Navigator.of(ctx).pop();
-                          controller.reset();
-                        },
-                        child: const Text('Reset'),
-                      ),
-                    ],
+                  );
+                  if (action == null || !context.mounted) return;
+                  if (action == 'restart') {
+                    controller.reset();
+                  } else if (action == 'home') {
+                    resetAllScreeningData(ref);
+                    if (context.mounted) {
+                      context.go('/home');
+                    }
+                  }
+                },
+                icon: const Icon(
+                  Icons.restart_alt_rounded,
+                  size: 16,
+                  color: Color(0xFFDC2626),
+                ),
+                label: const Text(
+                  'Reset Screening',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFDC2626),
                   ),
-                );
-              },
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFDC2626),
+                  side: const BorderSide(color: Color(0xFFFCA5A5), width: 1.2),
+                  backgroundColor: const Color(0xFFFEF2F2),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 8),

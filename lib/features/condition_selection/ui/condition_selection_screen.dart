@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
+import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../../shared/pdf_navigation.dart';
 import '../../../shared/stw_disclaimer.dart';
+import '../../clinical_workflow/state/assessment_controller.dart';
+import '../../clinical_workflow/ui/screening_session_panel.dart';
 import '../domain/neonatal_condition.dart';
 import '../state/condition_selection_controller.dart';
 
@@ -36,15 +39,41 @@ const _topicIcons = <NeonatalCondition, IconData>{
 /// - Single unified view displaying all 14 conditions in the exact same format.
 /// - Checkboxes for conditions:
 ///   - 6 available conditions (Triage, KMC, Respiratory Distress, ANCS, Hypoglycemia, ROP)
-///     have active checkboxes
-///     and can be selected.
+///     have active checkboxes and can be selected.
 ///   - 8 inactive conditions look normal as well, but their checkboxes are disabled
 ///     and they are not selectable.
 /// - Live selection counter showing how many conditions have been selected.
 /// - Continue button to proceed to the next page (/disease-selection) with the selected conditions.
 /// - Direct PDF reference button for the active conditions.
-class ConditionSelectionScreen extends ConsumerWidget {
+/// - Automatic screening reset: any previous screening data is cleared when returning here.
+class ConditionSelectionScreen extends ConsumerStatefulWidget {
   const ConditionSelectionScreen({super.key});
+
+  @override
+  ConsumerState<ConditionSelectionScreen> createState() =>
+      _ConditionSelectionScreenState();
+}
+
+class _ConditionSelectionScreenState
+    extends ConsumerState<ConditionSelectionScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _autoResetScreeningIfReturning();
+    });
+  }
+
+  void _autoResetScreeningIfReturning() {
+    // When returning to the condition selection screen, automatically clear all
+    // previous screening answers, selected options, findings, results, assessment
+    // states, and temporary screening data so a new screening starts from a clean state.
+    if (hasConditionProgress(ref) ||
+        ref.read(assessmentProvider).context.selected.isNotEmpty) {
+      resetAllScreeningData(ref);
+    }
+  }
 
   void _showDisclaimerSheet(BuildContext context) {
     showModalBottomSheet<void>(
@@ -112,7 +141,7 @@ class ConditionSelectionScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final selected = ref.watch(conditionSelectionProvider);
     final selectionNotifier = ref.read(conditionSelectionProvider.notifier);
 
@@ -236,8 +265,12 @@ class ConditionSelectionScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // 2. Single view of all 14 conditions with active ones at top (ROP, then RD)
-                for (final d in orderedConditions) ...[
+                const AvailableDiseaseCount(showListed: true),
+                const ScreeningHistoryCard(),
+                const SizedBox(height: 8),
+                for (final (index, d) in orderedConditions.indexed) ...[
                   _ConditionTile(
+                    number: index + 1,
                     definition: d,
                     isSelected: selected.contains(d.id),
                     onToggle: d.implemented
@@ -403,6 +436,7 @@ class ConditionSelectionScreen extends ConsumerWidget {
 /// and they cannot be selected.
 class _ConditionTile extends StatelessWidget {
   const _ConditionTile({
+    required this.number,
     required this.definition,
     required this.isSelected,
     required this.onToggle,
@@ -410,6 +444,7 @@ class _ConditionTile extends StatelessWidget {
   });
 
   final ConditionDefinition definition;
+  final int number;
   final bool isSelected;
   final VoidCallback? onToggle;
   final VoidCallback? onViewPdf;
@@ -499,6 +534,13 @@ class _ConditionTile extends StatelessWidget {
                   children: [
                     Row(
                       children: [
+                        Text('$number.',
+                            key: ValueKey('condition-index-${d.id.name}'),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primaryBlue)),
+                        const SizedBox(width: 5),
                         Expanded(
                           child: Text(
                             d.title,

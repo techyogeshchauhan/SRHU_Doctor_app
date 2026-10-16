@@ -34,7 +34,7 @@ A **wrong answer** (a box that does not answer the question) is a serious failur
 
 - [ ] **Expect:** Answer, box **Diagnostic Criteria: Respiratory Distress in Neonates** (RD STW)
 - Lines shown:
-  > Presence of ANY ONE: RR >60/min
+  > Presence of ANY ONE: RR ≥60/min
   > Presence of ANY ONE: Chest retractions
   > Presence of ANY ONE: Nasal ﬂaring
   > Presence of ANY ONE: Grunting
@@ -44,21 +44,21 @@ A **wrong answer** (a box that does not answer the question) is a serious failur
 - [ ] **Expect:** Patient case, box **Initial Respiratory Support for GA ≤34 Weeks (CPAP & Caffeine Citrate)** (RD STW)
 - [ ] "Read from your question: GA 30 weeks"
 - Lines shown:
-  > START CPAP CPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%
-  > Start caffeine citrate in neonates <34 weeks who require respiratory support
+  > START CPAP CPAP 5–6 cm H₂O; blended oxygen; titrate FiO₂ to SpO₂ 91–95%
+  > Caffeine citrate for babies <34 weeks requiring respiratory support, as per protocol
 
 **A3.** `Which preterm babies need caffeine citrate?`
 
 - [ ] **Expect:** Answer, box **Initial Respiratory Support for GA ≤34 Weeks (CPAP & Caffeine Citrate)** (RD STW)
 - Lines shown:
-  > START CPAP CPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%
-  > Start caffeine citrate in neonates <34 weeks who require respiratory support
+  > START CPAP CPAP 5–6 cm H₂O; blended oxygen; titrate FiO₂ to SpO₂ 91–95%
+  > Caffeine citrate for babies <34 weeks requiring respiratory support, as per protocol
 
 **A4.** `When is surfactant indicated?`
 
 - [ ] **Expect:** Answer, box **Surfactant Therapy Indication & Thresholds** (RD STW)
 - Lines shown:
-  > SURFACTANT <34 weeks on CPAP needing PEEP >6 cm H₂O AND FiO₂ >0.30 to keep SpO₂ between 91-95%
+  > EARLY RESCUE SURFACTANT: suspected worsening RDS in a preterm neonate <34 weeks AND FiO₂ >0.30 on CPAP ≥6 cm H₂O to maintain SpO₂ 91–95%. Give promptly when indicated—before established CPAP failure.
 
 **A5.** `What defines CPAP failure?`
 
@@ -70,7 +70,7 @@ A **wrong answer** (a box that does not answer the question) is a serious failur
 
 - [ ] **Expect:** Answer, box **Outcome Improving: CPAP and Oxygen Weaning Protocol** (RD STW)
 - Lines shown:
-  > Wean FiO₂ ﬁrst to 0.21, then reduce CPAP in 1 cm H₂O steps to 4–5 cm H₂O and stop when stable; continue SpO₂ monitoring for 24 h after stopping
+  > Comfortable breathing; no significant apnoea; low oxygen requirement. Reduce FiO₂, then CPAP as per protocol. Trial off when stable on CPAP 5 cm H₂O and FiO₂ 0.21–0.25. Monitor SpO₂ for 24 h after stopping.
 
 **A7.** `How is the Silverman Andersen score graded?`
 
@@ -240,14 +240,14 @@ A **wrong answer** (a box that does not answer the question) is a serious failur
 
 - [ ] **Expect:** Answer, box **Initial Respiratory Support for GA ≤34 Weeks (CPAP & Caffeine Citrate)** (RD STW)
 - Lines shown:
-  > START CPAP CPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%
-  > Start caffeine citrate in neonates <34 weeks who require respiratory support
+  > START CPAP CPAP 5–6 cm H₂O; blended oxygen; titrate FiO₂ to SpO₂ 91–95%
+  > Caffeine citrate for babies <34 weeks requiring respiratory support, as per protocol
 
 **F2.** `Surfactant kab dena chahiye?`
 
 - [ ] **Expect:** Answer, box **Surfactant Therapy Indication & Thresholds** (RD STW)
 - Lines shown:
-  > SURFACTANT <34 weeks on CPAP needing PEEP >6 cm H₂O AND FiO₂ >0.30 to keep SpO₂ between 91-95%
+  > EARLY RESCUE SURFACTANT: suspected worsening RDS in a preterm neonate <34 weeks AND FiO₂ >0.30 on CPAP ≥6 cm H₂O to maintain SpO₂ 91–95%. Give promptly when indicated—before established CPAP failure.
 
 **F3.** `ROP screening kab band kar sakte hain?`
 
@@ -476,15 +476,15 @@ Check that **"Read from your question"** shows the values you typed, and that **
 - [ ] **Expect:** Patient case, box **Initial Support for GA >34 Weeks with Moderate-to-Severe Distress (SAS ≥4)** (RD STW)
 - [ ] "Read from your question: GA 37 weeks · SAS 6 (Moderate–severe)"
 - Lines shown:
-  > START CPAP CPAP 5–6 cm H₂O; use blended O₂ and titrate FiO₂ to maintain SpO₂ 91–95%
-  > Start caffeine citrate in neonates <34 weeks who require respiratory support
+  > START CPAP CPAP 5–6 cm H₂O; blended oxygen; titrate FiO₂ to SpO₂ 91–95%
+  > Caffeine citrate for babies <34 weeks requiring respiratory support, as per protocol
 
 **H15.** `29 weeks on CPAP with PEEP 7 and FiO2 0.40`
 
 - [ ] **Expect:** Patient case, box **Surfactant Therapy Indication & Thresholds** (RD STW)
 - [ ] "Read from your question: GA 29 weeks · PEEP 7 cm H₂O · FiO₂ 40%"
 - Lines shown:
-  > SURFACTANT <34 weeks on CPAP needing PEEP >6 cm H₂O AND FiO₂ >0.30 to keep SpO₂ between 91-95%
+  > EARLY RESCUE SURFACTANT: suspected worsening RDS in a preterm neonate <34 weeks AND FiO₂ >0.30 on CPAP ≥6 cm H₂O to maintain SpO₂ 91–95%. Give promptly when indicated—before established CPAP failure.
 
 **H16.** `Baby born at 30 weeks, 1400 g — ROP screening needed?`
 

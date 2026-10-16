@@ -45,7 +45,9 @@ CaseRoute? routeCase(QueryAnalysis a) {
   if (!e.hasPatientValue && !e.glucoseLow) return null;
   // Triage and KMC answers are retrieved from their own PDF regions. Avoid
   // routing their numeric wording through another disease's rule engine.
-  if (a.topics.contains(StwTopic.triage) || a.topics.contains(StwTopic.kmc)) {
+  if (a.topics.contains(StwTopic.triage) ||
+      a.topics.contains(StwTopic.kmc) ||
+      a.topics.contains(StwTopic.sepsis)) {
     return null;
   }
   if (a.topics.contains(StwTopic.hypo)) {
@@ -187,7 +189,8 @@ CaseRoute? _ancs(QueryAnalysis a) {
     return CaseAnswer(
       'ancs_when_not_to_give',
       _join([
-        if (e.gaWeeks != null && e.gaComparator == null) 'GA ${e.gaWeeks} weeks',
+        if (e.gaWeeks != null && e.gaComparator == null)
+          'GA ${e.gaWeeks} weeks',
         'clinical chorioamnionitis / systemic infection',
       ]),
       focus: const {'chorioamnionitis'},
@@ -209,8 +212,7 @@ CaseRoute? _ancs(QueryAnalysis a) {
       return CaseAnswer('ancs_when_to_give', inputs);
     }
     if (e.daysSincePreviousCourse != null) {
-      return CaseAnswer('ancs_repeat_course', inputs,
-          focus: const {'7 days'});
+      return CaseAnswer('ancs_repeat_course', inputs, focus: const {'7 days'});
     }
     // In the window: the decision needs all five criteria.
     return CaseAnswer('ancs_eligibility', inputs);
@@ -251,7 +253,12 @@ CaseRoute? _rd(QueryAnalysis a) {
   if (e.peep != null && e.fio2Percent != null) {
     return CaseAnswer(
       'rd_surfactant_indication',
-      _join([ga, 'PEEP ${e.peep} cm H₂O', 'FiO₂ ${e.fio2Percent!.round()}%']),
+      _join([
+        ga,
+        'PEEP ${e.peep} cm H₂O',
+        'FiO₂ ${e.fio2Percent!.round()}%',
+        'Eligibility requires suspected worsening RDS, confirmed GA <34 weeks, CPAP ≥6 cm H₂O and FiO₂ >0.30; values alone do not establish the indication'
+      ]),
     );
   }
   if (band == null) return null;
@@ -277,11 +284,11 @@ CaseRoute? _rd(QueryAnalysis a) {
   }
   if (band == GaBand.upTo34 &&
       (a.intents.contains(QueryIntent.management) ||
-          RegExp(r'grunt|distress|retraction|flaring').hasMatch(a.normalized))) {
+          RegExp(r'grunt|distress|retraction|flaring')
+              .hasMatch(a.normalized))) {
     return CaseAnswer('rd_initial_preterm_cpap_caffeine', ga ?? '');
   }
-  if (band == GaBand.above34 &&
-      a.intents.contains(QueryIntent.management)) {
+  if (band == GaBand.above34 && a.intents.contains(QueryIntent.management)) {
     return const CaseAsk(
       'For GA >34 weeks the STW decides by the Silverman-Andersen score. '
       'What is the SAS (0–10)?',

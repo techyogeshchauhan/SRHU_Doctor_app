@@ -192,6 +192,18 @@ class ReferencesScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
+              _PdfWorkflowCard(
+                title: sepsisPdfTitle,
+                subtitle:
+                    'Standard Treatment Workflow · ICD-10-P36 · ICMR / DHR · August 2026',
+                accentColor: AppTheme.primaryTeal,
+                semanticsLabel: 'Open Sepsis STW PDF',
+                mapFocus: 'sepsis',
+                onViewPdf: () => _openPdf(context,
+                    assetPath: sepsisPdfAsset, title: sepsisPdfTitle),
+              ),
+              const SizedBox(height: 20),
+
               // Sources cited in the STWs
               Card(
                 child: Padding(

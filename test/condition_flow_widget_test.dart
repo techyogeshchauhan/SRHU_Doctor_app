@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
+import 'package:neonatal_stw/core/theme.dart';
 import 'package:neonatal_stw/core/widgets/back_to_home_button.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
+import 'package:neonatal_stw/features/disease_selection/ui/disease_selection_screen.dart';
 
 import 'test_helpers.dart';
 
@@ -49,6 +51,23 @@ void main() {
 
     // 4. Exactly 14 checkboxes for all 14 conditions in a single view
     expect(find.byType(Checkbox), findsNWidgets(14));
+    final displayed = [
+      definitionOf(NeonatalCondition.rop),
+      definitionOf(NeonatalCondition.respiratoryDistress),
+      ...conditionDefinitions.where((d) =>
+          d.implemented &&
+          d.id != NeonatalCondition.rop &&
+          d.id != NeonatalCondition.respiratoryDistress),
+      ...conditionDefinitions.where((d) => !d.implemented),
+    ];
+    for (final (index, disease) in displayed.indexed) {
+      expect(
+          tester
+              .widget<Text>(
+                  find.byKey(ValueKey('condition-index-${disease.id.name}')))
+              .data,
+          '${index + 1}.');
+    }
 
     // 5. Active conditions are at the top
     final ropFinder = find.text('STW ROP');
@@ -56,17 +75,17 @@ void main() {
     expect(ropFinder, findsOneWidget);
     expect(rdFinder, findsOneWidget);
 
-    // 6. Uniform status badges: 6 available, 8 awaiting STW
-    expect(find.text('Available'), findsNWidgets(6));
-    expect(find.text('Awaiting STW'), findsNWidgets(8));
+    // 6. Uniform status badges: 7 available, 7 awaiting STW
+    expect(find.text('Available'), findsNWidgets(7));
+    expect(find.text('Awaiting STW'), findsNWidgets(7));
 
     // Verify all 14 condition titles are present
     for (final d in conditionDefinitions) {
       expect(find.text(d.title), findsOneWidget);
     }
 
-    // 7. Inactive condition (e.g. Sepsis) cannot be selected
-    await tester.tap(find.text('STW Sepsis'), warnIfMissed: false);
+    // 7. Inactive condition (e.g. Jaundice) cannot be selected
+    await tester.tap(find.text('STW Jaundice'), warnIfMissed: false);
     await tester.pumpAndSettle();
     expect(find.textContaining('Selected:'), findsNothing);
     expect(find.text('1'), findsNothing);
@@ -97,7 +116,8 @@ void main() {
     expect(find.text('1'), findsOneWidget);
 
     // Tap Continue to proceed to next page
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+    await tapVisible(
+        tester, find.widgetWithText(FilledButton, 'Continue').first);
 
     // Next page header keeps ONLY the ICMR logo (no 'Based on ICMR / DHR...' text)
     expect(
@@ -111,6 +131,12 @@ void main() {
     expect(find.text('Retinopathy of Prematurity'), findsNothing);
     expect(find.text('Combined Assessment (RD + ROP)'), findsNothing);
     expect(find.text('Reference'), findsOneWidget);
+    expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('disease-card-index-1')))
+            .data,
+        '1.');
+    expect(find.byKey(const ValueKey('disease-card-index-2')), findsNothing);
 
     // Tapping Reference button directly opens Respiratory Distress PDF
     await tapVisible(tester, find.text('Reference'));
@@ -129,7 +155,8 @@ void main() {
     expect(find.text('2'), findsOneWidget);
 
     // Tap Continue to proceed to next page
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+    await tapVisible(
+        tester, find.widgetWithText(FilledButton, 'Continue').first);
 
     // Next page displays both conditions properly without Combined Assessment
     expect(find.text('Available Clinical Workflows'), findsOneWidget);
@@ -137,6 +164,16 @@ void main() {
     expect(find.text('Respiratory Distress in Neonates'), findsOneWidget);
     expect(find.text('Combined Assessment (RD + ROP)'), findsNothing);
     expect(find.text('Reference'), findsNWidgets(2));
+    expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('disease-card-index-1')))
+            .data,
+        '1.');
+    expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('disease-card-index-2')))
+            .data,
+        '2.');
 
     // Tap ROP Reference button (first Reference button) opens ROP PDF
     await tapVisible(tester, find.text('Reference').first);
@@ -151,7 +188,8 @@ void main() {
 
     // Select a condition and navigate to disease selection
     await tapVisible(tester, find.text('STW Respiratory Distress'));
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+    await tapVisible(
+        tester, find.widgetWithText(FilledButton, 'Continue').first);
     expect(find.text('Available Clinical Workflows'), findsOneWidget);
 
     // Tap "Back to Home"
@@ -169,6 +207,30 @@ void main() {
   });
 
   testWidgets(
+      'all available disease cards are consecutively numbered on narrow screens',
+      (tester) async {
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    for (final width in [320.0, 360.0]) {
+      tester.view.physicalSize = Size(width, 800);
+      await tester.pumpWidget(ProviderScope(
+          child: MaterialApp(
+              theme: AppTheme.light(), home: const DiseaseSelectionScreen())));
+      await tester.pumpAndSettle();
+      for (var number = 1; number <= availableDiseaseCount; number++) {
+        expect(
+            tester
+                .widget<Text>(
+                    find.byKey(ValueKey('disease-card-index-$number')))
+                .data,
+            '$number.');
+      }
+      expect(tester.takeException(), isNull);
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets(
       'Clicking a selectable disease card starts screening process, and Back to Selection returns to selected diseases',
       (tester) async {
     await _pumpToSelection(tester);
@@ -176,7 +238,8 @@ void main() {
     // Select both RD and ROP, navigate to disease selection
     await tapVisible(tester, find.text('STW Respiratory Distress'));
     await tapVisible(tester, find.text('STW ROP'));
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+    await tapVisible(
+        tester, find.widgetWithText(FilledButton, 'Continue').first);
 
     // On Available Clinical Workflows page
     expect(find.text('Available Clinical Workflows'), findsOneWidget);

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../data/repositories/screening_sync_repository.dart';
 import '../../features/clinical_workflow/state/assessment_controller.dart';
+import '../../features/condition_selection/state/condition_selection_controller.dart';
 import '../../features/follow_up/domain/follow_up_models.dart';
 import '../../features/follow_up/state/follow_up_controller.dart';
 import '../../features/rd/state/rd_controller.dart';
@@ -12,7 +13,7 @@ import '../../shared/baby_context.dart';
 import '../theme.dart';
 
 /// Checks if any screening or assessment progress exists for the opened condition.
-bool hasConditionProgress(WidgetRef ref) {
+bool hasConditionProgress(dynamic ref) {
   // 1. Dynamic clinical assessment engine
   final assess = ref.read(assessmentProvider);
   if (assess.context.answers.isNotEmpty ||
@@ -67,7 +68,10 @@ bool hasConditionProgress(WidgetRef ref) {
       rd.shock ||
       rd.deterioration ||
       rd.persistentHypoxemia ||
-      rd.sepsisTriggers.isNotEmpty ||
+      rd.initialSpo2 != null ||
+      rd.emergency ||
+      rd.suspectedWorseningRds ||
+      rd.stableOrReducingSupport ||
       rd.sasHistory.isNotEmpty) {
     return true;
   }
@@ -82,7 +86,7 @@ bool hasConditionProgress(WidgetRef ref) {
 }
 
 /// Clears all screening, assessment, and MCQ data for this condition.
-void clearConditionData(WidgetRef ref) {
+void clearConditionData(dynamic ref, {bool clearSelections = false}) {
   // Goal B: Mark in-progress screenings as abandoned in database rather than
   // deleting, and close the session.
   ref.read(screeningSyncRepositoryProvider).endAssessmentSession();
@@ -91,6 +95,14 @@ void clearConditionData(WidgetRef ref) {
   ref.read(ropProvider.notifier).reset();
   ref.read(rdProvider.notifier).reset();
   ref.read(babyProvider.notifier).clear();
+  if (clearSelections) {
+    ref.read(conditionSelectionProvider.notifier).clear();
+  }
+}
+
+/// Fully resets all screening data, assessment state, findings, and selected conditions.
+void resetAllScreeningData(dynamic ref) {
+  clearConditionData(ref, clearSelections: true);
 }
 
 /// Confirmation message mandated by Section 6:

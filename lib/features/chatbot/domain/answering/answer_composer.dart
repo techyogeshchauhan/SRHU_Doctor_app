@@ -6,16 +6,67 @@ import '../models/stw_chunk.dart';
 import '../understanding/query_analyzer.dart';
 
 const _ignore = {
-  'what', 'which', 'when', 'how', 'why', 'who', 'whom', 'is', 'are', 'the',
-  'a', 'an', 'of', 'in', 'on', 'for', 'to', 'and', 'or', 'be', 'should',
-  'can', 'do', 'does', 'did', 'with', 'baby', 'newborn', 'neonate',
-  'neonates', 'babies', 'newborns', 'stw', 'rop', 'acs', 'rd', 'give',
-  'given', 'it', 'this', 'that', 'there', 'any', 'my', 'we', 'i', 'after',
-  'before', 'about', 'need', 'needed', 'mean', 'means', 'per',
+  'what',
+  'which',
+  'when',
+  'how',
+  'why',
+  'who',
+  'whom',
+  'is',
+  'are',
+  'the',
+  'a',
+  'an',
+  'of',
+  'in',
+  'on',
+  'for',
+  'to',
+  'and',
+  'or',
+  'be',
+  'should',
+  'can',
+  'do',
+  'does',
+  'did',
+  'with',
+  'baby',
+  'newborn',
+  'neonate',
+  'neonates',
+  'babies',
+  'newborns',
+  'stw',
+  'rop',
+  'acs',
+  'rd',
+  'give',
+  'given',
+  'it',
+  'this',
+  'that',
+  'there',
+  'any',
+  'my',
+  'we',
+  'i',
+  'after',
+  'before',
+  'about',
+  'need',
+  'needed',
+  'mean',
+  'means',
+  'per',
 };
 
 Iterable<String> _words(String s) => RegExp(r"[a-z0-9]+(?:[./+-][a-z0-9]+)*")
-    .allMatches(s.toLowerCase().replaceAll('₂', '2').replaceAll('ﬁ', 'fi')
+    .allMatches(s
+        .toLowerCase()
+        .replaceAll('₂', '2')
+        .replaceAll('ﬁ', 'fi')
         .replaceAll('ﬂ', 'fl'))
     .map((m) => m.group(0)!);
 
@@ -42,12 +93,34 @@ List<StwSegment> composeAnswer(
       if (!s.header) s,
   ];
   if (segs.isEmpty) return [StwSegment(region.text)];
-  if (segs.length <= 2 && focus.isEmpty) return segs;
+  if (region.chunkId.startsWith('sepsis_') ||
+      const {
+        'rd_surfactant_indication',
+        'rd_reassessment_sepsis',
+        'rd_outcome_improving_weaning',
+        'rd_outcome_not_improving_optimize_cpap',
+        'rd_cpap_failure_referral',
+      }.contains(region.chunkId)) {
+    return segs;
+  }
 
   final queryWords = {
     for (final w in _words(a.normalized))
       if (!_ignore.contains(w)) w,
   };
+  // A broad card can mention multiple therapies. A population / age match
+  // alone must not add a different therapy's sentence to a focused answer.
+  const therapyTerms = {
+    'cpap',
+    'caffeine',
+    'surfactant',
+    'hydrocortisone',
+    'dexamethasone',
+    'betamethasone',
+    'laser',
+    'vegf',
+  };
+  final askedTherapies = queryWords.intersection(therapyTerms);
 
   double score(StwSegment s) {
     final segWords = _words(s.display).toSet();
@@ -61,11 +134,17 @@ List<StwSegment> composeAnswer(
     if (a.intents.contains(QueryIntent.dose) && _doseCue.hasMatch(s.text)) {
       sc += 1.5;
     }
-    if (a.negated && RegExp(r'\bnot\b', caseSensitive: false).hasMatch(s.text)) {
+    if (a.negated &&
+        RegExp(r'\bnot\b', caseSensitive: false).hasMatch(s.text)) {
       sc += 1;
     }
     for (final abbr in a.abbreviationCandidates) {
       if (s.text.toLowerCase().startsWith('$abbr:')) sc += 6;
+    }
+    if (focus.isEmpty &&
+        askedTherapies.isNotEmpty &&
+        !askedTherapies.any((word) => _matches(word, segWords))) {
+      sc *= 0.25;
     }
     return sc;
   }

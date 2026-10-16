@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme.dart';
+import '../../../content/stw_content.dart';
 import '../../../core/widgets/layout.dart';
 import '../domain/rd_rules.dart';
 
@@ -15,12 +16,15 @@ String initialTitle(RdInitialResult r) {
     RespSupport.cpap => 'START CPAP 5–6 cm H₂O'
         '${p.caffeine == CaffeineAdvice.indicated ? ' + caffeine' : ''}',
     RespSupport.nasalO2 => 'Nasal-prong O₂ 0.5–1 L/min',
-    RespSupport.none => 'No respiratory support',
+    RespSupport.none => 'Mild RD: monitor; oxygen only if SpO₂ <91%',
   };
 }
 
-Tone initialTone(RdInitialResult r) =>
-    r.plan == null ? Tone.info : Tone.warning;
+Tone initialTone(RdInitialResult r) => r.emergency
+    ? Tone.danger
+    : r.plan == null
+        ? Tone.info
+        : Tone.warning;
 
 class RdPlanView extends StatelessWidget {
   const RdPlanView({super.key, required this.result});
@@ -32,10 +36,12 @@ class RdPlanView extends StatelessWidget {
     final p = result.plan;
     if (p == null) {
       return ResultCard(
-        tone: Tone.info,
-        badge: 'Status',
-        title: 'Recommendation pending',
-        actions: [result.pending!],
+        tone: result.emergency ? Tone.danger : Tone.info,
+        badge: result.emergency ? 'Urgent' : 'Status',
+        title: result.emergency
+            ? 'Stabilize immediately; ventilate when indicated'
+            : 'Recommendation pending',
+        actions: [result.pending!, if (result.emergency) ...rdImmediateActions],
       );
     }
     return Column(
@@ -46,13 +52,7 @@ class RdPlanView extends StatelessWidget {
           tone: Tone.info,
           badge: 'Immediate actions',
           title: 'Immediate actions (TABC & stabilization)',
-          actions: [
-            'Assess and stabilize TABC (temperature, airway, breathing, circulation)',
-            'Admit to SNCU/NICU',
-            'Provide thermal care',
-            'Attach pulse oximeter',
-            'Monitor HR, RR, SpO₂ and CRT; grade severity using SAS',
-          ],
+          actions: rdImmediateActions,
         ),
 
         // 2. Respiratory support
@@ -63,8 +63,7 @@ class RdPlanView extends StatelessWidget {
           actions: [
             ...p.supportActions,
             p.caffeine.text,
-            'Reassess frequently: clinical status, SAS, SpO₂, FiO₂ '
-                'requirement (Reassess tab).',
+            ...rdMonitoringActions,
           ],
           why: p.why,
         ),
@@ -86,8 +85,8 @@ class RdPlanView extends StatelessWidget {
           actions: [
             'Assess severity using SAS and monitor SpO₂ continuously.',
             'Maintain SpO₂ 91%–95%.',
-            'Start CPAP within 30 minutes.',
-            'Administer surfactant within 2 hours.',
+            'Start CPAP within 30 min of identification of indication.',
+            'Give early rescue surfactant promptly when indicated.',
           ],
         ),
 
@@ -110,6 +109,7 @@ class RdPlanView extends StatelessWidget {
 Tone reassessTone(ReassessStatus s) => switch (s) {
       ReassessStatus.incomplete => Tone.info,
       ReassessStatus.cpapFailure => Tone.danger,
+      ReassessStatus.emergency => Tone.danger,
       ReassessStatus.surfactant => Tone.treat,
       ReassessStatus.notImproving => Tone.warning,
       ReassessStatus.improving => Tone.success,

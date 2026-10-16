@@ -1,4 +1,4 @@
-/// Static text reproduced from the two STW documents (Aug 2026).
+/// Static text and metadata reproduced from the bundled STW documents.
 library;
 
 class RefSection {
@@ -23,7 +23,7 @@ class BundledStw {
   const BundledStw(this.title, this.code, this.version, this.appliesTo);
   final String title;
 
-  /// ICD-11 code printed on the PDF; null when the PDF gives none.
+  /// ICD code printed on the PDF; null when the PDF gives none.
   final String? code;
   final String version;
 
@@ -32,14 +32,15 @@ class BundledStw {
 }
 
 const bundledStws = [
-  BundledStw('Respiratory Distress in Neonates', 'ICD-11 KB23',
-      'August 2026', 'newborn'),
-  BundledStw('Retinopathy of Prematurity (ROP)', 'ICD-11 9B71.3',
-      'August 2026', 'newborn'),
-  BundledStw('Antenatal Corticosteroids for Preterm Birth', null,
-      'August 2026', 'pregnant woman at risk of preterm birth'),
-  BundledStw('Neonatal Hypoglycemia', 'ICD-11 KB60.4', 'August 2026',
+  BundledStw('Sepsis in Neonates', 'ICD-10-P36', 'August 2026', 'newborn'),
+  BundledStw('Respiratory Distress in Neonates', 'ICD-11 KB23', 'August 2026',
       'newborn'),
+  BundledStw('Retinopathy of Prematurity (ROP)', 'ICD-11 9B71.3', 'August 2026',
+      'newborn'),
+  BundledStw('Antenatal Corticosteroids for Preterm Birth', null, 'August 2026',
+      'pregnant woman at risk of preterm birth'),
+  BundledStw(
+      'Neonatal Hypoglycemia', 'ICD-11 KB60.4', 'August 2026', 'newborn'),
   BundledStw('Neonatal Emergency Triage Assessment and Management', null,
       'July 2020', 'newborn'),
   BundledStw('Kangaroo Mother Care', null, 'August 2026',
@@ -69,76 +70,103 @@ const stwDisclaimer =
 // ---------------------------------------------------------------------------
 
 const rdImmediateActions = [
-  'Assess and stabilize TABC (temperature, airway, breathing, circulation)',
-  'Admit to SNCU/NICU',
-  'Provide thermal care',
-  'Attach pulse oximeter',
-  'Monitor HR, RR, SpO₂ and CRT; grade severity using SAS',
-  'Feed enterally if stable: direct breastfeed if mild distress; '
-      'gastric-tube feeds if moderate distress, or on CPAP',
-  'IV fluids if severe distress, recurrent apnea, poor perfusion, '
-      'or abdominal signs',
+    "Apnoea/gasping, poor effort or shock: Stabilize immediately; ventilate when indicated",
+    "Maintain TABC; provide warmth; admit to SNCU/NICU",
+    "Attach pulse oximeter; monitor HR, RR, SpO₂ and CRT; assess SAS",
+    "Feed when stable: breastfeed if mild RD; OG feeds when appropriate on CPAP; decompress stomach",
+    "Withhold feeds; give IV fluids for severe RD, recurrent apnoea, poor perfusion or abdominal concerns",
 ];
 
 const rdReference = [
-  RefSection('DOs', [
-    'Assess severity using SAS and monitor SpO₂ continuously.',
-    'Maintain SpO₂ 91%–95%.',
-    'Start CPAP within 30 minutes.',
-    'Administer surfactant within 2 hours.',
-  ]),
-  RefSection('DON’Ts', [
-    'DO NOT give unmonitored supplemental oxygen.',
-    'DO NOT perform routine CBC, CRP, Chest X-ray or blood gas in '
-        'uncomplicated mild RD.',
-    'DO NOT give IV fluids, antibiotics, or blood products routinely.',
-    'DO NOT delay mechanical ventilation or referral in case of CPAP failure.',
-  ], isDont: true),
-  RefSection('Algorithm summary', [
-    'GA ≤34 weeks, any RD → START CPAP 5–6 cm H₂O; blended O₂, titrate FiO₂ '
-        'to SpO₂ 91–95%. Caffeine citrate if <34 weeks on respiratory support.',
-    'GA >34 weeks, moderate–severe RD (SAS ≥4) → START CPAP.',
-    'GA >34 weeks, mild RD (SAS ≤3) → nasal-prong oxygen 0.5–1 L/min, '
-        'titrate to SpO₂ 91–95%.',
-    'If GA is uncertain, BW ≤1800 g may be used as an operational surrogate.',
-    'Reassess frequently: clinical status, SAS, SpO₂, FiO₂ requirement.',
-    'Surfactant: <34 weeks on CPAP needing PEEP >6 cm H₂O AND FiO₂ >0.30 '
-        'to keep SpO₂ 91–95%.',
-    'Improving → wean FiO₂ first to 0.21, then reduce CPAP in 1 cm H₂O steps '
-        'to 4–5 cm H₂O and stop when stable; monitor SpO₂ for 24 h after.',
-    'Not improving → optimise CPAP: PEEP stepwise up to 7–8 cm H₂O, titrate '
-        'FiO₂, look for/treat cause, consider surfactant.',
-    'CPAP failure (persistent hypoxemia/high FiO₂, recurrent apnea, shock or '
-        'fatigue) → refer urgently.',
-  ]),
-  RefSection('Key performance indicators (target >90%)', [
-    'Timely CPAP initiation (%) = neonates ≤34 weeks with RD started on CPAP '
-        'within 30 min of diagnosis or admission ÷ neonates ≤34 weeks '
-        'diagnosed with RD × 100.',
-    'SpO₂ target compliance (%) = neonates on supplemental O₂ or CPAP with '
-        'continuous pulse oximetry and SpO₂ in target range ÷ neonates '
-        'receiving supplemental O₂ or CPAP × 100.',
-  ]),
-  RefSection('Abbreviations', [
-    'BW: Birth Weight · CRT: Capillary Refill Time · CPAP: Continuous '
-        'Positive Airway Pressure · GA: Gestational Age · IV: Intravenous · '
-        'SpO₂: Peripheral Oxygen Saturation · RD: Respiratory Distress · '
-        'FiO₂: Fraction of Inspired Oxygen · RR: Respiratory Rate · '
-        'PEEP: Positive End-Expiratory Pressure · SAS: Silverman-Andersen Score',
-  ]),
-  RefSection('References', [
-    'Oxygen therapy in neonates, and Surfactant Replacement therapy in '
-        'neonates. Evidence-based Clinical Practice Guidelines. National '
-        'Neonatology Forum India. www.nnfi.org/cpg',
-  ]),
+  RefSection("DOs", [
+    "Assess severity using SAS; monitor SpO₂ continuously",
+    "Maintain SpO₂ 91–95%",
+    "Start CPAP within 30 min of identification of indication",
+    "Give early rescue surfactant promptly when indicated",
+]),
+  RefSection("DON’Ts", [
+    "Do NOT give unmonitored supplemental oxygen",
+    "Do NOT order routine CBC/CRP, chest X-ray or blood gas in uncomplicated mild RD",
+    "Do NOT give IV fluids, antibiotics or blood products routinely",
+    "Do NOT delay ventilation or referral when CPAP fails",
+], isDont: true),
+  RefSection("ALGORITHM", [
+    "ASSESS GESTATIONAL AGE (GA)* + SILVERMAN–ANDERSEN SCORE (SAS)",
+    "*If GA is uncertain, BW ≤1800 g may be used as an operational surrogate",
+    "GA ≤34 weeks Any respiratory distress",
+    "GA >34 weeks Moderate–severe RD (SAS ≥4)",
+    "GA >34 weeks Mild RD (SAS ≤3)",
+]),
+  RefSection("START CPAP", [
+    "CPAP 5–6 cm H₂O; blended oxygen; titrate FiO₂ to SpO₂ 91–95%",
+    "Caffeine citrate for babies <34 weeks requiring respiratory support, as per protocol",
+]),
+  RefSection("NASAL PRONGS OXYGEN", [
+    "If SpO₂ <91%: 0.5–1 L/min; Titrate to SpO₂ 91–95%",
+]),
+  RefSection("MONITORING", [
+    "Monitor SpO₂ continuously while on oxygen/CPAP",
+    "Reassess clinical status, SAS and FiO₂ requirement within 15–30 min of starting/changing support",
+    "Reassess at least 1 hourly while on respiratory support; immediately if any worsening",
+]),
+  RefSection("IMPROVING", [
+    "Decreasing SAS; SpO₂ 91–95% on stable/reducing support; Comfortable breathing",
+]),
+  RefSection("NOT IMPROVING / WORSENING", [
+    "Persisting/increasing SAS",
+    "SpO₂ <91% or rising oxygen need",
+    "Recurrent apnoea/bradycardia",
+    "Consider sepsis (Refer to sepsis STW)",
+]),
+  RefSection("EARLY RESCUE SURFACTANT", [
+    "Suspected worsening RDS in a preterm neonate <34 weeks, AND FiO₂ >0.30 on CPAP ≥6 cm H₂O to maintain SpO₂ 91–95%",
+    "Give promptly when indicated—before established CPAP failure",
+]),
+  RefSection("WEAN WHEN STABLE", [
+    "Comfortable breathing; no significant apnoea; low oxygen requirement",
+    "Reduce FiO₂, then CPAP as per protocol",
+    "Trial off when stable on CPAP 5 cm H₂O and FiO₂ 0.21–0.25",
+    "Monitor SpO₂ for 24 h after stopping",
+]),
+  RefSection("OPTIMIZE RESPIRATORY SUPPORT", [
+    "If on Nasal Prongs oxygen, rising oxygen need or distress: Start CPAP",
+    "Check prongs, circuit and delivered pressure",
+    "Increase CPAP up to 7–8 cm H₂O; Titrate FiO₂",
+    "Exclude pneumothorax (Transillumination, X-ray)",
+    "Consider surfactant",
+]),
+  RefSection("CPAP FAILURE — ESCALATE PROMPTLY", [
+    "Persistent hypoxaemia/rising FiO₂ despite optimized CPAP, recurrent apnoea, shock or fatigue",
+    "Escalate support; intubate/ventilate when indicated; stabilize and refer urgently",
+]),
+  RefSection("KEY PERFORMANCE INDICATORS (KPIs)", [
+    "Timely CPAP initiation (%)\nEligible neonates with RD started on CPAP within 30 min of identification\n÷ All neonates with RD meeting the STW criteria for CPAP\n× 100\nTarget >90%",
+    "Continuous pulse-oximetry coverage (%)\nNeonates receiving oxygen or CPAP with documented continuous pulse oximetry\n÷ All neonates receiving oxygen or CPAP\n× 100\nTarget >90%",
+]),
+  RefSection("ABBREVIATIONS", [
+    "BW: Birth weight",
+    "CPAP: Continuous positive airway pressure",
+    "CRT: Capillary refill time",
+    "GA: Gestational age",
+    "FiO₂: Fraction of inspired oxygen",
+    "PEEP: Positive end-expiratory pressure",
+    "RD: Respiratory distress",
+    "RR: Respiratory rate",
+    "SAS: Silverman–Andersen score",
+    "SpO₂: Peripheral oxygen saturation",
+    "TABC: Temperature, airway, breathing, circulation",
+]),
+  RefSection("REFERENCES", [
+    "1. National Neonatology Forum India. Oxygen Therapy in Neonates; Surfactant Replacement Therapy in Neonates. Evidence-based Clinical Practice Guidelines. nnfi.org/cpg.php",
+    "2. Sweet DG et al. European Consensus Guidelines on the Management of Respiratory Distress Syndrome: 2022 Update. Neonatology. 2023;120:3–23.",
+]),
 ];
 
 const rdRelatedLinks = [
-  RelatedLink('How to set up a bubble CPAP'),
-  RelatedLink('How to connect a ventilator CPAP'),
-  RelatedLink('How to fix binasal prongs'),
-  RelatedLink('Silverman-Andersen scoring'),
-  RelatedLink('Surfactant administration'),
+  RelatedLink("Bubble CPAP setup"),
+  RelatedLink("Fixing binasal prongs"),
+  RelatedLink("SAS scoring"),
+  RelatedLink("Surfactant administration"),
 ];
 
 // ---------------------------------------------------------------------------
@@ -235,12 +263,15 @@ const ropReference = [
     'Counsel the family regarding need for follow-up and risk of vision loss '
         'if screening is delayed.',
   ]),
-  RefSection('DON’Ts', [
-    'DO NOT discharge/transfer an at-risk neonate without a documented ROP '
-        'follow-up plan.',
-    'DO NOT delay referral/treatment when indicated.',
-    'DO NOT stop ROP follow-up without advice of ROP-trained ophthalmologist.',
-  ], isDont: true),
+  RefSection(
+      'DON’Ts',
+      [
+        'DO NOT discharge/transfer an at-risk neonate without a documented ROP '
+            'follow-up plan.',
+        'DO NOT delay referral/treatment when indicated.',
+        'DO NOT stop ROP follow-up without advice of ROP-trained ophthalmologist.',
+      ],
+      isDont: true),
   RefSection('Key performance indicators (target 95–100%)', [
     'ROP screening coverage (%) = eligible infants who received at least one '
         'ROP eye examination ÷ total eligible infants × 100.',

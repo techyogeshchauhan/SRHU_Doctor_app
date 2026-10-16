@@ -15,13 +15,15 @@ import '../models/stw_chunk.dart';
 import '../understanding/query_analyzer.dart';
 import 'answer_composer.dart';
 import 'case_router.dart';
+import 'sepsis_answers.dart';
 import 'stw_answer.dart';
 
-final _doseText = RegExp(
-    r'\d\s*(mg|ml|l/min|cm h|mg/kg|doses?)', caseSensitive: false);
+final _doseText =
+    RegExp(r'\d\s*(mg|ml|l/min|cm h|mg/kg|doses?)', caseSensitive: false);
+
 /// A time to act within (not a gestational age in weeks).
-final _timeText = RegExp(
-    r'\d\s*(-\s*\d+\s*)?(min\w*|hours?|h\b|days?)', caseSensitive: false);
+final _timeText = RegExp(r'\d\s*(-\s*\d+\s*)?(min\w*|hours?|h\b|days?)',
+    caseSensitive: false);
 
 bool _canAnswer(QueryAnalysis a, StwChunk c) {
   final text = c.segments.map((s) => s.text).join(' ');
@@ -57,7 +59,8 @@ StwChunk? _uniqueIntentBox(
   QueryAnalysis a,
   List<(StwChunk, double, double)> boxes,
 ) {
-  final asked = {for (final i in a.intents) i.name}.intersection(_singleBoxIntents);
+  final asked =
+      {for (final i in a.intents) i.name}.intersection(_singleBoxIntents);
   if (asked.length != 1) return null;
   final hits = [
     for (final b in boxes)
@@ -92,10 +95,34 @@ final _aboutCondition = RegExp(
 
 /// Population / setting words that never make a question out of scope.
 const _genericWords = {
-  'baby', 'babies', 'newborn', 'newborns', 'neonate', 'neonates', 'neonatal',
-  'infant', 'infants', 'woman', 'women', 'mother', 'mothers', 'pregnancy',
-  'pregnant', 'general', 'practice', 'india', 'hospital', 'facility',
-  'nicu', 'sncu', 'ward', 'labour', 'labor', 'case', 'cases', 'details',
+  'baby',
+  'babies',
+  'newborn',
+  'newborns',
+  'neonate',
+  'neonates',
+  'neonatal',
+  'infant',
+  'infants',
+  'woman',
+  'women',
+  'mother',
+  'mothers',
+  'pregnancy',
+  'pregnant',
+  'general',
+  'practice',
+  'india',
+  'hospital',
+  'facility',
+  'nicu',
+  'sncu',
+  'ward',
+  'labour',
+  'labor',
+  'case',
+  'cases',
+  'details',
 };
 
 /// Boxes with identical content (the GA ≤34 and GA >34 moderate–severe
@@ -131,7 +158,9 @@ class StwAnswerer {
       };
 
   bool _known(String w) {
-    if (w.contains('-')) return w.split('-').where((p) => p.isNotEmpty).every(_known);
+    if (w.contains('-')) {
+      return w.split('-').where((p) => p.isNotEmpty).every(_known);
+    }
     final v = _vocab();
     if (v.contains(w) || v.contains('${w}s')) return true;
     if (w.endsWith('s') && v.contains(w.substring(0, w.length - 1))) {
@@ -164,10 +193,55 @@ class StwAnswerer {
     if (_unknownCondition(a) != null) return StwAnswer.notCovered(a);
     final byId = {for (final c in retriever.chunks) c.chunkId: c};
 
-    final route = routeCase(a);
+    // This poster specifies local/unit antibiotic policy and LP indications;
+    // it supplies no drug doses or procedure technique.
+    if (a.topics.length == 1 &&
+        a.topics.contains(StwTopic.sepsis) &&
+        ((a.intents.contains(QueryIntent.dose) &&
+                !RegExp(r'when|before|within|how soon|timing|first dose')
+                    .hasMatch(a.normalized)) ||
+            RegExp(r'how to (perform|do|insert)|technique|ampicillin|gentamicin|cefotaxime|meropenem|vancomycin')
+                .hasMatch(a.normalized))) {
+      return StwAnswer.notCovered(a);
+    }
+
+    // Explicit RD section requests resolve to the revised poster's whole
+    // clinical statement, retaining its qualifying conditions.
+    if (a.topics.contains(StwTopic.rd) &&
+        a.topics.length == 1 &&
+        !a.intents.contains(QueryIntent.dose) &&
+        !a.intents.contains(QueryIntent.abbreviation) &&
+        !a.intents.contains(QueryIntent.kpi) &&
+        !a.intents.contains(QueryIntent.dos) &&
+        !a.intents.contains(QueryIntent.donts)) {
+      final n = a.normalized;
+      final nasal = RegExp(r'nasal.?prong|nasal oxygen').hasMatch(n);
+      final worsening =
+          RegExp(r'rising|worsen|not improv|increas|distress.*next')
+              .hasMatch(n);
+      final id = n.contains('surfactant') &&
+              !RegExp(r'administ|procedure|technique|how to give').hasMatch(n)
+          ? 'rd_surfactant_indication'
+          : nasal && worsening
+              ? 'rd_outcome_not_improving_optimize_cpap'
+              : nasal && RegExp(r'mild|indicat|start|when').hasMatch(n)
+                  ? 'rd_initial_term_mild_nasal_o2'
+                  : null;
+      final region = byId[id];
+      if (region != null) {
+        return StwAnswer.answer(
+            analysis: a, region: region, lines: composeAnswer(region, a));
+      }
+    }
+
+    final route = routeSepsisQuestion(a) ?? routeCase(a);
     switch (route) {
-      case CaseAnswer(:final regionId, :final inputs, :final focus,
-            :final reviewNote):
+      case CaseAnswer(
+          :final regionId,
+          :final inputs,
+          :final focus,
+          :final reviewNote
+        ):
         final region = byId[regionId];
         if (region != null) {
           return StwAnswer.answer(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,6 +7,9 @@ import '../../features/clinical_workflow/domain/clinical_finding.dart';
 import '../../features/clinical_workflow/domain/clinical_question.dart';
 import '../../features/condition_selection/domain/neonatal_condition.dart';
 import '../local/offline_queue.dart';
+import '../models/screening_timing.dart';
+
+export '../models/screening_timing.dart';
 
 /// Maps [NeonatalCondition] enum values to standardized database codes.
 String diseaseCodeOf(NeonatalCondition c) {
@@ -24,7 +29,6 @@ String diseaseCodeOf(NeonatalCondition c) {
   }
 }
 
-
 /// App version recorded with each session (set by scripts/build_*.ps1).
 const appVersion =
     String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0+1');
@@ -41,10 +45,48 @@ bool isSyncableQuestion(ClinicalQuestion q) =>
 /// create duplicate sessions/screenings and a screening is always queued
 /// before anything that refers to it.
 class ScreeningSyncRepository {
-  ScreeningSyncRepository({OfflineQueue? queue})
-      : _queue = queue ?? OfflineQueue.instance;
+  ScreeningSyncRepository({OfflineQueue? queue, DateTime Function()? now})
+      : _queue = queue ?? OfflineQueue.instance,
+        _now = now ?? DateTime.now {
+    _activeScreenings.addAll(_queue.getActiveScreenings());
+    for (final raw in _queue.getScreeningTimings()) {
+      final timing = ScreeningTiming.fromJson(raw);
+      _timings[timing.id] = timing;
+    }
+  }
 
   final OfflineQueue _queue;
+  final DateTime Function() _now;
+  final Map<String, String> _activeScreenings = {};
+  final Map<String, ScreeningTiming> _timings = {};
+  final _timingChanges = StreamController<List<ScreeningTiming>>.broadcast();
+  DateTime get currentTime => _now().toUtc();
+  DateTime _eventTime() =>
+      DateTime.fromMillisecondsSinceEpoch(_now().millisecondsSinceEpoch,
+          isUtc: true);
+
+  List<ScreeningTiming> get timings =>
+      List.unmodifiable(_timings.values.toList()
+        ..sort((a, b) => b.startedAt.compareTo(a.startedAt)));
+
+  List<ScreeningTiming> activeTimings(Set<String> codes) => [
+        for (final code in codes)
+          if (_timings[_activeScreenings[code]] case final timing?) timing,
+      ];
+
+  Stream<List<ScreeningTiming>> get watchTimings => Stream.multi((controller) {
+        final subscription = _timingChanges.stream.listen(controller.add);
+        controller.add(timings);
+        controller.onCancel = subscription.cancel;
+      });
+
+  Future<void> _saveTiming(ScreeningTiming timing) async {
+    _timings[timing.id] = timing;
+    await _queue.saveScreeningTiming(timing.toJson());
+    if (!_timingChanges.isClosed) _timingChanges.add(timings);
+  }
+
+  void dispose() => _timingChanges.close();
 
   Future<void> _tail = Future<void>.value();
 
@@ -93,8 +135,12 @@ class ScreeningSyncRepository {
   Future<void> endAssessmentSession() => _serial(_endSession);
 
   Future<void> _endSession() async {
-    final active = _queue.getActiveScreenings();
-    final completed = _queue.getCompletedScreenings();
+    final active = _activeScreenings;
+    final completed = {
+      ..._queue.getCompletedScreenings(),
+      for (final t in _timings.values)
+        if (t.isCompleted && active[t.diseaseCode] == t.id) t.diseaseCode,
+    };
     final allDone = active.keys.every(completed.contains);
     await _abandonActive();
     final sessionId = _queue.currentSessionId;
@@ -153,20 +199,27 @@ class ScreeningSyncRepository {
   }
 
   /// Starts or gets an existing screening ID for a specific disease code.
-  Future<String> startDiseaseScreening(String diseaseCode) =>
-      _serial(() => _screeningFor(diseaseCode));
+  Future<String> startDiseaseScreening(String diseaseCode) {
+    final startedAt = _eventTime();
+    return _serial(() => _screeningFor(diseaseCode, startedAt: startedAt));
+  }
 
-  Future<String> _screeningFor(String diseaseCode) async {
-    final active = _queue.getActiveScreenings();
+  Future<String> _screeningFor(String diseaseCode,
+      {DateTime? startedAt}) async {
+    final active = _activeScreenings;
     if (active.containsKey(diseaseCode)) {
       return active[diseaseCode]!;
     }
 
     final sessionId = await _ensureSession();
     final screeningId = _queue.generateUuid();
-    final now = DateTime.now().toUtc().toIso8601String();
+    final start = startedAt ?? _eventTime();
+    final now = start.toIso8601String();
 
     await _queue.setActiveScreening(diseaseCode, screeningId);
+    _activeScreenings[diseaseCode] = screeningId;
+    await _saveTiming(ScreeningTiming(
+        id: screeningId, diseaseCode: diseaseCode, startedAt: start));
     await _queue.enqueue(
       table: 'disease_screenings',
       action: 'upsert',
@@ -243,33 +296,40 @@ class ScreeningSyncRepository {
       });
 
   /// Marks a disease screening as completed.
-  Future<void> completeScreening(String diseaseCode) => _serial(() async {
-        final active = _queue.getActiveScreenings();
-        final screeningId = active[diseaseCode];
-        if (screeningId == null) return;
+  Future<void> completeScreening(String diseaseCode) {
+    final completedAt = _eventTime();
+    return _serial(() async {
+      final active = _activeScreenings;
+      final screeningId = active[diseaseCode];
+      if (screeningId == null) return;
 
-        final now = DateTime.now().toUtc().toIso8601String();
-        await _queue.markScreeningCompleted(diseaseCode);
-        await _queue.enqueue(
-          table: 'disease_screenings',
-          action: 'patch_status',
-          payload: {
-            'id': screeningId,
-            'progress_state': 'completed',
-            'completed_at': now,
-          },
-        );
+      final timing = _timings[screeningId];
+      if (timing?.isCompleted == true) return;
+      final finished = timing?.finish(completedAt);
+      if (finished != null) await _saveTiming(finished);
+      final now = (finished?.completedAt ?? completedAt).toIso8601String();
+      await _queue.markScreeningCompleted(diseaseCode);
+      await _queue.enqueue(
+        table: 'disease_screenings',
+        action: 'patch_status',
+        payload: {
+          'id': screeningId,
+          'progress_state': 'completed',
+          'completed_at': now,
+        },
+      );
 
-        // Every screening of this assessment done: the session is complete
-        // (it stays current, so follow-up MCQs and chats still belong to it).
-        final completed = _queue.getCompletedScreenings();
-        final sessionId = _queue.currentSessionId;
-        if (sessionId != null &&
-            !_queue.isSessionClosed &&
-            active.keys.every(completed.contains)) {
-          await _closeSession(sessionId, 'completed');
-        }
-      });
+      // Every screening of this assessment done: the session is complete
+      // (it stays current, so follow-up MCQs and chats still belong to it).
+      final completed = _queue.getCompletedScreenings();
+      final sessionId = _queue.currentSessionId;
+      if (sessionId != null &&
+          !_queue.isSessionClosed &&
+          active.keys.every(completed.contains)) {
+        await _closeSession(sessionId, 'completed');
+      }
+    });
+  }
 
   /// Records an attempt at an MCQ or clinical case scenario question.
   Future<void> recordMcqAttempt({
@@ -303,10 +363,18 @@ class ScreeningSyncRepository {
   Future<void> abandonActiveScreenings() => _serial(_abandonActive);
 
   Future<void> _abandonActive() async {
-    final active = _queue.getActiveScreenings();
-    final completed = _queue.getCompletedScreenings();
+    final active = _activeScreenings;
+    final completed = {
+      ..._queue.getCompletedScreenings(),
+      for (final t in _timings.values)
+        if (t.isCompleted && active[t.diseaseCode] == t.id) t.diseaseCode,
+    };
     for (final entry in active.entries) {
       if (completed.contains(entry.key)) continue;
+      final timing = _timings[entry.value];
+      if (timing != null && timing.isRunning) {
+        await _saveTiming(timing.finish(_eventTime(), abandoned: true));
+      }
       await _queue.enqueue(
         table: 'disease_screenings',
         action: 'patch_status',
@@ -317,11 +385,20 @@ class ScreeningSyncRepository {
       );
     }
     await _queue.clearActiveScreenings();
+    _activeScreenings.clear();
+    if (!_timingChanges.isClosed) _timingChanges.add(timings);
   }
 }
 
 /// Global provider for [ScreeningSyncRepository].
 final screeningSyncRepositoryProvider =
     Provider<ScreeningSyncRepository>((ref) {
-  return ScreeningSyncRepository();
+  final repository = ScreeningSyncRepository();
+  ref.onDispose(repository.dispose);
+  return repository;
 });
+
+/// A separate stream keeps timing updates from rebuilding repository consumers
+/// such as the chatbot or the clinical assessment controller.
+final screeningTimingsProvider = StreamProvider<List<ScreeningTiming>>(
+    (ref) => ref.watch(screeningSyncRepositoryProvider).watchTimings);

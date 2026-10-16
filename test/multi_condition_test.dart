@@ -72,9 +72,9 @@ void main() {
   });
 
   test('combined summary lists both topics and avoids diagnosis wording', () {
-    final w = walk({rd, rop, sepsis}, answers);
+    final w = walk({rd, rop, NeonatalCondition.seizures}, answers);
     final s = CombinedAssessmentSummary.from(w.ctx);
-    expect(s.selectedTitles, ['STW Respiratory Distress', 'STW Sepsis', 'STW ROP']);
+    expect(s.selectedTitles, ['STW Respiratory Distress', 'STW Seizures', 'STW ROP']);
     expect(s.topics.map((t) => t.available), [true, false, true]);
     final text = s.toPlainText();
     expect(text, contains('Baby: GA 32+0 wk · BW 1600 g'));
@@ -94,7 +94,7 @@ void main() {
   });
 
   test('pending topics add no questions and no findings', () {
-    final w = walk({sepsis, NeonatalCondition.jaundice}, {});
+    final w = walk({NeonatalCondition.seizures, NeonatalCondition.jaundice}, {});
     expect(w.pages, isEmpty);
     expect(w.ctx.findings, isEmpty);
   });

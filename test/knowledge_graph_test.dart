@@ -191,6 +191,7 @@ void main() {
         'Respiratory distress criteria met',
         'Gestation group',
         'SAS total',
+        'Apnoea/gasping, poor effort or shock',
         'Other findings (tick all that apply)',
       ]);
       final group = t.children.singleWhere((c) => c.label == 'Gestation group');

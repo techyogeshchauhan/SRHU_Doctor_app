@@ -309,6 +309,10 @@ void main() {
       ];
       expect(closes, hasLength(1));
       expect(closes.single['status'], 'completed');
+      expect(queue.pendingCount, 0);
+      // Successfully sent API writes are removed, but timing history remains.
+      expect(queue.getScreeningTimings().single['completedAt'], isNotNull);
+      expect(queue.getScreeningTimings().single['durationMs'], isNonNegative);
     });
 
     test('a rejected item is dropped and later items still sync', () async {

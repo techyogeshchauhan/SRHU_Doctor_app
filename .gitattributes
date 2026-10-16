@@ -1,0 +1,3 @@
+# Preserve the supplied RD PDF byte-for-byte, including its cross-reference offsets.
+assets/pdfs/respiratory_distress_neonates_stw.pdf binary
+assets/pdfs/Sepsis_STW_Final_15-10-26.pdf binary

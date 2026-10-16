@@ -56,6 +56,7 @@ router.get('/screenings', async (req, res, next) => {
           status: 1,
           startedAt: 1,
           completedAt: 1,
+          durationMs: 1,
           responses: 1,
           findings: 1,
           mcqAttempts: 1,

@@ -56,6 +56,8 @@ flutter:
     - assets/pdfs/Neonatal_Hypoglycemia_8th_Oct.pdf
     - assets/pdfs/Triage_13-10-26.pdf
     - assets/pdfs/KMC-13-10-2026.pdf
+    - assets/pdfs/Sepsis_STW_Final_15-10-26.pdf
+    - assets/pages/Sepsis_STW_Final_15-10-26.pdf/
     - assets/stw_index/
     - assets/pages/
     - assets/pages/respiratory_distress_neonates_stw.pdf/

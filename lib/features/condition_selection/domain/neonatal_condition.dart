@@ -87,7 +87,13 @@ const List<ConditionDefinition> conditionDefinitions = [
         'STW.',
     status: ConditionStatus.available,
   ),
-  ConditionDefinition(id: NeonatalCondition.sepsis, title: 'STW Sepsis'),
+  ConditionDefinition(
+    id: NeonatalCondition.sepsis,
+    title: 'STW Sepsis',
+    description:
+        'Sepsis signs, risk factors, treatment and review as per ICMR/DHR STW.',
+    status: ConditionStatus.available,
+  ),
   ConditionDefinition(
     id: NeonatalCondition.hypoglycemia,
     title: 'STW Hypoglycemia',
@@ -115,3 +121,14 @@ final Map<NeonatalCondition, ConditionDefinition> _byId = {
 };
 
 ConditionDefinition definitionOf(NeonatalCondition c) => _byId[c]!;
+
+/// Count unique selectable diseases across all categories, excluding topics
+/// whose approved STW is still coming soon.
+int get availableDiseaseCount => conditionDefinitions
+    .where((d) => d.implemented)
+    .map((d) => d.id)
+    .toSet()
+    .length;
+
+int get listedConditionCount =>
+    conditionDefinitions.map((d) => d.id).toSet().length;

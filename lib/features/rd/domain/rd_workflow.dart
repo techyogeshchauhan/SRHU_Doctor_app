@@ -3,7 +3,7 @@
 /// Pure Dart. Questions, derived variables and rules only; every clinical
 /// decision is delegated to the existing validated engine in `rd_rules.dart`
 /// and `sas.dart` (initialPlan, reassess, RdSeverity). Section numbers refer
-/// to docs/STW_APP_SPEC_FROM_PDFs.md.
+/// to the updated Respiratory_Distress_STW_Final 15-10-26.pdf.
 library;
 
 import '../../../content/stw_content.dart';
@@ -24,6 +24,11 @@ const _rd = NeonatalCondition.respiratoryDistress;
 // Keys
 // ---------------------------------------------------------------------------
 
+const rdEmergencyKey = 'rd_emergency';
+const rdInitialSpo2Key = 'rd_initial_spo2';
+const rdSuspectedRdsKey = 'rd_suspected_worsening_rds';
+const rdStableSupportKey = 'rd_stable_reducing_support';
+
 const rdRrKey = 'rd_rr';
 const rdSignsKey = 'rd_signs';
 const rdIvFlagsKey = 'rd_iv_flags';
@@ -34,7 +39,6 @@ const rdFio2Key = 'rd_fio2_pct';
 const rdSpo2Key = 'rd_spo2';
 const rdComfortableKey = 'rd_comfortable';
 const rdWarningsKey = 'rd_warnings';
-const rdSepsisKey = 'rd_sepsis';
 
 /// Repeat-SAS totals of recorded reassessments (oldest first).
 const rdSasHistoryKey = 'rd_sas_history';
@@ -107,17 +111,57 @@ const rdGroups = [
     footnote: sasFigureCredit,
   ),
   QuestionGroup('rd_warnings', 'Warning signs'),
-  QuestionGroup(
-    'rd_sepsis',
-    'Sepsis triggers',
-    subtitle: 'Any one → consider sepsis',
-  ),
 ];
 
 const _srcDefinition =
     SourceReference.rd('§1.1 Definition: RD present if ANY ONE');
 const _srcSas = SourceReference.rd(
     '§1.4 Silverman-Andersen Score (Avery & Fletcher, 1974)');
+
+const qRdEmergency = ClinicalQuestion(
+  id: rdEmergencyKey,
+  group: 'rd_signs',
+  question: 'Apnoea/gasping, poor effort or shock',
+  type: QuestionType.boolean,
+  helper: 'Stabilize immediately; ventilate when indicated.',
+  sources: [SourceReference.rd('§1.2 Immediate actions')],
+);
+
+const qRdInitialSpo2 = ClinicalQuestion(
+  id: rdInitialSpo2Key,
+  group: 'rd_other',
+  question: 'Initial SpO₂',
+  type: QuestionType.numeric,
+  min: 0,
+  max: 100,
+  unit: '%',
+  helper:
+      'For GA >34 weeks with mild RD: nasal-prong oxygen only if SpO₂ <91%.',
+  sources: [
+    SourceReference.rd('NASAL PRONGS OXYGEN',
+        regionId: 'rd_initial_term_mild_nasal_o2')
+  ],
+);
+
+const qRdSuspectedRds = ClinicalQuestion(
+  id: rdSuspectedRdsKey,
+  group: 'rd_support',
+  question: 'Suspected worsening RDS',
+  type: QuestionType.boolean,
+  helper:
+      'Required for early rescue surfactant in a preterm neonate <34 weeks.',
+  sources: [SourceReference.rd('§1.9 Surfactant: FiO₂ >0.30')],
+);
+
+const qRdStableSupport = ClinicalQuestion(
+  id: rdStableSupportKey,
+  group: 'rd_support',
+  question: 'Stable or reducing respiratory support',
+  type: QuestionType.boolean,
+  helper:
+      'Required with decreasing SAS and comfortable breathing for improving.',
+  sources: [SourceReference.rd('§1.7 Improving')],
+);
 
 const qRdRr = ClinicalQuestion(
   id: rdRrKey,
@@ -127,7 +171,7 @@ const qRdRr = ClinicalQuestion(
   min: 0,
   max: 150,
   unit: '/min',
-  helper: 'If entered, "RR >60/min" is taken from this value',
+  helper: 'If entered, "RR ≥60/min" is taken from this value',
   sources: [_srcDefinition],
 );
 
@@ -180,8 +224,8 @@ const qRdIvFlags = ClinicalQuestion(
       '§1.2 IV fluids if severe distress, recurrent apnea, poor perfusion, '
       'or abdominal signs',
       needsClinicalReview: true,
-      note: 'STW defines no SAS cut-off for "severe"; clinician judgement '
-          '(open point 6.2).',
+      note:
+          'The source provides no separate SAS cut-off for severe RD; clinician judgement.',
     ),
   ],
 );
@@ -201,7 +245,7 @@ const qRdReassessNow = ClinicalQuestion(
   ],
   sources: [
     SourceReference.dataEntry(
-        'STW §1.5 says "reassess frequently"; this only chooses whether a '
+        'Updated STW MONITORING specifies reassessment within 15–30 min, at least hourly, and immediately if worsening; this; this only chooses whether a '
         'reassessment is being recorded now.'),
   ],
 );
@@ -268,8 +312,6 @@ const qRdComfortable = ClinicalQuestion(
   sources: [
     SourceReference.rd(
       '§1.7 Improving',
-      needsClinicalReview: true,
-      note: 'App requires all three improving criteria (open point 6.4).',
     ),
   ],
 );
@@ -296,19 +338,6 @@ final qRdWarnings = ClinicalQuestion(
   ],
 );
 
-final qRdSepsis = ClinicalQuestion(
-  id: rdSepsisKey,
-  group: 'rd_sepsis',
-  question: 'Sepsis triggers (tick all that apply)',
-  type: QuestionType.multipleChoice,
-  options: [
-    for (final t in SepsisTrigger.values) QuestionOption(t.name, t.label),
-  ],
-  sources: const [
-    SourceReference.rd('§1.5 Consider sepsis (see STW: Sepsis in Neonates)'),
-  ],
-);
-
 // ---------------------------------------------------------------------------
 // Derived variables (computed by the existing RD engine)
 // ---------------------------------------------------------------------------
@@ -321,14 +350,14 @@ SasScore _sasFrom(VariableReader r, String Function(SasItem) key) => SasScore({
         if (r.valueOf(key(i)) case final int g) i: g,
     });
 
-/// Same behaviour as the RD screen: a measured RR decides "RR >60/min".
+/// Same behaviour as the RD screen: a measured RR decides "RR ≥60/min".
 Object? _signsEffective(VariableReader r) {
   final ticked = r.valueOf(rdSignsKey);
   final rr = r.valueOf(rdRrKey);
   if (ticked == null && rr == null) return null;
   final s = {..._set(ticked)};
   if (rr is int) {
-    rr > rrThresholdPerMin
+    rr >= rrThresholdPerMin
         ? s.add(RdSign.rrAbove60.name)
         : s.remove(RdSign.rrAbove60.name);
   }
@@ -351,6 +380,8 @@ Object? _initial(VariableReader r) {
   if (signs is! Set<String>) return null;
   final iv = _set(r.valueOf(rdIvFlagsKey));
   return initialPlan(
+    initialSpo2: r.valueOf(rdInitialSpo2Key) as int?,
+    emergency: r.valueOf(rdEmergencyKey) == true,
     signs: {for (final s in signs) RdSign.values.byName(s)},
     gestation: (r.valueOf(rdGestationKey) as Gestation?) ?? const Gestation(),
     sas: r.valueOf(rdSasScoreKey)! as SasScore,
@@ -376,16 +407,14 @@ Object? _reassessOutcome(VariableReader r) {
     previousSasTotal: r.valueOf(rdPrevSasTotalKey) as int?,
     sas: r.valueOf(rdReSasScoreKey)! as SasScore,
     comfortableBreathing: r.valueOf(rdComfortableKey) == true,
+    suspectedWorseningRds: r.valueOf(rdSuspectedRdsKey) == true,
+    stableOrReducingSupport: r.valueOf(rdStableSupportKey) == true,
     risingO2Need: w.contains('rising'),
     recurrentApneaBrady: w.contains('apnea'),
     fatigue: w.contains('fatigue'),
     shock: w.contains('shock'),
     deterioration: w.contains('deterioration'),
     persistentHypoxemia: w.contains('hypoxemia'),
-    sepsisTriggers: {
-      for (final t in _set(r.valueOf(rdSepsisKey)))
-        SepsisTrigger.values.byName(t),
-    },
   ));
 }
 
@@ -394,7 +423,7 @@ RdInitialPlan? _plan(VariableReader r) =>
 
 final rdVariables = [
   const ClinicalVariable(rdSignsEffectiveKey,
-      'Signs present (RR decides "RR >60/min" when entered)', _signsEffective),
+      'Signs present (RR decides "RR ≥60/min" when entered)', _signsEffective),
   const ClinicalVariable(rdGestationKey,
       'GA band / BW surrogate (rd_rules Gestation)', _gestation),
   ClinicalVariable(
@@ -432,7 +461,8 @@ final rdVariables = [
 // Rules
 // ---------------------------------------------------------------------------
 
-final _present = const HasFinding(rdPresentId);
+final _present = AllOf(
+    [const HasFinding(rdPresentId), Not(const Var(rdEmergencyKey).eq(true))]);
 final _planReady = const Var(rdPlanReadyKey).eq(true);
 
 String _signLabels(VariableReader r) => [
@@ -442,6 +472,11 @@ String _signLabels(VariableReader r) => [
 
 final _reassessMeta =
     <ReassessStatus, (FindingCategory, FindingLevel, SourceReference)>{
+  ReassessStatus.emergency: (
+    FindingCategory.referral,
+    FindingLevel.urgent,
+    const SourceReference.rd('§1.2 Immediate actions'),
+  ),
   ReassessStatus.cpapFailure: (
     FindingCategory.referral,
     FindingLevel.urgent,
@@ -451,16 +486,13 @@ final _reassessMeta =
     FindingCategory.treatment,
     FindingLevel.treat,
     const SourceReference.rd(
-        '§1.9 Surfactant: GA <34 wk, on CPAP, PEEP >6 AND FiO₂ >0.30'),
+        '§1.9 Surfactant: GA <34 wk, on CPAP, CPAP ≥6 AND suspected worsening RDS; FiO₂ >0.30'),
   ),
   ReassessStatus.notImproving: (
     FindingCategory.pathway,
     FindingLevel.action,
     const SourceReference.rd(
       '§1.8 Not improving / worsening → optimize CPAP',
-      needsClinicalReview: true,
-      note: '"Persisting SAS" read as equal and ≥4 (open point 6.3); '
-          'nasal-prong wording shown as in the STW box (open point 6.5).',
     ),
   ),
   ReassessStatus.improving: (
@@ -468,8 +500,6 @@ final _reassessMeta =
     FindingLevel.ok,
     const SourceReference.rd(
       '§1.7 Improving → wean',
-      needsClinicalReview: true,
-      note: 'All three improving criteria required (open point 6.4).',
     ),
   ),
   ReassessStatus.stable: (
@@ -491,6 +521,18 @@ final _reassessMeta =
 
 final rdRules = <ClinicalRule>[
   ClinicalRule(
+    id: 'rd.emergency',
+    topic: _rd,
+    when: const Var(rdEmergencyKey).eq(true),
+    source: const SourceReference.rd('§1.2 Immediate actions'),
+    then: (_) => const FindingContent(
+      category: FindingCategory.referral,
+      level: FindingLevel.urgent,
+      title: 'Stabilize immediately; ventilate when indicated',
+      actions: rdImmediateActions,
+    ),
+  ),
+  ClinicalRule(
     id: rdPresentId,
     topic: _rd,
     when: AnyOf([
@@ -510,7 +552,7 @@ final rdRules = <ClinicalRule>[
     topic: _rd,
     when: AllOf([
       const Var(rdSignsEffectiveKey).exists(),
-      Not(_present),
+      const Not(HasFinding(rdPresentId)),
     ]),
     source: _srcDefinition,
     then: (_) => FindingContent(
@@ -561,22 +603,22 @@ final rdRules = <ClinicalRule>[
     when: AllOf([_present, _planReady]),
     source: const SourceReference.rd(
       '§1.5 Algorithm: choosing initial support',
-      needsClinicalReview: true,
-      note: 'GA uses completed weeks, so 34+3 counts as ≤34 (open point 6.1).',
     ),
     then: (r) {
       final p = _plan(r)!;
       return FindingContent(
         category: FindingCategory.pathway,
         level: FindingLevel.action,
-        title: p.support == RespSupport.cpap
-            ? 'START CPAP'
-            : 'Nasal-prong oxygen 0.5–1 L/min',
+        title: switch (p.support) {
+          RespSupport.cpap => 'START CPAP',
+          RespSupport.nasalO2 => 'Nasal-prong oxygen 0.5–1 L/min',
+          RespSupport.none => 'Mild RD: monitor; oxygen only if SpO₂ <91%',
+        },
         actions: [
           ...p.supportActions,
           p.caffeine.text,
           'Feeding: ${p.feeding.text}',
-          'Reassess frequently: clinical status, SAS, SpO₂, FiO₂ requirement.',
+          ...rdMonitoringActions,
         ],
         why: p.why,
       );
@@ -667,6 +709,7 @@ final rdWorkflow = StwWorkflow(
   source: const SourceReference.rd('Whole document (ICD-11 KB23)'),
   groups: rdGroups,
   uses: [
+    const QuestionUse(qRdEmergency),
     const QuestionUse(qRdRr),
     QuestionUse(qRdSigns),
     QuestionUse(qGaKnown, when: _present, required: true),
@@ -683,6 +726,7 @@ final rdWorkflow = StwWorkflow(
     for (final q in rdSasQuestions)
       QuestionUse(q, when: _present, required: true),
     QuestionUse(qRdIvFlags, when: _present),
+    QuestionUse(qRdInitialSpo2, when: _present, required: true),
     QuestionUse(
       qRdReassessNow,
       when: AllOf([_present, _planReady]),
@@ -693,10 +737,11 @@ final rdWorkflow = StwWorkflow(
     QuestionUse(qRdFio2, when: _reassessing, required: true),
     QuestionUse(qRdSpo2, when: _reassessing, required: true),
     QuestionUse(qRdComfortable, when: _reassessing),
+    QuestionUse(qRdSuspectedRds, when: _reassessing),
+    QuestionUse(qRdStableSupport, when: _reassessing),
     for (final q in rdReSasQuestions)
       QuestionUse(q, when: _reassessing, required: true),
     QuestionUse(qRdWarnings, when: _reassessing),
-    QuestionUse(qRdSepsis, when: _reassessing),
   ],
   variables: rdVariables,
   rules: rdRules,
@@ -720,8 +765,9 @@ final rdWorkflow = StwWorkflow(
   final cleared = {
     rdSpo2Key,
     rdComfortableKey,
+    rdSuspectedRdsKey,
+    rdStableSupportKey,
     rdWarningsKey,
-    rdSepsisKey,
     for (final i in SasItem.values) rdReSasKey(i),
   };
   final reconfirm = {rdSupportKey, rdPeepKey, rdFio2Key, ...cleared};

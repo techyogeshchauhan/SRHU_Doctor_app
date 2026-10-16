@@ -362,6 +362,49 @@ describe('Neonatal STW REST API Backend', () => {
     assert.equal(stored.found, false);
   });
 
+  it('Screening timing: saves duration and preserves first completion on retry', async () => {
+    const id = '77777777-7777-4777-8777-777777777771';
+    const startedAt = '2026-10-15T10:00:00.000Z';
+    const completedAt = '2026-10-15T10:00:42.123Z';
+    const created = await request(app).put(`/screenings/${id}`)
+      .set('x-api-key', testApiKey)
+      .send({ sessionId: testSessionId, diseaseCode: 'rop', startedAt });
+    assert.equal(created.status, 200);
+    assert.equal((await getScreeningsCollection().findOne({ _id: id })).durationMs, null);
+    const completed = await request(app).patch(`/screenings/${id}/status`)
+      .set('x-api-key', testApiKey).send({ status: 'completed', completedAt });
+    assert.equal(completed.status, 200);
+    await Promise.all([43, 50].map((seconds) => request(app)
+      .patch(`/screenings/${id}/status`).set('x-api-key', testApiKey)
+      .send({ status: 'completed', completedAt: `2026-10-15T10:00:${seconds}.000Z` })));
+    const saved = await request(app).get(`/screenings/${id}`).set('x-api-key', testApiKey);
+    assert.equal(saved.status, 200);
+    assert.equal(saved.body.startedAt, startedAt);
+    assert.equal(saved.body.completedAt, completedAt);
+    assert.equal(saved.body.durationMs, 42123);
+    const exported = await request(app).get('/export/screenings?diseaseCode=rop')
+      .set('x-api-key', testExportKey);
+    assert.equal(exported.body.data.find((row) => row._id === id).durationMs, 42123);
+  });
+
+  it('Screening timing: rejects completion before start without mutating the record', async () => {
+    const id = '77777777-7777-4777-8777-777777777772';
+    await request(app).put(`/screenings/${id}`).set('x-api-key', testApiKey)
+      .send({ sessionId: testSessionId, diseaseCode: 'rop', startedAt: '2026-10-15T10:00:00.000Z' });
+    const result = await request(app).patch(`/screenings/${id}/status`)
+      .set('x-api-key', testApiKey)
+      .send({ status: 'completed', completedAt: '2026-10-15T09:59:59.000Z' });
+    assert.equal(result.status, 400);
+    const saved = await getScreeningsCollection().findOne({ _id: id });
+    assert.equal(saved.status, 'in_progress');
+    assert.equal(saved.completedAt, null);
+    assert.equal(saved.durationMs, null);
+    const invalidPut = await request(app).put(`/screenings/${id}`)
+      .set('x-api-key', testApiKey).send({ sessionId: testSessionId, diseaseCode: 'rop',
+        startedAt: '2026-10-15T10:00:00.000Z', completedAt: '2026-10-15T09:00:00.000Z' });
+    assert.equal(invalidPut.status, 400);
+  });
+
   it('Export: rejects export access without export key', async () => {
     const res = await request(app).get('/export/screenings');
     assert.equal(res.status, 401);

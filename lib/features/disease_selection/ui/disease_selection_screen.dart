@@ -9,6 +9,7 @@ import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../shared/pdf_navigation.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
+import '../../clinical_workflow/ui/screening_session_panel.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../condition_selection/state/condition_selection_controller.dart';
 import '../../references/ui/stw_reference_screen.dart';
@@ -48,6 +49,9 @@ class DiseaseSelectionScreen extends ConsumerWidget {
       ref.read(assessmentProvider.notifier).start({c}, forceReset: true);
       context.push('/workflow');
     }
+
+    // Number only visible cards, starting again at one after filtering.
+    var displayedIndex = 0;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -97,6 +101,8 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
+                const AvailableDiseaseCount(showListed: true),
+                const SizedBox(height: 4),
                 Text(
                   selected.isNotEmpty
                       ? '${selected.length} condition${selected.length > 1 ? "s" : ""} selected. Click any condition below to begin its clinical screening process.'
@@ -111,6 +117,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                 // 1. Retinopathy of Prematurity (ROP) Card (if selected or default)
                 if (showRop) ...[
                   _DiseaseCard(
+                    number: ++displayedIndex,
                     title: 'Retinopathy of Prematurity',
                     icon: Icons.visibility_outlined,
                     accentColor: AppTheme.accentRop,
@@ -131,6 +138,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                 // 2. Respiratory Distress in Neonates Card (if selected or default)
                 if (showRd) ...[
                   _DiseaseCard(
+                    number: ++displayedIndex,
                     title: 'Respiratory Distress in Neonates',
                     icon: Icons.air_rounded,
                     accentColor: AppTheme.accentRd,
@@ -151,6 +159,12 @@ class DiseaseSelectionScreen extends ConsumerWidget {
 
                 // Available workflows with PDF-backed dynamic assessments.
                 for (final (c, title, icon, accentColor) in const [
+                  (
+                    NeonatalCondition.sepsis,
+                    'Sepsis in Neonates',
+                    Icons.coronavirus_outlined,
+                    AppTheme.primaryTeal,
+                  ),
                   (
                     NeonatalCondition.triage,
                     'Neonatal Emergency Triage Assessment and Management',
@@ -178,6 +192,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                 ])
                   if (show(c)) ...[
                     _DiseaseCard(
+                      number: ++displayedIndex,
                       title: title,
                       icon: icon,
                       accentColor: accentColor,
@@ -195,6 +210,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
                 const DisclaimerFooter(),
+                const ScreeningHistoryCard(),
               ],
             ),
           ),
@@ -207,6 +223,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
 /// Compact disease card with single-line condition name and direct screening launcher.
 class _DiseaseCard extends StatelessWidget {
   const _DiseaseCard({
+    required this.number,
     required this.title,
     required this.icon,
     required this.accentColor,
@@ -218,6 +235,7 @@ class _DiseaseCard extends StatelessWidget {
   });
 
   final String title;
+  final int number;
   final IconData icon;
   final Color accentColor;
   final String pdfAssetPath;
@@ -276,17 +294,32 @@ class _DiseaseCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      title,
-                      maxLines: 2,
-                      softWrap: true,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 15.5,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryNavy,
-                        height: 1.25,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('$number.',
+                            key: ValueKey('disease-card-index-$number'),
+                            style: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 15.5,
+                                height: 1.25,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primaryBlue)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                            child: Text(
+                          title,
+                          maxLines: 2,
+                          softWrap: true,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.primaryNavy,
+                            height: 1.25,
+                          ),
+                        )),
+                      ],
                     ),
                     const SizedBox(height: 6),
                     Wrap(

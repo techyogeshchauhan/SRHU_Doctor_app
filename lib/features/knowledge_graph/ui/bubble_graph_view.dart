@@ -83,28 +83,36 @@ class BubbleLegend extends StatelessWidget {
   const BubbleLegend({super.key});
 
   @override
-  Widget build(BuildContext context) => Wrap(
-        spacing: 10,
-        runSpacing: 4,
-        children: [
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (context, constraints) {
+        final children = <Widget>[
           for (final k in BubbleKind.values) _LegendDot(k),
-          const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '- - -',
+          const Row(mainAxisSize: MainAxisSize.min, children: [
+            Text('- - -',
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFFD69E2E),
-                ),
-              ),
-              SizedBox(width: 4),
-              Text('Draft link', style: TextStyle(fontSize: 11.5)),
-            ],
-          ),
-        ],
-      );
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFFD69E2E))),
+            SizedBox(width: 4),
+            Text('Draft link', style: TextStyle(fontSize: 11.5)),
+          ]),
+        ];
+        if (constraints.maxWidth < 600) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(children: [
+              for (final child in children)
+                Padding(
+                    padding: const EdgeInsets.only(right: 10), child: child),
+            ]),
+          );
+        }
+        return Wrap(
+          spacing: 10,
+          runSpacing: 4,
+          children: children,
+        );
+      });
 }
 
 class _LegendDot extends StatelessWidget {
@@ -152,7 +160,8 @@ class _Track {
 ///
 /// Overview: one circle per STW, joined by labelled arrows. Tapping an STW
 /// moves it to the centre and springs its PDF boxes out around it; tapping
-/// a box fans out the questions, findings and links it drives. Tapping
+/// a box fans out the questions, findings and links it drives. Assessment
+/// findings show spaced evidence pages instead of crowding a fixed arc. Tapping
 /// again collapses. The camera follows smoothly; pinch and drag the
 /// background to explore. Dragging a bubble moves only that bubble: what
 /// hangs off it follows on springs, neighbours make room, and the graph
@@ -190,11 +199,95 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
     with TickerProviderStateMixin {
   static const _world = 3000.0;
   static const _o = Offset(_world / 2, _world / 2);
-  static const _panelHeight = 168.0;
 
   String? _hub;
   String? _branch;
   String? _selected;
+  int _evidencePage = 0;
+
+  Bubble? get _evidenceBranch {
+    final branch = _branch == null ? null : widget.graph.byId(_branch!);
+    if (branch?.item != null) return branch;
+    // The new Sepsis poster has 20 cards. Page its source cards (and their
+    // questions/rules) using the existing evidence layout. Other source
+    // graphs retain their current layout.
+    final source = branch ?? (_hub == null ? null : widget.graph.byId(_hub!));
+    if (source?.topic == NeonatalCondition.sepsis &&
+        source?.node != null &&
+        source!.children.isNotEmpty) {
+      return source;
+    }
+    return null;
+  }
+
+  int get _evidenceColumns {
+    final width = _viewport?.width ?? 1000;
+    if (width < 650 &&
+        _evidenceBranch?.node != null &&
+        _evidenceBranch?.topic == NeonatalCondition.sepsis) {
+      return 1;
+    }
+    return width >= 1000
+        ? 4
+        : width >= 650
+            ? 3
+            : 2;
+  }
+
+  int get _evidencePageSize =>
+      _evidenceColumns * ((_viewport?.height ?? 500) >= 340 ? 2 : 1);
+
+  List<Bubble> _evidenceChildren(Bubble branch) {
+    final pages = (branch.children.length / _evidencePageSize).ceil();
+    final page = _evidencePage.clamp(0, math.max(0, pages - 1)).toInt();
+    return branch.children
+        .skip(page * _evidencePageSize)
+        .take(_evidencePageSize)
+        .toList();
+  }
+
+  void _changeEvidencePage(int page) {
+    setState(() {
+      _evidencePage = page;
+      _selected = _evidenceBranch?.id ?? _branch;
+      _resetDrags();
+      _relayout();
+    });
+  }
+
+  Widget _evidencePager(Bubble branch) {
+    final total = branch.children.length;
+    final pages = (total / _evidencePageSize).ceil();
+    final page = _evidencePage.clamp(0, pages - 1).toInt();
+    final start = page * _evidencePageSize;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            key: const ValueKey('evidence-previous'),
+            tooltip: 'Previous evidence',
+            onPressed: page > 0 ? () => _changeEvidencePage(page - 1) : null,
+            icon: const Icon(Icons.chevron_left_rounded),
+          ),
+          Flexible(
+              child: Text(
+            'Evidence ${start + 1}–${math.min(start + _evidencePageSize, total)} of $total',
+            key: const ValueKey('evidence-page-label'),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          )),
+          IconButton(
+            key: const ValueKey('evidence-next'),
+            tooltip: 'Next evidence',
+            onPressed:
+                page + 1 < pages ? () => _changeEvidencePage(page + 1) : null,
+            icon: const Icon(Icons.chevron_right_rounded),
+          ),
+        ],
+      ),
+    );
+  }
 
   final _tracks = <String, _Track>{};
   late Map<String, Offset> _hubBase;
@@ -282,6 +375,7 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
   }
 
   void _focusBubble(Bubble focused) {
+    _evidencePage = 0;
     var root = focused;
     while (root.parentId != null) {
       root = widget.graph.byId(root.parentId!) ?? root;
@@ -376,6 +470,27 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
     }
 
     t[hub.id] = const _Pose(Offset.zero, 1, 1);
+    final evidence = _evidenceBranch;
+    if (evidence != null) {
+      final children = _evidenceChildren(evidence);
+      final columns = math.min(_evidenceColumns, math.max(1, children.length));
+      final rows = (children.length / columns).ceil();
+      final middle = math.max(0, rows - 1) * 88.0;
+      // Keep the selected finding and its STW away from the evidence.
+      // Only this page's evidence is drawn; no faded siblings behind it.
+      if (hub.id != evidence.id) {
+        t[hub.id] = _Pose(Offset(-210, middle), 0.8, 1);
+      }
+      t[evidence.id] = _Pose(Offset(0, middle), 1, 1);
+      for (var i = 0; i < children.length; i++) {
+        t[children[i].id] = _Pose(
+          Offset(200 + (i % columns) * 176.0, (i ~/ columns) * 176.0),
+          1,
+          1,
+        );
+      }
+      return t;
+    }
     final kids = hub.children;
     final n = kids.length;
     const spacing = 112.0;
@@ -725,7 +840,14 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
     if (view == null || view.isEmpty) return;
     final g = widget.graph;
     Iterable<String> ids;
-    if (_branch != null) {
+    final evidence = _evidenceBranch;
+    if (evidence != null) {
+      ids = [
+        if (view.width >= 650) _hub!,
+        if (view.width >= 650 && _branch != null) _branch!,
+        ..._evidenceChildren(evidence).map((c) => c.id),
+      ];
+    } else if (_branch != null) {
       ids = [_branch!, ...g.byId(_branch!)!.children.map((c) => c.id)];
     } else if (_hub != null) {
       ids = [_hub!, ...g.byId(_hub!)!.children.map((c) => c.id)];
@@ -746,15 +868,17 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
       bounds = bounds == null ? rect : bounds.expandToInclude(rect);
     }
     if (bounds == null) return;
-    final panel = _selected == null ? 0.0 : _panelHeight;
-    final usableH = math.max(120.0, view.height - panel);
+    // The information card has its own space below the canvas. Reserve
+    // the top toolbar here so labels never sit underneath its controls.
+    const top = 64.0;
+    final usableH = math.max(80.0, view.height - top);
     final s = math
         .min((view.width - 16) / bounds.width, (usableH - 16) / bounds.height)
         .clamp(0.35, 1.25);
     final center = _o + bounds.center;
     final target = Matrix4.translationValues(
       view.width / 2 - s * center.dx,
-      usableH / 2 - s * center.dy,
+      top + usableH / 2 - s * center.dy,
       0,
     )..multiply(Matrix4.diagonal3Values(s, s, 1));
     if (!animate) {
@@ -789,6 +913,7 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
   void _tap(Bubble b) {
     HapticFeedback.selectionClick();
     setState(() {
+      if (b.isHub || b.expandable) _evidencePage = 0;
       if (b.isHub) {
         if (_hub == b.id) {
           _hub = null;
@@ -810,123 +935,125 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
       _hub = null;
       _branch = null;
       _selected = null;
+      _evidencePage = 0;
     });
     _relayout();
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final size = constraints.biggest;
-      if (_viewport != size) {
-        _viewport = size;
-        final first = !_fitted;
-        _fitted = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) setState(() => _relayout(animate: !first));
-        });
-      }
-      final selected = _selected == null ? null : widget.graph.byId(_selected!);
-      return Stack(
-        children: [
-          Positioned.fill(
-            child: InteractiveViewer(
-              transformationController: _transform,
-              constrained: false,
-              minScale: 0.3,
-              maxScale: 2.5,
-              boundaryMargin: const EdgeInsets.all(400),
-              onInteractionStart: (_) => _cam.stop(),
-              child: SizedBox(
-                key: _worldKey,
-                width: _world,
-                height: _world,
-                child: AnimatedBuilder(
-                  animation: Listenable.merge([_anim, _transform, _simFrame]),
-                  builder: (context, _) => _canvas(),
+    final selected = _selected == null ? null : widget.graph.byId(_selected!);
+    final evidence = _evidenceBranch;
+    return Column(children: [
+      Expanded(child: LayoutBuilder(builder: (context, constraints) {
+        final size = constraints.biggest;
+        if (_viewport != size) {
+          _viewport = size;
+          final first = !_fitted;
+          _fitted = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _relayout(animate: !first));
+          });
+        }
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: InteractiveViewer(
+                transformationController: _transform,
+                constrained: false,
+                minScale: 0.3,
+                maxScale: 2.5,
+                boundaryMargin: const EdgeInsets.all(400),
+                onInteractionStart: (_) => _cam.stop(),
+                child: SizedBox(
+                  key: _worldKey,
+                  width: _world,
+                  height: _world,
+                  child: AnimatedBuilder(
+                    animation: Listenable.merge([_anim, _transform, _simFrame]),
+                    builder: (context, _) => _canvas(),
+                  ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            top: 10,
-            left: 12,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              child: _hub == null
-                  ? const _Hint(key: ValueKey('hint'))
-                  : ActionChip(
-                      key: const ValueKey('back'),
-                      avatar: const Icon(Icons.arrow_back_rounded, size: 18),
-                      label: Text(widget.overviewLabel),
-                      onPressed: _overview,
-                    ),
-            ),
-          ),
-          Positioned(
-            top: 10,
-            right: 12,
-            child: Column(
-              children: [
-                _RoundIcon(
-                  icon: Icons.add_rounded,
-                  label: 'Zoom in',
-                  onTap: () => _zoom(1.25),
-                ),
-                const SizedBox(height: 8),
-                _RoundIcon(
-                  icon: Icons.remove_rounded,
-                  label: 'Zoom out',
-                  onTap: () => _zoom(1 / 1.25),
-                ),
-                const SizedBox(height: 8),
-                _RoundIcon(
-                  icon: Icons.center_focus_strong_outlined,
-                  label: 'Re-centre',
-                  onTap: () => _fitCamera(_targets()),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 280),
-              transitionBuilder: (child, a) => SlideTransition(
-                position: Tween(begin: const Offset(0, 1), end: Offset.zero)
-                    .animate(CurvedAnimation(parent: a, curve: Curves.easeOut)),
-                child: child,
+            Positioned(
+              top: 10,
+              left: 12,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: _hub == null
+                    ? const _Hint(key: ValueKey('hint'))
+                    : ActionChip(
+                        key: const ValueKey('back'),
+                        avatar: const Icon(Icons.arrow_back_rounded, size: 18),
+                        label: Text(widget.overviewLabel),
+                        onPressed: _overview,
+                      ),
               ),
-              child: selected == null
-                  ? const SizedBox.shrink(key: ValueKey('none'))
-                  : _InfoCard(
-                      key: ValueKey(selected.id),
-                      bubble: selected,
-                      expanded: selected.id == _hub || selected.id == _branch,
-                      onToggle: () => _tap(selected),
-                      onDetails:
-                          selected.node == null || widget.onDetails == null
-                              ? null
-                              : () => widget.onDetails!(selected.node!),
-                      onAssessmentDetails: selected.item == null ||
-                              widget.onAssessmentDetails == null
-                          ? null
-                          : () => widget.onAssessmentDetails!(
-                                selected.item!,
-                                selected.feeds,
-                              ),
-                      onClose: () {
-                        setState(() => _selected = null);
-                        _fitCamera(_targets());
-                      },
-                    ),
             ),
-          ),
-        ],
-      );
-    });
+            Positioned(
+              top: 10,
+              right: 12,
+              child: Column(
+                children: [
+                  if (size.width >= 650) ...[
+                    _RoundIcon(
+                      icon: Icons.add_rounded,
+                      label: 'Zoom in',
+                      onTap: () => _zoom(1.25),
+                    ),
+                    const SizedBox(height: 8),
+                    _RoundIcon(
+                      icon: Icons.remove_rounded,
+                      label: 'Zoom out',
+                      onTap: () => _zoom(1 / 1.25),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  _RoundIcon(
+                    icon: Icons.center_focus_strong_outlined,
+                    label: 'Re-centre',
+                    onTap: () => _fitCamera(_targets()),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      })),
+      if (evidence != null && evidence.children.length > _evidencePageSize)
+        _evidencePager(evidence),
+      AnimatedSwitcher(
+        duration: const Duration(milliseconds: 280),
+        transitionBuilder: (child, a) => SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: Offset.zero)
+              .animate(CurvedAnimation(parent: a, curve: Curves.easeOut)),
+          child: child,
+        ),
+        child: selected == null
+            ? const SizedBox.shrink(key: ValueKey('none'))
+            : _InfoCard(
+                key: ValueKey(selected.id),
+                bubble: selected,
+                expanded: selected.id == _hub || selected.id == _branch,
+                onToggle: () => _tap(selected),
+                onDetails: selected.node == null || widget.onDetails == null
+                    ? null
+                    : () => widget.onDetails!(selected.node!),
+                onAssessmentDetails:
+                    selected.item == null || widget.onAssessmentDetails == null
+                        ? null
+                        : () => widget.onAssessmentDetails!(
+                              selected.item!,
+                              selected.feeds,
+                            ),
+                onClose: () {
+                  setState(() => _selected = null);
+                  _fitCamera(_targets());
+                },
+              ),
+      ),
+    ]);
   }
 
   Widget _canvas() {
@@ -971,7 +1098,10 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
         toR: _radius(t.bubble.kind) * b.scale,
         color: bubbleLook(parent.kind).border,
         opacity: math.min(a.opacity, b.opacity),
-        label: t.bubble.edgeLabel,
+        // A label on every spoke obscures both evidence and the finding.
+        // Show the relationship for the selected evidence only.
+        label: _evidenceBranch == null ? t.bubble.edgeLabel : null,
+        orthogonal: _evidenceBranch != null && pid == _evidenceBranch!.id,
         dashed: t.bubble.draft,
         arrow: true,
       ));
@@ -1112,6 +1242,7 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
             child: Opacity(
               opacity: labelOpacity,
               child: Text(
+                key: ValueKey('bubble-label:${b.id}'),
                 b.label,
                 textAlign: TextAlign.center,
                 maxLines: 3,
@@ -1145,6 +1276,7 @@ class _Edge {
     required this.arrow,
     this.label,
     this.dashed = false,
+    this.orthogonal = false,
   });
   final Offset from;
   final Offset to;
@@ -1155,6 +1287,7 @@ class _Edge {
   final bool arrow;
   final String? label;
   final bool dashed;
+  final bool orthogonal;
 }
 
 class _EdgePainter extends CustomPainter {
@@ -1177,6 +1310,31 @@ class _EdgePainter extends CustomPainter {
         ..strokeWidth = 2.4
         ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke;
+      if (e.orthogonal) {
+        // Route above each row and enter the top of the circle, keeping
+        // lines away from the labels underneath every evidence node.
+        final end = e.to - Offset(0, e.toR + 3);
+        final laneY = e.to.dy - 76;
+        final laneX = e.from.dx + 82;
+        canvas.drawPath(
+          Path()
+            ..moveTo(e.from.dx + e.fromR + 2, e.from.dy)
+            ..lineTo(laneX, e.from.dy)
+            ..lineTo(laneX, laneY)
+            ..lineTo(end.dx, laneY)
+            ..lineTo(end.dx, end.dy),
+          paint,
+        );
+        canvas.drawPath(
+          Path()
+            ..moveTo(end.dx, end.dy)
+            ..lineTo(end.dx - 5, end.dy - 9)
+            ..lineTo(end.dx + 5, end.dy - 9)
+            ..close(),
+          Paint()..color = color,
+        );
+        continue;
+      }
       if (e.dashed) {
         final total = (b - a).distance;
         for (var s = 0.0; s < total; s += 12) {
@@ -1342,6 +1500,14 @@ class _InfoCard extends StatelessWidget {
     final item = b.item;
     final src = n?.source ?? item?.source;
     final label = n?.label ?? item?.label ?? b.label;
+    final compact = MediaQuery.sizeOf(context).width < 650;
+    final compactStyle = compact
+        ? const ButtonStyle(
+            padding:
+                WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10)),
+            visualDensity: VisualDensity.compact,
+          )
+        : null;
     final subtitle = n?.kind == MapKind.topic
         ? n?.subtitle
         : n?.subtitle ??
@@ -1380,8 +1546,12 @@ class _InfoCard extends StatelessWidget {
                 child: Text(
                   [
                     look.label,
+                    if (item != null && b.edgeLabel != null && !b.expandable)
+                      b.edgeLabel!,
                     if (b.draft) 'draft, awaiting clinical review',
                   ].join(' · '),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -1439,6 +1609,7 @@ class _InfoCard extends StatelessWidget {
             children: [
               if (b.expandable)
                 FilledButton.tonalIcon(
+                  style: compactStyle,
                   onPressed: onToggle,
                   icon: Icon(
                     expanded
@@ -1450,12 +1621,14 @@ class _InfoCard extends StatelessWidget {
                 ),
               if (onDetails != null || onAssessmentDetails != null)
                 OutlinedButton.icon(
+                  style: compactStyle,
                   onPressed: onDetails ?? onAssessmentDetails,
                   icon: const Icon(Icons.info_outline_rounded, size: 18),
                   label: const Text('Details'),
                 ),
               if (hasPdf(src))
                 OutlinedButton.icon(
+                  style: compactStyle,
                   onPressed: () => openSourceInPdf(context, src!),
                   icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
                   label: const Text('PDF'),

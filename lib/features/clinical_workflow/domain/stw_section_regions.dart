@@ -39,10 +39,8 @@ const Map<String, String> stwSectionRegions = {
   '$_rd|§1.5 Algorithm; §1.7 Improving (weaning)': 'rd_algorithm_overview',
   '$_rd|§1.5 Reassess frequently': 'rd_reassessment_sepsis',
   '$_rd|§1.5 Reassess: clinical status, SAS, SpO₂': 'rd_reassessment_sepsis',
-  '$_rd|§1.5 Consider sepsis (see STW: Sepsis in Neonates)':
-      'rd_reassessment_sepsis',
-  '$_rd|§1.5 Consider sepsis; §1.6 Target SpO₂ 91–95%':
-      'rd_reassessment_sepsis',
+  '$_rd|§1.5 Consider sepsis (see STW: Sepsis in Neonates)': 'rd_not_improving',
+  '$_rd|§1.5 Consider sepsis; §1.6 Target SpO₂ 91–95%': 'rd_not_improving',
   // §1.6: "Maintain SpO₂ 91%-95%." is printed in the DOs box.
   '$_rd|§1.6 Target SpO₂ 91–95%': 'rd_clinical_dos',
   '$_rd|§1.7 Improving': 'rd_improving',
@@ -54,7 +52,7 @@ const Map<String, String> stwSectionRegions = {
   '$_rd|§1.8 Optimize CPAP; §1.9 Surfactant':
       'rd_outcome_not_improving_optimize_cpap',
   '$_rd|§1.9 Surfactant: FiO₂ >0.30': 'rd_surfactant_indication',
-  '$_rd|§1.9 Surfactant: GA <34 wk, on CPAP, PEEP >6 AND FiO₂ >0.30':
+  '$_rd|§1.9 Surfactant: GA <34 wk, on CPAP, CPAP ≥6 AND suspected worsening RDS; FiO₂ >0.30':
       'rd_surfactant_indication',
   '$_rd|§1.10 CPAP failure → refer urgently': 'rd_cpap_failure_referral',
   "$_rd|§1.12 DON'Ts": 'rd_clinical_donts',

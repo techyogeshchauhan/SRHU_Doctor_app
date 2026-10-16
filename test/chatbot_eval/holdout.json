@@ -74,5 +74,5 @@
   {"q": "gestational diabetes diet", "expect": "not_covered", "tags": ["oos", "trap"]},
   {"q": "how to cook rice", "expect": "not_covered", "tags": ["oos"]},
   {"q": "breastfeeding positions", "expect": "not_covered", "tags": ["oos"]},
-  {"q": "neonatal sepsis antibiotics duration", "expect": "not_covered", "tags": ["oos"]}
+  {"q": "neonatal sepsis antibiotics duration", "expect": "answer", "regions": ["sepsis_duration"], "tags": ["en"]}
 ]

@@ -9,6 +9,7 @@ import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../../shared/pdf_navigation.dart';
+import '../../../data/repositories/screening_sync_repository.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../follow_up/data/disease_follow_up_registry.dart';
 import '../../follow_up/state/follow_up_controller.dart';
@@ -17,6 +18,7 @@ import '../voice/voice_entry_bar.dart';
 import '../voice/voice_entry_controller.dart';
 import 'assessment_summary.dart';
 import 'question_field.dart';
+import 'screening_session_panel.dart';
 
 enum _WorkflowMenuAction {
   findings,
@@ -79,6 +81,39 @@ class WorkflowScreen extends ConsumerWidget {
                 context,
                 ref,
                 destinationRoute: '/home',
+              ),
+            ),
+            Semantics(
+              button: true,
+              label: 'Reset Screening',
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: OutlinedButton.icon(
+                  onPressed: () => _confirmResetScreening(context, ref),
+                  icon: const Icon(
+                    Icons.restart_alt_rounded,
+                    size: 16,
+                    color: Color(0xFFDC2626),
+                  ),
+                  label: const Text(
+                    'Reset Screening',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFDC2626),
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFFDC2626),
+                    side: const BorderSide(color: Color(0xFFFCA5A5), width: 1.2),
+                    backgroundColor: const Color(0xFFFEF2F2),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
               ),
             ),
             Semantics(
@@ -233,6 +268,12 @@ class WorkflowScreen extends ConsumerWidget {
             child: Column(
               children: [
                 Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: ScreeningSessionPanel(diseaseCodes: {
+                    for (final c in ctx.selected) diseaseCodeOf(c),
+                  }),
+                ),
+                Padding(
                   padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
                   child: VoiceEntryBar(canStart: group != null),
                 ),
@@ -295,9 +336,45 @@ class WorkflowScreen extends ConsumerWidget {
                       ),
                     );
 
-                    final actionsGroup = Row(
-                      mainAxisSize: MainAxisSize.min,
+                    final actionsGroup = Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
+                        Semantics(
+                          button: true,
+                          label: 'Reset Screening',
+                          child: OutlinedButton.icon(
+                            onPressed: () => _confirmResetScreening(context, ref),
+                            icon: const Icon(
+                              Icons.restart_alt_rounded,
+                              size: 15,
+                              color: Color(0xFFDC2626),
+                            ),
+                            label: Text(
+                              compact ? 'Reset' : 'Reset Screening',
+                              style: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFDC2626),
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFFDC2626),
+                              side: const BorderSide(color: Color(0xFFFCA5A5)),
+                              backgroundColor: const Color(0xFFFEF2F2),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: compact ? 8 : 12,
+                                vertical: 10,
+                              ),
+                              minimumSize: const Size(0, 44),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
                         OutlinedButton.icon(
                           onPressed: goBack,
                           icon: const Icon(Icons.arrow_back, size: 15),
@@ -320,8 +397,7 @@ class WorkflowScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        if (group != null) ...[
-                          const SizedBox(width: 8),
+                        if (group != null)
                           FilledButton.icon(
                             onPressed: canContinue ? n.confirmPage : null,
                             icon: const Icon(Icons.arrow_forward, size: 15),
@@ -341,9 +417,8 @@ class WorkflowScreen extends ConsumerWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ),
-                        ] else if (hasFollowUpForSelected(ctx.selected)) ...[
-                          const SizedBox(width: 8),
+                          )
+                        else if (hasFollowUpForSelected(ctx.selected))
                           FilledButton.icon(
                             onPressed: () {
                               final conditionWithMcqs = ctx.selected.firstWhere(
@@ -378,7 +453,6 @@ class WorkflowScreen extends ConsumerWidget {
                               ),
                             ),
                           ),
-                        ],
                       ],
                     );
 
@@ -451,6 +525,88 @@ class WorkflowScreen extends ConsumerWidget {
     );
   }
 
+  Future<void> _confirmResetScreening(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final action = await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(
+              Icons.restart_alt_rounded,
+              color: Color(0xFFDC2626),
+              size: 24,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Reset Screening',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w700,
+                color: AppTheme.primaryNavy,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Choose whether to restart the current screening from the beginning or reset all screening data and return to condition selection.',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            color: Color(0xFF334155),
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.of(ctx).pop('restart'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.primaryNavy,
+            ),
+            child: const Text('Restart Screening'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop('home'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Reset & Go to Home'),
+          ),
+        ],
+      ),
+    );
+
+    if (action == null || !context.mounted) return;
+
+    if (action == 'restart') {
+      final selected = ref.read(assessmentProvider).context.selected;
+      clearConditionData(ref, clearSelections: false);
+      ref.read(assessmentProvider.notifier).start(selected, forceReset: true);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Screening restarted from the beginning.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } else if (action == 'home') {
+      resetAllScreeningData(ref);
+      if (context.mounted) {
+        context.go('/home');
+      }
+    }
+  }
+
   Future<void> _confirmNewAssessment(
     BuildContext context,
     WidgetRef ref,
@@ -476,8 +632,12 @@ class WorkflowScreen extends ConsumerWidget {
       ),
     );
     if (ok != true || !context.mounted) return;
-    ref.read(assessmentProvider.notifier).newAssessment();
-    if (context.canPop()) context.pop();
+    resetAllScreeningData(ref);
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/home');
+    }
   }
 }
 
@@ -711,6 +871,7 @@ String _pdfButtonLabel(NeonatalCondition c) => switch (c) {
       NeonatalCondition.hypoglycemia => 'Hypoglycemia STW PDF',
       NeonatalCondition.triage => 'Triage STW PDF',
       NeonatalCondition.kmc => 'KMC STW PDF',
+      NeonatalCondition.sepsis => 'Sepsis STW PDF',
       _ => '${definitionOf(c).title} PDF',
     };
 

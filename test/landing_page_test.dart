@@ -221,8 +221,8 @@ void main() {
       expect(find.text('Reference'), findsWidgets);
 
       // 3. Status badges: 6 available, 8 awaiting STW
-      expect(find.text('Available'), findsNWidgets(6));
-      expect(find.text('Awaiting STW'), findsNWidgets(8));
+      expect(find.text('Available'), findsNWidgets(7));
+      expect(find.text('Awaiting STW'), findsNWidgets(7));
     });
 
     testWidgets(

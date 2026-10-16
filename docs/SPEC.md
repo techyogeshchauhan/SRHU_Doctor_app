@@ -85,7 +85,7 @@ Radio buttons are used wherever the STW gives **mutually exclusive** categories.
 
 | STW element | Control |
 |---|---|
-| RR >60, chest retractions, nasal flaring, grunting ("any one") | Checkboxes; an optional RR number field ticks "RR >60" automatically |
+| RR ≥60, chest retractions, nasal flaring, grunting ("any one") | Checkboxes; an optional RR number field ticks "RR ≥60" automatically |
 | Immediate actions (TABC, admit, thermal care, pulse oximeter, monitor) | Checklist |
 | GA known / GA uncertain | **Radio** (uncertain → birth weight ≤1800 g is used as surrogate) |
 | GA (weeks + days), birth weight (g) | Number fields with range checks |
@@ -98,7 +98,7 @@ Radio buttons are used wherever the STW gives **mutually exclusive** categories.
 | Comfortable breathing | Checkbox (required for improving status) |
 | Repeat SAS | Same radio groups; trend ↑/↓/= against the previous SAS |
 | Rising O₂ need, apnea/bradycardia, fatigue, shock, deterioration, persistent hypoxemia | Checkboxes |
-| Sepsis triggers | Checkboxes |
+| Suspected worsening RDS; stable/reducing support | Checkboxes for the updated rescue and improving criteria |
 
 ### ROP
 
@@ -121,25 +121,24 @@ Radio buttons are used wherever the STW gives **mutually exclusive** categories.
 
 ## 4. Decision rules implemented
 
-GA thresholds use **completed weeks** (34+5 counts as 34 weeks).
+The unchanged RD GA split retains the existing **completed weeks** convention (34+5 counts as 34 weeks). The supplied PDF does not define a days boundary.
 
-### Respiratory Distress: initial plan
-- No sign ticked → "Does not meet RD criteria"; the rest of the form is disabled.
-- **GA ≤34 wk** (or GA uncertain and BW ≤1800 g), any RD → **START CPAP 5–6 cm H₂O**, blended O₂, SpO₂ 91–95%, within 30 min.
-- **GA >34 wk and SAS ≥4** → **START CPAP** (moderate–severe).
-- **GA >34 wk and SAS ≤3** → **Nasal-prong O₂ 0.5–1 L/min** (mild).
-- **Caffeine citrate** if GA <34 wk. If GA is uncertain and the BW surrogate applies: "if GA <34 wk".
-- **Feeding:** mild → direct breastfeed; moderate–severe or on CPAP → gastric-tube feeds; **IV fluids** if severe distress (clinician judgement checkbox), recurrent apnea, poor perfusion or abdominal signs.
-- **DON'Ts in context:** mild RD → no routine CBC/CRP/CXR/blood gas; always → no unmonitored O₂.
+### Respiratory Distress: current source and decisions
 
-### Respiratory Distress: reassessment (first match wins)
-1. **CPAP failure** (on CPAP): persistent hypoxemia/high FiO₂ requirement, recurrent apnea/bradycardia, shock or fatigue (clinician-ticked checkboxes) → **refer urgently; do not delay ventilation or referral** (no automatic SpO₂/PEEP cutoff).
-2. **Surfactant:** <34 wk **and** on CPAP **and** PEEP >6 **and** FiO₂ >0.30.
-3. **Not improving / worsening:** SAS increasing, or SAS persisting ≥4 (only if no previous SAS or current == previous and ≥4; decreasing SAS is never categorized as not improving), SpO₂ <91%, rising O₂ need, apnea, fatigue/shock, deterioration. On CPAP → **optimise CPAP**: the next PEEP step is shown (up to 7–8), plus titrate FiO₂, find the cause, and consider surfactant. On nasal O₂ → **NOT IMPROVING / WORSENING**: verbatim STW box content (titrate O₂ to 91–95%, look for/treat cause, consider sepsis) without invented escalation instructions.
-4. **Improving:** decreasing SAS (current < previous) **AND** SpO₂ 91–95% on stable/reducing support **AND** comfortable breathing ticked (SAS ≤3 alone does not count as improving; SpO₂ outside 91–95 does not improve) → **weaning helper**. FiO₂ goes down first to 0.21, then PEEP drops 1 cm H₂O at a time to 4–5, then CPAP stops, followed by 24 h of SpO₂ monitoring.
-5. Otherwise **stable**: continue and reassess.
-- Side alerts: SpO₂ >95% → "SpO₂ above target range (91–95%)" (neutral alert; no instruction to reduce FiO₂); any sepsis trigger → "Consider sepsis".
-- "Record SAS & start next reassessment" keeps the SAS trend for the session.
+The sole RD source is `Respiratory_Distress_STW_Final 15-10-26.pdf`, bundled unchanged at `assets/pdfs/respiratory_distress_neonates_stw.pdf`. Full source-derived statements are in `STW_APP_SPEC_FROM_PDFs.md`; reproducible source and geometry validation is in `tools/validate_rd_source.py`.
+
+- RD: any one of RR ≥60/min, chest retractions, nasal flaring or grunting.
+- Apnoea/gasping, poor effort or shock: stabilize immediately; ventilate when indicated. This finding is available before completing GA or SAS.
+- GA ≤34 weeks with any RD, or GA >34 with SAS ≥4: CPAP 5–6 cm H₂O, blended oxygen, target SpO₂ 91–95%. Initiate within 30 min of identification of indication.
+- GA >34 with SAS ≤3: nasal-prong oxygen 0.5–1 L/min only when SpO₂ <91%. Missing SpO₂ leaves the decision pending; SpO₂ ≥91% does not trigger oxygen.
+- Caffeine citrate: <34 weeks requiring respiratory support, as per protocol. BW ≤1800 g is an operational surrogate for initial support when GA is uncertain; it does not establish GA <34 for surfactant.
+- Feed when stable; OG feeds when appropriate on CPAP, with gastric decompression. Withhold feeds and give IV fluids for severe RD, recurrent apnoea, poor perfusion or abdominal concerns.
+- Monitor SpO₂ continuously on oxygen/CPAP. Reassess clinical status, SAS and FiO₂ within 15–30 min of starting/changing support, at least hourly on support and immediately if worsening.
+- Early rescue surfactant: suspected worsening RDS, confirmed GA <34 weeks, FiO₂ >0.30 on CPAP ≥6 cm H₂O to maintain SpO₂ 91–95%. Give promptly before established CPAP failure.
+- Not improving: persisting/increasing SAS, SpO₂ <91% or rising oxygen need, recurrent apnoea/bradycardia. Consider sepsis. On nasal oxygen with rising oxygen need or distress: start CPAP. Check prongs/circuit/delivered pressure; increase CPAP up to 7–8 cm H₂O; titrate FiO₂; exclude pneumothorax; consider surfactant.
+- Improving: decreasing SAS, target SpO₂ on stable/reducing support and comfortable breathing. Wean only when stable with no significant apnoea and low oxygen requirement. Reduce FiO₂ then CPAP as per protocol; trial off on CPAP 5 cm H₂O and FiO₂ 0.21–0.25; monitor SpO₂ for 24 h after stopping.
+- CPAP failure: persistent hypoxaemia/rising FiO₂ despite optimized CPAP, recurrent apnoea, shock or fatigue. Escalate promptly, intubate/ventilate when indicated, stabilize and refer urgently.
+- KPIs: timely CPAP includes all neonates meeting CPAP criteria; continuous pulse-oximetry coverage measures documented continuous monitoring in all infants on oxygen/CPAP. Both targets >90%.
 
 ### ROP
 - **Eligible** if GA <34 wk, **or** BW <2000 g, **or** GA 34–36 wk with ≥1 risk factor / unstable course.
@@ -158,7 +157,6 @@ GA thresholds use **completed weeks** (34+5 counts as 34 weeks).
 | 1 | GA completed weeks vs decimal days (e.g. GA 34+3 weeks) | Treated as "≤34 weeks" based on completed weeks |
 | 2 | ROP line "Reactivation/significant PAR after anti-VEGF; stage 2–3; stage 4–5" | Ambiguous in the PDF; currently read as reactivation with stage 2–3 → treat; stage 4–5 → surgery referral |
 | 3 | Related-information QR codes (bubble CPAP setup, ROP record form, etc.) | The QR images in the PDF could not be decoded; they appear as "link to be added" |
-| 4 | "Administer surfactant within 2 hours": 2 hours from what? | Shown as the STW wording, with no timer |
 
 ---
 

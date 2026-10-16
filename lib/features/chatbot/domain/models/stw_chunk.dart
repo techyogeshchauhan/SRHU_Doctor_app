@@ -46,17 +46,45 @@ class NormalizedBbox {
 /// verbatim from the PDF. [label] is the line it sits under (e.g.
 /// "First screen:"); headers are box headings, never shown as answers.
 class StwSegment {
-  const StwSegment(this.text, {this.label, this.header = false});
+  const StwSegment(
+    this.text, {
+    this.label,
+    this.header = false,
+    this.boundingBoxes = const [],
+    this.labelBoundingBoxes = const [],
+  });
 
   factory StwSegment.fromJson(Map<String, dynamic> j) => StwSegment(
         j['text'] as String,
         label: j['label'] as String?,
         header: j['header'] as bool? ?? false,
+        boundingBoxes: [
+          for (final b in j['bounding_boxes'] as List<dynamic>? ?? const [])
+            NormalizedBbox.fromJson(b as Map<String, dynamic>),
+        ],
+        labelBoundingBoxes: [
+          for (final b
+              in j['label_bounding_boxes'] as List<dynamic>? ?? const [])
+            NormalizedBbox.fromJson(b as Map<String, dynamic>),
+        ],
       );
 
   final String text;
   final String? label;
   final bool header;
+  final List<NormalizedBbox> boundingBoxes;
+  final List<NormalizedBbox> labelBoundingBoxes;
+
+  Map<String, dynamic> toJson() => {
+        'text': text,
+        if (label != null) 'label': label,
+        if (header) 'header': true,
+        if (boundingBoxes.isNotEmpty)
+          'bounding_boxes': boundingBoxes.map((b) => b.toJson()).toList(),
+        if (labelBoundingBoxes.isNotEmpty)
+          'label_bounding_boxes':
+              labelBoundingBoxes.map((b) => b.toJson()).toList(),
+      };
 
   /// Label and text as shown, e.g. "First screen: By 4 weeks postnatal age".
   String get display => label == null ? text : '$label $text';
@@ -100,6 +128,26 @@ class StwChunk {
     this.intents = const [],
   });
 
+  /// Exact evidence for the displayed answer, retaining separate sentences /
+  /// table rows. Legacy chunks without sentence coordinates use their card.
+  List<NormalizedBbox> boxesForLines(Iterable<StwSegment> lines) {
+    final selected = lines.toList();
+    if (selected.isEmpty) return boundingBoxes;
+    final evidence = <NormalizedBbox>[];
+    for (final line in selected) {
+      final source = segments
+          .where((s) => s.text == line.text && s.label == line.label)
+          .firstOrNull;
+      if (source == null || source.boundingBoxes.isEmpty) return boundingBoxes;
+      evidence.addAll([...source.labelBoundingBoxes, ...source.boundingBoxes]);
+    }
+    final unique = <String, NormalizedBbox>{};
+    for (final b in evidence) {
+      unique['${b.x},${b.y},${b.width},${b.height}'] = b;
+    }
+    return unique.values.toList();
+  }
+
   factory StwChunk.fromJson(Map<String, dynamic> json) {
     final id = json['id'] as String? ?? json['chunk_id'] as String? ?? '';
     final title = json['title'] as String? ??
@@ -126,7 +174,12 @@ class StwChunk {
     final allKeywords = <String>{...kwList, ...aliasList}.toList();
 
     List<NormalizedBbox> boxes = [];
-    if (json.containsKey('x') &&
+    if (json['bounding_boxes'] is List &&
+        (json['bounding_boxes'] as List).isNotEmpty) {
+      boxes = (json['bounding_boxes'] as List<dynamic>)
+          .map((e) => NormalizedBbox.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } else if (json.containsKey('x') &&
         json.containsKey('y') &&
         (json.containsKey('w') || json.containsKey('width')) &&
         (json.containsKey('h') || json.containsKey('height'))) {
@@ -138,10 +191,6 @@ class StwChunk {
           height: ((json['h'] ?? json['height']) as num).toDouble(),
         ),
       );
-    } else if (json['bounding_boxes'] != null) {
-      boxes = (json['bounding_boxes'] as List<dynamic>)
-          .map((e) => NormalizedBbox.fromJson(e as Map<String, dynamic>))
-          .toList();
     }
 
     return StwChunk(
@@ -183,6 +232,8 @@ class StwChunk {
         'section': section,
         'crop_image': cropImage,
         'bounding_boxes': boundingBoxes.map((b) => b.toJson()).toList(),
+        'segments': segments.map((s) => s.toJson()).toList(),
+        'intents': intents,
       };
 }
 
