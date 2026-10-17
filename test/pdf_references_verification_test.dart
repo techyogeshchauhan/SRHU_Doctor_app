@@ -420,7 +420,7 @@ void main() {
   });
 
   group('Disease Selection Screen UI & PDF Reference Buttons', () {
-    testWidgets('all 7 diseases display Reference buttons opening correct PDFs',
+    testWidgets('all 6 STW modules display Reference buttons opening correct PDFs',
         (tester) async {
       tester.view.physicalSize = const Size(600, 1400);
       tester.view.devicePixelRatio = 1;
@@ -443,11 +443,6 @@ void main() {
           'Respiratory Distress in Neonates',
           'respiratory_distress_neonates_stw.pdf',
           'Respiratory Distress in Neonates',
-        ),
-        (
-          'Neonatal Emergency Triage Assessment and Management',
-          'Triage_13-10-26.pdf',
-          'Neonatal Emergency Triage Assessment and Management',
         ),
         (
           'Kangaroo Mother Care (KMC)',
@@ -491,6 +486,10 @@ void main() {
         await tester.tap(find.byType(BackButton));
         await tester.pumpAndSettle();
       }
+
+      // Triage runs before the modules, so it has no card here.
+      expect(find.text('Neonatal Emergency Triage Assessment and Management'),
+          findsNothing);
     });
   });
 
@@ -506,12 +505,8 @@ void main() {
 
       await goToHome(tester);
 
-      await tapVisible(tester, find.text('STW Triage'));
-      await tapVisible(
-          tester, find.widgetWithText(FilledButton, 'Continue').first);
-
-      await tapVisible(
-          tester, find.text('Neonatal Emergency Triage Assessment and Management'));
+      // Triage is started from its own card, not selected as a module.
+      await tapVisible(tester, find.byKey(const ValueKey('start-triage')));
 
       final triagePdfBtn = find.text('Triage STW PDF');
       expect(triagePdfBtn, findsOneWidget);

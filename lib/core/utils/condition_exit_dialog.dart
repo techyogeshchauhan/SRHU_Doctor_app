@@ -124,6 +124,14 @@ Future<void> confirmLeaveCondition(
     return;
   }
 
+  if (await confirmProgressReset(context) && context.mounted) {
+    clearConditionData(ref);
+    context.go(destinationRoute);
+  }
+}
+
+/// Shows the "Progress will be reset" dialog; true when the user confirms.
+Future<bool> confirmProgressReset(BuildContext context) async {
   final confirmed = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
@@ -185,9 +193,5 @@ Future<void> confirmLeaveCondition(
       ],
     ),
   );
-
-  if (confirmed == true && context.mounted) {
-    clearConditionData(ref);
-    context.go(destinationRoute);
-  }
+  return confirmed == true;
 }

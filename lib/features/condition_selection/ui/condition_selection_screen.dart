@@ -10,6 +10,7 @@ import '../../../shared/pdf_navigation.dart';
 import '../../../shared/stw_disclaimer.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
 import '../../clinical_workflow/ui/screening_session_panel.dart';
+import '../../triage/ui/triage_entry.dart';
 import '../domain/neonatal_condition.dart';
 import '../state/condition_selection_controller.dart';
 
@@ -36,11 +37,13 @@ const conditionIcons = <NeonatalCondition, IconData>{
 /// Features:
 /// - Main Heading: “Triaging — Based on history and clinical examination.”
 ///   Subtitle: "Select any condition."
-/// - Single unified view displaying all 14 conditions in the exact same format.
+/// - A Triage card above the list starts a new Triage (Triage runs before
+///   the modules and is not listed as one).
+/// - Single unified view displaying the 13 STW modules in the exact same format.
 /// - Checkboxes for conditions:
-///   - 6 available conditions (Triage, KMC, Respiratory Distress, ANCS, Hypoglycemia, ROP)
-///     have active checkboxes and can be selected.
-///   - 8 inactive conditions look normal as well, but their checkboxes are disabled
+///   - 6 available modules (ROP, Respiratory Distress, KMC, ANCS, Sepsis,
+///     Hypoglycemia) have active checkboxes and can be selected.
+///   - 7 inactive modules look normal as well, but their checkboxes are disabled
 ///     and they are not selectable.
 /// - Live selection counter showing how many conditions have been selected.
 /// - Continue button to proceed to the next page (/disease-selection) with the selected conditions.
@@ -151,11 +154,12 @@ class _ConditionSelectionScreenState
       NeonatalCondition.rop,
       NeonatalCondition.respiratoryDistress
     ];
+    // Triage is not a module: it has its own card above the list.
     final orderedConditions = [
       for (final c in pinned) definitionOf(c),
-      for (final d in conditionDefinitions)
+      for (final d in stwModuleDefinitions)
         if (d.implemented && !pinned.contains(d.id)) d,
-      for (final d in conditionDefinitions)
+      for (final d in stwModuleDefinitions)
         if (!d.implemented) d,
     ];
 
@@ -262,9 +266,13 @@ class _ConditionSelectionScreenState
                     letterSpacing: -0.1,
                   ),
                 ),
+                const SizedBox(height: 12),
+
+                // 2. Start a new Triage without returning to the landing page.
+                const TriageEntryCard(),
                 const SizedBox(height: 16),
 
-                // 2. Single view of all 14 conditions with active ones at top (ROP, then RD)
+                // 3. Single view of the STW modules with active ones at top (ROP, then RD)
                 const AvailableDiseaseCount(showListed: true),
                 const ScreeningHistoryCard(),
                 const SizedBox(height: 8),

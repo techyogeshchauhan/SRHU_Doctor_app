@@ -13,6 +13,7 @@ import '../../../data/repositories/screening_sync_repository.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../follow_up/data/disease_follow_up_registry.dart';
 import '../../follow_up/state/follow_up_controller.dart';
+import '../../triage/ui/triage_entry.dart';
 import '../state/assessment_controller.dart';
 import '../voice/voice_entry_bar.dart';
 import '../voice/voice_entry_controller.dart';
@@ -27,6 +28,7 @@ const nextStepInstruction =
 
 enum _WorkflowMenuAction {
   findings,
+  restartTriage,
   newAssessment,
   refresh,
 }
@@ -34,7 +36,9 @@ enum _WorkflowMenuAction {
 /// Dynamic clinical assessment: shows the page chosen by the engine from
 /// the current context, then the combined summary.
 class WorkflowScreen extends ConsumerWidget {
-  const WorkflowScreen({super.key});
+  const WorkflowScreen({super.key, this.returnToSelectedStws = false});
+
+  final bool returnToSelectedStws;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,8 +58,24 @@ class WorkflowScreen extends ConsumerWidget {
     // there is no assessment to resume.
     if (ctx.selected.isEmpty) return const _NoAssessment();
 
+    Future<void> returnToList() async {
+      if (!s.isComplete && hasConditionProgress(ref)) {
+        if (!await confirmProgressReset(context) || !context.mounted) return;
+        clearConditionData(ref);
+      }
+      if (context.mounted) context.pop();
+    }
+
     void goBack() {
+      if (returnToSelectedStws && s.isComplete) {
+        returnToList();
+        return;
+      }
       if (n.back()) return;
+      if (returnToSelectedStws) {
+        returnToList();
+        return;
+      }
       if (context.canPop()) {
         context.pop();
       } else {
@@ -122,9 +142,11 @@ class WorkflowScreen extends ConsumerWidget {
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFDC2626),
-                    side: const BorderSide(color: Color(0xFFFCA5A5), width: 1.2),
+                    side:
+                        const BorderSide(color: Color(0xFFFCA5A5), width: 1.2),
                     backgroundColor: const Color(0xFFFEF2F2),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -150,6 +172,8 @@ class WorkflowScreen extends ConsumerWidget {
                   switch (action) {
                     case _WorkflowMenuAction.findings:
                       _showFindings(context);
+                    case _WorkflowMenuAction.restartTriage:
+                      confirmRestartTriage(context, ref);
                     case _WorkflowMenuAction.newAssessment:
                       _confirmNewAssessment(context, ref);
                     case _WorkflowMenuAction.refresh:
@@ -159,74 +183,53 @@ class WorkflowScreen extends ConsumerWidget {
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     value: _WorkflowMenuAction.findings,
-                    child: Row(
-                      children: [
-                        Badge(
-                          isLabelVisible: ctx.findings.isNotEmpty,
-                          label: Text('${ctx.findings.length}'),
-                          child: const Icon(
-                            Icons.fact_check_outlined,
-                            size: 20,
-                            color: AppTheme.primaryNavy,
-                          ),
+                    child: _MenuRow(
+                      icon: Badge(
+                        isLabelVisible: ctx.findings.isNotEmpty,
+                        label: Text('${ctx.findings.length}'),
+                        child: const Icon(
+                          Icons.fact_check_outlined,
+                          size: 20,
+                          color: AppTheme.primaryNavy,
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          ctx.findings.isNotEmpty
-                              ? 'Findings so far (${ctx.findings.length})'
-                              : 'Findings so far',
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryNavy,
-                          ),
-                        ),
-                      ],
+                      ),
+                      label: ctx.findings.isNotEmpty
+                          ? 'Findings so far (${ctx.findings.length})'
+                          : 'Findings so far',
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    key: ValueKey('menu-restart-triage'),
+                    value: _WorkflowMenuAction.restartTriage,
+                    child: _MenuRow(
+                      icon: Icon(
+                        Icons.low_priority_rounded,
+                        size: 20,
+                        color: AppTheme.primaryNavy,
+                      ),
+                      label: 'Restart Triage',
                     ),
                   ),
                   const PopupMenuItem(
                     value: _WorkflowMenuAction.newAssessment,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.restart_alt,
-                          size: 20,
-                          color: AppTheme.primaryNavy,
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          'New assessment',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryNavy,
-                          ),
-                        ),
-                      ],
+                    child: _MenuRow(
+                      icon: Icon(
+                        Icons.restart_alt,
+                        size: 20,
+                        color: AppTheme.primaryNavy,
+                      ),
+                      label: 'New assessment',
                     ),
                   ),
                   const PopupMenuItem(
                     value: _WorkflowMenuAction.refresh,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.refresh_rounded,
-                          size: 20,
-                          color: AppTheme.primaryNavy,
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          'Refresh application',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryNavy,
-                          ),
-                        ),
-                      ],
+                    child: _MenuRow(
+                      icon: Icon(
+                        Icons.refresh_rounded,
+                        size: 20,
+                        color: AppTheme.primaryNavy,
+                      ),
+                      label: 'Refresh application',
                     ),
                   ),
                 ],
@@ -335,13 +338,20 @@ class WorkflowScreen extends ConsumerWidget {
                   builder: (context, constraints) {
                     final compact = constraints.maxWidth < 380;
                     final backToSelectionBtn = OutlinedButton.icon(
-                      onPressed: () => confirmLeaveCondition(
-                        context,
-                        ref,
-                        destinationRoute: '/disease-selection',
-                      ),
+                      key: returnToSelectedStws
+                          ? const ValueKey('return-selected-stws')
+                          : null,
+                      onPressed: returnToSelectedStws
+                          ? returnToList
+                          : () => confirmLeaveCondition(
+                                context,
+                                ref,
+                                destinationRoute: '/disease-selection',
+                              ),
                       icon: const Icon(Icons.arrow_back_rounded, size: 15),
-                      label: const Text('Back to Selection'),
+                      label: Text(returnToSelectedStws
+                          ? 'Return to selected STWs'
+                          : 'Back to Selection'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.primaryNavy,
                         padding: EdgeInsets.symmetric(
@@ -370,7 +380,8 @@ class WorkflowScreen extends ConsumerWidget {
                           button: true,
                           label: 'Reset Screening',
                           child: OutlinedButton.icon(
-                            onPressed: () => _confirmResetScreening(context, ref),
+                            onPressed: () =>
+                                _confirmResetScreening(context, ref),
                             icon: const Icon(
                               Icons.restart_alt_rounded,
                               size: 15,
@@ -694,6 +705,36 @@ class WorkflowScreen extends ConsumerWidget {
   }
 }
 
+/// Icon and label of a "More options" item; the label shrinks rather than
+/// overflowing the menu on narrow screens or with large text.
+class _MenuRow extends StatelessWidget {
+  const _MenuRow({required this.icon, required this.label});
+
+  final Widget icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        children: [
+          icon,
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryNavy,
+              ),
+            ),
+          ),
+        ],
+      );
+}
+
 class _QuestionPage extends ConsumerWidget {
   const _QuestionPage({required this.group});
 
@@ -937,4 +978,3 @@ Color _pdfAccent(NeonatalCondition c) => switch (c) {
       NeonatalCondition.hypoglycemia => const Color(0xFFB45309),
       _ => AppTheme.primaryNavy,
     };
-

@@ -218,14 +218,17 @@ void main() {
 
       // 2. Selection counter and checkboxes present
       expect(find.textContaining('Selected:'), findsNothing);
-      expect(find.byType(Checkbox), findsNWidgets(14));
+      expect(find.byType(Checkbox), findsNWidgets(13));
       expect(find.text('STW Respiratory Distress'), findsOneWidget);
       expect(find.text('STW ROP'), findsOneWidget);
       expect(find.text('Reference'), findsWidgets);
 
-      // 3. Status badges: 6 available, 8 awaiting STW
-      expect(find.text('Available'), findsNWidgets(7));
+      // 3. Status badges: 6 available, 7 awaiting STW; Triage is not a
+      // module, it has its own Start Triage card.
+      expect(find.text('Available'), findsNWidgets(6));
       expect(find.text('Awaiting STW'), findsNWidgets(7));
+      expect(find.text('STW Triage'), findsNothing);
+      expect(find.byKey(const ValueKey('start-triage')), findsOneWidget);
     });
 
     testWidgets(

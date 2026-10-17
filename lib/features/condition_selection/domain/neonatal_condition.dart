@@ -122,13 +122,21 @@ final Map<NeonatalCondition, ConditionDefinition> _byId = {
 
 ConditionDefinition definitionOf(NeonatalCondition c) => _byId[c]!;
 
-/// Count unique selectable diseases across all categories, excluding topics
-/// whose approved STW is still coming soon.
-int get availableDiseaseCount => conditionDefinitions
+/// Topics offered as STW modules. Triage is not one: it is the first step
+/// before the module list (Landing -> Triage -> modules) and is reopened from
+/// its own entry point, not selected like a module.
+final List<ConditionDefinition> stwModuleDefinitions = [
+  for (final d in conditionDefinitions)
+    if (d.id != NeonatalCondition.triage) d,
+];
+
+/// Count unique selectable STW modules, excluding Triage and topics whose
+/// approved STW is still coming soon.
+int get availableDiseaseCount => stwModuleDefinitions
     .where((d) => d.implemented)
     .map((d) => d.id)
     .toSet()
     .length;
 
 int get listedConditionCount =>
-    conditionDefinitions.map((d) => d.id).toSet().length;
+    stwModuleDefinitions.map((d) => d.id).toSet().length;

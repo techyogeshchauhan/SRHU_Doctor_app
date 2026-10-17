@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
-import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/responsive.dart';
-import '../../clinical_workflow/state/assessment_controller.dart';
-import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../triage/ui/triage_entry.dart';
 import 'institutional_partners_section.dart';
 
 /// Landing Screen shown on app launch.
@@ -63,15 +60,6 @@ class _LandingScreenState extends ConsumerState<LandingScreen>
   void dispose() {
     _fadeCtrl.dispose();
     super.dispose();
-  }
-
-  /// Triage is the first step; the next STW is chosen after it completes.
-  void _startTriage() {
-    clearConditionData(ref);
-    ref
-        .read(assessmentProvider.notifier)
-        .start({NeonatalCondition.triage}, forceReset: true);
-    context.go('/workflow');
   }
 
   @override
@@ -168,7 +156,9 @@ class _LandingScreenState extends ConsumerState<LandingScreen>
                             ),
                             elevation: 0,
                           ),
-                          onPressed: _startTriage,
+                          // Triage is the first step; the next STW is
+                          // chosen after it completes.
+                          onPressed: () => startTriage(context, ref),
                           child: const Text(
                             'Continue',
                             style: TextStyle(

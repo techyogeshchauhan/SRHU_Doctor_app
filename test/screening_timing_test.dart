@@ -29,15 +29,16 @@ void main() {
   test('disease counts come from unique catalog entries, not selection', () {
     expect(
         availableDiseaseCount,
-        conditionDefinitions
+        stwModuleDefinitions
             .where((d) => d.implemented)
             .map((d) => d.id)
             .toSet()
             .length);
     expect(listedConditionCount,
-        conditionDefinitions.map((d) => d.id).toSet().length);
-    expect(availableDiseaseCount, 7);
-    expect(listedConditionCount, 14);
+        stwModuleDefinitions.map((d) => d.id).toSet().length);
+    // Triage runs before the modules and is not counted as one.
+    expect(availableDiseaseCount, 6);
+    expect(listedConditionCount, 13);
   });
 
   group('persistent screening timings', () {

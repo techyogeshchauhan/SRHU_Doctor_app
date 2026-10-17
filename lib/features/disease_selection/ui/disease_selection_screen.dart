@@ -166,12 +166,6 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                     AppTheme.primaryTeal,
                   ),
                   (
-                    NeonatalCondition.triage,
-                    'Neonatal Emergency Triage Assessment and Management',
-                    Icons.low_priority_rounded,
-                    AppTheme.accentRd,
-                  ),
-                  (
                     NeonatalCondition.kmc,
                     'Kangaroo Mother Care (KMC)',
                     Icons.favorite_border_rounded,
@@ -233,6 +227,7 @@ class DiseaseCard extends StatelessWidget {
     required this.onStartScreening,
     this.highlighted = false,
     this.onOpenStwText,
+    this.trailing,
   });
 
   final String title;
@@ -243,6 +238,9 @@ class DiseaseCard extends StatelessWidget {
   final String pdfTitle;
   final VoidCallback onStartScreening;
   final bool highlighted;
+
+  /// Optional control in place of the navigation arrow.
+  final Widget? trailing;
 
   /// Opens the verbatim STW text (DOs/DON'Ts, KPIs, ...); hidden when null.
   final VoidCallback? onOpenStwText;
@@ -412,11 +410,12 @@ class DiseaseCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 15,
-                color: AppTheme.primaryBlue,
-              ),
+              trailing ??
+                  const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 15,
+                    color: AppTheme.primaryBlue,
+                  ),
             ],
           ),
         ),

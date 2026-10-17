@@ -23,7 +23,7 @@ Future<void> _pumpToSelection(
 
 void main() {
   testWidgets(
-      'selection lists all 14 conditions uniformly with ROP and RD at top, live counter, 4 selectable and 10 disabled',
+      'selection lists the 13 STW modules uniformly with ROP and RD at top, live counter, 6 selectable and 7 disabled',
       (tester) async {
     await _pumpToSelection(tester);
 
@@ -47,16 +47,18 @@ void main() {
     expect(find.text('1'), findsNothing);
     expect(find.text('2'), findsNothing);
 
-    // 4. Exactly 14 checkboxes for all 14 conditions in a single view
-    expect(find.byType(Checkbox), findsNWidgets(14));
+    // 4. Exactly 13 checkboxes: every STW module, but not Triage
+    expect(find.byType(Checkbox), findsNWidgets(13));
+    expect(find.text('STW Triage'), findsNothing);
+    expect(find.byKey(const ValueKey('condition-index-triage')), findsNothing);
     final displayed = [
       definitionOf(NeonatalCondition.rop),
       definitionOf(NeonatalCondition.respiratoryDistress),
-      ...conditionDefinitions.where((d) =>
+      ...stwModuleDefinitions.where((d) =>
           d.implemented &&
           d.id != NeonatalCondition.rop &&
           d.id != NeonatalCondition.respiratoryDistress),
-      ...conditionDefinitions.where((d) => !d.implemented),
+      ...stwModuleDefinitions.where((d) => !d.implemented),
     ];
     for (final (index, disease) in displayed.indexed) {
       expect(
@@ -73,12 +75,12 @@ void main() {
     expect(ropFinder, findsOneWidget);
     expect(rdFinder, findsOneWidget);
 
-    // 6. Uniform status badges: 7 available, 7 awaiting STW
-    expect(find.text('Available'), findsNWidgets(7));
+    // 6. Uniform status badges: 6 available, 7 awaiting STW
+    expect(find.text('Available'), findsNWidgets(6));
     expect(find.text('Awaiting STW'), findsNWidgets(7));
 
-    // Verify all 14 condition titles are present
-    for (final d in conditionDefinitions) {
+    // Verify all 13 module titles are present
+    for (final d in stwModuleDefinitions) {
       expect(find.text(d.title), findsOneWidget);
     }
 
@@ -223,6 +225,12 @@ void main() {
                 .data,
             '$number.');
       }
+      // Triage runs before the modules, so it has no card here.
+      expect(
+          find.byKey(ValueKey('disease-card-index-${availableDiseaseCount + 1}')),
+          findsNothing);
+      expect(find.text('Neonatal Emergency Triage Assessment and Management'),
+          findsNothing);
       expect(tester.takeException(), isNull);
     }
     await tester.pumpWidget(const SizedBox.shrink());
@@ -263,8 +271,12 @@ void main() {
       (tester) async {
     await _pumpToSelection(tester);
 
-    // Tap Reference button for ROP (first active condition at top)
-    await tapVisible(tester, find.text('Reference').first);
+    // Tap Reference button for ROP (first active condition at top; the
+    // Triage card above the list has its own Reference button)
+    final ropTile =
+        find.ancestor(of: find.text('STW ROP'), matching: find.byType(InkWell));
+    await tapVisible(tester,
+        find.descendant(of: ropTile.first, matching: find.text('Reference')));
 
     // Opens PDF viewer screen
     expect(find.text('Retinopathy of Prematurity (ROP)'), findsWidgets);

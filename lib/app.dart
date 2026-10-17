@@ -63,10 +63,24 @@ GoRouter buildRouter() => GoRouter(
             );
           },
         ),
-        GoRoute(path: '/workflow', builder: (_, __) => const WorkflowScreen()),
+        GoRoute(
+          path: '/workflow',
+          builder: (_, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return WorkflowScreen(
+              returnToSelectedStws: extra?['returnToSelectedStws'] == true,
+            );
+          },
+        ),
         GoRoute(
           path: '/next-stw',
           builder: (_, __) => const NextStwScreen(),
+        ),
+        GoRoute(
+          path: '/selected-stws',
+          builder: (_, state) => NextStwScreen(
+            selectedModules: state.extra as Set<NeonatalCondition>? ?? const {},
+          ),
         ),
         GoRoute(
           path: '/stw-map',
