@@ -24,6 +24,7 @@ void main() {
                 for (final question in [
                   qTriageWeight,
                   qTriageTemperature,
+                  qTriageHeartRate,
                   qTriageSpo2,
                   qTriageBloodGlucose,
                 ])
@@ -46,6 +47,7 @@ void main() {
       for (final question in [
         qTriageWeight,
         qTriageTemperature,
+        qTriageHeartRate,
         qTriageSpo2,
         qTriageBloodGlucose,
       ]) {
@@ -55,11 +57,10 @@ void main() {
         expect(find.text(question.stwRange!), findsOneWidget,
             reason: question.question);
       }
-      for (final unit in ['°C', '%', 'kg', 'mg/dL']) {
+      for (final unit in ['°C', 'bpm', '%', 'kg', 'mg/dL']) {
         expect(find.text(unit), findsOneWidget, reason: unit);
       }
-      expect(find.text('bpm'), findsNothing);
-      expect(find.byIcon(Icons.mic_none_rounded), findsNWidgets(4));
+      expect(find.byIcon(Icons.mic_none_rounded), findsNWidgets(5));
       expect(tester.takeException(), isNull);
     }
     addTearDown(tester.view.reset);
@@ -93,22 +94,27 @@ void main() {
     expect(find.text('e.g., 2.5'), findsNothing);
   });
 
-  test('weight is the first triage field and heart rate is removed', () {
+  test('measurements: weight first, then temperature, heart rate, SpO2, RBS',
+      () {
     final measurements = [
       for (final u in triageWorkflow.uses)
-        if (u.question.group == 'triage_measurements') u.question.id,
+        if (u.question.type == QuestionType.numeric ||
+            u.question.type == QuestionType.decimal)
+          u.question.id,
     ];
     expect(measurements, [
       triageWeightKey,
       triageTemperatureKey,
+      triageHeartRateKey,
       triageSpo2Key,
       triageBloodGlucoseKey,
     ]);
-    expect(triageGroups.first.questionOrder.first, triageWeightKey);
-    expect(
-      triageWorkflow.uses.where((u) => u.question.question == 'Heart rate'),
-      isEmpty,
-    );
+    final order = triageGroups.single.questionOrder;
+    expect(order.indexOf(triageWeightKey),
+        lessThan(order.indexOf(triageTemperatureKey)));
+    expect(order.indexOf(triageHeartRateKey),
+        lessThan(order.indexOf(triageSpo2Key)));
+    expect(qTriageHeartRate.unit, 'bpm');
   });
 
   testWidgets('STW range stays visible below the field while typing',

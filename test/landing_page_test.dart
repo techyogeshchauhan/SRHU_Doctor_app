@@ -48,9 +48,10 @@ void main() {
         await tester.tap(continueBtn);
         await tester.pumpAndSettle();
         expect(find.text('Clinical Assessment'), findsOneWidget);
-        expect(find.text('Initial triage measurements'), findsOneWidget);
+        expect(find.text('Triage assessment'), findsOneWidget);
         expect(find.text('Weight'), findsOneWidget);
-        expect(find.text('Heart rate'), findsNothing);
+        expect(find.text('Heart rate (HR)'), findsOneWidget);
+        expect(find.textContaining('Select the triage category'), findsNothing);
         expect(find.byKey(const ValueKey('next-step')), findsNothing);
 
         // Condition selection is still reachable
@@ -158,6 +159,26 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('STW Advisory Disclaimer'), findsNothing);
     });
+
+    for (final size in const [Size(360, 640), Size(1280, 800)]) {
+      testWidgets(
+          'Home AppBar button returns to the Landing page '
+          '(${size.width.toInt()}x${size.height.toInt()})', (tester) async {
+        await _pumpAppAt(tester, size: size);
+        await goToHome(tester);
+        expect(find.text('Clinical guidance for newborn care'), findsNothing);
+
+        final back = find.byKey(const ValueKey('back-to-landing'));
+        expect(back, findsOneWidget);
+        expect(find.byTooltip('Back to Landing page'), findsOneWidget);
+        await tapVisible(tester, back);
+
+        // Nothing in progress on Home, so no confirmation is needed.
+        expect(find.text('Progress will be reset'), findsNothing);
+        expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
 
     testWidgets('References link navigates to References screen from Home',
         (tester) async {

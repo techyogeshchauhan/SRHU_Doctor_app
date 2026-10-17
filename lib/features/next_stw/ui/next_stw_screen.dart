@@ -7,6 +7,8 @@ import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
+import '../../../data/repositories/audit_log_repository.dart';
+import '../../../data/repositories/screening_sync_repository.dart' show diseaseCodeOf;
 import '../../../shared/pdf_navigation.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
@@ -52,11 +54,17 @@ class _NextStwScreenState extends ConsumerState<NextStwScreen> {
     void showSelected() {
       final selected = _selected.intersection(remaining.toSet());
       if (selected.isEmpty) return;
+      ref.read(auditLogProvider).tap('explore_stws_continue', {
+        'modules': [for (final c in selected) diseaseCodeOf(c)]..sort(),
+      });
       context.push('/selected-stws',
           extra: Set<NeonatalCondition>.unmodifiable(selected));
     }
 
     Future<void> startScreening(NeonatalCondition condition) async {
+      final audit = ref.read(auditLogProvider);
+      final code = diseaseCodeOf(condition);
+      audit.log('module_entered', {'disease': code, 'via': 'next_step'});
       clearConditionData(ref);
       ref
           .read(assessmentProvider.notifier)
@@ -65,9 +73,11 @@ class _NextStwScreenState extends ConsumerState<NextStwScreen> {
       await context.push('/workflow', extra: {'returnToSelectedStws': true});
       if (!mounted) return;
       final result = ref.read(assessmentProvider);
-      if (result.isComplete &&
+      final completed = result.isComplete &&
           result.context.selected.length == 1 &&
-          result.context.selected.contains(condition)) {
+          result.context.selected.contains(condition);
+      audit.log('module_exited', {'disease': code, 'completed': completed});
+      if (completed) {
         setState(() => _completed.add(condition));
       }
     }

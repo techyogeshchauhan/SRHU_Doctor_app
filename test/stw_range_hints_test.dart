@@ -32,6 +32,7 @@ void main() {
     triageWeightKey: ['triage_priority_signs'],
     triageTemperatureKey: ['triage_emergency_signs', 'triage_priority_signs'],
     triageSpo2Key: ['triage_emergency_signs', 'triage_emergency_actions'],
+    triageHeartRateKey: ['triage_emergency_signs'],
     triageBloodGlucoseKey: ['triage_hypoglycemia'],
   };
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/repositories/audit_log_repository.dart';
 import '../features/ancs/domain/ancs_content.dart';
 import '../features/chatbot/domain/models/stw_chunk.dart';
 import '../features/clinical_workflow/domain/source_reference.dart';
@@ -75,12 +76,15 @@ StwPdf? stwPdfForDocument(String document) => switch (document) {
       _ => null,
     };
 
-/// Open a bundled STW PDF in the in-app PDF viewer.
+/// Open a bundled STW PDF in the in-app PDF viewer. [origin] (the card or
+/// page holding the link) is recorded in the audit trail.
 void openStwPdf(
   BuildContext context, {
   required String assetPath,
   required String title,
+  String? origin,
 }) {
+  AuditLog.instance.stwPdfOpened(asset: assetPath, origin: origin);
   context.push(
     '/pdf-viewer?path=${Uri.encodeComponent(assetPath)}&title=${Uri.encodeComponent(title)}',
     extra: {
@@ -127,12 +131,16 @@ Future<HighlightTarget?> stwRegionTarget(String regionId) async {
 }
 
 /// Open [pdf] scrolled to and highlighting region [regionId]; opens the
-/// plain PDF when the region is unknown.
+/// plain PDF when the region is unknown. [origin] (the card or page holding
+/// the link) is recorded in the audit trail.
 Future<void> openStwRegion(
   BuildContext context, {
   required StwPdf pdf,
   required String regionId,
+  String? origin,
 }) async {
+  AuditLog.instance
+      .stwPdfOpened(asset: pdf.asset, regionId: regionId, origin: origin);
   final resolved = await stwRegionTarget(regionId);
   final target = resolved != null && pdf.asset.endsWith('/${resolved.document}')
       ? resolved

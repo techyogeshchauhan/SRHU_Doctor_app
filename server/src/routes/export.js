@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { getChatLogsCollection, getScreeningsCollection, getSessionsCollection } from '../db.js';
+import { getAuditEventsCollection, getChatLogsCollection, getScreeningsCollection, getSessionsCollection } from '../db.js';
 import { exportApiKeyAuth } from '../middleware/auth.js';
-import { exportChatLogsQuerySchema, exportQuerySchema, uuidSchema } from '../schemas.js';
+import { exportAuditEventsQuerySchema, exportChatLogsQuerySchema, exportQuerySchema, uuidSchema } from '../schemas.js';
 
 const router = Router();
 
@@ -22,6 +22,8 @@ const screeningProjection = {
   responses: 1,
   findings: 1,
   mcqAttempts: 1,
+  decision: 1,
+  decisionRecordedAt: 1,
 };
 
 // The per-device session token links every session from one device, so it
@@ -130,6 +132,18 @@ router.get('/chat-logs', async (req, res, next) => {
   try {
     const filters = exportChatLogsQuerySchema.parse(req.query);
     const result = await paginate(getChatLogsCollection(), filters, {}, 'createdAt');
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /export/audit-events?from=&to=&sessionId=&type=&limit=&cursor=&page=
+router.get('/audit-events', async (req, res, next) => {
+  try {
+    const filters = exportAuditEventsQuerySchema.parse(req.query);
+    const query = filters.type ? { type: filters.type } : {};
+    const result = await paginate(getAuditEventsCollection(), filters, query, 'occurredAt');
     res.status(200).json(result);
   } catch (err) {
     next(err);

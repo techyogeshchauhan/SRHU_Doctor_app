@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/theme.dart';
+import 'data/repositories/audit_log_repository.dart';
 import 'core/widgets/chat_launcher.dart';
+import 'core/widgets/release_notes_dialog.dart';
 import 'core/widgets/responsive.dart';
 import 'features/chatbot/ui/chat_screen.dart';
 import 'features/clinical_workflow/ui/workflow_screen.dart';
@@ -156,7 +158,26 @@ class _NeonatalStwAppState extends State<NeonatalStwApp> {
   final _router = buildRouter();
 
   @override
+  void initState() {
+    super.initState();
+    // Every navigation (including the PDF viewer) goes to the audit trail.
+    _router.routerDelegate.addListener(_logScreen);
+    _logScreen();
+    // Once per app start: "What's New" if this release is unseen here.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final navigator = _router.routerDelegate.navigatorKey.currentContext;
+      if (navigator != null) showReleaseNotesIfNew(navigator);
+    });
+  }
+
+  void _logScreen() {
+    final uri = _router.routerDelegate.currentConfiguration.uri;
+    AuditLog.instance.screenView(uri.toString());
+  }
+
+  @override
   void dispose() {
+    _router.routerDelegate.removeListener(_logScreen);
     _router.dispose();
     super.dispose();
   }

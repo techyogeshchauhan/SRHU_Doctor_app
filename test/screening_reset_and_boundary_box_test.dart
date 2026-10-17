@@ -18,6 +18,7 @@ import 'package:neonatal_stw/features/rd/state/rd_controller.dart';
 import 'package:neonatal_stw/features/rd/ui/rd_screen.dart';
 import 'package:neonatal_stw/features/references/ui/pdf_viewer_screen.dart';
 import 'package:neonatal_stw/features/rop/state/rop_controller.dart';
+import 'package:neonatal_stw/features/triage/domain/triage_workflow.dart';
 import 'package:neonatal_stw/features/rop/ui/rop_screen.dart';
 import 'package:neonatal_stw/shared/baby_context.dart';
 
@@ -159,9 +160,9 @@ void main() {
       final currentGroup = container.read(assessmentProvider).currentGroup!;
       final questions = engine.pageQuestions(container.read(assessmentProvider).context, currentGroup);
       expect(questions.isNotEmpty, isTrue);
-      final firstQ = questions.first.question;
-      // The first Triage field is Weight, stored in grams.
-      container.read(assessmentProvider.notifier).answer(firstQ.id, 2500);
+      // Weight is on the Triage page, stored in grams.
+      expect(questions.map((q) => q.id), contains(triageWeightKey));
+      container.read(assessmentProvider.notifier).answer(triageWeightKey, 2500);
 
       // Verify answer exists
       expect(container.read(assessmentProvider).context.answers, isNotEmpty);

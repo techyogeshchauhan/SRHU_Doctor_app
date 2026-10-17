@@ -413,6 +413,7 @@ describe('Neonatal STW REST API Backend', () => {
     `/screenings/${testScreeningId}`,
     '/chat-logs',
     `/chat-logs?sessionId=${testSessionId}`,
+    '/audit-events',
   ]) {
     it(`Client key: GET ${path} is refused (write-only)`, async () => {
       for (const key of [testApiKey, testExportKey, null]) {
@@ -425,6 +426,121 @@ describe('Neonatal STW REST API Backend', () => {
       }
     });
   }
+
+  it('PUT /screenings/:id/decision stores the latest decision and exports it', async () => {
+    const decision = (category) => ({
+      decision: {
+        topic: 'triage',
+        category,
+        triggers: ['HR 210/min (>200/min)'],
+        flaggedCards: [{ id: 'circulation', because: ['HR 210/min (>200/min)'] }],
+        computedDoses: [],
+      },
+      recordedAt: '2026-10-17T10:00:00.000Z',
+    });
+    const first = await request(app)
+      .put(`/screenings/${testScreeningId}/decision`)
+      .set('x-api-key', testApiKey)
+      .send(decision('PRIORITY'));
+    assert.equal(first.status, 200);
+    const second = await request(app)
+      .put(`/screenings/${testScreeningId}/decision`)
+      .set('x-api-key', testApiKey)
+      .send(decision('EMERGENCY'));
+    assert.equal(second.status, 200);
+
+    const doc = await getScreeningsCollection().findOne({ _id: testScreeningId });
+    assert.equal(doc.decision.category, 'EMERGENCY');
+    assert.deepEqual(doc.decision.triggers, ['HR 210/min (>200/min)']);
+
+    const exported = await request(app)
+      .get(`/export/screenings/${testScreeningId}`)
+      .set('x-api-key', testExportKey);
+    assert.equal(exported.status, 200);
+    assert.equal(exported.body.decision.category, 'EMERGENCY');
+  });
+
+  it('PUT /screenings/:id/decision: unknown screening is 404, PHI keys are 400', async () => {
+    const missing = await request(app)
+      .put('/screenings/99999999-9999-4999-8999-999999999999/decision')
+      .set('x-api-key', testApiKey)
+      .send({ decision: { category: 'EMERGENCY' } });
+    assert.equal(missing.status, 404);
+    const phi = await request(app)
+      .put(`/screenings/${testScreeningId}/decision`)
+      .set('x-api-key', testApiKey)
+      .send({ decision: { patient_name: 'Baby X' } });
+    assert.equal(phi.status, 400);
+  });
+
+  it('POST /audit-events stores a batch once, even when resent', async () => {
+    const events = [
+      {
+        _id: '33333333-3333-4333-8333-333333333331',
+        sessionId: testSessionId,
+        type: 'screen_view',
+        screen: '/workflow',
+        occurredAt: '2026-10-17T10:00:00.000Z',
+      },
+      {
+        _id: '33333333-3333-4333-8333-333333333332',
+        sessionId: testSessionId,
+        type: 'stw_pdf_opened',
+        screen: '/workflow',
+        data: { regionId: 'triage_hypoglycemia', origin: 'triage_card:hypoglycemia' },
+        occurredAt: '2026-10-17T10:00:05.000Z',
+      },
+    ];
+    for (let i = 0; i < 2; i++) {
+      const res = await request(app).post('/audit-events').set('x-api-key', testApiKey).send({ events });
+      assert.equal(res.status, 200);
+      assert.equal(res.body.inserted, i === 0 ? 2 : 0);
+    }
+
+    const exported = await request(app)
+      .get(`/export/audit-events?sessionId=${testSessionId}&type=stw_pdf_opened`)
+      .set('x-api-key', testExportKey);
+    assert.equal(exported.status, 200);
+    assert.equal(exported.body.total, 1);
+    assert.equal(exported.body.data[0].data.regionId, 'triage_hypoglycemia');
+  });
+
+  it('POST /audit-events rejects PHI keys and malformed events', async () => {
+    const base = {
+      _id: '33333333-3333-4333-8333-333333333339',
+      type: 'tap',
+      occurredAt: '2026-10-17T10:00:00.000Z',
+    };
+    const phi = await request(app)
+      .post('/audit-events')
+      .set('x-api-key', testApiKey)
+      .send({ events: [{ ...base, data: { mrn: '123' } }] });
+    assert.equal(phi.status, 400);
+    const unknownField = await request(app)
+      .post('/audit-events')
+      .set('x-api-key', testApiKey)
+      .send({ events: [{ ...base, freeText: 'x' }] });
+    assert.equal(unknownField.status, 400);
+    const empty = await request(app).post('/audit-events').set('x-api-key', testApiKey).send({ events: [] });
+    assert.equal(empty.status, 400);
+  });
+
+  it('POST /chat-logs stores the clinical context', async () => {
+    const res = await request(app)
+      .post('/chat-logs')
+      .set('x-api-key', testApiKey)
+      .send({
+        _id: '55555555-5555-4555-8555-555555555555',
+        sessionId: testSessionId,
+        userQuery: 'shock bolus',
+        extractedAnswer: 'IV NS 10 mL/kg',
+        found: true,
+        context: { selected: ['triage'], triageCategory: 'EMERGENCY' },
+      });
+    assert.equal(res.status, 200);
+    const doc = await getChatLogsCollection().findOne({ _id: '55555555-5555-4555-8555-555555555555' });
+    assert.equal(doc.context.triageCategory, 'EMERGENCY');
+  });
 
   it('Client key: HEAD on client routes is refused too', async () => {
     const res = await request(app).head(`/screenings/${testScreeningId}`).set('x-api-key', testApiKey);
@@ -443,6 +559,7 @@ describe('Neonatal STW REST API Backend', () => {
     `/export/sessions/${testSessionId}`,
     `/export/screenings/${testScreeningId}`,
     '/export/chat-logs',
+    '/export/audit-events',
   ]) {
     it(`Export: GET ${path} rejects the write key and a missing key`, async () => {
       const withWriteKey = await request(app).get(path).set('x-api-key', testApiKey);

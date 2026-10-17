@@ -68,7 +68,7 @@ Source: `Respiratory_Distress_STW_Final 15-10-26.pdf`, bundled as `respiratory_d
 
 ### Neonatal Emergency Triage Module
 
-Records temperature, SpO₂, heart rate, weight and blood glucose when available, then checks the emergency, priority and non-urgent signs in the Triage STW. Recorded temperature, SpO₂ and weight apply the PDF thresholds; when signs match more than one category, the clinician selects the category. The summary shows the matching triage actions and any applicable specific management guidance from the PDF.
+One page records the history (skipped with **Baby is sick – proceed directly to examination**), weight, term/preterm, temperature, heart rate, SpO₂, RBS and the Triage STW emergency signs. The category is **classified automatically** and shown live while data is entered: any Emergency trigger (temperature <35.5°C, HR >200/min, SpO₂ <91% or central cyanosis, apnea/gasping, convulsions/coma, respiratory distress, shock, severe dehydration, or RBS <45 mg/dL) gives **EMERGENCY**; otherwise temperature 35.5–36.4°C or weight <1800 g gives **PRIORITY**. There is no category prompt, and no Priority, Non-urgent or specific-findings checklist. Continue opens the **Emergency Treatment** dashboard: TABC cards plus Shock → fluid bolus, Hypoglycemia and Respiratory distress cards, flagged from the recorded signs, each with buttons that open the exact STW box highlighted in the PDF. The timer keeps running across the triage steps. Open clinical points are T1–T6 in `docs/CLINICAL_REVIEW.md`.
 
 ### Kangaroo Mother Care (KMC) Module
 
@@ -399,5 +399,5 @@ The two bundled STW documents have unique layout characteristics:
 
 ## Version
 
-`0.1.0+1` — Based on ICMR / DHR STW documents (August 2026).
+`1.1.0` — Based on ICMR / DHR STW documents (August 2026). Release highlights are in `lib/core/config/release_notes.dart` (shown in-app as "What's New"); keep its `kCurrentAppVersion` equal to the `pubspec.yaml` version.
 

@@ -24,7 +24,10 @@ class _RecordingLogRepository implements ChatLogRepository {
   final logs = <_Log>[];
 
   @override
-  Future<void> logChatQuery({
+  String? get lastChatLogId => logs.isEmpty ? null : 'log-${logs.length}';
+
+  @override
+  Future<String> logChatQuery({
     String? sessionId,
     required String query,
     required String answer,
@@ -33,8 +36,10 @@ class _RecordingLogRepository implements ChatLogRepository {
     required bool found,
     String? regionId,
     String? retrieverType,
+    Map<String, Object?>? context,
   }) async {
     logs.add(_Log(query, retrieverType!, regionId, found));
+    return lastChatLogId!;
   }
 }
 

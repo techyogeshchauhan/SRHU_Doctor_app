@@ -1,11 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/repositories/audit_log_repository.dart';
 import '../../../data/repositories/screening_sync_repository.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../condition_selection/state/condition_selection_controller.dart';
 import '../../rd/domain/rd_workflow.dart';
 import '../domain/assessment_context.dart';
 import '../domain/assessment_engine.dart';
+import '../domain/clinical_question.dart';
+import '../domain/decision_record.dart';
 
 /// Date used by age/timing rules. Overridden in tests.
 final assessmentTodayProvider = Provider<DateTime>((ref) {
@@ -115,14 +118,20 @@ class AssessmentController extends Notifier<AssessmentState> {
     _update(answers: answers);
 
     // Goal B: Asynchronously upsert response in background queue. Dates and
-    // free text stay on the device (see isSyncableQuestion).
-    if (!isSyncableQuestion(q)) return;
+    // free text stay on the device (see isSyncableQuestion); for free text
+    // only whether it was filled in is sent.
     final syncRepo = ref.read(screeningSyncRepositoryProvider);
+    final (syncedId, syncedValue) = isSyncableQuestion(q)
+        ? (questionId, valid)
+        : q.type == QuestionType.text
+            ? ('${questionId}_provided', q.isAnswered(valid))
+            : (null, null);
+    if (syncedId == null) return;
     for (final c in state.context.selected) {
       syncRepo.recordResponse(
         diseaseCode: diseaseCodeOf(c),
-        questionId: questionId,
-        value: valid,
+        questionId: syncedId,
+        value: syncedValue,
       );
     }
   }
@@ -144,8 +153,13 @@ class AssessmentController extends Notifier<AssessmentState> {
       history: history,
       cursor: reviewing && i + 1 < history.length ? history[i + 1] : null,
     );
+    ref.read(auditLogProvider).log('page_confirmed', {
+      'group': group,
+      'next': state.currentGroup ?? 'results',
+    });
 
-    // Goal B: When screening reaches summary/completion, record findings and mark completed
+    // Goal B: When screening reaches summary/completion, record findings,
+    // the decision snapshot, and mark completed
     if (state.isComplete) {
       final syncRepo = ref.read(screeningSyncRepositoryProvider);
       for (final c in state.context.selected) {
@@ -153,6 +167,10 @@ class AssessmentController extends Notifier<AssessmentState> {
         syncRepo.recordFindings(
           diseaseCode: diseaseCodeOf(c),
           findings: findings,
+        );
+        syncRepo.recordDecision(
+          diseaseCode: diseaseCodeOf(c),
+          decision: clinicalDecisionRecord(c, state.context),
         );
         syncRepo.completeScreening(diseaseCodeOf(c));
       }
@@ -168,6 +186,10 @@ class AssessmentController extends Notifier<AssessmentState> {
     final target = i < 0 ? h.length - 1 : i - 1;
     if (target < 0 || h.isEmpty) return false;
     _update(cursor: h[target]);
+    ref.read(auditLogProvider).log('page_back', {
+      'from': current ?? 'results',
+      'to': h[target],
+    });
     return true;
   }
 

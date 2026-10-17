@@ -1,7 +1,7 @@
 name: neonatal_stw
 description: Bedside decision support for the ICMR/DHR Standard Treatment Workflows on Respiratory Distress in Neonates and Retinopathy of Prematurity.
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.1.0+1
 
 environment:
   sdk: '>=3.5.0 <4.0.0'

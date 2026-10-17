@@ -4,7 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
 import 'package:neonatal_stw/features/clinical_workflow/state/assessment_controller.dart';
 import 'package:neonatal_stw/features/clinical_workflow/ui/workflow_screen.dart';
+import 'package:neonatal_stw/data/repositories/screening_sync_repository.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
+import 'package:neonatal_stw/features/references/ui/pdf_viewer_screen.dart';
+import 'package:neonatal_stw/features/triage/domain/triage_workflow.dart';
+import 'package:neonatal_stw/shared/pdf_navigation.dart';
 
 import 'test_helpers.dart';
 
@@ -38,7 +42,157 @@ Future<ProviderContainer> _completeTriage(WidgetTester tester) async {
   return container;
 }
 
+/// Types [text] into the field of Triage question [id].
+Future<void> _enter(WidgetTester tester, String id, String text) async {
+  final field = find.descendant(
+    of: find.byKey(ValueKey(id)),
+    matching: find.byType(TextField),
+  );
+  await tester.ensureVisible(field);
+  await tester.enterText(field, text);
+  await tester.pumpAndSettle();
+}
+
+/// Landing -> the single Triage page.
+Future<ProviderContainer> _openTriage(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(412, 915);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
+  await tester.pumpAndSettle();
+  await tapVisible(tester, find.text('Continue'));
+  return ProviderScope.containerOf(
+    tester.element(find.text('Clinical Assessment').first),
+  );
+}
+
 void main() {
+  group('Automated triage classification', () {
+    testWidgets(
+        'HR 210 classifies EMERGENCY without a prompt; one Continue opens '
+        'the Emergency Treatment dashboard', (tester) async {
+      final container = await _openTriage(tester);
+      expect(container.read(assessmentProvider).currentGroup,
+          triageAssessmentGroup);
+      expect(find.byKey(const ValueKey('triage-category-emergency')),
+          findsNothing);
+
+      await _enter(tester, triageHeartRateKey, '210');
+      // Zero-click: the category is shown while typing.
+      expect(find.byKey(const ValueKey('triage-category-emergency')),
+          findsOneWidget);
+      expect(container.read(assessmentProvider).context.valueOf(
+          triageCategoryKey), triageEmergency);
+      await _enter(tester, triageWeightKey, '2.5');
+      await tapVisible(tester, find.text('Term (T)'));
+
+      await _continuePage(tester);
+      // Baby details come from the Triage answers.
+      expect(find.text('GA Term · Weight 2.5 kg'), findsOneWidget);
+      expect(find.textContaining('GA — · BW —'), findsNothing);
+      final s = container.read(assessmentProvider);
+      expect(s.isComplete, isTrue);
+      expect(find.textContaining('Select the triage category'), findsNothing);
+      expect(find.text('Emergency Treatment'), findsOneWidget);
+      expect(find.byKey(const ValueKey('triage-treatment-dashboard')),
+          findsOneWidget);
+      for (final id in ['temperature', 'airway', 'breathing', 'circulation']) {
+        expect(find.byKey(ValueKey('triage-card-$id')), findsOneWidget,
+            reason: id);
+      }
+      expect(find.byKey(const ValueKey('triage-card-circulation-flagged')),
+          findsOneWidget);
+      expect(s.context.findings.map((f) => f.id),
+          containsAll(['triage.classification', 'triage.emergencyActions']));
+      expect(find.byKey(const ValueKey('next-step')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+        'RBS 35 flags the Hypoglycemia card; its STW button opens the PDF',
+        (tester) async {
+      // Regions are decoded off the main isolate; cache them with real async
+      // so the fake-async zone finds them when the link is tapped.
+      await tester.runAsync(() => stwRegionTarget('triage_hypoglycemia'));
+      await _openTriage(tester);
+      await _enter(tester, triageBloodGlucoseKey, '35');
+      expect(find.byKey(const ValueKey('triage-category-emergency')),
+          findsOneWidget);
+      // Shown inline on the same page, no extra screen.
+      expect(find.textContaining('Is the neonate symptomatic?'), findsOneWidget);
+      final no = find.descendant(
+        of: find.byKey(const ValueKey(triageHypoglycemiaSymptomsKey)),
+        matching: find.text('No'),
+      );
+      await tapVisible(tester, no);
+      await _continuePage(tester);
+
+      expect(find.byKey(const ValueKey('triage-card-hypoglycemia-flagged')),
+          findsOneWidget);
+      expect(find.byKey(const ValueKey('triage-card-shock-flagged')),
+          findsNothing);
+      final link = find.byKey(
+          const ValueKey('triage-link-hypoglycemia-triage_hypoglycemia'));
+      expect(link, findsOneWidget);
+      await tapVisible(tester, link);
+      expect(find.byType(PdfViewerScreen), findsOneWidget);
+    });
+
+    testWidgets('the Shock sign highlights the Shock -> Bolus pathway',
+        (tester) async {
+      await _openTriage(tester);
+      // The removed checklists are not on the page.
+      for (final removed in [
+        'Perfusion / shock signs (tick all that apply)',
+        'Priority signs (tick all that apply)',
+        'Non-urgent signs (tick all that apply)',
+        'Specific management findings (tick all that apply)',
+      ]) {
+        expect(find.textContaining(removed), findsNothing, reason: removed);
+      }
+      await tapVisible(tester, find.textContaining('Shock (cold peripheries'));
+      expect(find.byKey(const ValueKey('triage-category-emergency')),
+          findsOneWidget);
+      await _continuePage(tester);
+      expect(find.byKey(const ValueKey('triage-card-shock-flagged')),
+          findsOneWidget);
+      expect(find.byKey(const ValueKey('triage-link-shock-triage_shock')),
+          findsOneWidget);
+    });
+
+    testWidgets('fast-track hides the maternal and newborn history',
+        (tester) async {
+      await _openTriage(tester);
+      expect(find.byKey(const ValueKey(triageMaternalHistoryKey)),
+          findsOneWidget);
+      await tapVisible(tester,
+          find.text('Baby is sick – proceed directly to examination'));
+      expect(find.byKey(const ValueKey(triageMaternalHistoryKey)),
+          findsNothing);
+      expect(find.byKey(const ValueKey(triageNewbornHistoryKey)),
+          findsNothing);
+      expect(find.byKey(const ValueKey(triageHeartRateKey)), findsOneWidget);
+    });
+
+    testWidgets('the timer is kept from data entry to the dashboard',
+        (tester) async {
+      final container = await _openTriage(tester);
+      final repo = container.read(screeningSyncRepositoryProvider);
+      final started = repo.activeTimings({'triage'}).single.startedAt;
+      expect(find.byKey(const ValueKey('screening-elapsed-time')),
+          findsOneWidget);
+
+      await _enter(tester, triageHeartRateKey, '210');
+      await _continuePage(tester);
+
+      expect(find.byKey(const ValueKey('screening-elapsed-time')),
+          findsOneWidget);
+      final timing = repo.activeTimings({'triage'}).single;
+      expect(timing.startedAt, started);
+      expect(timing.isCompleted, isTrue);
+    });
+  });
+
   for (final size in const [Size(360, 640), Size(1280, 800)]) {
     testWidgets(
         'Next Step after Triage results opens a page of the remaining STWs '
@@ -337,6 +491,7 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
     await tester.pumpAndSettle();
     await tapVisible(tester, find.text('Continue'));
+    await _enter(tester, triageWeightKey, '2.5');
     await tapVisible(tester, find.widgetWithText(OutlinedButton, 'Back'));
 
     // The existing leave confirmation is shown before leaving Triage.

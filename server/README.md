@@ -23,6 +23,26 @@ after successful queue flushes and screening resets. Follow-up MCQs do not
 extend a completed screening. A fresh screening creates a new timing record;
 unfinished screenings are abandoned, not listed as completed history.
 
+## Research data capture
+
+Everything is saved on the device first (Hive queue) and sent in order when
+the network is available; failed sends are retried with exponential backoff
+(30 s, doubling, at most 15 min), and records the server rejects are kept on
+the device. Besides sessions, screenings, responses, findings, MCQ attempts and
+chat logs, the app sends:
+
+| Endpoint | Collection / field | Content |
+|---|---|---|
+| `PUT /screenings/:id/decision` | `screenings.decision` | Latest clinical decision snapshot: findings fired; for Triage the category (`EMERGENCY` / `PRIORITY` / `NO_SIGNS`), trigger reasons, flags, recorded vitals, flagged treatment cards, computed doses (e.g. NS 10 mL/kg × weight) and the STW boxes linked. Exported with the screening. |
+| `POST /audit-events` | `auditEvents` | Batches (≤200) of clickstream events: `screen_view`, `tap`, `page_confirmed`, `page_back`, `stw_pdf_opened` (asset, `regionId`, `origin` card), `module_entered` / `module_exited`, `chat_source_opened`, `chat_start_assessment`. Client ids make resends no-ops. Export: `GET /export/audit-events?sessionId=&type=&from=&to=`. |
+| `POST /chat-logs` (`context`) | `chatLogs.context` | Clinical state when the question was asked: selected topics, current page, Triage category, triggers and flags. |
+
+Free text typed in the app (e.g. maternal and newborn history) never leaves
+the device; only `<questionId>_provided: true|false` is sent as a response.
+All new payloads pass the same strict schema and PHI-keyword guard.
+
+---
+
 ## 1. Secrets & Environment Configuration
 
 The backend reads credentials **strictly** from environment variables and constructs the connection string in memory at runtime:
@@ -53,7 +73,7 @@ ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4000,http://localhost:500
 PORT=4000
 ```
 
-> **Client Key Security Note**: The API key provided to the Flutter app via `--dart-define=API_KEY=...` is embedded in the client binary/PWA and is therefore not considered secret. The server enforces role-based authorization so that client keys can only **write** through the limited routes (`/sessions`, `/screenings`, `/chat-logs`); any `GET`/`HEAD` there returns `405`. All reads, including single sessions, screenings and chat logs, go through `/export/*`, which requires the separate `EXPORT_API_KEY`. Never put `EXPORT_API_KEY` in `build.env`, `dev.env` or any app build.
+> **Client Key Security Note**: The API key provided to the Flutter app via `--dart-define=API_KEY=...` is embedded in the client binary/PWA and is therefore not considered secret. The server enforces role-based authorization so that client keys can only **write** through the limited routes (`/sessions`, `/screenings`, `/chat-logs`, `/audit-events`); any `GET`/`HEAD` there returns `405`. All reads, including single sessions, screenings and chat logs, go through `/export/*`, which requires the separate `EXPORT_API_KEY`. Never put `EXPORT_API_KEY` in `build.env`, `dev.env` or any app build.
 
 ---
 

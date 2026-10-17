@@ -6,6 +6,8 @@ import '../../../core/theme.dart';
 import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/responsive.dart';
+import '../../../core/widgets/sync_status_indicator.dart';
+import '../../../data/repositories/audit_log_repository.dart';
 import '../../../shared/pdf_navigation.dart';
 import '../../../shared/stw_disclaimer.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
@@ -172,7 +174,20 @@ class _ConditionSelectionScreenState
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         toolbarHeight: 56,
-        titleSpacing: 16,
+        titleSpacing: 0,
+        leading: IconButton(
+          key: const ValueKey('back-to-landing'),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppTheme.primaryNavy,
+          ),
+          tooltip: 'Back to Landing page',
+          // Asks first only when follow-up progress would be lost.
+          onPressed: () {
+            ref.read(auditLogProvider).tap('back_to_landing');
+            confirmLeaveCondition(context, ref, destinationRoute: '/');
+          },
+        ),
         title: Image.asset(
           'assets/images/icmr_logo.png',
           semanticLabel: 'ICMR Logo',
@@ -194,6 +209,7 @@ class _ConditionSelectionScreenState
             tooltip: 'STW Clinical Assistant',
             onPressed: () => context.push('/chat'),
           ),
+          const SyncStatusIndicator(),
           const AppRefreshButton(),
           const SizedBox(width: 8),
         ],

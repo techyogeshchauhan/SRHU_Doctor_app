@@ -159,6 +159,16 @@ class ApiClient {
     );
   }
 
+  /// PUT /screenings/:id/decision (latest clinical decision snapshot)
+  Future<Response<dynamic>> putDecision(
+    String screeningId,
+    Map<String, dynamic> data,
+  ) {
+    return _withRetry(
+      () => _dio.put('/screenings/$screeningId/decision', data: data),
+    );
+  }
+
   /// POST /screenings/:id/mcq-attempts
   Future<Response<dynamic>> postMcqAttempt(
     String screeningId,
@@ -191,5 +201,14 @@ class ApiClient {
   /// POST /chat-logs
   Future<Response<dynamic>> postChatLog(Map<String, dynamic> data) {
     return _withRetry(() => _dio.post('/chat-logs', data: data));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Audit trail
+  // ---------------------------------------------------------------------------
+
+  /// POST /audit-events (a batch of clickstream / navigation events)
+  Future<Response<dynamic>> postAuditEvents(List<Map<String, dynamic>> events) {
+    return _withRetry(() => _dio.post('/audit-events', data: {'events': events}));
   }
 }

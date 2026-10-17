@@ -46,7 +46,7 @@ deploy repo **private** and replace the development key from `.env.example`.
 ## Version
 
 Both builds get the same version: `pubspec.yaml` version + the git commit
-count, e.g. `0.1.0+57`. It appears in:
+count, e.g. `1.1.0+57`. It appears in:
 
 - `version.json` of the website, and Android's app info (version code 57);
 - every session stored in MongoDB (`appVersion`, with the commit id), so data

@@ -187,6 +187,19 @@ hidden duplicate labels under the hypoglycemia flowchart boxes are excluded (H9)
 | H13 | SGA/LGA (INTERGROWTH-21st percentiles) are judged by the clinician; the app does not compute percentiles. | As described. |
 | H14 | The at-risk finding lists both schedule rows (at-risk 1–72 h and "Infants on IV fluids: Every 6-8 hours") regardless of IV status. | As described. |
 
+### Neonatal Emergency Triage (automated classification)
+
+The category is no longer chosen by the clinician: any Emergency trigger classifies EMERGENCY, otherwise the most severe matching category applies (`lib/features/triage/domain/triage_workflow.dart`). Changes follow `docs/neonatal_triage_workflow_specification.md`.
+
+| ID | Question | App behaviour meanwhile |
+|---|---|---|
+| T1 | The specification makes **RBS <45 mg/dL an Emergency trigger**. The Triage STW lists blood glucose under the HYPOGLYCEMIA box (specific management), not among the EMERGENCY signs. | RBS <45 classifies EMERGENCY; finding "RBS <45 mg/dL: classified as Emergency" is flagged "Requires clinical review". Treatment still follows the STW: IV 10% dextrose 2 mL/kg only if <20 mg/dL or symptomatic, else supervised breastfeeding/EBM. |
+| T2 | Shock is recorded as the STW's single Emergency sign "Shock (cold peripheries, mottled/grey skin, CRT >3 s, weak pulses, low BP)"; the separate perfusion checklist was removed from the screen. | Ticking Shock flags the Shock → fluid bolus card and classifies EMERGENCY. |
+| T3 | The STW says **persistent** tachycardia >200/min; the app uses one recorded HR >200 bpm. | One HR value >200 classifies EMERGENCY and shows the PERSISTENT HR >200/MIN box. |
+| T4 | **Sign-off needed** for the bolus volumes shown on the Shock (NS 10 mL/kg) and Hypoglycemia (10% dextrose 2 mL/kg) cards: straight multiplication by the recorded weight, formula shown, exact. | Shown only with a weight entered. |
+| T5 | The TABC cards (Airway, Breathing, Circulation) show only lines printed in the Triage STW (TREAT IMMEDIATELY box); the STW gives no separate airway-positioning or suction steps. | As described; each card links to its STW box. |
+| T6 | The **Priority, Non-urgent and specific-management checklists were removed** from the Triage screen. Priority now comes only from temperature 35.5–36.4°C or weight <1800 g; Non-urgent is never assigned, and the surgical (exposed skin defect, CDH, TEF/oesophageal atresia) and serious-jaundice boxes are no longer triggered. | With no Emergency or Priority trigger the result is "No Emergency or Priority sign recorded" (not labelled Non-urgent). |
+
 ### Both
 
 - The 8th-Oct PDFs' disclaimer says "Kindly visit the **DHR portal**"; the RD/ROP screens use the older

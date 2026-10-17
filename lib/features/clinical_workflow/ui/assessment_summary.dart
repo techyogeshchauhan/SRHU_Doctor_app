@@ -65,12 +65,18 @@ class FindingCard extends StatelessWidget {
                 InkWell(
                   onTap: () {
                     if (regionId != null) {
-                      openStwRegion(context, pdf: pdf, regionId: regionId);
+                      openStwRegion(
+                        context,
+                        pdf: pdf,
+                        regionId: regionId,
+                        origin: 'finding:${f.id}',
+                      );
                     } else {
                       openStwPdf(
                         context,
                         assetPath: pdf.asset,
                         title: pdf.title,
+                        origin: 'finding:${f.id}',
                       );
                     }
                   },
