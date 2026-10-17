@@ -5,6 +5,7 @@ import {
   patchScreeningStatusSchema,
   postFindingsSchema,
   postMcqAttemptSchema,
+  putDecisionSchema,
   putResponseSchema,
   putScreeningSchema,
   replaceFindingsSchema,
@@ -188,6 +189,34 @@ router.put('/:id/findings', async (req, res, next) => {
     }
 
     res.status(200).json({ success: true, count: formatted.length });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /screenings/:id/decision (latest clinical decision snapshot; idempotent)
+router.put('/:id/decision', async (req, res, next) => {
+  try {
+    const id = uuidSchema.parse(req.params.id);
+    const data = putDecisionSchema.parse(req.body);
+    const now = new Date();
+
+    const result = await getScreeningsCollection().updateOne(
+      { _id: id },
+      {
+        $set: {
+          decision: data.decision,
+          decisionRecordedAt: data.recordedAt ? new Date(data.recordedAt) : now,
+          updatedAt: now,
+        },
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'NotFound', message: 'Screening not found.' });
+    }
+
+    res.status(200).json({ success: true, screeningId: id });
   } catch (err) {
     next(err);
   }

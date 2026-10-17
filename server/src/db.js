@@ -52,6 +52,10 @@ export async function initIndexes(databaseInstance) {
   const sessions = targetDb.collection('sessions');
   await sessions.createIndex({ createdAt: 1 }, { name: 'idx_sessions_created_at' });
 
+  const auditEvents = targetDb.collection('auditEvents');
+  await auditEvents.createIndex({ sessionId: 1, occurredAt: 1 }, { name: 'idx_audit_events_session_time' });
+  await auditEvents.createIndex({ type: 1, occurredAt: 1 }, { name: 'idx_audit_events_type_time' });
+
   const diseases = targetDb.collection('diseases');
   await diseases.createIndex({ code: 1 }, { unique: true, name: 'idx_diseases_code_unique' });
 }
@@ -61,6 +65,10 @@ export function getDb() {
     throw new Error('Database not connected. Call connectToDatabase() first.');
   }
   return db;
+}
+
+export function getAuditEventsCollection() {
+  return getDb().collection('auditEvents');
 }
 
 export function getSessionsCollection() {

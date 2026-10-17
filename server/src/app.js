@@ -7,6 +7,7 @@ import { config } from './config.js';
 import { apiKeyAuth, rejectReads } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/logger.js';
+import auditEventsRouter from './routes/auditEvents.js';
 import chatLogsRouter from './routes/chatLogs.js';
 import exportRouter from './routes/export.js';
 import healthRouter from './routes/health.js';
@@ -65,6 +66,7 @@ export function createApp() {
   app.use('/sessions', rejectReads, apiKeyAuth, sessionsRouter);
   app.use('/screenings', rejectReads, apiKeyAuth, screeningsRouter);
   app.use('/chat-logs', rejectReads, apiKeyAuth, chatLogsRouter);
+  app.use('/audit-events', rejectReads, apiKeyAuth, auditEventsRouter);
 
   // 404 handler
   app.use((req, res) => {

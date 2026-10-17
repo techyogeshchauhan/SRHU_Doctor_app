@@ -24,6 +24,7 @@ router.post('/', async (req, res, next) => {
       source: data.source ?? null,
       found: data.found,
       retrieverType: data.retrieverType || 'bm25_pure_dart',
+      context: data.context ?? null,
       createdAt: now,
     };
 

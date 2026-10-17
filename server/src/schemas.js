@@ -172,7 +172,39 @@ export const postChatLogSchema = z
     source: sourceMetaSchema.nullable().optional(),
     found: z.boolean(),
     retrieverType: z.string().default('bm25_pure_dart'),
+    // Clinical state when the question was asked (selected topics, triage
+    // category, flags). Structured values only; no free text.
+    context: z.record(z.any()).nullable().optional(),
     createdAt: z.string().datetime().optional(),
+  })
+  .strict()
+  .superRefine(phiGuard);
+
+// Clinical decision snapshot of a screening (latest replaces earlier).
+export const putDecisionSchema = z
+  .object({
+    decision: z.record(z.any()),
+    recordedAt: z.string().datetime().optional(),
+  })
+  .strict()
+  .superRefine(phiGuard);
+
+// Clickstream / audit trail, sent in batches. Client ids make retries
+// idempotent.
+export const auditEventSchema = z
+  .object({
+    _id: uuidSchema,
+    sessionId: uuidSchema.nullable().optional(),
+    type: z.string().min(1).max(64),
+    screen: z.string().max(512).nullable().optional(),
+    data: z.record(z.any()).optional(),
+    occurredAt: z.string().datetime(),
+  })
+  .strict();
+
+export const postAuditEventsSchema = z
+  .object({
+    events: z.array(auditEventSchema).min(1).max(200),
   })
   .strict()
   .superRefine(phiGuard);
@@ -195,3 +227,10 @@ export const exportQuerySchema = z
   .strict();
 
 export const exportChatLogsQuerySchema = z.object(exportPagingFields).strict();
+
+export const exportAuditEventsQuerySchema = z
+  .object({
+    ...exportPagingFields,
+    type: z.string().max(64).optional(),
+  })
+  .strict();
