@@ -269,39 +269,4 @@ router.patch('/:id/status', async (req, res, next) => {
   }
 });
 
-// GET /screenings?sessionId=...
-router.get('/', async (req, res, next) => {
-  try {
-    const sessionId = req.query.sessionId ? uuidSchema.parse(req.query.sessionId) : null;
-    const screenings = getScreeningsCollection();
-
-    const query = {};
-    if (sessionId) {
-      query.sessionId = sessionId;
-    }
-
-    const list = await screenings.find(query).sort({ startedAt: -1 }).toArray();
-    res.status(200).json(list);
-  } catch (err) {
-    next(err);
-  }
-});
-
-// GET /screenings/:id
-router.get('/:id', async (req, res, next) => {
-  try {
-    const id = uuidSchema.parse(req.params.id);
-    const screenings = getScreeningsCollection();
-
-    const doc = await screenings.findOne({ _id: id });
-    if (!doc) {
-      return res.status(404).json({ error: 'NotFound', message: 'Screening not found.' });
-    }
-
-    res.status(200).json(doc);
-  } catch (err) {
-    next(err);
-  }
-});
-
 export default router;

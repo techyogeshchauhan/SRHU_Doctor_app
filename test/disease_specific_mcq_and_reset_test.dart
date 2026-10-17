@@ -18,9 +18,7 @@ Future<void> _pumpToSelection(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
   await tester.pumpAndSettle();
-  if (find.text('Continue').evaluate().isNotEmpty) {
-    await tapVisible(tester, find.text('Continue'));
-  }
+  await goToHome(tester);
 }
 
 void main() {

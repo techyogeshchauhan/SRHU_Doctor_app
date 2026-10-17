@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
 import 'package:neonatal_stw/core/widgets/app_refresh_button.dart';
 
+import 'test_helpers.dart';
+
 void main() {
   group('AppRefreshButton Tests', () {
     testWidgets('AppRefreshButton renders with tooltip and triggers callback',
@@ -47,8 +49,7 @@ void main() {
       expect(find.byType(AppRefreshButton), findsOneWidget);
 
       // Navigate to Home Screen
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
+      await goToHome(tester);
 
       // On Home Screen
       expect(find.byType(AppRefreshButton), findsOneWidget);

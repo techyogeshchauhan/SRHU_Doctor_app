@@ -149,8 +149,8 @@ describe('Neonatal STW REST API Backend', () => {
     assert.equal(closed.status, 200);
 
     const stored = await request(app)
-      .get(`/sessions/${sessionId}`)
-      .set('x-api-key', testApiKey);
+      .get(`/export/sessions/${sessionId}`)
+      .set('x-api-key', testExportKey);
     assert.deepEqual(stored.body.selectedConditions, ['ancs', 'hypoglycemia']);
     assert.equal(stored.body.status, 'completed');
     assert.equal(stored.body.endedAt, endedAt);
@@ -377,7 +377,7 @@ describe('Neonatal STW REST API Backend', () => {
     await Promise.all([43, 50].map((seconds) => request(app)
       .patch(`/screenings/${id}/status`).set('x-api-key', testApiKey)
       .send({ status: 'completed', completedAt: `2026-10-15T10:00:${seconds}.000Z` })));
-    const saved = await request(app).get(`/screenings/${id}`).set('x-api-key', testApiKey);
+    const saved = await request(app).get(`/export/screenings/${id}`).set('x-api-key', testExportKey);
     assert.equal(saved.status, 200);
     assert.equal(saved.body.startedAt, startedAt);
     assert.equal(saved.body.completedAt, completedAt);
@@ -403,6 +403,104 @@ describe('Neonatal STW REST API Backend', () => {
       .set('x-api-key', testApiKey).send({ sessionId: testSessionId, diseaseCode: 'rop',
         startedAt: '2026-10-15T10:00:00.000Z', completedAt: '2026-10-15T09:00:00.000Z' });
     assert.equal(invalidPut.status, 400);
+  });
+
+  // The client key ships inside the app, so it must never read data back.
+  for (const path of [
+    `/sessions/${testSessionId}`,
+    '/screenings',
+    `/screenings?sessionId=${testSessionId}`,
+    `/screenings/${testScreeningId}`,
+    '/chat-logs',
+    `/chat-logs?sessionId=${testSessionId}`,
+  ]) {
+    it(`Client key: GET ${path} is refused (write-only)`, async () => {
+      for (const key of [testApiKey, testExportKey, null]) {
+        let req = request(app).get(path);
+        if (key) req = req.set('x-api-key', key);
+        const res = await req;
+        assert.equal(res.status, 405, `key=${key}`);
+        assert.equal(res.body.error, 'MethodNotAllowed');
+        assert.equal(JSON.stringify(res.body).includes(testScreeningId), false);
+      }
+    });
+  }
+
+  it('Client key: HEAD on client routes is refused too', async () => {
+    const res = await request(app).head(`/screenings/${testScreeningId}`).set('x-api-key', testApiKey);
+    assert.equal(res.status, 405);
+  });
+
+  it('Client key: writes still work after reads are closed', async () => {
+    const res = await request(app)
+      .put(`/screenings/${testScreeningId}/responses/rd_rr`)
+      .set('x-api-key', testApiKey)
+      .send({ value: 64 });
+    assert.equal(res.status, 200);
+  });
+
+  for (const path of [
+    `/export/sessions/${testSessionId}`,
+    `/export/screenings/${testScreeningId}`,
+    '/export/chat-logs',
+  ]) {
+    it(`Export: GET ${path} rejects the write key and a missing key`, async () => {
+      const withWriteKey = await request(app).get(path).set('x-api-key', testApiKey);
+      assert.equal(withWriteKey.status, 403);
+      const noKey = await request(app).get(path);
+      assert.equal(noKey.status, 401);
+    });
+  }
+
+  it('Export: session read omits the per-device session token', async () => {
+    const res = await request(app)
+      .get(`/export/sessions/${testSessionId}`)
+      .set('x-api-key', testExportKey);
+    assert.equal(res.status, 200);
+    assert.equal(res.body._id, testSessionId);
+    assert.equal('sessionToken' in res.body, false);
+  });
+
+  it('Export: screenings filter by sessionId; single screening by id', async () => {
+    const list = await request(app)
+      .get(`/export/screenings?sessionId=${testSessionId}`)
+      .set('x-api-key', testExportKey);
+    assert.equal(list.status, 200);
+    assert.ok(list.body.data.length >= 1);
+    assert.ok(list.body.data.every((row) => row.sessionId === testSessionId));
+
+    const one = await request(app)
+      .get(`/export/screenings/${testScreeningId}`)
+      .set('x-api-key', testExportKey);
+    assert.equal(one.status, 200);
+    assert.equal(one.body._id, testScreeningId);
+
+    const missing = await request(app)
+      .get('/export/screenings/99999999-9999-4999-8999-999999999999')
+      .set('x-api-key', testExportKey);
+    assert.equal(missing.status, 404);
+
+    const badFilter = await request(app)
+      .get('/export/screenings?sessionId=not-a-uuid')
+      .set('x-api-key', testExportKey);
+    assert.equal(badFilter.status, 400);
+  });
+
+  it('Export: chat logs filter by sessionId', async () => {
+    const logId = '88888888-8888-4888-8888-888888888881';
+    await request(app).post('/chat-logs').set('x-api-key', testApiKey).send({
+      _id: logId,
+      sessionId: testSessionId,
+      userQuery: 'surfactant dose',
+      extractedAnswer: 'Give surfactant as per the STW.',
+      found: true,
+    });
+    const res = await request(app)
+      .get(`/export/chat-logs?sessionId=${testSessionId}`)
+      .set('x-api-key', testExportKey);
+    assert.equal(res.status, 200);
+    assert.ok(res.body.data.some((row) => row._id === logId));
+    assert.ok(res.body.data.every((row) => row.sessionId === testSessionId));
   });
 
   it('Export: rejects export access without export key', async () => {

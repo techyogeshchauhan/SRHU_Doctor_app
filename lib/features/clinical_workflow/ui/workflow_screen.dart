@@ -20,6 +20,11 @@ import 'assessment_summary.dart';
 import 'question_field.dart';
 import 'screening_session_panel.dart';
 
+/// Shown above the Triage summary to point to the Next Step button.
+const nextStepInstruction =
+    "Would you like to explore other STWs? Click 'Next Step' to view and "
+    'select the available Standard Treatment Workflows.';
+
 enum _WorkflowMenuAction {
   findings,
   newAssessment,
@@ -40,13 +45,24 @@ class WorkflowScreen extends ConsumerWidget {
     final group = s.currentGroup;
     final (done, total) = engine.progress(ctx);
     final canContinue = group != null && engine.canConfirm(ctx, group);
+    // Triage results are shown: the next STW is chosen on its own page.
+    final triageDone = group == null &&
+        ctx.selected.length == 1 &&
+        ctx.selected.single == NeonatalCondition.triage;
 
     // Answers live in memory only; after a browser refresh or app restart
     // there is no assessment to resume.
     if (ctx.selected.isEmpty) return const _NoAssessment();
 
     void goBack() {
-      if (!n.back() && context.canPop()) context.pop();
+      if (n.back()) return;
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        // Opened directly from the landing page (Triage first): no route
+        // to pop, so leave to condition selection.
+        confirmLeaveCondition(context, ref, destinationRoute: '/home');
+      }
     }
 
     return PopScope(
@@ -284,9 +300,18 @@ class WorkflowScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (group == null)
-                          const AssessmentSummaryView()
-                        else
+                        if (group == null) ...[
+                          if (triageDone)
+                            const Padding(
+                              key: ValueKey('next-step-instruction'),
+                              padding: EdgeInsets.only(bottom: 12),
+                              child: AlertBanner(
+                                tone: Tone.info,
+                                text: nextStepInstruction,
+                              ),
+                            ),
+                          const AssessmentSummaryView(),
+                        ] else
                           _QuestionPage(group: group),
                         const DisclaimerFooter(),
                       ],
@@ -415,6 +440,34 @@ class WorkflowScreen extends ConsumerWidget {
                                 fontFamily: 'Poppins',
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        else if (triageDone)
+                          Semantics(
+                            button: true,
+                            label: 'Next Step: select the next STW',
+                            child: FilledButton.icon(
+                              key: const ValueKey('next-step'),
+                              onPressed: () => context.push('/next-stw'),
+                              icon: const Icon(Icons.arrow_forward, size: 15),
+                              label: const Text('Next Step'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppTheme.primaryNavy,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: compact ? 10 : 14,
+                                  vertical: 10,
+                                ),
+                                minimumSize: const Size(0, 44),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                textStyle: const TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           )

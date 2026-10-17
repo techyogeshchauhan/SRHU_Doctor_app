@@ -177,14 +177,21 @@ export const postChatLogSchema = z
   .strict()
   .superRefine(phiGuard);
 
-// Export query schema
+// Export query schemas
+const exportPagingFields = {
+  from: z.string().datetime().optional(),
+  to: z.string().datetime().optional(),
+  sessionId: uuidSchema.optional(),
+  page: z.string().regex(/^\d+$/).transform(Number).optional(),
+  limit: z.string().regex(/^\d+$/).transform(Number).default('50'),
+  cursor: z.string().optional(),
+};
+
 export const exportQuerySchema = z
   .object({
-    from: z.string().datetime().optional(),
-    to: z.string().datetime().optional(),
+    ...exportPagingFields,
     diseaseCode: z.string().optional(),
-    page: z.string().regex(/^\d+$/).transform(Number).optional(),
-    limit: z.string().regex(/^\d+$/).transform(Number).default('50'),
-    cursor: z.string().optional(),
   })
   .strict();
+
+export const exportChatLogsQuerySchema = z.object(exportPagingFields).strict();

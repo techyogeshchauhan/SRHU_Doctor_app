@@ -116,7 +116,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
 
                 // 1. Retinopathy of Prematurity (ROP) Card (if selected or default)
                 if (showRop) ...[
-                  _DiseaseCard(
+                  DiseaseCard(
                     number: ++displayedIndex,
                     title: 'Retinopathy of Prematurity',
                     icon: Icons.visibility_outlined,
@@ -137,7 +137,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
 
                 // 2. Respiratory Distress in Neonates Card (if selected or default)
                 if (showRd) ...[
-                  _DiseaseCard(
+                  DiseaseCard(
                     number: ++displayedIndex,
                     title: 'Respiratory Distress in Neonates',
                     icon: Icons.air_rounded,
@@ -191,7 +191,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                   ),
                 ])
                   if (show(c)) ...[
-                    _DiseaseCard(
+                    DiseaseCard(
                       number: ++displayedIndex,
                       title: title,
                       icon: icon,
@@ -221,8 +221,9 @@ class DiseaseSelectionScreen extends ConsumerWidget {
 }
 
 /// Compact disease card with single-line condition name and direct screening launcher.
-class _DiseaseCard extends StatelessWidget {
-  const _DiseaseCard({
+class DiseaseCard extends StatelessWidget {
+  const DiseaseCard({
+    super.key,
     required this.number,
     required this.title,
     required this.icon,

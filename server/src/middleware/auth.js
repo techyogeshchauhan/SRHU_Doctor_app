@@ -24,6 +24,23 @@ export function apiKeyAuth(req, res, next) {
 }
 
 /**
+ * The client key ships inside the app (web bundle, APK), so it must be
+ * treated as public: it may create and update records but never read them.
+ * Reads go through /export with the export key. Runs before apiKeyAuth so a
+ * read is refused the same way with or without a key.
+ */
+export function rejectReads(req, res, next) {
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    res.set('Allow', 'POST, PUT, PATCH');
+    return res.status(405).json({
+      error: 'MethodNotAllowed',
+      message: 'Client endpoints are write-only. Read data through /export with the export key.',
+    });
+  }
+  next();
+}
+
+/**
  * Validates x-api-key exclusively against EXPORT_API_KEY.
  * Rejects write keys and missing keys.
  */

@@ -504,9 +504,7 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
       await tester.pumpAndSettle();
 
-      if (find.text('Continue').evaluate().isNotEmpty) {
-        await tapVisible(tester, find.text('Continue'));
-      }
+      await goToHome(tester);
 
       await tapVisible(tester, find.text('STW Triage'));
       await tapVisible(
@@ -533,9 +531,7 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
       await tester.pumpAndSettle();
 
-      if (find.text('Continue').evaluate().isNotEmpty) {
-        await tapVisible(tester, find.text('Continue'));
-      }
+      await goToHome(tester);
 
       await tapVisible(tester, find.text('STW KMC'));
       await tapVisible(
@@ -561,9 +557,7 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
       await tester.pumpAndSettle();
 
-      if (find.text('Continue').evaluate().isNotEmpty) {
-        await tapVisible(tester, find.text('Continue'));
-      }
+      await goToHome(tester);
 
       await tapVisible(tester, find.text('STW ANCS'));
       await tapVisible(
@@ -590,9 +584,7 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
       await tester.pumpAndSettle();
 
-      if (find.text('Continue').evaluate().isNotEmpty) {
-        await tapVisible(tester, find.text('Continue'));
-      }
+      await goToHome(tester);
 
       await tapVisible(tester, find.text('STW Hypoglycemia'));
       await tapVisible(

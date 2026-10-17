@@ -22,10 +22,9 @@ void main() {
             child: Column(
               children: [
                 for (final question in [
+                  qTriageWeight,
                   qTriageTemperature,
                   qTriageSpo2,
-                  qTriageHeartRate,
-                  qTriageWeight,
                   qTriageBloodGlucose,
                 ])
                   QuestionField(
@@ -45,19 +44,22 @@ void main() {
       await tester.pumpAndSettle();
 
       for (final question in [
+        qTriageWeight,
         qTriageTemperature,
         qTriageSpo2,
-        qTriageHeartRate,
-        qTriageWeight,
         qTriageBloodGlucose,
       ]) {
         expect(find.text(question.inputHint!), findsOneWidget,
             reason: question.question);
+        // The STW range sits outside the placeholder, below the field.
+        expect(find.text(question.stwRange!), findsOneWidget,
+            reason: question.question);
       }
-      for (final unit in ['°C', '%', 'bpm', 'kg', 'mg/dL']) {
+      for (final unit in ['°C', '%', 'kg', 'mg/dL']) {
         expect(find.text(unit), findsOneWidget, reason: unit);
       }
-      expect(find.byIcon(Icons.mic_none_rounded), findsNWidgets(5));
+      expect(find.text('bpm'), findsNothing);
+      expect(find.byIcon(Icons.mic_none_rounded), findsNWidgets(4));
       expect(tester.takeException(), isNull);
     }
     addTearDown(tester.view.reset);
@@ -89,6 +91,49 @@ void main() {
         '2.5');
     expect(find.text('kg'), findsOneWidget);
     expect(find.text('e.g., 2.5'), findsNothing);
+  });
+
+  test('weight is the first triage field and heart rate is removed', () {
+    final measurements = [
+      for (final u in triageWorkflow.uses)
+        if (u.question.group == 'triage_measurements') u.question.id,
+    ];
+    expect(measurements, [
+      triageWeightKey,
+      triageTemperatureKey,
+      triageSpo2Key,
+      triageBloodGlucoseKey,
+    ]);
+    expect(triageGroups.first.questionOrder.first, triageWeightKey);
+    expect(
+      triageWorkflow.uses.where((u) => u.question.question == 'Heart rate'),
+      isEmpty,
+    );
+  });
+
+  testWidgets('STW range stays visible below the field while typing',
+      (tester) async {
+    for (final question in [qTriageWeight, qTriageTemperature]) {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: QuestionField(
+            question: question,
+            options: const [],
+            value: null,
+            isRequired: false,
+            today: today,
+            onChanged: (_) {},
+          ),
+        ),
+      ));
+      await tester.enterText(find.byType(TextField), '2');
+      await tester.pump();
+      final range = find.text(question.stwRange!);
+      expect(range, findsOneWidget, reason: question.question);
+      expect(tester.getRect(range).top,
+          greaterThan(tester.getRect(find.byType(TextField)).bottom - 1));
+      expect(find.text(question.inputHint!), findsNothing);
+    }
   });
 
   test('measurement helper is attached to the triage measurement group', () {

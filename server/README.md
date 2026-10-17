@@ -53,7 +53,7 @@ ALLOWED_ORIGINS=http://localhost:3000,http://localhost:4000,http://localhost:500
 PORT=4000
 ```
 
-> **Client Key Security Note**: The API key provided to the Flutter app via `--dart-define=API_KEY=...` is embedded in the client binary/PWA and is therefore not considered secret. The server enforces role-based authorization so that client keys can only access the limited write routes (`/sessions`, `/screenings`, `/chat-logs`), while research export endpoints (`/export/*`) require the separate `EXPORT_API_KEY`.
+> **Client Key Security Note**: The API key provided to the Flutter app via `--dart-define=API_KEY=...` is embedded in the client binary/PWA and is therefore not considered secret. The server enforces role-based authorization so that client keys can only **write** through the limited routes (`/sessions`, `/screenings`, `/chat-logs`); any `GET`/`HEAD` there returns `405`. All reads, including single sessions, screenings and chat logs, go through `/export/*`, which requires the separate `EXPORT_API_KEY`. Never put `EXPORT_API_KEY` in `build.env`, `dev.env` or any app build.
 
 ---
 

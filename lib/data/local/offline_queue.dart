@@ -7,6 +7,10 @@ import 'package:uuid/uuid.dart';
 
 import '../services/api_client.dart';
 
+/// App version recorded with each session (set by scripts/build_*.ps1).
+const appVersion =
+    String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0+1');
+
 /// Manages offline-first storage and background sync to MongoDB Atlas REST API.
 ///
 /// Features:
@@ -15,18 +19,29 @@ import '../services/api_client.dart';
 /// 3. Listens to connectivity changes via `connectivity_plus`.
 /// 4. Flushes to REST API backend with exponential backoff on network availability.
 /// 5. Stores active session token and screening mappings for offline continuity.
+/// 6. Keeps writes that cannot be sent as queued (see [deadLetters]) instead
+///    of deleting them, and retries them once after an app update.
 class OfflineQueue {
   OfflineQueue({
     this.sessionBoxName = 'stw_session_box',
     this.queueBoxName = 'stw_sync_queue_box',
+    this.deadLetterBoxName = 'stw_sync_dead_letter_box',
     this.retryDelay = const Duration(seconds: 30),
+    this.maxDeadLetters = 500,
+    String? version,
     ApiClient? apiClient,
-  }) : _apiClient = apiClient ?? ApiClient();
+  })  : _apiClient = apiClient ?? ApiClient(),
+        _appVersion = version ?? appVersion;
 
   static final OfflineQueue instance = OfflineQueue();
 
   final String sessionBoxName;
   final String queueBoxName;
+  final String deadLetterBoxName;
+
+  /// Most kept unsent writes; the oldest are discarded beyond this.
+  final int maxDeadLetters;
+  final String _appVersion;
 
   /// Wait before retrying after a transient failure (network, 5xx, 429).
   final Duration retryDelay;
@@ -36,6 +51,7 @@ class OfflineQueue {
 
   Box<dynamic>? _sessionBox;
   Box<dynamic>? _queueBox;
+  Box<dynamic>? _deadBox;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
   bool _isFlushing = false;
   Timer? _retryTimer;
@@ -58,10 +74,18 @@ class OfflineQueue {
       }
       _sessionBox = await Hive.openBox<dynamic>(sessionBoxName);
       _queueBox = await Hive.openBox<dynamic>(queueBoxName);
-      for (final raw in _queueBox!.values) {
+      _deadBox = await Hive.openBox<dynamic>(deadLetterBoxName);
+      // Kept entries keep their sequence numbers, so new ones must follow.
+      for (final raw in [
+        ..._queueBox!.values,
+        for (final r in _deadBox!.values)
+          if (r is Map) r['entry'],
+      ]) {
         final seq = raw is Map ? raw['seq'] : null;
         if (seq is int && seq >= _nextSeq) _nextSeq = seq + 1;
       }
+      // An update may have fixed what made them fail (client or server).
+      await _requeue((r) => r['app_version'] != _appVersion);
 
       _connectivitySub = Connectivity()
           .onConnectivityChanged
@@ -218,6 +242,11 @@ class OfflineQueue {
     if (_queueBox != null && _queueBox!.isOpen) {
       await _queueBox!.put(id, entry);
     }
+    // A newer write of the same record supersedes a kept failed one, so a
+    // later replay can never overwrite newer data.
+    if (customId != null && _deadBox != null && _deadBox!.isOpen) {
+      await _deadBox!.delete(id);
+    }
 
     // Try background sync immediately
     flush();
@@ -226,6 +255,88 @@ class OfflineQueue {
   /// Returns count of pending unsynced queue operations.
   int get pendingCount =>
       (_queueBox != null && _queueBox!.isOpen) ? _queueBox!.length : 0;
+
+  /// Number of kept writes that could not be sent as queued.
+  int get deadLetterCount =>
+      (_deadBox != null && _deadBox!.isOpen) ? _deadBox!.length : 0;
+
+  /// Kept writes, oldest first: `entry` (the queued item), `reason`,
+  /// `detail`, `failed_at` and `app_version`.
+  List<Map<String, dynamic>> get deadLetters {
+    final box = _deadBox;
+    if (box == null || !box.isOpen) return const [];
+    return [
+      for (final r in box.values)
+        if (r is Map) storable(r) as Map<String, dynamic>,
+    ]..sort((a, b) =>
+        (a['failed_at'] as String).compareTo(b['failed_at'] as String));
+  }
+
+  /// Puts every kept write back in the queue (in its original order) and
+  /// syncs. Returns how many were requeued.
+  Future<int> requeueDeadLetters() => _requeue((_) => true);
+
+  Future<int> _requeue(bool Function(Map<dynamic, dynamic> record) test) async {
+    final dead = _deadBox;
+    final queue = _queueBox;
+    if (dead == null || !dead.isOpen || queue == null || !queue.isOpen) {
+      return 0;
+    }
+    var count = 0;
+    for (final k in List<dynamic>.from(dead.keys)) {
+      final raw = dead.get(k);
+      if (raw is! Map || !test(raw)) continue;
+      // The original key and sequence number keep it in its original place:
+      // a screening is sent again before its answers and findings.
+      if (raw['entry'] is Map && !queue.containsKey(k)) {
+        final entry = storable(raw['entry']) as Map<String, dynamic>;
+        await queue.put(k, {...entry, 'retries': 0});
+        count++;
+      }
+      await dead.delete(k);
+    }
+    if (count > 0) flush();
+    return count;
+  }
+
+  /// Moves an item that can never be sent as queued to the dead-letter box.
+  Future<void> _keepUnsent(
+    Box<dynamic> box,
+    dynamic key,
+    Map<String, dynamic> entry,
+    Object error,
+  ) async {
+    final current = box.get(key);
+    // Overwritten while it was being sent: the newer copy replaces it.
+    if (current is Map && current['seq'] != entry['seq']) return;
+    final dead = _deadBox;
+    if (dead != null && dead.isOpen) {
+      final reason = syncErrorReason(error);
+      await dead.put(key, {
+        'entry': entry,
+        'reason': reason,
+        'detail': syncErrorDetail(error),
+        'failed_at': DateTime.now().toUtc().toIso8601String(),
+        'app_version': _appVersion,
+      });
+      // Payload never logged: table and reason only.
+      debugPrint('[OfflineQueue] Kept unsent ${entry['table']} write '
+          '($reason); ${dead.length} kept.');
+      await _trimDeadLetters(dead);
+    }
+    await box.delete(key);
+  }
+
+  Future<void> _trimDeadLetters(Box<dynamic> dead) async {
+    if (dead.length <= maxDeadLetters) return;
+    final byAge = List<dynamic>.from(dead.keys)
+      ..sort((a, b) => ((dead.get(a) as Map?)?['failed_at'] as String? ?? '')
+          .compareTo((dead.get(b) as Map?)?['failed_at'] as String? ?? ''));
+    final excess = dead.length - maxDeadLetters;
+    await dead.deleteAll(byAge.take(excess));
+    debugPrint('[OfflineQueue] Discarded $excess oldest kept unsent '
+        'write(s) (limit $maxDeadLetters).');
+  }
 
   /// Flushes pending queue items to MongoDB Atlas REST API in enqueue order.
   ///
@@ -287,7 +398,9 @@ class OfflineQueue {
         await _syncItem(
           table,
           entry['action'] as String? ?? '',
-          Map<String, dynamic>.from(entry['payload'] as Map? ?? const {}),
+          // After an app restart Hive returns nested maps as
+          // Map<dynamic, dynamic>; restore the JSON shape at every level.
+          storable(entry['payload'] ?? const {}) as Map<String, dynamic>,
         );
         await _deleteIfUnchanged(box, key, entry);
       } catch (e) {
@@ -295,8 +408,9 @@ class OfflineQueue {
           debugPrint('[OfflineQueue] Sync failed for $table ($key): $e');
         }
         if (!isRetryableSyncError(e)) {
-          // Can never succeed as queued; drop it and keep going.
-          await _deleteIfUnchanged(box, key, entry);
+          // Can never succeed as queued: keep it aside and carry on, so one
+          // bad entry cannot block everything queued after it.
+          await _keepUnsent(box, key, entry, e);
           continue;
         }
         final current = box.get(key);
@@ -534,6 +648,7 @@ class OfflineQueue {
     await _connectivitySub?.cancel();
     await _sessionBox?.close();
     await _queueBox?.close();
+    await _deadBox?.close();
   }
 }
 
@@ -549,6 +664,31 @@ Object? storable(Object? value) => switch (value) {
       Iterable() => [for (final v in value) storable(v)],
       _ => value.toString(),
     };
+
+/// Short, payload-free reason for a failed sync, e.g. `HTTP 400
+/// ValidationError` or `TypeError`. Safe to log.
+String syncErrorReason(Object error) {
+  if (error is DioException) {
+    final status = error.response?.statusCode;
+    final data = error.response?.data;
+    final name = data is Map ? data['error'] : null;
+    return [
+      if (status != null) 'HTTP $status' else error.type.name,
+      if (name is String) name,
+    ].join(' ');
+  }
+  return error.runtimeType.toString();
+}
+
+/// Longer explanation kept on the device with the failed write: the
+/// server's message, or the error text. Not logged.
+String syncErrorDetail(Object error) {
+  final data = error is DioException ? error.response?.data : null;
+  final text = data is Map && data['message'] is String
+      ? data['message'] as String
+      : error.toString();
+  return text.length > 300 ? text.substring(0, 300) : text;
+}
 
 /// Whether a failed sync may succeed later unchanged. Network problems,
 /// server errors, rate limiting and auth/config problems are retried; a

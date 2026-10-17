@@ -7,6 +7,7 @@ import 'package:neonatal_stw/core/widgets/inputs.dart';
 import 'package:neonatal_stw/features/ancs/domain/ancs_workflow.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/clinical_question.dart';
 import 'package:neonatal_stw/features/hypoglycemia/domain/hypo_workflow.dart';
+import 'package:neonatal_stw/features/triage/domain/triage_workflow.dart';
 
 /// The value-range hints under the ANCS and Hypoglycemia inputs quote the
 /// STW PDFs: every number, with its sign and unit, must occur in the
@@ -28,6 +29,10 @@ void main() {
       'hypo_stop_iv',
     ],
     hypoIvBgKey: ['hypo_recheck_30min', 'hypo_increase_gir'],
+    triageWeightKey: ['triage_priority_signs'],
+    triageTemperatureKey: ['triage_emergency_signs', 'triage_priority_signs'],
+    triageSpo2Key: ['triage_emergency_signs', 'triage_emergency_actions'],
+    triageBloodGlucoseKey: ['triage_hypoglycemia'],
   };
 
   // Numeric inputs for which the PDFs give no range (no hint shown):
@@ -51,15 +56,18 @@ void main() {
       .replaceAllMapped(RegExp(r'([<>≥≤]) (\d)'), (m) => '${m[1]}${m[2]}');
 
   final valueToken =
-      RegExp(r'[<>≥≤]?\d+(?:\+\d+)?(?: (?:mg/dl|mg/kg/min|weeks|days))?');
+      RegExp(r'[<>≥≤]?\d+(?:\+\d+)?(?: (?:mg/dl|mg/kg/min|weeks|days|g))?');
 
   final numeric = [
-    for (final w in [ancsWorkflow, hypoWorkflow])
+    for (final w in [ancsWorkflow, hypoWorkflow, triageWorkflow])
       for (final u in w.uses)
-        if (u.question.type == QuestionType.numeric) u.question,
+        if (u.question.type == QuestionType.numeric ||
+            u.question.type == QuestionType.decimal)
+          u.question,
   ];
 
-  test('every numeric ANCS / Hypoglycemia input has a PDF hint or none', () {
+  test('every numeric ANCS / Hypoglycemia / Triage input has a PDF hint or none',
+      () {
     for (final q in numeric) {
       if (noRangeInPdf.contains(q.id)) {
         expect(q.stwRange, isNull, reason: '${q.id}: PDF gives no range');

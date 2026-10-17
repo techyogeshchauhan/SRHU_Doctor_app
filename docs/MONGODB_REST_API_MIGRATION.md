@@ -87,17 +87,19 @@ In this upgrade, **Supabase was completely eliminated** from the STW Neo project
 | `GET` | `/health` | Container health check and database ping | None (Open) |
 | `POST` | `/sessions` | Create or ensure clinical session (idempotent) | `API_KEYS` |
 | `PATCH` | `/sessions/:id` | Update session facility or status | `API_KEYS` |
-| `GET` | `/sessions/:id` | Retrieve session document | `API_KEYS` |
 | `PUT` | `/screenings/:id` | Create or ensure disease screening document | `API_KEYS` |
 | `PUT` | `/screenings/:id/responses/:questionId` | **Atomic pipeline update**: Replaces existing answer or appends new; zero duplicates | `API_KEYS` |
 | `POST` | `/screenings/:id/findings` | Append derived clinical findings | `API_KEYS` |
 | `PUT` | `/screenings/:id/findings` | Replace findings with the latest snapshot (used by the app) | `API_KEYS` |
 | `POST` | `/screenings/:id/mcq-attempts` | Append MCQ question attempt | `API_KEYS` |
 | `PATCH` | `/screenings/:id/status` | Update progress/status (`in_progress`, `completed`, `abandoned`) | `API_KEYS` |
-| `GET` | `/screenings?sessionId=...` | Retrieve screenings for a session | `API_KEYS` |
 | `POST` | `/chat-logs` | Record STW-grounded query, answer, and citations | `API_KEYS` |
-| `GET` | `/chat-logs?sessionId=...` | Retrieve chat logs for a session | `API_KEYS` |
-| `GET` | `/export/screenings` | Paginated de-identified export (cursor/page) | **`EXPORT_API_KEY` only** |
+| `GET` | `/export/screenings` | Paginated de-identified export (cursor/page; filters `from`, `to`, `diseaseCode`, `sessionId`) | **`EXPORT_API_KEY` only** |
+| `GET` | `/export/screenings/:id` | One de-identified screening | **`EXPORT_API_KEY` only** |
+| `GET` | `/export/sessions/:id` | One session (without the per-device `sessionToken`) | **`EXPORT_API_KEY` only** |
+| `GET` | `/export/chat-logs` | Paginated chat logs (cursor/page; filters `from`, `to`, `sessionId`) | **`EXPORT_API_KEY` only** |
+
+The client key (`API_KEYS`) is built into the app, so it is public and **write-only**: every `GET`/`HEAD` on `/sessions`, `/screenings` and `/chat-logs` returns `405 MethodNotAllowed`, with or without a key. All reads go through `/export` with `EXPORT_API_KEY`.
 
 ### Automated Scripts & Containerization
 - **`scripts/seed.js`**: Seeds all 14 neonatal diseases (marking active: `respiratory_distress` and `rop`).

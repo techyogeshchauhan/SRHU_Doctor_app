@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
+import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/responsive.dart';
+import '../../clinical_workflow/state/assessment_controller.dart';
+import '../../condition_selection/domain/neonatal_condition.dart';
 import 'institutional_partners_section.dart';
 
 /// Landing Screen shown on app launch.
@@ -16,15 +20,16 @@ import 'institutional_partners_section.dart';
 /// - Subtitle: "Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows."
 /// - Full-width "Continue" primary button (min 46-50 px, primary blue)
 /// - Responsive and compact layout fitting within the first screen without overflow
-/// - Tapping "Continue" navigates to /home (replacing route so back exits app)
-class LandingScreen extends StatefulWidget {
+/// - Tapping "Continue" starts the Triage workflow, the only STW opened by
+///   default (replacing route so back exits app)
+class LandingScreen extends ConsumerStatefulWidget {
   const LandingScreen({super.key});
 
   @override
-  State<LandingScreen> createState() => _LandingScreenState();
+  ConsumerState<LandingScreen> createState() => _LandingScreenState();
 }
 
-class _LandingScreenState extends State<LandingScreen>
+class _LandingScreenState extends ConsumerState<LandingScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _fadeCtrl = AnimationController(
     vsync: this,
@@ -58,6 +63,15 @@ class _LandingScreenState extends State<LandingScreen>
   void dispose() {
     _fadeCtrl.dispose();
     super.dispose();
+  }
+
+  /// Triage is the first step; the next STW is chosen after it completes.
+  void _startTriage() {
+    clearConditionData(ref);
+    ref
+        .read(assessmentProvider.notifier)
+        .start({NeonatalCondition.triage}, forceReset: true);
+    context.go('/workflow');
   }
 
   @override
@@ -154,7 +168,7 @@ class _LandingScreenState extends State<LandingScreen>
                             ),
                             elevation: 0,
                           ),
-                          onPressed: () => context.go('/home'),
+                          onPressed: _startTriage,
                           child: const Text(
                             'Continue',
                             style: TextStyle(

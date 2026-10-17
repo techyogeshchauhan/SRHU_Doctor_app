@@ -4,7 +4,10 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/data/local/offline_queue.dart';
+import 'package:neonatal_stw/data/repositories/chat_log_repository.dart';
 import 'package:neonatal_stw/data/services/api_client.dart';
+import 'package:neonatal_stw/features/clinical_workflow/domain/clinical_finding.dart';
+import 'package:neonatal_stw/features/clinical_workflow/domain/source_reference.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/shared_questions.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
 import 'package:neonatal_stw/data/repositories/screening_sync_repository.dart';
@@ -180,9 +183,15 @@ void main() {
     late String sessionBox;
     late String queueBox;
 
-    OfflineQueue onlineQueue() => OfflineQueue(
+    late String deadBox;
+
+    OfflineQueue onlineQueue({String? version, int maxDeadLetters = 500}) =>
+        OfflineQueue(
           sessionBoxName: sessionBox,
           queueBoxName: queueBox,
+          deadLetterBoxName: deadBox,
+          version: version,
+          maxDeadLetters: maxDeadLetters,
           apiClient: ApiClient(
             baseUrl: 'http://test',
             apiKey: 'k',
@@ -197,6 +206,7 @@ void main() {
       final stamp = DateTime.now().microsecondsSinceEpoch;
       sessionBox = 'flush_session_$stamp';
       queueBox = 'flush_queue_$stamp';
+      deadBox = 'flush_dead_$stamp';
       queue = onlineQueue();
       await queue.initialize(customPath: tempDir.path);
     });
@@ -315,13 +325,224 @@ void main() {
       expect(queue.getScreeningTimings().single['durationMs'], isNonNegative);
     });
 
-    test('a rejected item is dropped and later items still sync', () async {
+    test('items queued before an app restart sync with their nested data',
+        () async {
+      // Offline (unconfigured client): everything stays in Hive.
+      await queue.dispose();
+      final offline = OfflineQueue(
+        sessionBoxName: sessionBox,
+        queueBoxName: queueBox,
+        apiClient: ApiClient(baseUrl: '', apiKey: ''),
+      );
+      await offline.initialize(customPath: tempDir.path);
+      final repo = ScreeningSyncRepository(queue: offline);
+      await repo.startAssessmentSession({'triage'});
+      final screeningId = await repo.startDiseaseScreening('triage');
+      await repo.recordResponse(
+        diseaseCode: 'triage',
+        questionId: 'triage_emergency_signs',
+        value: {'apnea', 'shock'},
+      );
+      await repo.recordFindings(diseaseCode: 'triage', findings: const [
+        ClinicalFinding(
+          id: 'triage.shock',
+          topic: NeonatalCondition.triage,
+          content: FindingContent(
+            category: FindingCategory.treatment,
+            level: FindingLevel.urgent,
+            title: 'Shock',
+            actions: ['Consider inotropes early.'],
+            why: ['Shock selected'],
+          ),
+          source: SourceReference.triage('SPECIFIC MANAGEMENT WORKFLOWS'),
+        ),
+      ]);
+      await ChatLogRepository(queue: offline).logChatQuery(
+        query: 'shock fluid bolus',
+        answer: 'IV NS 10 mL/kg.',
+        matchedChunkIds: ['triage_shock'],
+        sourceMetadata: {
+          'document': 'Triage',
+          'page': 1,
+          'section': 'SHOCK',
+          'bounding_boxes': [
+            {'x': 0.1, 'y': 0.2, 'width': 0.3, 'height': 0.1},
+          ],
+        },
+        found: true,
+      );
+      repo.dispose();
+      await offline.dispose();
+
+      // App restart: Hive now reads every entry back from disk.
+      queue = onlineQueue();
+      await queue.initialize(customPath: tempDir.path);
+      await settle();
+      await queue.flush();
+      await settle();
+
+      expect(queue.pendingCount, 0, reason: 'nothing dropped or stuck');
+      Object? body(String method, String path) => adapter.requests
+          .firstWhere((r) => r.$1 == method && r.$2 == path,
+              orElse: () => fail('$method $path was never sent'))
+          .$3;
+
+      final findings =
+          (body('PUT', '/screenings/$screeningId/findings') as Map)['findings']
+              as List;
+      expect(findings, hasLength(1));
+      final finding = findings.single as Map;
+      expect(finding['title'], 'Shock');
+      expect(finding['severity'], 'urgent');
+      expect(finding['recommendations'], {
+        'actions': ['Consider inotropes early.'],
+        'why': ['Shock selected'],
+      });
+
+      final response = body(
+          'PUT', '/screenings/$screeningId/responses/triage_emergency_signs');
+      expect((response as Map)['value'], unorderedEquals(['apnea', 'shock']));
+
+      final chat = body('POST', '/chat-logs') as Map;
+      expect(chat['source'], {'document': 'Triage', 'page': 1, 'section': 'SHOCK'});
+      expect(chat['chunkIds'], ['triage_shock']);
+    });
+
+    test('a rejected item is kept aside and later items still sync',
+        () async {
       adapter.statusFor = (path) => path.contains('/bad/') ? 400 : 200;
       await enqueueStatus('bad');
       await enqueueStatus('good');
       await settle();
       expect(adapter.paths, contains('/screenings/good/status'));
       expect(queue.pendingCount, equals(0));
+
+      expect(queue.deadLetterCount, 1, reason: 'not deleted without a trace');
+      final kept = queue.deadLetters.single;
+      expect(kept['reason'], 'HTTP 400');
+      expect(kept['app_version'], isNotEmpty);
+      expect((kept['entry'] as Map)['payload'], {
+        'id': 'bad',
+        'progress_state': 'completed',
+      });
+    });
+
+    test('a rejected screening keeps its answers; replay restores the order',
+        () async {
+      final repo = ScreeningSyncRepository(queue: queue);
+      await repo.startAssessmentSession({'triage'});
+      // The server rejects the screening, so its answer then gets 404.
+      var serverFixed = false;
+      adapter.statusFor = (path) {
+        if (serverFixed) return 200;
+        if (RegExp(r'^/screenings/[^/]+$').hasMatch(path)) return 400;
+        if (path.contains('/responses/')) return 404;
+        return 200;
+      };
+      final screeningId = await repo.startDiseaseScreening('triage');
+      await repo.recordResponse(
+        diseaseCode: 'triage',
+        questionId: 'triage_spo2',
+        value: 88,
+      );
+      await settle();
+      expect(queue.pendingCount, 0);
+      expect(queue.deadLetterCount, 2);
+      expect(queue.deadLetters.map((d) => d['reason']),
+          unorderedEquals(['HTTP 400', 'HTTP 404']));
+
+      serverFixed = true;
+      adapter.paths.clear();
+      expect(await queue.requeueDeadLetters(), 2);
+      await settle();
+      expect(queue.deadLetterCount, 0);
+      expect(adapter.paths, [
+        '/screenings/$screeningId',
+        '/screenings/$screeningId/responses/triage_spo2',
+      ]);
+      repo.dispose();
+    });
+
+    test('a device-side failure is kept too (not only server rejections)',
+        () async {
+      // No screening id: building the request fails on the device.
+      await queue.enqueue(
+        table: 'screening_findings',
+        action: 'replace',
+        payload: {'findings': <Object>[]},
+      );
+      await settle();
+      expect(queue.pendingCount, 0);
+      expect(queue.deadLetters.single['reason'], contains('TypeError'));
+    });
+
+    test('kept writes are retried once after an app update', () async {
+      await queue.dispose();
+      queue = onlineQueue(version: '1.0.0');
+      await queue.initialize(customPath: tempDir.path);
+      adapter.statusFor = (_) => 400;
+      await enqueueStatus('x');
+      await settle();
+      expect(queue.deadLetterCount, 1);
+      await queue.dispose();
+
+      // Same version: not retried.
+      adapter.statusFor = (_) => 200;
+      adapter.paths.clear();
+      queue = onlineQueue(version: '1.0.0');
+      await queue.initialize(customPath: tempDir.path);
+      await settle();
+      expect(adapter.paths, isEmpty);
+      expect(queue.deadLetterCount, 1);
+      await queue.dispose();
+
+      // Updated app: retried and, now accepted, gone.
+      queue = onlineQueue(version: '1.0.1');
+      await queue.initialize(customPath: tempDir.path);
+      await settle();
+      expect(adapter.paths, ['/screenings/x/status']);
+      expect(queue.deadLetterCount, 0);
+    });
+
+    test('a newer write of the same record replaces a kept failed one',
+        () async {
+      adapter.statusFor = (_) => 400;
+      await queue.enqueue(
+        table: 'screening_findings',
+        action: 'replace',
+        customId: 's1_findings',
+        payload: {'screening_id': 's1', 'findings': <Object>[]},
+      );
+      await settle();
+      expect(queue.deadLetterCount, 1);
+
+      adapter.statusFor = (_) => 200;
+      await queue.enqueue(
+        table: 'screening_findings',
+        action: 'replace',
+        customId: 's1_findings',
+        payload: {'screening_id': 's1', 'findings': <Object>[]},
+      );
+      await settle();
+      expect(queue.deadLetterCount, 0,
+          reason: 'replaying the old snapshot would overwrite the new one');
+      expect(await queue.requeueDeadLetters(), 0);
+    });
+
+    test('kept writes are capped; the oldest are discarded', () async {
+      await queue.dispose();
+      queue = onlineQueue(maxDeadLetters: 2);
+      await queue.initialize(customPath: tempDir.path);
+      adapter.statusFor = (_) => 400;
+      for (final id in ['old', 'mid', 'new']) {
+        await enqueueStatus(id);
+        await settle();
+      }
+      expect(queue.deadLetterCount, 2);
+      expect(
+        queue.deadLetters.map((d) => ((d['entry'] as Map)['payload'] as Map)['id']),
+        ['mid', 'new'],
+      );
     });
 
     test('an auth failure keeps the item and stops the pass', () async {

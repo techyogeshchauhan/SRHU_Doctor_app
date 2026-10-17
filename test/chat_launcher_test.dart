@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
 import 'package:neonatal_stw/features/chatbot/ui/chat_screen.dart';
 
+import 'test_helpers.dart';
+
 final _launcher = find.byKey(const Key('chat-launcher'));
 
 void main() {
@@ -19,8 +21,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(_launcher, findsOneWidget, reason: 'landing page');
 
-      await tester.tap(find.text('Continue').first);
-      await tester.pumpAndSettle();
+      await goToHome(tester);
       expect(find.text('Triaging'), findsOneWidget);
       expect(_launcher, findsOneWidget, reason: 'home');
 

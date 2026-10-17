@@ -24,7 +24,7 @@ Future<void> _pumpAppAt(
 void main() {
   group('Landing & Home Screen Tests', () {
     testWidgets(
-        'Landing shows headline, text, and Continue button navigating to Home at 360x640',
+        'Landing shows headline, text, and Continue button opening Triage at 360x640',
         (tester) async {
       final errors = <FlutterErrorDetails>[];
       final oldHandler = FlutterError.onError;
@@ -44,9 +44,17 @@ void main() {
         final continueBtn = find.text('Continue');
         expect(continueBtn, findsOneWidget);
 
-        // Tap Continue to navigate to Home
+        // Continue opens the Triage workflow (Triage first, Weight first)
         await tester.tap(continueBtn);
         await tester.pumpAndSettle();
+        expect(find.text('Clinical Assessment'), findsOneWidget);
+        expect(find.text('Initial triage measurements'), findsOneWidget);
+        expect(find.text('Weight'), findsOneWidget);
+        expect(find.text('Heart rate'), findsNothing);
+        expect(find.byKey(const ValueKey('next-step')), findsNothing);
+
+        // Condition selection is still reachable
+        await goToHome(tester);
 
         // 2. Home Screen checks
         expect(find.text('Triaging'), findsOneWidget);
@@ -111,8 +119,7 @@ void main() {
                   'Landing should have zero overflow at ${size.width}x${size.height}');
 
           // Navigate to Home screen
-          await tester.tap(find.text('Continue'));
-          await tester.pumpAndSettle();
+          await goToHome(tester);
 
           // Home screen fits
           expect(find.text('Triaging'), findsOneWidget);
@@ -139,8 +146,7 @@ void main() {
         'Disclaimer opens modal bottom sheet with advisory text on Home',
         (tester) async {
       await _pumpAppAt(tester, size: const Size(360, 640));
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
+      await goToHome(tester);
 
       await tester.tap(find.text('Disclaimer'));
       await tester.pumpAndSettle();
@@ -156,8 +162,7 @@ void main() {
     testWidgets('References link navigates to References screen from Home',
         (tester) async {
       await _pumpAppAt(tester, size: const Size(360, 640));
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
+      await goToHome(tester);
 
       await tester.tap(find.text('References'));
       await tester.pumpAndSettle();
@@ -186,8 +191,7 @@ void main() {
         expect(overflowErrors, isEmpty,
             reason: 'Landing should not overflow with 1.3x text scale');
 
-        await tester.tap(find.text('Continue'));
-        await tester.pumpAndSettle();
+        await goToHome(tester);
 
         overflowErrors = errors.where((e) =>
             e.exceptionAsString().contains('A RenderFlex overflowed by'));
@@ -202,8 +206,7 @@ void main() {
         'Home layout adheres to Triaging heading, condition cards, and button rules',
         (tester) async {
       await _pumpAppAt(tester, size: const Size(360, 640));
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
+      await goToHome(tester);
 
       // 1. Heading check
       expect(find.text('Triaging'), findsOneWidget);
@@ -313,8 +316,7 @@ void main() {
     testWidgets('Header displays ICMR logo on Home, RD, and ROP screens',
         (tester) async {
       await _pumpAppAt(tester, size: const Size(360, 640));
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
+      await goToHome(tester);
 
       // Home Screen header has ICMR logo
       expect(

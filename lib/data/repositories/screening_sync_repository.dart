@@ -9,6 +9,7 @@ import '../../features/condition_selection/domain/neonatal_condition.dart';
 import '../local/offline_queue.dart';
 import '../models/screening_timing.dart';
 
+export '../local/offline_queue.dart' show appVersion;
 export '../models/screening_timing.dart';
 
 /// Maps [NeonatalCondition] enum values to standardized database codes.
@@ -28,10 +29,6 @@ String diseaseCodeOf(NeonatalCondition c) {
       return c.name;
   }
 }
-
-/// App version recorded with each session (set by scripts/build_*.ps1).
-const appVersion =
-    String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0+1');
 
 /// Question types never sent to the server: dates (date of birth, exam
 /// dates) and free text (facility name, SNCU/CR number) can identify a baby.

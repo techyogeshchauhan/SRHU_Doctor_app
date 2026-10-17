@@ -64,21 +64,4 @@ router.patch('/:id', async (req, res, next) => {
   }
 });
 
-// GET /sessions/:id
-router.get('/:id', async (req, res, next) => {
-  try {
-    const id = uuidSchema.parse(req.params.id);
-    const sessions = getSessionsCollection();
-
-    const session = await sessions.findOne({ _id: id });
-    if (!session) {
-      return res.status(404).json({ error: 'NotFound', message: 'Session not found.' });
-    }
-
-    res.status(200).json(session);
-  } catch (err) {
-    next(err);
-  }
-});
-
 export default router;

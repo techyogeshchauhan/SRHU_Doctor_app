@@ -128,33 +128,43 @@ class _NumberFieldState extends State<NumberField> {
     if (hint == null) return field;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        field,
-        Padding(
-          padding: const EdgeInsets.only(left: 12, top: 4, right: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 1, right: 6),
-                child: Icon(Icons.straighten_rounded,
-                    size: 14, color: AppTheme.primaryBlue),
-              ),
-              Expanded(
-                child: Text(
-                  hint,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    height: 1.35,
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+      children: [field, _RangeHint(hint)],
+    );
+  }
+}
+
+/// STW range line shown under a number field, outside the placeholder, so
+/// it stays visible while typing.
+class _RangeHint extends StatelessWidget {
+  const _RangeHint(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, top: 4, right: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 1, right: 6),
+            child: Icon(Icons.straighten_rounded,
+                size: 14, color: AppTheme.primaryBlue),
           ),
-        ),
-      ],
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 12,
+                height: 1.35,
+                color: AppTheme.primaryBlue,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -245,13 +255,7 @@ class _DecimalNumberFieldState extends State<DecimalNumberField> {
     if (hint == null) return field;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        field,
-        Padding(
-          padding: const EdgeInsets.only(left: 12, top: 4, right: 4),
-          child: Text(hint, style: const TextStyle(fontSize: 12)),
-        ),
-      ],
+      children: [field, _RangeHint(hint)],
     );
   }
 }

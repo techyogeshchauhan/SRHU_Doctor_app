@@ -14,7 +14,7 @@ import '../domain/neonatal_condition.dart';
 import '../state/condition_selection_controller.dart';
 
 /// Topic icons mapping for all 14 conditions.
-const _topicIcons = <NeonatalCondition, IconData>{
+const conditionIcons = <NeonatalCondition, IconData>{
   NeonatalCondition.triage: Icons.low_priority_rounded,
   NeonatalCondition.thermalCare: Icons.thermostat_rounded,
   NeonatalCondition.kmc: Icons.favorite_border_rounded,
@@ -453,7 +453,7 @@ class _ConditionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final d = definition;
     final isAvailable = d.implemented;
-    final icon = _topicIcons[d.id] ?? Icons.medical_services_outlined;
+    final icon = conditionIcons[d.id] ?? Icons.medical_services_outlined;
 
     final content = Material(
       color: Colors.white,

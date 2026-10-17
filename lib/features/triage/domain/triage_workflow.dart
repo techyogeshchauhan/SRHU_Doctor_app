@@ -17,7 +17,6 @@ const _triage = NeonatalCondition.triage;
 
 const triageTemperatureKey = 'triage_temperature_c';
 const triageSpo2Key = 'triage_spo2';
-const triageHeartRateKey = 'triage_heart_rate';
 const triageWeightKey = 'triage_weight_g';
 const triageBloodGlucoseKey = 'triage_blood_glucose';
 const triageEmergencySignsKey = 'triage_emergency_signs';
@@ -51,6 +50,12 @@ const triageGroups = [
     subtitle: 'Leave a measurement blank if it is not available.',
     footnote:
         "Examples indicate the expected input format only. Enter the baby's actual measured values.",
+    questionOrder: [
+      triageWeightKey,
+      triageTemperatureKey,
+      triageSpo2Key,
+      triageBloodGlucoseKey,
+    ],
   ),
   QuestionGroup(
     'triage_signs',
@@ -68,6 +73,9 @@ const qTriageTemperature = ClinicalQuestion(
   type: QuestionType.decimal,
   unit: '°C',
   inputHint: 'e.g., 36.5',
+  // EMERGENCY: Significant hypothermia (<35.5°C);
+  // PRIORITY: Temperature 35.5 to 36.4°C.
+  stwRange: 'STW: <35.5°C: Emergency · 35.5 to 36.4°C: Priority',
   sources: [_srcClassify, _srcSpecific],
 );
 
@@ -78,17 +86,10 @@ const qTriageSpo2 = ClinicalQuestion(
   type: QuestionType.numeric,
   unit: '%',
   inputHint: 'e.g., 95',
+  // EMERGENCY: Central cyanosis or SpO₂ <91%;
+  // TREAT IMMEDIATELY: titrate to 91–95%.
+  stwRange: 'STW: SpO₂ <91%: Emergency · titrate to 91–95%',
   sources: [_srcClassify, _srcEmergency],
-);
-
-const qTriageHeartRate = ClinicalQuestion(
-  id: triageHeartRateKey,
-  group: 'triage_measurements',
-  question: 'Heart rate',
-  type: QuestionType.numeric,
-  unit: 'bpm',
-  inputHint: 'e.g., 140',
-  sources: [_srcClassify, _srcSpecific],
 );
 
 const qTriageWeight = ClinicalQuestion(
@@ -100,6 +101,8 @@ const qTriageWeight = ClinicalQuestion(
   inputHint: 'e.g., 2.5',
   displayUnit: 'kg',
   displayFactor: 1000,
+  // PRIORITY: Weight <1800 g.
+  stwRange: 'STW: Weight <1800 g: Priority',
   sources: [_srcClassify],
 );
 
@@ -110,6 +113,9 @@ const qTriageBloodGlucose = ClinicalQuestion(
   type: QuestionType.numeric,
   unit: 'mg/dL',
   inputHint: 'e.g., 60',
+  // HYPOGLYCEMIA box (specific management workflows).
+  stwRange: 'STW: <20 mg/dL OR symptomatic: 2 mL/kg 10% dextrose IV · '
+      '<45 mg/dL and asymptomatic: supervised breastfeeding or EBM',
   sources: [_srcEmergency, _srcSpecific, _srcKpi],
 );
 
@@ -657,10 +663,9 @@ final triageWorkflow = StwWorkflow(
   source: const SourceReference.triage('Whole document (July 2020)'),
   groups: triageGroups,
   uses: [
+    const QuestionUse(qTriageWeight),
     const QuestionUse(qTriageTemperature),
     const QuestionUse(qTriageSpo2),
-    const QuestionUse(qTriageHeartRate),
-    const QuestionUse(qTriageWeight),
     const QuestionUse(qTriageBloodGlucose),
     const QuestionUse(qTriageEmergencySigns),
     const QuestionUse(qTriagePrioritySigns),

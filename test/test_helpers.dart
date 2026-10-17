@@ -24,3 +24,11 @@ Future<void> openStandaloneModule(WidgetTester tester, String route) async {
   GoRouter.of(element).push(route);
   await tester.pumpAndSettle();
 }
+
+/// Opens condition selection (`/home`). The landing "Continue" now starts
+/// the Triage workflow, so tests that need Home navigate there directly.
+Future<void> goToHome(WidgetTester tester) async {
+  final element = tester.element(find.byType(Navigator).first);
+  GoRouter.of(element).go('/home');
+  await tester.pumpAndSettle();
+}

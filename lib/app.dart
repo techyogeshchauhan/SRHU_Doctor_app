@@ -14,6 +14,7 @@ import 'features/home/home_screen.dart';
 import 'features/knowledge_graph/ui/assessment_map_screen.dart';
 import 'features/knowledge_graph/ui/stw_map_screen.dart';
 import 'features/landing/ui/landing_screen.dart';
+import 'features/next_stw/ui/next_stw_screen.dart';
 import 'features/rd/ui/rd_screen.dart';
 import 'features/references/ui/pdf_viewer_screen.dart';
 import 'features/references/ui/references_screen.dart';
@@ -63,6 +64,10 @@ GoRouter buildRouter() => GoRouter(
           },
         ),
         GoRoute(path: '/workflow', builder: (_, __) => const WorkflowScreen()),
+        GoRoute(
+          path: '/next-stw',
+          builder: (_, __) => const NextStwScreen(),
+        ),
         GoRoute(
           path: '/stw-map',
           builder: (_, state) => StwMapScreen(

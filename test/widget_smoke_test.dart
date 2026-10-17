@@ -16,10 +16,7 @@ Future<void> _pumpApp(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
   await tester.pumpAndSettle();
-  if (tapContinue && find.text('Continue').evaluate().isNotEmpty) {
-    await tester.tap(find.text('Continue'));
-    await tester.pumpAndSettle();
-  }
+  if (tapContinue) await goToHome(tester);
 }
 
 Future<void> _tap(WidgetTester tester, Finder f) async {
@@ -168,8 +165,8 @@ void main() {
     expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
     expect(find.text('Continue'), findsOneWidget);
 
-    // Tap Continue to navigate to Home
-    await _tap(tester, find.text('Continue'));
+    // Condition selection (Continue itself opens Triage; see landing test)
+    await goToHome(tester);
     expect(find.text('Triaging'), findsOneWidget);
     expect(find.text('Based on History and Clinical Examination.'),
         findsOneWidget);
@@ -196,7 +193,7 @@ void main() {
     expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
     expect(find.text('Continue'), findsOneWidget);
 
-    await _tap(tester, find.text('Continue'));
+    await goToHome(tester);
     expect(find.text('Triaging'), findsOneWidget);
     expect(find.text('Based on History and Clinical Examination.'),
         findsOneWidget);

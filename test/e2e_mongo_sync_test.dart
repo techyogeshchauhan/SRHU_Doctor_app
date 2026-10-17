@@ -38,9 +38,13 @@ import 'chatbot_eval/eval_harness.dart';
 ///   cd server && node scripts/e2e_server.js 4100 [--atlas]
 ///   E2E_API_URL=http://127.0.0.1:4100 flutter test test/e2e_mongo_sync_test.dart
 /// E2E_API_KEY defaults to API_KEY in build.env (the server's write key).
+/// The write key cannot read, so data is read back through /export with
+/// E2E_EXPORT_KEY (default: EXPORT_API_KEY in server/.env).
 void main() {
   final apiUrl = Platform.environment['E2E_API_URL'] ?? '';
   final apiKey = Platform.environment['E2E_API_KEY'] ?? _buildEnvApiKey();
+  final exportKey =
+      Platform.environment['E2E_EXPORT_KEY'] ?? _serverEnvExportKey();
 
   TestWidgetsFlutterBinding.ensureInitialized();
   // flutter_test blocks real HTTP by default; this test needs it.
@@ -206,17 +210,17 @@ void main() {
     }
     expect(queue.pendingCount, 0, reason: 'queue did not drain');
 
-    // ---- Read back from MongoDB ------------------------------------------
+    // ---- Read back from MongoDB (export key: the write key cannot read) --
     final dio = Dio(BaseOptions(
       baseUrl: apiUrl,
-      headers: {'x-api-key': apiKey},
+      headers: {'x-api-key': exportKey},
     ));
-    Future<Map<String, dynamic>> session(String id) async =>
-        Map<String, dynamic>.from((await dio.get('/sessions/$id')).data as Map);
+    Future<Map<String, dynamic>> session(String id) async => Map<String,
+        dynamic>.from((await dio.get('/export/sessions/$id')).data as Map);
     Future<List<Map<String, dynamic>>> list(String path, String id) async => [
-          for (final d in (await dio
-                  .get(path, queryParameters: {'sessionId': id}))
-              .data as List)
+          for (final d in ((await dio.get('/export$path',
+                  queryParameters: {'sessionId': id, 'limit': '100'}))
+              .data as Map)['data'] as List)
             Map<String, dynamic>.from(d as Map),
         ];
 
@@ -307,4 +311,18 @@ String _buildEnvApiKey() {
     }
   }
   return 'stw_dev_client_key_12345';
+}
+
+/// EXPORT_API_KEY from server/.env, else the development export key.
+String _serverEnvExportKey() {
+  final file = File('server/.env');
+  if (file.existsSync()) {
+    for (final line in file.readAsLinesSync()) {
+      if (line.startsWith('EXPORT_API_KEY=')) {
+        final key = line.substring(15).split(',').first.trim();
+        if (key.isNotEmpty) return key;
+      }
+    }
+  }
+  return 'stw_research_export_key_67890';
 }

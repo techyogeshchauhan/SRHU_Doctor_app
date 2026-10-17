@@ -4,7 +4,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
 import { config } from './config.js';
-import { apiKeyAuth } from './middleware/auth.js';
+import { apiKeyAuth, rejectReads } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/logger.js';
 import chatLogsRouter from './routes/chatLogs.js';
@@ -61,10 +61,10 @@ export function createApp() {
   // Export endpoints (custom export auth)
   app.use('/export', exportRouter);
 
-  // Client data endpoints (guarded by x-api-key)
-  app.use('/sessions', apiKeyAuth, sessionsRouter);
-  app.use('/screenings', apiKeyAuth, screeningsRouter);
-  app.use('/chat-logs', apiKeyAuth, chatLogsRouter);
+  // Client data endpoints: write-only, guarded by x-api-key
+  app.use('/sessions', rejectReads, apiKeyAuth, sessionsRouter);
+  app.use('/screenings', rejectReads, apiKeyAuth, screeningsRouter);
+  app.use('/chat-logs', rejectReads, apiKeyAuth, chatLogsRouter);
 
   // 404 handler
   app.use((req, res) => {

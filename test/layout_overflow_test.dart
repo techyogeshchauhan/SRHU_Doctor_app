@@ -41,7 +41,7 @@ void main() {
       // 1. Landing Screen
       expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
       expect(find.text('Continue'), findsOneWidget);
-      await _tap(tester, find.text('Continue'));
+      await goToHome(tester);
 
       // 2. Home Screen
       expect(find.text('Triaging'), findsOneWidget);

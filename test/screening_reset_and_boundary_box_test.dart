@@ -160,7 +160,8 @@ void main() {
       final questions = engine.pageQuestions(container.read(assessmentProvider).context, currentGroup);
       expect(questions.isNotEmpty, isTrue);
       final firstQ = questions.first.question;
-      container.read(assessmentProvider.notifier).answer(firstQ.id, 36.5);
+      // The first Triage field is Weight, stored in grams.
+      container.read(assessmentProvider.notifier).answer(firstQ.id, 2500);
 
       // Verify answer exists
       expect(container.read(assessmentProvider).context.answers, isNotEmpty);
