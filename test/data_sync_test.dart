@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/data/local/offline_queue.dart';
+import 'package:neonatal_stw/data/repositories/audit_log_repository.dart';
 import 'package:neonatal_stw/data/repositories/chat_log_repository.dart';
 import 'package:neonatal_stw/data/services/api_client.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/clinical_finding.dart';
@@ -543,6 +544,153 @@ void main() {
         queue.deadLetters.map((d) => ((d['entry'] as Map)['payload'] as Map)['id']),
         ['mid', 'new'],
       );
+    });
+
+    test('retry backoff doubles after each failure, up to the maximum', () {
+      final q = OfflineQueue(
+        retryDelay: const Duration(seconds: 30),
+        maxRetryDelay: const Duration(minutes: 15),
+        apiClient: ApiClient(baseUrl: '', apiKey: ''),
+      );
+      expect(q.retryDelayFor(1), const Duration(seconds: 30));
+      expect(q.retryDelayFor(2), const Duration(minutes: 1));
+      expect(q.retryDelayFor(3), const Duration(minutes: 2));
+      expect(q.retryDelayFor(5), const Duration(minutes: 8));
+      expect(q.retryDelayFor(6), const Duration(minutes: 15));
+      expect(q.retryDelayFor(40), const Duration(minutes: 15));
+    });
+
+    test('a transient failure marks the record failed and schedules a retry',
+        () async {
+      adapter.hold = true;
+      await enqueueStatus('offline');
+      await settle();
+      final entry = queue.pendingEntries.single;
+      expect(entry['status'], 'failed');
+      expect(entry['retries'], greaterThanOrEqualTo(1));
+      expect(entry['last_attempt_at'], isNotNull);
+      expect(queue.status.phase, SyncPhase.waitingToRetry);
+      expect(queue.status.pending, 1);
+      expect(queue.status.nextRetryAt, isNotNull);
+
+      // Back online: the next flush sends it and the queue is clear.
+      adapter.hold = false;
+      await queue.flush();
+      await settle();
+      expect(queue.pendingEntries, isEmpty);
+      expect(queue.status.allSynced, isTrue);
+      expect(queue.status.phase, SyncPhase.idle);
+      expect(queue.status.lastSyncedAt, isNotNull);
+    });
+
+    test('status stream reports pending records, then all synced', () async {
+      adapter.hold = true;
+      final seen = <SyncStatus>[];
+      final sub = queue.statusStream.listen(seen.add);
+      await enqueueStatus('a');
+      await settle();
+      adapter.hold = false;
+      await queue.flush();
+      await settle();
+      // Stream events are delivered asynchronously.
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await sub.cancel();
+      expect(seen.any((s) => s.pending == 1), isTrue);
+      expect(seen.any((s) => s.phase == SyncPhase.syncing), isTrue);
+      expect(seen.last.pending, 0);
+    });
+
+    test('consecutive audit events are sent as one batch, in order', () async {
+      adapter.hold = true;
+      final audit = AuditLog(queue: queue);
+      audit.screenView('/workflow');
+      audit.tap('next_step');
+      audit.stwPdfOpened(
+        asset: 'assets/pdfs/Triage_13-10-26.pdf',
+        regionId: 'triage_shock',
+        origin: 'triage_card:shock',
+      );
+      await settle();
+      await enqueueStatus('after');
+      await settle();
+      adapter.hold = false;
+      adapter.requests.clear();
+      adapter.paths.clear();
+      await queue.flush();
+      await settle();
+
+      expect(adapter.paths, ['/audit-events', '/screenings/after/status']);
+      final events =
+          ((adapter.requests.first.$3 as Map)['events'] as List).cast<Map>();
+      expect(events.map((e) => e['type']),
+          ['screen_view', 'tap', 'stw_pdf_opened']);
+      expect(events[1]['screen'], '/workflow');
+      expect(events[1]['data'], {'button': 'next_step'});
+      expect(events[2]['data'], {
+        'asset': 'assets/pdfs/Triage_13-10-26.pdf',
+        'regionId': 'triage_shock',
+        'origin': 'triage_card:shock',
+      });
+      for (final e in events) {
+        expect(e['_id'], isA<String>());
+        expect(e['occurredAt'], isA<String>());
+      }
+      expect(queue.pendingCount, 0);
+    });
+
+    test('a rejected audit batch is retried one by one; others still sync',
+        () async {
+      adapter.statusFor = (path) => path == '/audit-events' ? 400 : 200;
+      final audit = AuditLog(queue: queue);
+      audit.tap('a');
+      audit.tap('b');
+      await enqueueStatus('next');
+      await settle();
+      expect(adapter.paths.where((p) => p == '/audit-events').length,
+          greaterThanOrEqualTo(2));
+      expect(adapter.paths, contains('/screenings/next/status'));
+      expect(queue.pendingCount, 0);
+      expect(queue.deadLetterCount, 2);
+    });
+
+    test('clinical decisions and chat context reach their endpoints', () async {
+      await queue.enqueue(
+        table: 'clinical_decisions',
+        action: 'replace',
+        customId: 's1_decision',
+        payload: {
+          'screening_id': 's1',
+          'decision': {
+            'category': 'EMERGENCY',
+            'triggers': ['HR 210/min (>200/min)'],
+          },
+          'recorded_at': '2026-10-17T10:00:00.000Z',
+        },
+      );
+      await ChatLogRepository(queue: queue).logChatQuery(
+        query: 'shock bolus',
+        answer: 'IV NS 10 mL/kg',
+        matchedChunkIds: const ['triage_shock'],
+        found: true,
+        context: const {
+          'selected': ['triage'],
+          'triage': {'category': 'EMERGENCY'},
+        },
+      );
+      await settle();
+
+      final decision = adapter.requests
+          .singleWhere((r) => r.$2 == '/screenings/s1/decision')
+          .$3 as Map;
+      expect(decision['decision'],
+          {'category': 'EMERGENCY', 'triggers': ['HR 210/min (>200/min)']});
+      expect(decision['recordedAt'], '2026-10-17T10:00:00.000Z');
+      final chat =
+          adapter.requests.singleWhere((r) => r.$2 == '/chat-logs').$3 as Map;
+      expect(chat['context'], {
+        'selected': ['triage'],
+        'triage': {'category': 'EMERGENCY'},
+      });
     });
 
     test('an auth failure keeps the item and stops the pass', () async {

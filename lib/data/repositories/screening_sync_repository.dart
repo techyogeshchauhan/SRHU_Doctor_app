@@ -292,6 +292,26 @@ class ScreeningSyncRepository {
         );
       });
 
+  /// Records the screening's clinical decision snapshot (classification,
+  /// triggers, flagged cards, computed doses), replacing any earlier one.
+  Future<void> recordDecision({
+    required String diseaseCode,
+    required Map<String, Object?> decision,
+  }) =>
+      _serial(() async {
+        final screeningId = await _screeningFor(diseaseCode);
+        await _queue.enqueue(
+          table: 'clinical_decisions',
+          action: 'replace',
+          customId: '${screeningId}_decision',
+          payload: {
+            'screening_id': screeningId,
+            'decision': storable(decision),
+            'recorded_at': _eventTime().toIso8601String(),
+          },
+        );
+      });
+
   /// Marks a disease screening as completed.
   Future<void> completeScreening(String diseaseCode) {
     final completedAt = _eventTime();

@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/repositories/chat_log_repository.dart';
 import '../../../data/repositories/screening_sync_repository.dart';
+import '../../clinical_workflow/state/assessment_controller.dart';
+import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../triage/domain/triage_decision.dart';
 import '../data/bm25_retriever.dart';
 import '../domain/answering/answer_composer.dart';
 import '../domain/answering/stw_answer.dart';
@@ -126,7 +129,17 @@ final chatbotNotifierProvider =
       // Chat can come before any screening: create the session if needed,
       // so every log belongs to one.
       final sessionId = await syncRepo.ensureSession();
+      // Clinical state when the question was asked (no free text).
+      final assessment = ref.read(assessmentProvider);
+      final ctx = assessment.context;
       await chatRepo.logChatQuery(
+        context: {
+          'selected': [for (final c in ctx.selected) diseaseCodeOf(c)]..sort(),
+          'currentGroup': assessment.currentGroup,
+          'assessmentComplete': ctx.selected.isNotEmpty && assessment.isComplete,
+          if (ctx.selected.contains(NeonatalCondition.triage))
+            'triage': triageClinicalState(ctx),
+        },
         sessionId: sessionId,
         query: query,
         answer: text,

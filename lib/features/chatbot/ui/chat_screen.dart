@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
+import '../../../data/repositories/audit_log_repository.dart';
+import '../../../data/repositories/chat_log_repository.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../knowledge_graph/ui/stw_map_link.dart';
 import '../../../shared/pdf_navigation.dart';
@@ -74,7 +76,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
+  /// Records what the clinician did after an answer.
+  void _logChatAction(String type, Map<String, Object?> data) {
+    final chatLogId = ref.read(chatLogRepositoryProvider).lastChatLogId;
+    ref.read(auditLogProvider).log(type, {
+      ...data,
+      if (chatLogId != null) 'chatLogId': chatLogId,
+    });
+  }
+
   void _openInPdf(BuildContext context, StwChunk chunk) {
+    _logChatAction('chat_source_opened', {
+      'regionId': chunk.chunkId,
+      'document': chunk.document,
+    });
     final assetPath = 'assets/pdfs/${chunk.document}';
     final target = stwChunkTarget(chunk);
 
@@ -600,10 +615,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       style: TextStyle(
                           fontSize: 12.5, fontWeight: FontWeight.w600),
                     ),
-                    onPressed: () => context.push(
-                      '/disease-selection',
-                      extra: {'condition': condition},
-                    ),
+                    onPressed: () {
+                      _logChatAction(
+                          'chat_start_assessment', {'condition': condition.name});
+                      context.push(
+                        '/disease-selection',
+                        extra: {'condition': condition},
+                      );
+                    },
                   ),
                 ),
             ],

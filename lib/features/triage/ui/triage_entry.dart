@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme.dart';
 import '../../../core/utils/condition_exit_dialog.dart';
+import '../../../data/repositories/audit_log_repository.dart';
 import '../../../shared/pdf_navigation.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
@@ -15,6 +16,7 @@ import '../../condition_selection/domain/neonatal_condition.dart';
 /// Uses `go`, so Triage is the only route: Back on its first page asks to
 /// leave to the module list, as when it is opened from the landing page.
 void startTriage(BuildContext context, WidgetRef ref) {
+  ref.read(auditLogProvider).log('module_entered', {'disease': 'triage'});
   clearConditionData(ref, clearSelections: true);
   ref
       .read(assessmentProvider.notifier)
@@ -82,8 +84,9 @@ class TriageEntryCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 2),
                 const Text(
-                  'First step for a new neonate. Start a new triage at any '
-                  'time; the STW modules follow its results.',
+                  'First step for a new neonate. Classifies Emergency, '
+                  'Priority or Non-urgent automatically and opens the '
+                  'treatment steps; the STW modules follow its results.',
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 11,

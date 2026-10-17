@@ -8,12 +8,17 @@ import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../../core/widgets/responsive.dart';
+import '../../../core/widgets/sync_status_indicator.dart';
+import '../../../data/repositories/audit_log_repository.dart';
 import '../../../shared/pdf_navigation.dart';
 import '../../../data/repositories/screening_sync_repository.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../follow_up/data/disease_follow_up_registry.dart';
 import '../../follow_up/state/follow_up_controller.dart';
+import '../../triage/domain/triage_workflow.dart';
+import '../../triage/ui/triage_category_banner.dart';
 import '../../triage/ui/triage_entry.dart';
+import '../../triage/ui/triage_treatment_dashboard.dart';
 import '../state/assessment_controller.dart';
 import '../voice/voice_entry_bar.dart';
 import '../voice/voice_entry_controller.dart';
@@ -53,6 +58,7 @@ class WorkflowScreen extends ConsumerWidget {
     final triageDone = group == null &&
         ctx.selected.length == 1 &&
         ctx.selected.single == NeonatalCondition.triage;
+    final audit = ref.read(auditLogProvider);
 
     // Answers live in memory only; after a browser refresh or app restart
     // there is no assessment to resume.
@@ -67,6 +73,7 @@ class WorkflowScreen extends ConsumerWidget {
     }
 
     void goBack() {
+      audit.tap('back', {'group': group ?? 'results'});
       if (returnToSelectedStws && s.isComplete) {
         returnToList();
         return;
@@ -111,6 +118,7 @@ class WorkflowScreen extends ConsumerWidget {
             errorBuilder: (_, __, ___) => const SizedBox.shrink(),
           ),
           actions: [
+            const SyncStatusIndicator(),
             BackToHomeButton(
               iconOnly: true,
               onPressed: () => confirmLeaveCondition(
@@ -131,9 +139,12 @@ class WorkflowScreen extends ConsumerWidget {
                     size: 16,
                     color: Color(0xFFDC2626),
                   ),
-                  label: const Text(
-                    'Reset Screening',
-                    style: TextStyle(
+                  // Short label on phones, leaving room for the sync icon.
+                  label: Text(
+                    MediaQuery.sizeOf(context).width < 420
+                        ? 'Reset'
+                        : 'Reset Screening',
+                    style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -169,6 +180,7 @@ class WorkflowScreen extends ConsumerWidget {
                   ),
                 ),
                 onSelected: (action) {
+                  audit.tap('menu', {'action': action.name});
                   switch (action) {
                     case _WorkflowMenuAction.findings:
                       _showFindings(context);
@@ -304,6 +316,7 @@ class WorkflowScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (group == null) ...[
+                          if (triageDone) const TriageTreatmentDashboard(),
                           if (triageDone)
                             const Padding(
                               key: ValueKey('next-step-instruction'),
@@ -341,13 +354,20 @@ class WorkflowScreen extends ConsumerWidget {
                       key: returnToSelectedStws
                           ? const ValueKey('return-selected-stws')
                           : null,
-                      onPressed: returnToSelectedStws
-                          ? returnToList
-                          : () => confirmLeaveCondition(
-                                context,
-                                ref,
-                                destinationRoute: '/disease-selection',
-                              ),
+                      onPressed: () {
+                        audit.tap(returnToSelectedStws
+                            ? 'return_selected_stws'
+                            : 'back_to_selection');
+                        if (returnToSelectedStws) {
+                          returnToList();
+                        } else {
+                          confirmLeaveCondition(
+                            context,
+                            ref,
+                            destinationRoute: '/disease-selection',
+                          );
+                        }
+                      },
                       icon: const Icon(Icons.arrow_back_rounded, size: 15),
                       label: Text(returnToSelectedStws
                           ? 'Return to selected STWs'
@@ -460,7 +480,10 @@ class WorkflowScreen extends ConsumerWidget {
                             label: 'Next Step: select the next STW',
                             child: FilledButton.icon(
                               key: const ValueKey('next-step'),
-                              onPressed: () => context.push('/next-stw'),
+                              onPressed: () {
+                                audit.tap('next_step');
+                                context.push('/next-stw');
+                              },
                               icon: const Icon(Icons.arrow_forward, size: 15),
                               label: const Text('Next Step'),
                               style: FilledButton.styleFrom(
@@ -485,6 +508,7 @@ class WorkflowScreen extends ConsumerWidget {
                         else if (hasFollowUpForSelected(ctx.selected))
                           FilledButton.icon(
                             onPressed: () {
+                              audit.tap('next_mcqs');
                               final conditionWithMcqs = ctx.selected.firstWhere(
                                 hasFollowUpForCondition,
                                 orElse: () => ctx.selected.first,
@@ -649,6 +673,9 @@ class WorkflowScreen extends ConsumerWidget {
       ),
     );
 
+    ref.read(auditLogProvider).tap('reset_screening', {
+      'choice': action ?? 'cancel',
+    });
     if (action == null || !context.mounted) return;
 
     if (action == 'restart') {
@@ -763,6 +790,8 @@ class _QuestionPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Zero-click classification: recomputed after every answer.
+          if (group == triageAssessmentGroup) TriageCategoryBanner(reader: ctx),
           if (sharedBy.length > 1)
             Padding(
               padding: const EdgeInsets.only(bottom: 14),
@@ -805,17 +834,20 @@ class _QuestionPage extends ConsumerWidget {
                                   horizontal: 8, vertical: 4),
                             ),
                             onPressed: () {
+                              final origin = 'question_page:$group';
                               if (regionId != null) {
                                 openStwRegion(
                                   context,
                                   pdf: pdf,
                                   regionId: regionId,
+                                  origin: origin,
                                 );
                               } else {
                                 openStwPdf(
                                   context,
                                   assetPath: pdf.asset,
                                   title: pdf.title,
+                                  origin: origin,
                                 );
                               }
                             },

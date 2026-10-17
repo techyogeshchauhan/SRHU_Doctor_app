@@ -11,6 +11,47 @@ import '../services/api_client.dart';
 const appVersion =
     String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0+1');
 
+/// What the queue is doing now, for the sync indicator.
+enum SyncPhase {
+  /// Nothing is being sent; records may still be pending.
+  idle,
+
+  /// A flush is sending records.
+  syncing,
+
+  /// The last attempt failed; a retry is scheduled ([SyncStatus.nextRetryAt]).
+  waitingToRetry,
+
+  /// No server is configured: everything is kept on this device only.
+  localOnly,
+}
+
+/// Snapshot of the sync queue.
+class SyncStatus {
+  const SyncStatus({
+    required this.pending,
+    required this.failed,
+    required this.phase,
+    this.lastSyncedAt,
+    this.nextRetryAt,
+  });
+
+  static const empty =
+      SyncStatus(pending: 0, failed: 0, phase: SyncPhase.idle);
+
+  /// Records saved on the device and not yet acknowledged by the server.
+  final int pending;
+
+  /// Records the server rejected; kept on the device (see
+  /// [OfflineQueue.deadLetters]).
+  final int failed;
+  final SyncPhase phase;
+  final DateTime? lastSyncedAt;
+  final DateTime? nextRetryAt;
+
+  bool get allSynced => pending == 0;
+}
+
 /// Manages offline-first storage and background sync to MongoDB Atlas REST API.
 ///
 /// Features:
@@ -27,6 +68,8 @@ class OfflineQueue {
     this.queueBoxName = 'stw_sync_queue_box',
     this.deadLetterBoxName = 'stw_sync_dead_letter_box',
     this.retryDelay = const Duration(seconds: 30),
+    this.maxRetryDelay = const Duration(minutes: 15),
+    this.maxAuditBatch = 100,
     this.maxDeadLetters = 500,
     String? version,
     ApiClient? apiClient,
@@ -43,8 +86,13 @@ class OfflineQueue {
   final int maxDeadLetters;
   final String _appVersion;
 
-  /// Wait before retrying after a transient failure (network, 5xx, 429).
+  /// Wait before the first retry after a transient failure (network, 5xx,
+  /// 429); doubles after each further failure, up to [maxRetryDelay].
   final Duration retryDelay;
+  final Duration maxRetryDelay;
+
+  /// Most audit events sent in one request.
+  final int maxAuditBatch;
   final ApiClient _apiClient;
 
   static const _uuid = Uuid();
@@ -59,6 +107,48 @@ class OfflineQueue {
   /// Set when a flush is requested while one is running; the running flush
   /// then makes another pass so new items are not left waiting.
   bool _flushAgain = false;
+
+  /// Failed flush passes in a row; sets the backoff. Reset by a full pass.
+  int _consecutiveFailures = 0;
+  DateTime? _nextRetryAt;
+  DateTime? _lastSyncedAt;
+  final _statusChanges = StreamController<SyncStatus>.broadcast();
+
+  /// Current state of the queue.
+  SyncStatus get status => SyncStatus(
+        pending: pendingCount,
+        failed: deadLetterCount,
+        phase: !_apiClient.isConfigured
+            ? SyncPhase.localOnly
+            : _isFlushing
+                ? SyncPhase.syncing
+                : _retryTimer != null
+                    ? SyncPhase.waitingToRetry
+                    : SyncPhase.idle,
+        lastSyncedAt: _lastSyncedAt,
+        nextRetryAt: _retryTimer != null ? _nextRetryAt : null,
+      );
+
+  /// [status] now, then on every change.
+  Stream<SyncStatus> get statusStream => Stream.multi((controller) {
+        controller.add(status);
+        final sub = _statusChanges.stream.listen(controller.add);
+        controller.onCancel = sub.cancel;
+      });
+
+  void _emitStatus() {
+    if (!_statusChanges.isClosed) _statusChanges.add(status);
+  }
+
+  /// Backoff before retry number [failures] (1 = first retry): [retryDelay]
+  /// doubled for each earlier failure, at most [maxRetryDelay].
+  Duration retryDelayFor(int failures) {
+    final factor = 1 << (failures - 1).clamp(0, 20);
+    final ms = retryDelay.inMilliseconds * factor;
+    return ms >= maxRetryDelay.inMilliseconds
+        ? maxRetryDelay
+        : Duration(milliseconds: ms);
+  }
 
   /// Enqueue order. Hive returns keys sorted, not in insertion order, so each
   /// entry carries this sequence number and [flush] sends in that order.
@@ -97,6 +187,7 @@ class OfflineQueue {
       });
 
       // Attempt flush on startup
+      _emitStatus();
       flush();
     } catch (e) {
       if (kDebugMode) {
@@ -235,13 +326,18 @@ class OfflineQueue {
       'action': action,
       'payload': storable(payload),
       'created_at': DateTime.now().toIso8601String(),
+      // pending -> failed (transient error, retried with backoff); removed
+      // once the server acknowledges it; kept in [deadLetters] if rejected.
+      'status': 'pending',
       'retries': 0,
+      'last_attempt_at': null,
       'is_synced': false,
     };
 
     if (_queueBox != null && _queueBox!.isOpen) {
       await _queueBox!.put(id, entry);
     }
+    _emitStatus();
     // A newer write of the same record supersedes a kept failed one, so a
     // later replay can never overwrite newer data.
     if (customId != null && _deadBox != null && _deadBox!.isOpen) {
@@ -255,6 +351,17 @@ class OfflineQueue {
   /// Returns count of pending unsynced queue operations.
   int get pendingCount =>
       (_queueBox != null && _queueBox!.isOpen) ? _queueBox!.length : 0;
+
+  /// Queued writes in send order, with their sync state (`status`,
+  /// `retries`, `last_attempt_at`).
+  List<Map<String, dynamic>> get pendingEntries {
+    final box = _queueBox;
+    if (box == null || !box.isOpen) return const [];
+    return [
+      for (final r in box.values)
+        if (r is Map) storable(r) as Map<String, dynamic>,
+    ]..sort(_compareEntries);
+  }
 
   /// Number of kept writes that could not be sent as queued.
   int get deadLetterCount =>
@@ -290,11 +397,12 @@ class OfflineQueue {
       // a screening is sent again before its answers and findings.
       if (raw['entry'] is Map && !queue.containsKey(k)) {
         final entry = storable(raw['entry']) as Map<String, dynamic>;
-        await queue.put(k, {...entry, 'retries': 0});
+        await queue.put(k, {...entry, 'retries': 0, 'status': 'pending'});
         count++;
       }
       await dead.delete(k);
     }
+    _emitStatus();
     if (count > 0) flush();
     return count;
   }
@@ -358,20 +466,29 @@ class OfflineQueue {
     }
 
     _isFlushing = true;
+    _retryTimer?.cancel();
+    _retryTimer = null;
+    _emitStatus();
     try {
       do {
         _flushAgain = false;
         if (!await _flushPass()) {
-          // Retry later even if nothing new is queued meanwhile.
-          _retryTimer ??= Timer(retryDelay, () {
+          // Retry later even if nothing new is queued meanwhile, waiting
+          // longer after each failure in a row.
+          _consecutiveFailures++;
+          final delay = retryDelayFor(_consecutiveFailures);
+          _nextRetryAt = DateTime.now().add(delay);
+          _retryTimer = Timer(delay, () {
             _retryTimer = null;
             flush();
           });
           break;
         }
+        _consecutiveFailures = 0;
       } while (_flushAgain);
     } finally {
       _isFlushing = false;
+      _emitStatus();
     }
   }
 
@@ -391,9 +508,22 @@ class OfflineQueue {
     }
     pending.sort((a, b) => _compareEntries(a.$2, b.$2));
 
-    for (final (key, entry) in pending) {
+    for (var i = 0; i < pending.length; i++) {
       if (!box.isOpen) return false;
+      final (key, entry) = pending[i];
       final table = entry['table'] as String? ?? '';
+      if (table == 'audit_events') {
+        // Consecutive audit events go in one request.
+        var end = i + 1;
+        while (end < pending.length &&
+            end - i < maxAuditBatch &&
+            pending[end].$2['table'] == 'audit_events') {
+          end++;
+        }
+        if (!await _sendAuditBatch(box, pending.sublist(i, end))) return false;
+        i = end - 1;
+        continue;
+      }
       try {
         await _syncItem(
           table,
@@ -402,28 +532,89 @@ class OfflineQueue {
           // Map<dynamic, dynamic>; restore the JSON shape at every level.
           storable(entry['payload'] ?? const {}) as Map<String, dynamic>,
         );
-        await _deleteIfUnchanged(box, key, entry);
+        await _synced(box, key, entry);
       } catch (e) {
-        if (kDebugMode) {
-          debugPrint('[OfflineQueue] Sync failed for $table ($key): $e');
-        }
-        if (!isRetryableSyncError(e)) {
-          // Can never succeed as queued: keep it aside and carry on, so one
-          // bad entry cannot block everything queued after it.
-          await _keepUnsent(box, key, entry, e);
-          continue;
-        }
-        final current = box.get(key);
-        if (current is Map && current['seq'] == entry['seq']) {
-          await box.put(key, {
-            ...Map<String, dynamic>.from(current),
-            'retries': (entry['retries'] as int? ?? 0) + 1,
-          });
-        }
-        return false;
+        if (!await _failed(box, key, entry, e)) return false;
       }
     }
     return true;
+  }
+
+  Future<void> _synced(
+    Box<dynamic> box,
+    dynamic key,
+    Map<String, dynamic> entry,
+  ) async {
+    await _deleteIfUnchanged(box, key, entry);
+    _lastSyncedAt = DateTime.now();
+    _emitStatus();
+  }
+
+  /// Handles a failed send. Returns true when the pass may carry on (the
+  /// item was kept aside as unsendable), false to stop it (transient).
+  Future<bool> _failed(
+    Box<dynamic> box,
+    dynamic key,
+    Map<String, dynamic> entry,
+    Object e,
+  ) async {
+    if (kDebugMode) {
+      debugPrint('[OfflineQueue] Sync failed for ${entry['table']} ($key): $e');
+    }
+    if (!isRetryableSyncError(e)) {
+      // Can never succeed as queued: keep it aside and carry on, so one
+      // bad entry cannot block everything queued after it.
+      await _keepUnsent(box, key, entry, e);
+      _emitStatus();
+      return true;
+    }
+    final current = box.get(key);
+    if (current is Map && current['seq'] == entry['seq']) {
+      await box.put(key, {
+        ...Map<String, dynamic>.from(current),
+        'status': 'failed',
+        'retries': (entry['retries'] as int? ?? 0) + 1,
+        'last_attempt_at': DateTime.now().toUtc().toIso8601String(),
+      });
+    }
+    return false;
+  }
+
+  /// Sends audit events in one request. When the server rejects the batch,
+  /// sends them one by one so only the bad ones are kept aside.
+  Future<bool> _sendAuditBatch(
+    Box<dynamic> box,
+    List<(dynamic, Map<String, dynamic>)> batch,
+  ) async {
+    Map<String, dynamic> event(Map<String, dynamic> entry) {
+      final p = storable(entry['payload'] ?? const {}) as Map<String, dynamic>;
+      final data = p['data'];
+      return {
+        '_id': p['id'],
+        'sessionId': p['session_id'],
+        'type': p['type'],
+        if (p['screen'] != null) 'screen': p['screen'],
+        if (data is Map && data.isNotEmpty) 'data': data,
+        'occurredAt': p['occurred_at'],
+      };
+    }
+
+    try {
+      await _apiClient.postAuditEvents([for (final (_, e) in batch) event(e)]);
+      for (final (key, entry) in batch) {
+        await _synced(box, key, entry);
+      }
+      return true;
+    } catch (e) {
+      if (isRetryableSyncError(e) || batch.length == 1) {
+        final (key, entry) = batch.first;
+        return _failed(box, key, entry, e);
+      }
+      for (final item in batch) {
+        if (!await _sendAuditBatch(box, [item])) return false;
+      }
+      return true;
+    }
   }
 
   /// Enqueue order; entries queued before sequence numbers existed sort
@@ -580,6 +771,14 @@ class OfflineQueue {
         );
         break;
 
+      case 'clinical_decisions':
+        await _apiClient.putDecision(payload['screening_id'] as String, {
+          'decision': payload['decision'],
+          if (payload['recorded_at'] != null)
+            'recordedAt': payload['recorded_at'],
+        });
+        break;
+
       case 'mcq_attempts':
         final sId =
             (payload['screening_id'] ?? payload['screeningId']) as String;
@@ -630,6 +829,7 @@ class OfflineQueue {
           'retrieverType': payload['retriever_type'] ??
               payload['retrieverType'] ??
               'bm25_pure_dart',
+          if (payload['context'] is Map) 'context': payload['context'],
           if (payload['created_at'] != null) 'createdAt': payload['created_at'],
         });
         break;
@@ -645,6 +845,7 @@ class OfflineQueue {
   Future<void> dispose() async {
     _retryTimer?.cancel();
     _retryTimer = null;
+    await _statusChanges.close();
     await _connectivitySub?.cancel();
     await _sessionBox?.close();
     await _queueBox?.close();
