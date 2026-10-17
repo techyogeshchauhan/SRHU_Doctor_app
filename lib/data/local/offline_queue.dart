@@ -9,7 +9,7 @@ import '../services/api_client.dart';
 
 /// App version recorded with each session (set by scripts/build_*.ps1).
 const appVersion =
-    String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0+1');
+    String.fromEnvironment('APP_VERSION', defaultValue: '1.1.0+1');
 
 /// What the queue is doing now, for the sync indicator.
 enum SyncPhase {
@@ -662,7 +662,7 @@ class OfflineQueue {
             'facilityName': payload['facility_name'] ?? payload['facilityName'],
             'platform': payload['platform'] ?? 'unknown',
             'appVersion':
-                payload['app_version'] ?? payload['appVersion'] ?? '0.1.0+1',
+                payload['app_version'] ?? payload['appVersion'] ?? appVersion,
             'status': payload['status'] ?? 'in_progress',
             if (payload['selected_conditions'] is List)
               'selectedConditions': payload['selected_conditions'],

@@ -399,5 +399,5 @@ The two bundled STW documents have unique layout characteristics:
 
 ## Version
 
-`0.1.0+1` — Based on ICMR / DHR STW documents (August 2026).
+`1.1.0` — Based on ICMR / DHR STW documents (August 2026). Release highlights are in `lib/core/config/release_notes.dart` (shown in-app as "What's New"); keep its `kCurrentAppVersion` equal to the `pubspec.yaml` version.
 

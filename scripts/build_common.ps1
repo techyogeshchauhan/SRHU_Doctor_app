@@ -7,7 +7,7 @@
         API_BASE_URL=https://<production API host>
         API_KEY=<client API key>
   - Version: pubspec.yaml build name + git commit count as build number,
-    e.g. 0.1.0+57. Also compiled in as APP_VERSION (stored with each session).
+    e.g. 1.1.0+57. Also compiled in as APP_VERSION (stored with each session).
 #>
 
 $ProjectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
