@@ -264,18 +264,25 @@ class _TextAnswerFieldState extends State<_TextAnswerField> {
   }
 
   @override
-  Widget build(BuildContext context) => TextFormField(
-        controller: _controller,
-        keyboardType: TextInputType.text,
-        decoration: InputDecoration(
-          labelText: widget.label,
-          hintText: _controller.text.isEmpty ? widget.hint : null,
-          hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-          helperText: widget.helper,
+  Widget build(BuildContext context) => AdaptiveLabelField(
+        label: widget.label,
+        builder: (label) => TextFormField(
+          controller: _controller,
+          keyboardType: TextInputType.text,
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: _controller.text.isEmpty
+                ? placeholderFor(widget.hint, widget.label, label)
+                : null,
+            hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+            hintMaxLines: 2,
+            helperText: widget.helper,
+            helperMaxLines: 5,
+          ),
+          onChanged: (v) {
+            setState(() {});
+            widget.onChanged(v.trim().isEmpty ? null : v);
+          },
         ),
-        onChanged: (v) {
-          setState(() {});
-          widget.onChanged(v.trim().isEmpty ? null : v);
-        },
       );
 }

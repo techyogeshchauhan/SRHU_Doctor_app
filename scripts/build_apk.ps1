@@ -19,7 +19,8 @@ Write-Host "Building APK $($info.Label)" -ForegroundColor Cyan
 
 Push-Location $ProjectRoot
 try {
-  $flutterArgs = @('build', 'apk', '--release') + (Get-ReleaseArgs $info)
+  # Phones only (32- and 64-bit ARM): x86_64 is for emulators and adds ~21 MB.
+  $flutterArgs = @('build', 'apk', '--release', '--target-platform', 'android-arm,android-arm64') + (Get-ReleaseArgs $info)
   & flutter @flutterArgs
   if ($LASTEXITCODE -ne 0) { Fail 'flutter build apk failed.' }
 } finally {

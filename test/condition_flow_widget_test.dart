@@ -23,7 +23,7 @@ Future<void> _pumpToSelection(
 
 void main() {
   testWidgets(
-      'selection lists the 13 STW modules uniformly with ROP and RD at top, live counter, 6 selectable and 7 disabled',
+      'selection lists all 13 modules in standard order, with 8 selectable and 5 disabled',
       (tester) async {
     await _pumpToSelection(tester);
 
@@ -51,15 +51,7 @@ void main() {
     expect(find.byType(Checkbox), findsNWidgets(13));
     expect(find.text('STW Triage'), findsNothing);
     expect(find.byKey(const ValueKey('condition-index-triage')), findsNothing);
-    final displayed = [
-      definitionOf(NeonatalCondition.rop),
-      definitionOf(NeonatalCondition.respiratoryDistress),
-      ...stwModuleDefinitions.where((d) =>
-          d.implemented &&
-          d.id != NeonatalCondition.rop &&
-          d.id != NeonatalCondition.respiratoryDistress),
-      ...stwModuleDefinitions.where((d) => !d.implemented),
-    ];
+    final displayed = stwModuleDefinitions;
     for (final (index, disease) in displayed.indexed) {
       expect(
           tester
@@ -69,15 +61,15 @@ void main() {
           '${index + 1}.');
     }
 
-    // 5. Active conditions are at the top
+    // 5. Existing active conditions remain available.
     final ropFinder = find.text('STW ROP');
     final rdFinder = find.text('STW Respiratory Distress');
     expect(ropFinder, findsOneWidget);
     expect(rdFinder, findsOneWidget);
 
-    // 6. Uniform status badges: 6 available, 7 awaiting STW
-    expect(find.text('Available'), findsNWidgets(6));
-    expect(find.text('Awaiting STW'), findsNWidgets(7));
+    // 6. Uniform status badges: 8 available, 5 awaiting STW
+    expect(find.text('Available'), findsNWidgets(8));
+    expect(find.text('Awaiting STW'), findsNWidgets(5));
 
     // Verify all 13 module titles are present
     for (final d in stwModuleDefinitions) {
@@ -175,8 +167,11 @@ void main() {
             .data,
         '2.');
 
-    // Tap ROP Reference button (first Reference button) opens ROP PDF
-    await tapVisible(tester, find.text('Reference').first);
+    // The ROP card follows RD and keeps its own PDF reference.
+    final ropCard =
+        find.widgetWithText(DiseaseCard, 'Retinopathy of Prematurity');
+    await tapVisible(
+        tester, find.descendant(of: ropCard, matching: find.text('Reference')));
     expect(find.text('Retinopathy of Prematurity (ROP)'), findsWidgets);
     expect(find.byType(BackToHomeButton), findsOneWidget);
   });
@@ -227,7 +222,8 @@ void main() {
       }
       // Triage runs before the modules, so it has no card here.
       expect(
-          find.byKey(ValueKey('disease-card-index-${availableDiseaseCount + 1}')),
+          find.byKey(
+              ValueKey('disease-card-index-${availableDiseaseCount + 1}')),
           findsNothing);
       expect(find.text('Neonatal Emergency Triage Assessment and Management'),
           findsNothing);

@@ -151,7 +151,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       const Expanded(
                         child: Text(
                           'STW Advisory Disclaimer',
-                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 16,
@@ -1080,7 +1079,7 @@ class _TopicAvailability extends StatelessWidget {
     Widget pill(String text, {required bool ok}) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
-            color: ok ? const Color(0xFFDCFCE7) : const Color(0xFFF1F5F9),
+            color: ok ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
@@ -1089,7 +1088,7 @@ class _TopicAvailability extends StatelessWidget {
               Icon(
                 ok ? Icons.check_circle : Icons.schedule,
                 size: 13,
-                color: ok ? const Color(0xFF14532D) : AppTheme.mutedText,
+                color: ok ? const Color(0xFF14532D) : const Color(0xFF991B1B),
               ),
               const SizedBox(width: 4),
               Flexible(
@@ -1101,7 +1100,7 @@ class _TopicAvailability extends StatelessWidget {
                     fontFamily: 'Inter',
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: ok ? const Color(0xFF14532D) : AppTheme.mutedText,
+                    color: ok ? const Color(0xFF14532D) : const Color(0xFF991B1B),
                   ),
                 ),
               ),

@@ -231,7 +231,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ask clinical questions about Triage, Kangaroo Mother Care (KMC), Respiratory Distress in Neonates (RD), Retinopathy of Prematurity (ROP), Antenatal Corticosteroids (ANCS) Neonatal Hypoglycemia or Sepsis in Neonates. Answers are extracted directly from the approved STWs with visual PDF highlighting.',
+            'Ask clinical questions about Triage, Kangaroo Mother Care (KMC), Respiratory Distress in Neonates (RD), Retinopathy of Prematurity (ROP), Antenatal Corticosteroids (ANCS) Neonatal Hypoglycemia, Sepsis in Neonates, Post Asphyxia or Feeding and Nutrition in Neonates. Answers are extracted directly from the approved STWs with visual PDF highlighting.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.black87,
               height: 1.4,
@@ -254,21 +254,42 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             spacing: 8,
             runSpacing: 8,
             children: _sampleQueries.map((q) {
-              return ActionChip(
-                backgroundColor: Colors.white,
-                side:
-                    BorderSide(color: AppTheme.midBlue.withValues(alpha: 0.3)),
-                avatar: const Icon(Icons.search,
-                    size: 14, color: AppTheme.primaryBlue),
-                label: Text(
-                  q,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    color: AppTheme.primaryNavy,
-                    fontWeight: FontWeight.w500,
+              // A chip has a fixed height; this pill grows so long queries
+              // wrap in full on narrow phones.
+              return Material(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                      color: AppTheme.midBlue.withValues(alpha: 0.3)),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => _submitQuery(q),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.search,
+                            size: 14, color: AppTheme.primaryBlue),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            q,
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              color: AppTheme.primaryNavy,
+                              fontWeight: FontWeight.w500,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                onPressed: () => _submitQuery(q),
               );
             }).toList(),
           ),
@@ -616,8 +637,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           fontSize: 12.5, fontWeight: FontWeight.w600),
                     ),
                     onPressed: () {
-                      _logChatAction(
-                          'chat_start_assessment', {'condition': condition.name});
+                      _logChatAction('chat_start_assessment',
+                          {'condition': condition.name});
                       context.push(
                         '/disease-selection',
                         extra: {'condition': condition},
@@ -640,6 +661,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         StwTopic.triage => NeonatalCondition.triage,
         StwTopic.kmc => NeonatalCondition.kmc,
         StwTopic.sepsis => NeonatalCondition.sepsis,
+        StwTopic.feeding => NeonatalCondition.fluidsAndFeeds,
+        StwTopic.postAsphyxia => NeonatalCondition.hie,
         null => null,
       };
 
@@ -870,6 +893,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               decoration: InputDecoration(
                 hintText: 'Search clinical condition, algorithm or drug...',
                 hintStyle: const TextStyle(fontSize: 13, color: Colors.black38),
+                hintMaxLines: 2,
                 filled: true,
                 fillColor: const Color(0xFFF1F5F9),
                 isDense: true,

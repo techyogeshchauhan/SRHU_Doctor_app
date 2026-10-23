@@ -23,12 +23,15 @@ Future<void> _pumpToSelection(
 
 void main() {
   group('Disease-specific MCQ & Section 6 Reset Rules', () {
-    test('Disease follow up registry returns package only for ROP and not RD', () {
+    test('Disease follow up registry returns separate packages for ROP and RD',
+        () {
       expect(hasFollowUpForCondition(NeonatalCondition.rop), isTrue);
       expect(getFollowUpPackage(NeonatalCondition.rop), isNotNull);
 
-      expect(hasFollowUpForCondition(NeonatalCondition.respiratoryDistress), isFalse);
-      expect(getFollowUpPackage(NeonatalCondition.respiratoryDistress), isNull);
+      expect(hasFollowUpForCondition(NeonatalCondition.respiratoryDistress),
+          isTrue);
+      expect(getFollowUpPackage(NeonatalCondition.respiratoryDistress)!.mcqs,
+          hasLength(10));
     });
 
     testWidgets(
@@ -37,7 +40,8 @@ void main() {
       await _pumpToSelection(tester);
 
       await tapVisible(tester, find.text('STW Respiratory Distress'));
-      await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+      await tapVisible(
+          tester, find.widgetWithText(FilledButton, 'Continue').first);
 
       // Open Respiratory Distress screening
       await tapVisible(tester, find.text('Respiratory Distress in Neonates'));
@@ -62,7 +66,8 @@ void main() {
       await _pumpToSelection(tester);
 
       await tapVisible(tester, find.text('STW Respiratory Distress'));
-      await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+      await tapVisible(
+          tester, find.widgetWithText(FilledButton, 'Continue').first);
 
       // Open Respiratory Distress screening
       await tapVisible(tester, find.text('Respiratory Distress in Neonates'));
@@ -82,7 +87,8 @@ void main() {
       await tapVisible(tester, find.text('Stay'));
       expect(find.text(conditionExitAlertMessage), findsNothing);
       expect(find.text('Signs of respiratory distress'), findsOneWidget);
-      expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true),
+          findsOneWidget);
 
       // Tap Back to Selection again, then tap Leave & Reset
       await tapVisible(tester, find.text('Back to Selection'));
@@ -94,7 +100,8 @@ void main() {
       // Reopening condition starts fresh with clean state
       await tapVisible(tester, find.text('Respiratory Distress in Neonates'));
       expect(find.text('Signs of respiratory distress'), findsOneWidget);
-      expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsNothing);
+      expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true),
+          findsNothing);
     });
 
     testWidgets(
@@ -103,7 +110,8 @@ void main() {
       await _pumpToSelection(tester);
 
       await tapVisible(tester, find.text('STW Respiratory Distress'));
-      await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+      await tapVisible(
+          tester, find.widgetWithText(FilledButton, 'Continue').first);
 
       // Open Respiratory Distress screening
       await tapVisible(tester, find.text('Respiratory Distress in Neonates'));
@@ -136,7 +144,8 @@ void main() {
       // Select Respiratory Distress & ROP
       await tapVisible(tester, find.text('STW Respiratory Distress'));
       await tapVisible(tester, find.text('STW ROP'));
-      await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+      await tapVisible(
+          tester, find.widgetWithText(FilledButton, 'Continue').first);
 
       expect(find.text('Available Clinical Workflows'), findsOneWidget);
 
@@ -149,12 +158,13 @@ void main() {
       // Reached Clinical Assessment Summary for Respiratory Distress
       expect(find.text('Clinical Assessment Summary'), findsOneWidget);
 
-      // Verify that ROP MCQs and button are NOT shown
-      expect(find.text('ROP Knowledge Check & Follow-up Questions'), findsNothing);
-      expect(find.text('Follow-up Assessment'), findsNothing);
+      // RD offers its own follow-up; unassessed ROP questions stay separate.
+      expect(
+          find.text('ROP Knowledge Check & Follow-up Questions'), findsNothing);
+      expect(find.text('Proceed to Follow-up Assessment'), findsOneWidget);
       expect(
         find.textContaining('currently under preparation'),
-        findsOneWidget,
+        findsNothing,
       );
 
       // Completed screening has progress -> Back to Selection prompts confirmation
@@ -180,7 +190,8 @@ void main() {
       await _pumpToSelection(tester);
 
       await tapVisible(tester, find.text('STW Respiratory Distress'));
-      await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue').first);
+      await tapVisible(
+          tester, find.widgetWithText(FilledButton, 'Continue').first);
 
       await tapVisible(tester, find.text('Respiratory Distress in Neonates'));
       expect(find.text('Signs of respiratory distress'), findsOneWidget);
@@ -297,10 +308,8 @@ void main() {
       // Select GA known and enter 37 weeks, BW 2500 g -> Not eligible
       await tapVisible(tester, find.text('GA known'));
       await tester.enterText(
-          find.widgetWithText(TextField, 'Gestational age (completed weeks) *'),
-          '37');
-      await tester.enterText(
-          find.widgetWithText(TextField, 'Birth weight'), '2500');
+          fieldLabeled('Gestational age (completed weeks) *'), '37');
+      await tester.enterText(fieldLabeled('Birth weight'), '2500');
       await tester.pumpAndSettle();
 
       // Tap Continue to complete screening

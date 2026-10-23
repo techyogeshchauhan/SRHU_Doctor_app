@@ -26,7 +26,7 @@ Future<void> _continue(WidgetTester tester) =>
     tapVisible(tester, find.widgetWithText(FilledButton, 'Continue'));
 
 Future<void> _enter(WidgetTester tester, String label, String value) async {
-  final f = find.widgetWithText(TextField, label);
+  final f = fieldLabeled(label);
   await tester.ensureVisible(f);
   await tester.enterText(f, value);
   await tester.pumpAndSettle();

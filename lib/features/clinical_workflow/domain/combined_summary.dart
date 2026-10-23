@@ -78,13 +78,13 @@ class CombinedAssessmentSummary {
           SubjectLine(w.subjectLabel ?? 'Subject', w.subjectLine!(ctx)),
       ],
       selectedTitles: [
-        for (final c in NeonatalCondition.values)
+        for (final c in conditionDisplayOrder)
           if (ctx.selected.contains(c)) definitionOf(c).title,
       ],
       answered: answered,
       applicable: applicable,
       topics: [
-        for (final c in NeonatalCondition.values)
+        for (final c in conditionDisplayOrder)
           if (ctx.selected.contains(c))
             switch (engine.lookup(c)) {
               StwWorkflow(:final source, :final recordTextKey) => TopicSummary(
@@ -117,7 +117,8 @@ class CombinedAssessmentSummary {
 
   String toPlainText() {
     final b = StringBuffer()..writeln('CLINICAL ASSESSMENT SUMMARY');
-    for (final s in subjects.isEmpty ? [SubjectLine('Baby', babyLine)] : subjects) {
+    for (final s
+        in subjects.isEmpty ? [SubjectLine('Baby', babyLine)] : subjects) {
       b.writeln('${s.label}: ${s.line}');
     }
     b

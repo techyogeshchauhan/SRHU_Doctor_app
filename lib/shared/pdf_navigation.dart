@@ -24,6 +24,10 @@ const kmcPdfAsset = 'assets/pdfs/KMC-13-10-2026.pdf';
 const kmcPdfTitle = 'Kangaroo Mother Care';
 const sepsisPdfAsset = 'assets/pdfs/Sepsis_STW_Final_15-10-26.pdf';
 const sepsisPdfTitle = 'Sepsis in Neonates';
+const feedingPdfAsset = 'assets/pdfs/Feeding_Nutrition Final 22 Oct 26.pdf';
+const feedingPdfTitle = 'Feeding and Nutrition in Neonates';
+const postAsphyxiaPdfAsset = 'assets/pdfs/Post Asphyxia 16-10-26.pdf';
+const postAsphyxiaPdfTitle = 'Post Asphyxia';
 
 /// A bundled STW PDF.
 class StwPdf {
@@ -42,7 +46,11 @@ StwPdf? stwPdfFor(NeonatalCondition c) => switch (c) {
         const StwPdf(hypoPdfAsset, hypoPdfTitle),
       NeonatalCondition.triage => const StwPdf(triagePdfAsset, triagePdfTitle),
       NeonatalCondition.kmc => const StwPdf(kmcPdfAsset, kmcPdfTitle),
+      NeonatalCondition.fluidsAndFeeds =>
+        const StwPdf(feedingPdfAsset, feedingPdfTitle),
       NeonatalCondition.sepsis => const StwPdf(sepsisPdfAsset, sepsisPdfTitle),
+      NeonatalCondition.hie =>
+        const StwPdf(postAsphyxiaPdfAsset, postAsphyxiaPdfTitle),
       _ => null,
     };
 
@@ -70,6 +78,12 @@ StwPdf? stwPdfForDocument(String document) => switch (document) {
       kmcStwDocument ||
       'KMC-13-10-2026.pdf' =>
         stwPdfFor(NeonatalCondition.kmc),
+      postAsphyxiaStwDocument ||
+      'Post Asphyxia 16-10-26.pdf' =>
+        stwPdfFor(NeonatalCondition.hie),
+      feedingStwDocument ||
+      'Feeding_Nutrition Final 22 Oct 26.pdf' =>
+        stwPdfFor(NeonatalCondition.fluidsAndFeeds),
       sepsisStwDocument ||
       'Sepsis_STW_Final_15-10-26.pdf' =>
         stwPdfFor(NeonatalCondition.sepsis),

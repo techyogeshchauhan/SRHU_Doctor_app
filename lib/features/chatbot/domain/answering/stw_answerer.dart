@@ -15,6 +15,8 @@ import '../models/stw_chunk.dart';
 import '../understanding/query_analyzer.dart';
 import 'answer_composer.dart';
 import 'case_router.dart';
+import 'feeding_answers.dart';
+import 'post_asphyxia_answers.dart';
 import 'sepsis_answers.dart';
 import 'stw_answer.dart';
 
@@ -192,6 +194,68 @@ class StwAnswerer {
     await retriever.initialize();
     if (_unknownCondition(a) != null) return StwAnswer.notCovered(a);
     final byId = {for (final c in retriever.chunks) c.chunkId: c};
+
+    if (a.topics.length == 1 && a.topics.contains(StwTopic.postAsphyxia)) {
+      if (postAsphyxiaQuestionUnsupported(a)) return StwAnswer.notCovered(a);
+      final region = byId[postAsphyxiaAnswerRegion(a)];
+      if (region != null) {
+        return StwAnswer.answer(
+            analysis: a,
+            region: region,
+            lines: region.segments,
+            caseSummary: region.chunkId == 'post_asphyxia_sarnat' &&
+                    RegExp(r'mixed|discordant|combin|aggregat|calculate.*stag|\d.*domains?')
+                        .hasMatch(a.normalized)
+                ? const CaseSummary(
+                    inputs: 'Overall stage requires clinician assessment',
+                    reviewNote:
+                        'The supplied PDF does not define how to combine mixed Sarnat domains. No overall stage has been inferred.')
+                : null);
+      }
+      return StwAnswer.clarify(
+          analysis: a,
+          prompt:
+              'Which Post Asphyxia source section do you need? The app does not infer a Sarnat stage or final therapeutic hypothermia eligibility.',
+          options: [
+            for (final id in [
+              'post_asphyxia_normal',
+              'post_asphyxia_mild',
+              'post_asphyxia_urgent',
+              'post_asphyxia_cooling'
+            ])
+              if (byId[id] case final c?) c
+          ]);
+    }
+    if (a.topics.length == 1 && a.topics.contains(StwTopic.feeding)) {
+      // The poster gives no zinc dose, formula brand, or post-D7 fluid guide.
+      if ((a.normalized.contains('zinc') &&
+              a.intents.contains(QueryIntent.dose)) ||
+          a.normalized.contains('formula brand') ||
+          (RegExp(r'fluid|day of life').hasMatch(a.normalized) &&
+              RegExp(r'day (8|9|[1-9][0-9])\b|\bd(8|9|[1-9][0-9])\b')
+                  .hasMatch(a.normalized))) {
+        return StwAnswer.notCovered(a);
+      }
+      final region = byId[feedingAnswerRegion(a)];
+      if (region != null) {
+        return StwAnswer.answer(
+            analysis: a, region: region, lines: region.segments);
+      }
+      if (RegExp(r'start|advance|aedf|redf').hasMatch(a.normalized)) {
+        return StwAnswer.clarify(
+            analysis: a,
+            prompt:
+                'Which source column applies? Record birth gestation, birth weight and antenatal AEDF/REDF status; start only once clinically stable with a reassuring abdomen.',
+            options: [
+              for (final id in [
+                'feeding_standard',
+                'feeding_aedf',
+                'feeding_small'
+              ])
+                if (byId[id] case final c?) c
+            ]);
+      }
+    }
 
     // This poster specifies local/unit antibiotic policy and LP indications;
     // it supplies no drug doses or procedure technique.

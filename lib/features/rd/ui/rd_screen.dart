@@ -58,6 +58,8 @@ class _RdScreenState extends ConsumerState<RdScreen>
       );
     }
 
+    // Narrow phones: an icon-only Reset keeps the screen title readable.
+    final narrow = MediaQuery.sizeOf(context).width < 420;
     return Scaffold(
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'Respiratory Distress'),
@@ -77,33 +79,49 @@ class _RdScreenState extends ConsumerState<RdScreen>
             label: 'Reset Screening',
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: OutlinedButton.icon(
-                onPressed: () => _confirmResetRd(context, ref),
-                icon: const Icon(
-                  Icons.restart_alt_rounded,
-                  size: 16,
-                  color: Color(0xFFDC2626),
-                ),
-                label: const Text(
-                  'Reset Screening',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFDC2626),
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFDC2626),
-                  side: const BorderSide(color: Color(0xFFFCA5A5), width: 1.2),
-                  backgroundColor: const Color(0xFFFEF2F2),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
+              child: narrow
+                  ? IconButton.outlined(
+                      onPressed: () => _confirmResetRd(context, ref),
+                      tooltip: 'Reset Screening',
+                      icon: const Icon(
+                        Icons.restart_alt_rounded,
+                        size: 18,
+                        color: Color(0xFFDC2626),
+                      ),
+                      style: IconButton.styleFrom(
+                        side: const BorderSide(
+                            color: Color(0xFFFCA5A5), width: 1.2),
+                        backgroundColor: const Color(0xFFFEF2F2),
+                      ),
+                    )
+                  : OutlinedButton.icon(
+                      onPressed: () => _confirmResetRd(context, ref),
+                      icon: const Icon(
+                        Icons.restart_alt_rounded,
+                        size: 16,
+                        color: Color(0xFFDC2626),
+                      ),
+                      label: const Text(
+                        'Reset Screening',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFDC2626),
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFDC2626),
+                        side: const BorderSide(
+                            color: Color(0xFFFCA5A5), width: 1.2),
+                        backgroundColor: const Color(0xFFFEF2F2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
             ),
           ),
         ],

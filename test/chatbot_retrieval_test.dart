@@ -188,7 +188,8 @@ void main() {
 
       final therapeuticHypothermia = await answerer
           .answer('Therapeutic hypothermia criteria for HIE');
-      expect(therapeuticHypothermia.kind, AnswerKind.notCovered);
+      expect(therapeuticHypothermia.kind, AnswerKind.answer);
+      expect(therapeuticHypothermia.region?.chunkId, 'post_asphyxia_cooling');
     });
   });
 }

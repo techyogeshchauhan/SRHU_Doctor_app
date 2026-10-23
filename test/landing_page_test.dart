@@ -244,10 +244,10 @@ void main() {
       expect(find.text('STW ROP'), findsOneWidget);
       expect(find.text('Reference'), findsWidgets);
 
-      // 3. Status badges: 6 available, 7 awaiting STW; Triage is not a
+      // 3. Status badges: 8 available, 5 awaiting STW; Triage is not a
       // module, it has its own Start Triage card.
-      expect(find.text('Available'), findsNWidgets(6));
-      expect(find.text('Awaiting STW'), findsNWidgets(7));
+      expect(find.text('Available'), findsNWidgets(8));
+      expect(find.text('Awaiting STW'), findsNWidgets(5));
       expect(find.text('STW Triage'), findsNothing);
       expect(find.byKey(const ValueKey('start-triage')), findsOneWidget);
     });

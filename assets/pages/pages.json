@@ -70,5 +70,23 @@
     "pt_width": 841.89,
     "pt_height": 1633.68,
     "image_path": "assets/pages/Sepsis_STW_Final_15-10-26.pdf/1.webp"
+  },
+  {
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/Feeding_Nutrition Final 22 Oct 26.pdf/1.webp"
+  },
+  {
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "width": 1600,
+    "height": 3105,
+    "pt_width": 841.89,
+    "pt_height": 1633.68,
+    "image_path": "assets/pages/Post Asphyxia 16-10-26.pdf/1.webp"
   }
 ]

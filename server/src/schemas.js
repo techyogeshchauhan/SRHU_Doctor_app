@@ -228,6 +228,15 @@ export const exportQuerySchema = z
 
 export const exportChatLogsQuerySchema = z.object(exportPagingFields).strict();
 
+// Developer dashboard aggregates. Without from/to the daily series covers
+// the last 30 days and every other figure covers all data.
+export const exportStatsQuerySchema = z
+  .object({
+    from: z.string().datetime().optional(),
+    to: z.string().datetime().optional(),
+  })
+  .strict();
+
 export const exportAuditEventsQuerySchema = z
   .object({
     ...exportPagingFields,

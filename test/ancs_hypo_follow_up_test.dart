@@ -89,6 +89,6 @@ void main() {
     controller.initForCondition(NeonatalCondition.rop);
     expect(controller.state.shortName, 'ROP');
     expect(hasFollowUpForCondition(NeonatalCondition.respiratoryDistress),
-        isFalse);
+        isTrue);
   });
 }

@@ -177,7 +177,7 @@ class _ListView extends ConsumerWidget {
             const SizedBox(height: 8),
             for (final answer in shared) _SharedAnswerCard(shared: answer),
           ],
-          for (final topic in NeonatalCondition.values)
+          for (final topic in conditionDisplayOrder)
             if (trees.any((t) => t.finding!.topic == topic)) ...[
               const SizedBox(height: 20),
               _TopicHeader(

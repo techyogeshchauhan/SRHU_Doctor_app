@@ -560,6 +560,7 @@ describe('Neonatal STW REST API Backend', () => {
     `/export/screenings/${testScreeningId}`,
     '/export/chat-logs',
     '/export/audit-events',
+    '/export/stats',
   ]) {
     it(`Export: GET ${path} rejects the write key and a missing key`, async () => {
       const withWriteKey = await request(app).get(path).set('x-api-key', testApiKey);
@@ -644,5 +645,36 @@ describe('Neonatal STW REST API Backend', () => {
     assert.ok(res.body.data.length >= 1);
     assert.equal(res.body.data[0]._id, testScreeningId);
     assert.ok(Array.isArray(res.body.data[0].responses));
+  });
+  it('Export: GET /export/stats aggregates the stored data', async () => {
+    const res = await request(app).get('/export/stats').set('x-api-key', testExportKey);
+    assert.equal(res.status, 200);
+    const { totals } = res.body;
+    assert.ok(totals.sessions >= 1);
+    assert.ok(totals.screenings >= 1);
+    assert.ok(totals.completedScreenings <= totals.screenings);
+    assert.ok(totals.chatLogsNotFound <= totals.chatLogs);
+    assert.ok(res.body.screeningsByDisease.some((d) => d.diseaseCode === 'respiratory_distress'));
+    assert.ok(res.body.triageCategories.some((c) => c.category === 'EMERGENCY'));
+    assert.ok(res.body.auditEventsByType.some((t) => t.type === 'stw_pdf_opened'));
+    assert.deepEqual(res.body.topStwRegions.find((r) => r.regionId === 'triage_hypoglycemia'), {
+      regionId: 'triage_hypoglycemia',
+      count: 1,
+    });
+    assert.ok(Array.isArray(res.body.daily.screenings));
+    assert.equal(JSON.stringify(res.body).includes('token-123'), false);
+  });
+
+  it('Export: GET /export/stats applies from/to and rejects unknown params', async () => {
+    const future = await request(app)
+      .get('/export/stats?from=2099-01-01T00:00:00.000Z')
+      .set('x-api-key', testExportKey);
+    assert.equal(future.status, 200);
+    assert.equal(future.body.totals.screenings, 0);
+    assert.equal(future.body.totals.auditEvents, 0);
+    assert.deepEqual(future.body.screeningsByDisease, []);
+
+    const bad = await request(app).get('/export/stats?collection=sessions').set('x-api-key', testExportKey);
+    assert.equal(bad.status, 400);
   });
 });

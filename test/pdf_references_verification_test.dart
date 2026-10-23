@@ -102,7 +102,8 @@ void main() {
       }
     });
 
-    test('all 8 PDF documents have rendered 1.webp pages and pages.json entries',
+    test(
+        'all 8 PDF documents have rendered 1.webp pages and pages.json entries',
         () {
       final pagesFile = File('assets/pages/pages.json');
       expect(pagesFile.existsSync(), isTrue);
@@ -138,6 +139,7 @@ void main() {
 
   group('PDF Mapping Verification for All Conditions', () {
     const conditions = [
+      (NeonatalCondition.fluidsAndFeeds, feedingPdfAsset, feedingPdfTitle),
       (NeonatalCondition.sepsis, sepsisPdfAsset, sepsisPdfTitle),
       (
         NeonatalCondition.triage,
@@ -174,7 +176,8 @@ void main() {
     for (final (cond, expectedAsset, expectedTitle) in conditions) {
       test('${cond.name} maps to correct PDF asset and title', () {
         final pdf = stwPdfFor(cond);
-        expect(pdf, isNotNull, reason: '${cond.name} must have a registered PDF');
+        expect(pdf, isNotNull,
+            reason: '${cond.name} must have a registered PDF');
         expect(pdf!.asset, expectedAsset);
         expect(pdf.title, expectedTitle);
         expect(File(pdf.asset).existsSync(), isTrue);
@@ -237,28 +240,34 @@ void main() {
         for (final s in sources) {
           final mappedPdf = stwPdfForDocument(s.document);
           expect(mappedPdf, isNotNull,
-              reason: 'Source document "${s.document}" could not be mapped to any PDF');
+              reason:
+                  'Source document "${s.document}" could not be mapped to any PDF');
 
           final regionId = s.pdfRegionId;
           if (regionId == null) {
-            final isOutside = sectionsOutsideStwPdf.contains('${s.document}|${s.section}');
+            final isOutside =
+                sectionsOutsideStwPdf.contains('${s.document}|${s.section}');
             expect(isOutside, isTrue,
-                reason: 'Reference without region "${s.document}|${s.section}" is not registered in sectionsOutsideStwPdf');
+                reason:
+                    'Reference without region "${s.document}|${s.section}" is not registered in sectionsOutsideStwPdf');
             continue;
           }
 
-          final isOutside = sectionsOutsideStwPdf.contains('${s.document}|${s.section}') ||
-              sectionsOutsideStwPdf.contains('${s.document}|$regionId');
+          final isOutside =
+              sectionsOutsideStwPdf.contains('${s.document}|${s.section}') ||
+                  sectionsOutsideStwPdf.contains('${s.document}|$regionId');
           if (isOutside) {
             continue;
           }
 
           final target = await stwRegionTarget(regionId);
           expect(target, isNotNull,
-              reason: 'Region "$regionId" referenced in ${cond.name} (${s.citation}) not found in regions.json');
+              reason:
+                  'Region "$regionId" referenced in ${cond.name} (${s.citation}) not found in regions.json');
           final docFilename = mappedPdf!.asset.split('/').last;
           expect(target!.document, docFilename,
-              reason: 'Region "$regionId" belongs to document "${target.document}" instead of "$docFilename"');
+              reason:
+                  'Region "$regionId" belongs to document "${target.document}" instead of "$docFilename"');
           expect(target.page, greaterThanOrEqualTo(1));
           expect(target.normalizedBboxes, isNotEmpty);
           for (final bbox in target.normalizedBboxes) {
@@ -273,7 +282,8 @@ void main() {
       });
     }
 
-    test('regions.json contains regions for all 7 STWs without corrupted bounds',
+    test(
+        'regions.json contains regions for all 8 STWs without corrupted bounds',
         () {
       final regionsFile = File('assets/regions/regions.json');
       expect(regionsFile.existsSync(), isTrue);
@@ -317,47 +327,41 @@ void main() {
   });
 
   Future<void> scrollListViewUntil(WidgetTester tester, Finder target) async {
-    int maxTries = 15;
-    while (target.evaluate().isEmpty && maxTries > 0) {
-      await tester.drag(find.byType(ListView), const Offset(0, -250));
+    for (var attempt = 0;
+        target.evaluate().isEmpty && attempt < 40;
+        attempt++) {
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
       await tester.pumpAndSettle();
-      maxTries--;
     }
-    await tester.drag(find.byType(ListView), const Offset(0, -120));
+    expect(target, findsWidgets);
+    await tester.ensureVisible(target.first);
     await tester.pumpAndSettle();
   }
 
   group('References Screen UI & PDF Launching', () {
-    testWidgets('all 7 STW reference cards are present with View PDF buttons',
+    testWidgets('all 8 STW reference cards are present with View PDF buttons',
         (tester) async {
       await tester.pumpWidget(_buildTestApp(initialLocation: '/references'));
       await tester.pumpAndSettle();
 
       expect(find.text('References'), findsOneWidget);
-      expect(find.text('Original Standard Treatment Workflows'), findsOneWidget);
+      expect(
+          find.text('Original Standard Treatment Workflows'), findsOneWidget);
 
-      expect(find.text('Respiratory Distress in Neonates'), findsWidgets);
-      expect(find.text('Retinopathy of Prematurity (ROP)'), findsWidgets);
-
-      final ancs = find.text('Antenatal Corticosteroids for Preterm Birth');
-      await scrollListViewUntil(tester, ancs);
-      expect(ancs, findsWidgets);
-
-      final hypo = find.text('Neonatal Hypoglycemia');
-      await scrollListViewUntil(tester, hypo);
-      expect(hypo, findsWidgets);
-
-      final triage =
-          find.text('Neonatal Emergency Triage Assessment and Management');
-      await scrollListViewUntil(tester, triage);
-      expect(triage, findsWidgets);
-
-      final kmc = find.text('Kangaroo Mother Care');
-      await scrollListViewUntil(tester, kmc);
-      expect(kmc, findsWidgets);
-      final sepsis = find.text(sepsisPdfTitle);
-      await scrollListViewUntil(tester, sepsis);
-      expect(sepsis, findsWidgets);
+      for (final title in [
+        'Neonatal Emergency Triage Assessment and Management',
+        feedingPdfTitle,
+        'Neonatal Hypoglycemia',
+        'Respiratory Distress in Neonates',
+        sepsisPdfTitle,
+        'Kangaroo Mother Care',
+        'Antenatal Corticosteroids for Preterm Birth',
+        'Retinopathy of Prematurity (ROP)',
+      ]) {
+        final card = find.text(title);
+        await scrollListViewUntil(tester, card);
+        expect(card, findsWidgets);
+      }
 
       final sources = find.text('Sources cited in the STWs');
       await scrollListViewUntil(tester, sources);
@@ -367,7 +371,8 @@ void main() {
       await scrollListViewUntil(tester, triageSource);
       expect(triageSource, findsWidgets);
 
-      final kmcSource = find.textContaining('Operational guidelines for Kangaroo Mother Care');
+      final kmcSource = find
+          .textContaining('Operational guidelines for Kangaroo Mother Care');
       await scrollListViewUntil(tester, kmcSource);
       expect(kmcSource, findsWidgets);
     });
@@ -405,8 +410,7 @@ void main() {
       final kmcTitle = find.text('Kangaroo Mother Care');
       await scrollListViewUntil(tester, kmcTitle);
 
-      final kmcCard =
-          find.ancestor(of: kmcTitle, matching: find.byType(Card));
+      final kmcCard = find.ancestor(of: kmcTitle, matching: find.byType(Card));
       final kmcBtn =
           find.descendant(of: kmcCard, matching: find.text('View PDF'));
       await scrollListViewUntil(tester, kmcBtn);
@@ -415,24 +419,31 @@ void main() {
 
       expect(find.byType(PdfViewerScreen), findsOneWidget);
       expect(find.textContaining('KMC-13-10-2026.pdf'), findsOneWidget);
-      expect(find.text('Mock PDF Viewer: Kangaroo Mother Care'), findsOneWidget);
+      expect(
+          find.text('Mock PDF Viewer: Kangaroo Mother Care'), findsOneWidget);
     });
   });
 
   group('Disease Selection Screen UI & PDF Reference Buttons', () {
-    testWidgets('all 6 STW modules display Reference buttons opening correct PDFs',
+    testWidgets(
+        'all 7 STW modules display Reference buttons opening correct PDFs',
         (tester) async {
       tester.view.physicalSize = const Size(600, 1400);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(
-          _buildTestApp(initialLocation: '/disease-selection'));
+      await tester
+          .pumpWidget(_buildTestApp(initialLocation: '/disease-selection'));
       await tester.pumpAndSettle();
 
       expect(find.text('Available Clinical Workflows'), findsOneWidget);
 
       final diseaseChecks = [
+        (
+          'Feeding and Nutrition in Neonates',
+          'Feeding_Nutrition Final 22 Oct 26.pdf',
+          feedingPdfTitle
+        ),
         ('Sepsis in Neonates', 'Sepsis_STW_Final_15-10-26.pdf', sepsisPdfTitle),
         (
           'Retinopathy of Prematurity',
@@ -477,8 +488,8 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byType(PdfViewerScreen), findsOneWidget);
-        expect(
-            find.textContaining('Path: assets/pdfs/$expectedDoc'), findsOneWidget,
+        expect(find.textContaining('Path: assets/pdfs/$expectedDoc'),
+            findsOneWidget,
             reason: '$title opened wrong PDF file');
         expect(find.text('Mock PDF Viewer: $expectedPdfTitle'), findsOneWidget,
             reason: '$title opened wrong PDF title');
@@ -517,8 +528,7 @@ void main() {
           findsWidgets);
     });
 
-    testWidgets('KMC workflow displays KMC STW PDF button',
-        (tester) async {
+    testWidgets('KMC workflow displays KMC STW PDF button', (tester) async {
       tester.view.physicalSize = const Size(412, 915);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -539,12 +549,10 @@ void main() {
 
       await tapVisible(tester, kmcPdfBtn);
       expect(find.byType(PdfViewerScreen), findsOneWidget);
-      expect(find.text('Kangaroo Mother Care'),
-          findsWidgets);
+      expect(find.text('Kangaroo Mother Care'), findsWidgets);
     });
 
-    testWidgets('ANCS workflow displays ANCS STW PDF button',
-        (tester) async {
+    testWidgets('ANCS workflow displays ANCS STW PDF button', (tester) async {
       tester.view.physicalSize = const Size(412, 915);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);

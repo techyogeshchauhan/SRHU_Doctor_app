@@ -308,7 +308,7 @@
   {"q": "Antibiotics for neonatal sepsis", "expect": "answer", "regions": ["sepsis_high_probability"], "tags": ["en"]},
   {"q": "Empirical antibiotic choice for late onset sepsis", "expect": "answer", "regions": ["sepsis_high_probability"], "tags": ["en"]},
   {"q": "Phenobarbitone loading dose for neonatal seizures", "expect": "answer", "regions": ["triage_seizures"], "tags": ["en"]},
-  {"q": "Therapeutic hypothermia criteria for HIE", "expect": "not_covered", "tags": ["oos"]},
+  {"q": "Therapeutic hypothermia criteria for HIE", "expect": "answer", "regions": ["post_asphyxia_cooling"], "tags": ["en"]},
   {"q": "How to do kangaroo mother care?", "expect": "clarify", "regions": ["kmc_position"], "tags": ["en"]},
   {"q": "Daily fluid requirement for a 1 kg baby on day 3", "expect": "not_covered", "tags": ["oos"]},
   {"q": "How to transport a sick newborn?", "expect": "not_covered", "tags": ["oos"]},

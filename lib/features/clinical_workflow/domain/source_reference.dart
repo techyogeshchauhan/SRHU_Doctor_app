@@ -12,8 +12,28 @@ const hypoStwDocument = 'Neonatal Hypoglycemia';
 const triageStwDocument = 'Neonatal Emergency Triage Assessment and Management';
 const kmcStwDocument = 'Kangaroo Mother Care';
 const sepsisStwDocument = 'Sepsis in Neonates';
+const feedingStwDocument = 'Feeding and Nutrition in Neonates';
+const postAsphyxiaStwDocument = 'Post Asphyxia';
 
 class SourceReference {
+  const SourceReference.postAsphyxia(
+    this.section, {
+    this.needsClinicalReview = false,
+    this.note,
+    this.regionId,
+  })  : document = postAsphyxiaStwDocument,
+        authority = 'ICMR/DHR',
+        version = 'August 2026';
+
+  const SourceReference.feeding(
+    this.section, {
+    this.needsClinicalReview = false,
+    this.note,
+    this.regionId,
+  })  : document = feedingStwDocument,
+        authority = 'ICMR/DHR',
+        version = 'October 2026';
+
   const SourceReference.sepsis(
     this.section, {
     this.needsClinicalReview = false,

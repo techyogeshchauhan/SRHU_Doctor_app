@@ -119,7 +119,6 @@ class _ConditionSelectionScreenState
                       const Expanded(
                         child: Text(
                           'STW Advisory Disclaimer',
-                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 16,
@@ -150,20 +149,8 @@ class _ConditionSelectionScreenState
     final selected = ref.watch(conditionSelectionProvider);
     final selectionNotifier = ref.read(conditionSelectionProvider.notifier);
 
-    // Active topics first (ROP, RD, then the rest in list order), then the
-    // topics awaiting their STW in list order.
-    const pinned = [
-      NeonatalCondition.rop,
-      NeonatalCondition.respiratoryDistress
-    ];
     // Triage is not a module: it has its own card above the list.
-    final orderedConditions = [
-      for (final c in pinned) definitionOf(c),
-      for (final d in stwModuleDefinitions)
-        if (d.implemented && !pinned.contains(d.id)) d,
-      for (final d in stwModuleDefinitions)
-        if (!d.implemented) d,
-    ];
+    final orderedConditions = stwModuleDefinitions;
 
     void onProceedToNextPage() {
       if (selected.isEmpty) return;
@@ -478,6 +465,29 @@ class _ConditionTile extends StatelessWidget {
     final d = definition;
     final isAvailable = d.implemented;
     final icon = conditionIcons[d.id] ?? Icons.medical_services_outlined;
+    final narrow = MediaQuery.sizeOf(context).width < 400;
+    final badge = Container(
+      key: ValueKey('stw-availability-${d.id.name}'),
+      margin: const EdgeInsets.only(top: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 6,
+        vertical: 1.5,
+      ),
+      decoration: BoxDecoration(
+        color: isAvailable ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        isAvailable ? 'Available' : 'Awaiting STW',
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 9.5,
+          fontWeight: FontWeight.w700,
+          color:
+              isAvailable ? const Color(0xFF166534) : const Color(0xFF991B1B),
+        ),
+      ),
+    );
 
     final content = Material(
       color: Colors.white,
@@ -557,19 +567,21 @@ class _ConditionTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('$number.',
-                            key: ValueKey('condition-index-${d.id.name}'),
-                            style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.primaryBlue)),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text('$number.',
+                              key: ValueKey('condition-index-${d.id.name}'),
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.primaryBlue)),
+                        ),
                         const SizedBox(width: 5),
                         Expanded(
                           child: Text(
                             d.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 13.5,
@@ -580,39 +592,19 @@ class _ConditionTile extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 1.5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isAvailable
-                                ? const Color(0xFFDCFCE7)
-                                : const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Text(
-                            isAvailable ? 'Available' : 'Awaiting STW',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w700,
-                              color: isAvailable
-                                  ? const Color(0xFF166534)
-                                  : const Color(0xFF64748B),
-                            ),
-                          ),
-                        ),
+                        if (!narrow) ...[
+                          const SizedBox(width: 6),
+                          badge,
+                        ],
                       ],
                     ),
+                    // Narrow phones: badge on its own line so the title
+                    // keeps the full width.
+                    if (narrow) badge,
                     if (d.description != null) ...[
                       const SizedBox(height: 2),
                       Text(
                         d.description!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: false,
                         style: const TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 11,

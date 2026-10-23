@@ -114,6 +114,7 @@ void main() {
         final ga =
             box.children.singleWhere((n) => n.question?.id == gaWeeksKey);
         expect(ga.topics, {
+          NeonatalCondition.fluidsAndFeeds,
           NeonatalCondition.respiratoryDistress,
           NeonatalCondition.rop,
           NeonatalCondition.kmc,

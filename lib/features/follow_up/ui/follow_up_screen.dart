@@ -28,6 +28,75 @@ class FollowUpScreen extends ConsumerWidget {
     final state = ref.watch(followUpProvider);
     final controller = ref.read(followUpProvider.notifier);
 
+    // Narrow phones: an icon-only Reset keeps the screen title readable.
+    final narrow = MediaQuery.sizeOf(context).width < 420;
+
+    Future<void> confirmReset() async {
+      final action = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(
+                Icons.restart_alt_rounded,
+                color: Color(0xFFDC2626),
+                size: 24,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'Reset Screening',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primaryNavy,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          content: const Text(
+            'Choose whether to restart follow-up assessment from the beginning or reset all screening data and return to condition selection.',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14,
+              color: Color(0xFF334155),
+              height: 1.4,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            OutlinedButton(
+              onPressed: () => Navigator.of(ctx).pop('restart'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTheme.primaryNavy,
+              ),
+              child: const Text('Restart Follow-up'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop('home'),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFDC2626),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Reset & Go to Home'),
+            ),
+          ],
+        ),
+      );
+      if (action == null || !context.mounted) return;
+      if (action == 'restart') {
+        controller.reset();
+      } else if (action == 'home') {
+        resetAllScreeningData(ref);
+        if (context.mounted) {
+          context.go('/home');
+        }
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const StwNeoBrand(subtitle: 'Follow-up Assessment'),
@@ -47,96 +116,49 @@ class FollowUpScreen extends ConsumerWidget {
             label: 'Reset Screening',
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: OutlinedButton.icon(
-                onPressed: () async {
-                  final action = await showDialog<String>(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Row(
-                        children: [
-                          Icon(
-                            Icons.restart_alt_rounded,
-                            color: Color(0xFFDC2626),
-                            size: 24,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Reset Screening',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.primaryNavy,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ],
+              child: narrow
+                  ? IconButton.outlined(
+                      onPressed: confirmReset,
+                      tooltip: 'Reset Screening',
+                      icon: const Icon(
+                        Icons.restart_alt_rounded,
+                        size: 18,
+                        color: Color(0xFFDC2626),
                       ),
-                      content: const Text(
-                        'Choose whether to restart follow-up assessment from the beginning or reset all screening data and return to condition selection.',
+                      style: IconButton.styleFrom(
+                        side: const BorderSide(
+                            color: Color(0xFFFCA5A5), width: 1.2),
+                        backgroundColor: const Color(0xFFFEF2F2),
+                      ),
+                    )
+                  : OutlinedButton.icon(
+                      onPressed: confirmReset,
+                      icon: const Icon(
+                        Icons.restart_alt_rounded,
+                        size: 16,
+                        color: Color(0xFFDC2626),
+                      ),
+                      label: const Text(
+                        'Reset Screening',
                         style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          color: Color(0xFF334155),
-                          height: 1.4,
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFDC2626),
                         ),
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(ctx).pop(),
-                          child: const Text('Cancel'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFDC2626),
+                        side: const BorderSide(
+                            color: Color(0xFFFCA5A5), width: 1.2),
+                        backgroundColor: const Color(0xFFFEF2F2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        OutlinedButton(
-                          onPressed: () => Navigator.of(ctx).pop('restart'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.primaryNavy,
-                          ),
-                          child: const Text('Restart Follow-up'),
-                        ),
-                        FilledButton(
-                          onPressed: () => Navigator.of(ctx).pop('home'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFFDC2626),
-                            foregroundColor: Colors.white,
-                          ),
-                          child: const Text('Reset & Go to Home'),
-                        ),
-                      ],
+                      ),
                     ),
-                  );
-                  if (action == null || !context.mounted) return;
-                  if (action == 'restart') {
-                    controller.reset();
-                  } else if (action == 'home') {
-                    resetAllScreeningData(ref);
-                    if (context.mounted) {
-                      context.go('/home');
-                    }
-                  }
-                },
-                icon: const Icon(
-                  Icons.restart_alt_rounded,
-                  size: 16,
-                  color: Color(0xFFDC2626),
-                ),
-                label: const Text(
-                  'Reset Screening',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFDC2626),
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFDC2626),
-                  side: const BorderSide(color: Color(0xFFFCA5A5), width: 1.2),
-                  backgroundColor: const Color(0xFFFEF2F2),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -251,8 +273,10 @@ class _StageProgressBar extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            spacing: 8,
+            runSpacing: 4,
             children: [
               Text(
                 'Stage ${currentIndex + 1} of ${stages.length}: ${stages[currentIndex].$1}',
@@ -280,7 +304,8 @@ class _StageProgressBar extends StatelessWidget {
               value: progress,
               minHeight: 4,
               backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryNavy),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(AppTheme.primaryNavy),
             ),
           ),
         ],
@@ -408,7 +433,8 @@ class _IntroSection extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(6),
@@ -698,7 +724,6 @@ class _McqSectionState extends ConsumerState<_McqSection> {
                 ),
                 child: Text(
                   currentQuestion.category,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -749,7 +774,8 @@ class _McqSectionState extends ConsumerState<_McqSection> {
               color: (_highlightUnanswered && selectedOption == null)
                   ? const Color(0xFFEF4444)
                   : const Color(0xFFCBD5E1),
-              width: (_highlightUnanswered && selectedOption == null) ? 1.6 : 1.2,
+              width:
+                  (_highlightUnanswered && selectedOption == null) ? 1.6 : 1.2,
             ),
             boxShadow: const [
               BoxShadow(
@@ -884,15 +910,16 @@ class _McqSectionState extends ConsumerState<_McqSection> {
           }),
         ),
         const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 14,
+          runSpacing: 6,
           children: [
             const _LegendItem(
               color: Color(0xFFE0E7FF),
               borderColor: Color(0xFF818CF8),
               label: 'Answered',
             ),
-            const SizedBox(width: 14),
             _LegendItem(
               color: _highlightUnanswered
                   ? const Color(0xFFFEE2E2)
@@ -902,7 +929,6 @@ class _McqSectionState extends ConsumerState<_McqSection> {
                   : const Color(0xFFCBD5E1),
               label: 'Unanswered',
             ),
-            const SizedBox(width: 14),
             const _LegendItem(
               color: AppTheme.primaryNavy,
               borderColor: AppTheme.primaryNavy,
@@ -1100,7 +1126,6 @@ class _McqResultSection extends ConsumerWidget {
             Expanded(
               child: Text(
                 'Detailed Answers & Clinical Rationales',
-                overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppTheme.primaryNavy,
@@ -1217,8 +1242,10 @@ class _CaseScenarioSectionState extends ConsumerState<_CaseScenarioSection> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: 8,
+          runSpacing: 8,
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -1312,14 +1339,15 @@ class _CaseScenarioSectionState extends ConsumerState<_CaseScenarioSection> {
                         color: Color(0xFF0284C7), size: 18),
                   ),
                   const SizedBox(width: 8),
-                  Text(
+                  Flexible(
+                      child: Text(
                     'Clinical Vignette ${currentIndex + 1}',
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF0284C7),
                     ),
-                  ),
+                  )),
                 ],
               ),
               const SizedBox(height: 10),
@@ -1471,15 +1499,16 @@ class _CaseScenarioSectionState extends ConsumerState<_CaseScenarioSection> {
           }),
         ),
         const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 14,
+          runSpacing: 6,
           children: [
             const _LegendItem(
               color: Color(0xFFCCFBF1),
               borderColor: Color(0xFF14B8A6),
               label: 'Answered',
             ),
-            const SizedBox(width: 14),
             _LegendItem(
               color: _highlightUnanswered
                   ? const Color(0xFFFEE2E2)
@@ -1489,7 +1518,6 @@ class _CaseScenarioSectionState extends ConsumerState<_CaseScenarioSection> {
                   : const Color(0xFFCBD5E1),
               label: 'Unanswered',
             ),
-            const SizedBox(width: 14),
             const _LegendItem(
               color: Color(0xFF0F766E),
               borderColor: Color(0xFF0F766E),
@@ -1549,7 +1577,8 @@ class _FinalSummarySection extends ConsumerWidget {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(6),
@@ -1576,9 +1605,11 @@ class _FinalSummarySection extends ConsumerWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 6),
-              const Text(
-                'ICMR / DHR Retinopathy of Prematurity Guidelines',
-                style: TextStyle(
+              Text(
+                state.condition == NeonatalCondition.rop
+                    ? 'ICMR / DHR Retinopathy of Prematurity Guidelines'
+                    : '${state.conditionTitle} · Follow-up Assessment',
+                style: const TextStyle(
                   color: Color(0xFFCBD5E1),
                   fontSize: 13,
                 ),
@@ -1600,7 +1631,8 @@ class _FinalSummarySection extends ConsumerWidget {
                     const Icon(Icons.workspace_premium,
                         color: Color(0xFFD97706), size: 24),
                     const SizedBox(width: 8),
-                    Text(
+                    Flexible(
+                        child: Text(
                       'Overall Score: $totalCorrect / $totalQuestions (${totalPercentage.round()}%)',
                       style: const TextStyle(
                         fontSize: 15,
@@ -1608,7 +1640,7 @@ class _FinalSummarySection extends ConsumerWidget {
                         color: AppTheme.primaryNavy,
                         fontFamily: 'Poppins',
                       ),
-                    ),
+                    )),
                   ],
                 ),
               ),
@@ -1649,8 +1681,7 @@ class _FinalSummarySection extends ConsumerWidget {
             Expanded(
               child: FilledButton.icon(
                 onPressed: () async {
-                  await Clipboard.setData(
-                      ClipboardData(text: summaryReport));
+                  await Clipboard.setData(ClipboardData(text: summaryReport));
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -1673,7 +1704,8 @@ class _FinalSummarySection extends ConsumerWidget {
               child: OutlinedButton.icon(
                 onPressed: () => Share.share(
                   summaryReport,
-                  subject: '${state.shortName} STW Follow-up Assessment Summary',
+                  subject:
+                      '${state.shortName} STW Follow-up Assessment Summary',
                 ),
                 icon: const Icon(Icons.share_rounded, size: 18),
                 label: const Text('Share Report'),
@@ -1748,7 +1780,6 @@ class _FinalSummarySection extends ConsumerWidget {
             Expanded(
               child: Text(
                 'Case Scenarios Review & Answers',
-                overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppTheme.primaryNavy,
@@ -1838,7 +1869,8 @@ class _OptionSelectCard extends StatelessWidget {
             color: isSelected ? const Color(0xFFF1F5F9) : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? AppTheme.primaryNavy : const Color(0xFFE2E8F0),
+              color:
+                  isSelected ? AppTheme.primaryNavy : const Color(0xFFE2E8F0),
               width: isSelected ? 2.0 : 1.0,
             ),
             boxShadow: isSelected
@@ -1859,9 +1891,13 @@ class _OptionSelectCard extends StatelessWidget {
                 height: 32,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isSelected ? AppTheme.primaryNavy : const Color(0xFFF8FAFC),
+                  color: isSelected
+                      ? AppTheme.primaryNavy
+                      : const Color(0xFFF8FAFC),
                   border: Border.all(
-                    color: isSelected ? AppTheme.primaryNavy : const Color(0xFFCBD5E1),
+                    color: isSelected
+                        ? AppTheme.primaryNavy
+                        : const Color(0xFFCBD5E1),
                     width: 1.5,
                   ),
                 ),
@@ -1882,7 +1918,9 @@ class _OptionSelectCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                    color: isSelected ? AppTheme.primaryNavy : const Color(0xFF1E293B),
+                    color: isSelected
+                        ? AppTheme.primaryNavy
+                        : const Color(0xFF1E293B),
                     height: 1.4,
                   ),
                 ),
@@ -1891,7 +1929,8 @@ class _OptionSelectCard extends StatelessWidget {
               Icon(
                 isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
                 size: 20,
-                color: isSelected ? AppTheme.primaryNavy : const Color(0xFF94A3B8),
+                color:
+                    isSelected ? AppTheme.primaryNavy : const Color(0xFF94A3B8),
               ),
             ],
           ),
@@ -1933,9 +1972,8 @@ class _QuestionNavigationButtons extends StatelessWidget {
     final isLast = currentIndex == total - 1;
     final bool isActionEnabled = isLast ? allAnswered : hasSelectedAnswer;
     final VoidCallback? actionCallback = isLast ? onSubmit : onNext;
-    final VoidCallback disabledTapHandler = isLast
-        ? onAttemptIncompleteSubmit
-        : onAttemptIncompleteNext;
+    final VoidCallback disabledTapHandler =
+        isLast ? onAttemptIncompleteSubmit : onAttemptIncompleteNext;
 
     Widget actionButton = FilledButton.icon(
       onPressed: isActionEnabled ? actionCallback : null,
@@ -1978,8 +2016,10 @@ class _QuestionNavigationButtons extends StatelessWidget {
         // Answered Progress Tracker
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               Row(
                 children: [
@@ -2210,7 +2250,6 @@ class _SectionalCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     color: color,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -2315,7 +2354,6 @@ class _QuestionFeedbackCard extends StatelessWidget {
                 child: Text(
                   'Q$questionNumber • ${question.category}',
                   textAlign: TextAlign.end,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -2341,9 +2379,8 @@ class _QuestionFeedbackCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isCorrect
-                  ? const Color(0xFFF0FDF4)
-                  : const Color(0xFFFEF2F2),
+              color:
+                  isCorrect ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isCorrect
@@ -2430,7 +2467,6 @@ class _QuestionFeedbackCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'CLINICAL RATIONALE (ICMR / DHR STW)',
-                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
@@ -2547,7 +2583,6 @@ class _CaseFeedbackCard extends StatelessWidget {
                 child: Text(
                   'Case $caseNumber • ${question.category}',
                   textAlign: TextAlign.end,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -2596,9 +2631,8 @@ class _CaseFeedbackCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isCorrect
-                  ? const Color(0xFFF0FDF4)
-                  : const Color(0xFFFEF2F2),
+              color:
+                  isCorrect ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isCorrect
@@ -2681,7 +2715,8 @@ class _CaseFeedbackCard extends StatelessWidget {
                     Icon(Icons.menu_book_outlined,
                         size: 14, color: AppTheme.primaryNavy),
                     SizedBox(width: 6),
-                    Text(
+                    Flexible(
+                        child: Text(
                       'CLINICAL RATIONALE & RECOMMENDATION',
                       style: TextStyle(
                         fontSize: 10,
@@ -2689,7 +2724,7 @@ class _CaseFeedbackCard extends StatelessWidget {
                         color: AppTheme.primaryNavy,
                         letterSpacing: 0.5,
                       ),
-                    ),
+                    )),
                   ],
                 ),
                 const SizedBox(height: 6),

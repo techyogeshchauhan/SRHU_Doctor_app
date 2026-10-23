@@ -48,8 +48,7 @@ void main() {
     await openStandaloneModule(tester, '/rd');
 
     await _tap(tester, find.text('Grunting'));
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Gestational age'), '30');
+    await tester.enterText(fieldLabeled('Gestational age'), '30');
     await tester.pumpAndSettle();
 
     // Sticky recommendation bar at the bottom.
@@ -61,11 +60,9 @@ void main() {
     await openStandaloneModule(tester, '/rd');
 
     await _tap(tester, find.text('Nasal flaring'));
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Gestational age'), '37');
+    await tester.enterText(fieldLabeled('Gestational age'), '37');
     await tester.pumpAndSettle();
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Initial SpO₂'), '90');
+    await tester.enterText(fieldLabeled('Initial SpO₂'), '90');
     await tester.pumpAndSettle();
 
     for (final label in [
@@ -93,8 +90,7 @@ void main() {
     await _pumpApp(tester);
     await openStandaloneModule(tester, '/rop');
 
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Gestational age'), '30');
+    await tester.enterText(fieldLabeled('Gestational age'), '30');
     await tester.pumpAndSettle();
     // Scoped to the ROP screen: the workflow step beneath it also shows
     // the eligibility result.

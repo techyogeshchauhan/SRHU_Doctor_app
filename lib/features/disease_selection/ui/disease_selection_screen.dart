@@ -35,12 +35,6 @@ class DiseaseSelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
     final selected = ref.watch(conditionSelectionProvider);
-    final showRop = selected.contains(NeonatalCondition.rop) ||
-        initialCondition == NeonatalCondition.rop ||
-        selected.isEmpty;
-    final showRd = selected.contains(NeonatalCondition.respiratoryDistress) ||
-        initialCondition == NeonatalCondition.respiratoryDistress ||
-        selected.isEmpty;
     bool show(NeonatalCondition c) =>
         selected.contains(c) || initialCondition == c || selected.isEmpty;
 
@@ -49,6 +43,50 @@ class DiseaseSelectionScreen extends ConsumerWidget {
       ref.read(assessmentProvider.notifier).start({c}, forceReset: true);
       context.push('/workflow');
     }
+
+    // Existing card presentation, displayed in the shared module order.
+    const cards = {
+      NeonatalCondition.hie: (
+        'Post Asphyxia',
+        Icons.monitor_heart_outlined,
+        AppTheme.primaryTeal
+      ),
+      NeonatalCondition.fluidsAndFeeds: (
+        'Feeding and Nutrition in Neonates',
+        Icons.water_drop_outlined,
+        AppTheme.primaryTeal
+      ),
+      NeonatalCondition.rop: (
+        'Retinopathy of Prematurity',
+        Icons.visibility_outlined,
+        AppTheme.accentRop
+      ),
+      NeonatalCondition.respiratoryDistress: (
+        'Respiratory Distress in Neonates',
+        Icons.air_rounded,
+        AppTheme.accentRd
+      ),
+      NeonatalCondition.sepsis: (
+        'Sepsis in Neonates',
+        Icons.coronavirus_outlined,
+        AppTheme.primaryTeal
+      ),
+      NeonatalCondition.kmc: (
+        'Kangaroo Mother Care (KMC)',
+        Icons.favorite_border_rounded,
+        AppTheme.primaryTeal
+      ),
+      NeonatalCondition.ancs: (
+        'Antenatal Corticosteroids for Preterm Birth',
+        Icons.vaccines_outlined,
+        AppTheme.primaryNavy
+      ),
+      NeonatalCondition.hypoglycemia: (
+        'Neonatal Hypoglycemia',
+        Icons.bloodtype_outlined,
+        AppTheme.primaryNavy
+      ),
+    };
 
     // Number only visible cards, starting again at one after filtering.
     var displayedIndex = 0;
@@ -114,93 +152,26 @@ class DiseaseSelectionScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // 1. Retinopathy of Prematurity (ROP) Card (if selected or default)
-                if (showRop) ...[
-                  DiseaseCard(
-                    number: ++displayedIndex,
-                    title: 'Retinopathy of Prematurity',
-                    icon: Icons.visibility_outlined,
-                    accentColor: AppTheme.accentRop,
-                    highlighted: initialCondition == NeonatalCondition.rop,
-                    pdfAssetPath: ropPdfAsset,
-                    pdfTitle: ropPdfTitle,
-                    onStartScreening: () {
-                      clearConditionData(ref);
-                      ref.read(assessmentProvider.notifier).start({
-                        NeonatalCondition.rop,
-                      }, forceReset: true);
-                      context.push('/workflow');
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                ],
-
-                // 2. Respiratory Distress in Neonates Card (if selected or default)
-                if (showRd) ...[
-                  DiseaseCard(
-                    number: ++displayedIndex,
-                    title: 'Respiratory Distress in Neonates',
-                    icon: Icons.air_rounded,
-                    accentColor: AppTheme.accentRd,
-                    highlighted: initialCondition ==
-                        NeonatalCondition.respiratoryDistress,
-                    pdfAssetPath: rdPdfAsset,
-                    pdfTitle: rdPdfTitle,
-                    onStartScreening: () {
-                      clearConditionData(ref);
-                      ref.read(assessmentProvider.notifier).start({
-                        NeonatalCondition.respiratoryDistress,
-                      }, forceReset: true);
-                      context.push('/workflow');
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                ],
-
-                // Available workflows with PDF-backed dynamic assessments.
-                for (final (c, title, icon, accentColor) in const [
-                  (
-                    NeonatalCondition.sepsis,
-                    'Sepsis in Neonates',
-                    Icons.coronavirus_outlined,
-                    AppTheme.primaryTeal,
-                  ),
-                  (
-                    NeonatalCondition.kmc,
-                    'Kangaroo Mother Care (KMC)',
-                    Icons.favorite_border_rounded,
-                    AppTheme.primaryTeal,
-                  ),
-                  (
-                    NeonatalCondition.ancs,
-                    'Antenatal Corticosteroids for Preterm Birth',
-                    Icons.vaccines_outlined,
-                    AppTheme.primaryNavy,
-                  ),
-                  (
-                    NeonatalCondition.hypoglycemia,
-                    'Neonatal Hypoglycemia',
-                    Icons.bloodtype_outlined,
-                    AppTheme.primaryNavy,
-                  ),
-                ])
-                  if (show(c)) ...[
-                    DiseaseCard(
-                      number: ++displayedIndex,
-                      title: title,
-                      icon: icon,
-                      accentColor: accentColor,
-                      highlighted: initialCondition == c,
-                      pdfAssetPath: stwPdfFor(c)!.asset,
-                      pdfTitle: stwPdfFor(c)!.title,
-                      onOpenStwText: c == NeonatalCondition.ancs ||
-                              c == NeonatalCondition.hypoglycemia
-                          ? () => context.push(StwReferenceScreen.routeFor(c))
-                          : null,
-                      onStartScreening: () => startScreening(c),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
+                for (final d in stwModuleDefinitions)
+                  if (cards[d.id] case final card?)
+                    if (show(d.id)) ...[
+                      DiseaseCard(
+                        number: ++displayedIndex,
+                        title: card.$1,
+                        icon: card.$2,
+                        accentColor: card.$3,
+                        highlighted: initialCondition == d.id,
+                        pdfAssetPath: stwPdfFor(d.id)!.asset,
+                        pdfTitle: stwPdfFor(d.id)!.title,
+                        onOpenStwText: d.id == NeonatalCondition.ancs ||
+                                d.id == NeonatalCondition.hypoglycemia
+                            ? () =>
+                                context.push(StwReferenceScreen.routeFor(d.id))
+                            : null,
+                        onStartScreening: () => startScreening(d.id),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
 
                 const SizedBox(height: 16),
                 const DisclaimerFooter(),
@@ -214,7 +185,7 @@ class DiseaseSelectionScreen extends ConsumerWidget {
   }
 }
 
-/// Compact disease card with single-line condition name and direct screening launcher.
+/// Compact disease card with the full condition name and direct screening launcher.
 class DiseaseCard extends StatelessWidget {
   const DiseaseCard({
     super.key,
@@ -247,6 +218,8 @@ class DiseaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Narrow phones: tighter spacing leaves more room for the name.
+    final narrow = MediaQuery.sizeOf(context).width < 380;
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(14),
@@ -255,7 +228,8 @@ class DiseaseCard extends StatelessWidget {
         onTap: onStartScreening,
         borderRadius: BorderRadius.circular(14),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: EdgeInsets.symmetric(
+              horizontal: narrow ? 12 : 16, vertical: narrow ? 12 : 14),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
@@ -287,7 +261,7 @@ class DiseaseCard extends StatelessWidget {
                   size: 22,
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: narrow ? 10 : 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,6 +270,11 @@ class DiseaseCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 5, right: 5),
+                          child: Icon(Icons.circle,
+                              size: 8, color: Color(0xFF16A34A)),
+                        ),
                         Text('$number.',
                             key: ValueKey('disease-card-index-$number'),
                             style: const TextStyle(
@@ -308,8 +287,6 @@ class DiseaseCard extends StatelessWidget {
                         Expanded(
                             child: Text(
                           title,
-                          maxLines: 2,
-                          softWrap: true,
                           style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 15.5,
@@ -409,7 +386,7 @@ class DiseaseCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: narrow ? 8 : 12),
               trailing ??
                   const Icon(
                     Icons.arrow_forward_ios_rounded,

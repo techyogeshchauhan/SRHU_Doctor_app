@@ -6,7 +6,7 @@
 /// them, but carry no clinical content until their STW is added.
 library;
 
-/// Enum order is the display order and the order workflows are combined in.
+/// Stable workflow evaluation order. Display order is [conditionDefinitions].
 enum NeonatalCondition {
   triage,
   thermalCare,
@@ -65,18 +65,45 @@ const List<ConditionDefinition> conditionDefinitions = [
   ConditionDefinition(
       id: NeonatalCondition.thermalCare, title: 'STW Thermal Care'),
   ConditionDefinition(
-    id: NeonatalCondition.kmc,
-    title: 'STW KMC',
+    id: NeonatalCondition.fluidsAndFeeds,
+    title: 'STW Fluids & Feeds',
     description:
-        'Kangaroo Mother Care eligibility and care workflow as per ICMR/DHR STW.',
+        'Feeding and nutrition in neonates as per the October 2026 ICMR/DHR STW.',
     status: ConditionStatus.available,
   ),
   ConditionDefinition(
-      id: NeonatalCondition.fluidsAndFeeds, title: 'STW Fluids & Feeds'),
+    id: NeonatalCondition.hypoglycemia,
+    title: 'STW Hypoglycemia',
+    description: 'Screening and management workflow as per ICMR/DHR STW.',
+    status: ConditionStatus.available,
+  ),
   ConditionDefinition(
     id: NeonatalCondition.respiratoryDistress,
     title: 'STW Respiratory Distress',
     description: 'Assessment and management workflow as per ICMR/DHR STW.',
+    status: ConditionStatus.available,
+  ),
+  // Keep the persisted HIE identifier and enum ordinal for record compatibility.
+  ConditionDefinition(
+      id: NeonatalCondition.hie,
+      title: 'STW Post Asphyxia',
+      description:
+          'Post-asphyxial management of neonates as per the supplied ICMR/DHR STW.',
+      status: ConditionStatus.available),
+  ConditionDefinition(
+    id: NeonatalCondition.sepsis,
+    title: 'STW Sepsis',
+    description:
+        'Sepsis signs, risk factors, treatment and review as per ICMR/DHR STW.',
+    status: ConditionStatus.available,
+  ),
+  ConditionDefinition(id: NeonatalCondition.jaundice, title: 'STW Jaundice'),
+  ConditionDefinition(id: NeonatalCondition.seizures, title: 'STW Seizures'),
+  ConditionDefinition(
+    id: NeonatalCondition.kmc,
+    title: 'STW KMC',
+    description:
+        'Kangaroo Mother Care eligibility and care workflow as per ICMR/DHR STW.',
     status: ConditionStatus.available,
   ),
   ConditionDefinition(
@@ -88,28 +115,12 @@ const List<ConditionDefinition> conditionDefinitions = [
     status: ConditionStatus.available,
   ),
   ConditionDefinition(
-    id: NeonatalCondition.sepsis,
-    title: 'STW Sepsis',
-    description:
-        'Sepsis signs, risk factors, treatment and review as per ICMR/DHR STW.',
-    status: ConditionStatus.available,
-  ),
-  ConditionDefinition(
-    id: NeonatalCondition.hypoglycemia,
-    title: 'STW Hypoglycemia',
-    description: 'Screening and management workflow as per ICMR/DHR STW.',
-    status: ConditionStatus.available,
-  ),
-  ConditionDefinition(id: NeonatalCondition.jaundice, title: 'STW Jaundice'),
-  ConditionDefinition(id: NeonatalCondition.seizures, title: 'STW Seizures'),
-  ConditionDefinition(id: NeonatalCondition.hie, title: 'STW HIE'),
-  ConditionDefinition(id: NeonatalCondition.transport, title: 'STW Transport'),
-  ConditionDefinition(
     id: NeonatalCondition.rop,
     title: 'STW ROP',
     description: 'Screening and follow-up workflow as per ICMR/DHR STW.',
     status: ConditionStatus.available,
   ),
+  ConditionDefinition(id: NeonatalCondition.transport, title: 'STW Transport'),
   ConditionDefinition(
     id: NeonatalCondition.dischargeAndFollowUp,
     title: 'STW Discharge & Follow up',
@@ -119,6 +130,10 @@ const List<ConditionDefinition> conditionDefinitions = [
 final Map<NeonatalCondition, ConditionDefinition> _byId = {
   for (final d in conditionDefinitions) d.id: d,
 };
+
+/// Standard presentation order, independent of clinical evaluation order.
+Iterable<NeonatalCondition> get conditionDisplayOrder =>
+    conditionDefinitions.map((d) => d.id);
 
 ConditionDefinition definitionOf(NeonatalCondition c) => _byId[c]!;
 

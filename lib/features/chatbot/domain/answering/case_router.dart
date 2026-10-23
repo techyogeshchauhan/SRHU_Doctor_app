@@ -47,7 +47,9 @@ CaseRoute? routeCase(QueryAnalysis a) {
   // routing their numeric wording through another disease's rule engine.
   if (a.topics.contains(StwTopic.triage) ||
       a.topics.contains(StwTopic.kmc) ||
-      a.topics.contains(StwTopic.sepsis)) {
+      a.topics.contains(StwTopic.sepsis) ||
+      a.topics.contains(StwTopic.feeding) ||
+      a.topics.contains(StwTopic.postAsphyxia)) {
     return null;
   }
   if (a.topics.contains(StwTopic.hypo)) {

@@ -7,7 +7,7 @@ void main() {
     expect(conditionDefinitions, hasLength(14));
     expect(
       conditionDefinitions.map((d) => d.id).toList(),
-      NeonatalCondition.values,
+      unorderedEquals(NeonatalCondition.values),
     );
   });
 
@@ -20,27 +20,30 @@ void main() {
     expect(conditionDefinitions.map((d) => d.title).toList(), [
       'STW Triage',
       'STW Thermal Care',
-      'STW KMC',
       'STW Fluids & Feeds',
-      'STW Respiratory Distress',
-      'STW ANCS',
-      'STW Sepsis',
       'STW Hypoglycemia',
+      'STW Respiratory Distress',
+      'STW Post Asphyxia',
+      'STW Sepsis',
       'STW Jaundice',
       'STW Seizures',
-      'STW HIE',
-      'STW Transport',
+      'STW KMC',
+      'STW ANCS',
       'STW ROP',
+      'STW Transport',
       'STW Discharge & Follow up',
     ]);
   });
 
-  test('the seven supplied workflows are implemented; others carry no description', () {
+  test(
+      'the nine supplied workflows are implemented; others carry no description',
+      () {
     final implemented = {
       for (final d in conditionDefinitions)
         if (d.implemented) d.id,
     };
     expect(implemented, {
+      NeonatalCondition.fluidsAndFeeds,
       NeonatalCondition.triage,
       NeonatalCondition.kmc,
       NeonatalCondition.respiratoryDistress,
@@ -48,6 +51,7 @@ void main() {
       NeonatalCondition.hypoglycemia,
       NeonatalCondition.sepsis,
       NeonatalCondition.rop,
+      NeonatalCondition.hie,
     });
     for (final d in conditionDefinitions) {
       if (!d.implemented) {
@@ -58,6 +62,6 @@ void main() {
   });
 
   test('definitionOf looks up by id', () {
-    expect(definitionOf(NeonatalCondition.hie).title, 'STW HIE');
+    expect(definitionOf(NeonatalCondition.hie).title, 'STW Post Asphyxia');
   });
 }

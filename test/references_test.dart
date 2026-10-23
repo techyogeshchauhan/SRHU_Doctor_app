@@ -76,7 +76,8 @@ Widget _buildTestApp({
 }
 
 void main() {
-  testWidgets('References screen displays the four STW cards and sources',
+  testWidgets(
+      'References cards follow the standard module order and retain their sources',
       (tester) async {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/references'));
     await tester.pumpAndSettle();
@@ -85,33 +86,32 @@ void main() {
     expect(find.text('References'), findsOneWidget);
     expect(find.text('Original Standard Treatment Workflows'), findsOneWidget);
 
-    // 2. Verify RD and ROP cards
-    expect(find.text('Respiratory Distress in Neonates'), findsWidgets);
-    expect(find.text('Retinopathy of Prematurity (ROP)'), findsWidgets);
-
-    // Small subtitles with ICD codes
-    expect(
-      find.textContaining('ICD-11 KB23 · ICMR / DHR · August 2026'),
-      findsOneWidget,
-    );
-    expect(
-      find.textContaining('ICD-11 9B71.3 · ICMR / DHR · August 2026'),
-      findsOneWidget,
-    );
-
-    // RD and ROP "View PDF" buttons first; the list builds the rest lazily.
-    expect(find.text('View PDF'), findsAtLeastNWidgets(2));
-
-    // The two newer STWs (ANCS gives no ICD-11 code on its PDF).
-    final ancs = find.text('Antenatal Corticosteroids for Preterm Birth');
-    await tester.scrollUntilVisible(ancs.first, 200);
-    expect(
-      find.textContaining('for pregnant women at risk of preterm birth'),
-      findsOneWidget,
-    );
-    final hypo = find.textContaining('ICD-11 KB60.4 · ICMR / DHR · August 2026');
-    await tester.scrollUntilVisible(hypo, 200);
-    expect(find.text('Neonatal Hypoglycemia'), findsWidgets);
+    var previousPosition = double.negativeInfinity;
+    // Scroll through every existing PDF card in the requested relative order.
+    for (final label in [
+      'Open Neonatal Emergency Triage STW PDF',
+      'Open Feeding and Nutrition STW PDF',
+      'Open Neonatal Hypoglycemia STW PDF',
+      'Open Respiratory Distress STW PDF',
+      'Open Post Asphyxia STW PDF',
+      'Open Sepsis STW PDF',
+      'Open Kangaroo Mother Care STW PDF',
+      'Open Antenatal Corticosteroids for Preterm Birth STW PDF',
+      'Open Retinopathy of Prematurity STW PDF',
+    ]) {
+      final card = find.byWidgetPredicate(
+          (w) => w is Semantics && w.properties.label == label);
+      await tester.scrollUntilVisible(card, 100);
+      await tester.pumpAndSettle();
+      expect(card, findsOneWidget);
+      final position = tester
+              .state<ScrollableState>(find.byType(Scrollable).first)
+              .position
+              .pixels +
+          tester.getTopLeft(card).dy;
+      expect(position, greaterThan(previousPosition), reason: label);
+      previousPosition = position;
+    }
 
     // 3. Verify cited sources section
     final sources = find.text('Sources cited in the STWs');
@@ -138,8 +138,7 @@ void main() {
     expect(find.textContaining('DHR portal (stw.icmr.org.in)'), findsOneWidget);
   });
 
-  testWidgets('cited sources of the two newer STWs are listed',
-      (tester) async {
+  testWidgets('cited sources of the two newer STWs are listed', (tester) async {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/references'));
     await tester.pumpAndSettle();
     final who = find.textContaining('WHO recommendations on antenatal');
@@ -150,17 +149,18 @@ void main() {
     expect(nnf, findsOneWidget);
   });
 
-  testWidgets(
-      'Tapping RD "View PDF" navigates to viewer screen and can return',
+  testWidgets('Tapping RD "View PDF" navigates to viewer screen and can return',
       (tester) async {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/references'));
     await tester.pumpAndSettle();
 
-    final viewPdfButtons = find.text('View PDF');
-    expect(viewPdfButtons, findsAtLeastNWidgets(2));
-
-    // Tap first card (Respiratory Distress)
-    await tester.tap(viewPdfButtons.first);
+    final button = find.byWidgetPredicate((w) =>
+        w is Semantics &&
+        w.properties.label == 'Open Respiratory Distress STW PDF');
+    await tester.scrollUntilVisible(button, 100);
+    await tester.ensureVisible(button);
+    await tester.pumpAndSettle();
+    await tester.tap(button);
     await tester.pumpAndSettle();
 
     // Verify viewer screen opened with mock viewer
@@ -186,11 +186,13 @@ void main() {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/references'));
     await tester.pumpAndSettle();
 
-    final viewPdfButtons = find.text('View PDF');
-    expect(viewPdfButtons, findsAtLeastNWidgets(2));
-
-    // Tap second card (Retinopathy of Prematurity)
-    await tester.tap(viewPdfButtons.at(1));
+    final button = find.byWidgetPredicate((w) =>
+        w is Semantics &&
+        w.properties.label == 'Open Retinopathy of Prematurity STW PDF');
+    await tester.scrollUntilVisible(button, 100);
+    await tester.ensureVisible(button);
+    await tester.pumpAndSettle();
+    await tester.tap(button);
     await tester.pumpAndSettle();
 
     // Verify viewer screen opened with ROP title
@@ -237,16 +239,14 @@ void main() {
     expect(find.text('Original Standard Treatment Workflows'), findsOneWidget);
   });
 
-  testWidgets('RD screen has no Source PDF button',
-      (tester) async {
+  testWidgets('RD screen has no Source PDF button', (tester) async {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/rd'));
     await tester.pumpAndSettle();
 
     expect(find.text('Source PDF'), findsNothing);
   });
 
-  testWidgets('ROP screen has no Source PDF button',
-      (tester) async {
+  testWidgets('ROP screen has no Source PDF button', (tester) async {
     await tester.pumpWidget(_buildTestApp(initialLocation: '/rop'));
     await tester.pumpAndSettle();
 

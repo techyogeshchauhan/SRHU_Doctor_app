@@ -9,7 +9,17 @@ library;
 
 import 'hinglish_lexicon.dart';
 
-enum StwTopic { rd, rop, ancs, hypo, triage, kmc, sepsis }
+enum StwTopic {
+  rd,
+  rop,
+  ancs,
+  hypo,
+  triage,
+  kmc,
+  sepsis,
+  feeding,
+  postAsphyxia
+}
 
 /// Kinds of question; regions in assets/regions/regions.json list the ones
 /// they answer (tools/annotate_region_intents.py).
@@ -170,8 +180,7 @@ final _outOfScope = RegExp(
   r"\b(vaccin\w*|bcg|vitamin k|covid\w*|coronavirus|adults?|year old|years old|cancer|"
   r"chemotherap\w*|copd|ards|ketoacidosis|dka|insulin|eczema|cream|lasik|"
   r"coffee|labetalol|magnesium|tocoly\w*|appendectomy|paracetamol|"
-  r"diabetic retinopathy|sleep apnea|therapeutic hypothermia|"
-  r"hypoxic.?ischemic encephalopathy|\bhie\b|"
+  r"diabetic retinopathy|sleep apnea|"
   r"phototherapy threshold|threshold for.*phototherapy|bilirubin level|bilirubin cutoff|phototherapy cutoff|"
   r"exchange transfusion threshold|exchange transfusion level|phototherapy chart|phototherapy nomogram|"
   r"(jaundice|bilirubin).*(when\b|threshold|cutoff|level|chart)|"
@@ -182,6 +191,15 @@ final _outOfScope = RegExp(
 );
 
 final _topicPatterns = <StwTopic, RegExp>{
+  StwTopic.postAsphyxia: RegExp(
+      r'post.?asphyxia\w*|perinatal asphyxia|birth asphyxia|\bhie\b|hypoxic.?ischa?emic encephalopathy|sarnat|therapeutic hypothermia'),
+  StwTopic.feeding: RegExp(
+    r'feeding and nutrition|fluids? (and|&) feeds?|enteral|milk source|donor milk|'
+    r'mother.?s own milk|colostrum|fortifi\w*|poor weight gain|gastric residual|'
+    r'feeding route|route of feeding|daily fluid|total fluid|day of life|'
+    r'feeding frequency|3.hourly|2.hourly|aedf|redf|iron|vitamin d|calcium|'
+    r'phosphorus|zinc|nutrition|\blmu\b',
+  ),
   StwTopic.sepsis: RegExp(
     r'\bsepsis\b|\bseptic\b|sclerema|blood culture|lumbar puncture|\bcsf\b|'
     r'procalcitonin|yellow flags?|red flags?|antibiotic duration|meningitis',
@@ -415,15 +433,40 @@ QueryEntities _entities(String n) {
 
 QueryAnalysis analyzeQuery(String query) {
   final n = normalizeQuery(query);
-  final oos = _outOfScope.firstMatch(n)?.group(0);
+  // The supplied Post Asphyxia poster now covers TH referral management.
+  // Keep accidental hypothermia and unsupported populations out of scope.
+  final scopeText = n.replaceAll(
+      'therapeutic hypothermia management', 'therapeutic hypothermia');
+  final oos = _outOfScope.firstMatch(scopeText)?.group(0);
   final topics = {
     for (final e in _topicPatterns.entries)
       if (e.value.hasMatch(n)) e.key,
   };
+  if (topics.isEmpty && RegExp(r'\bfeeding\b|\bfeeds\b').hasMatch(n)) {
+    topics.add(StwTopic.feeding);
+  }
+  // An explicit Post Asphyxia request keeps its own source for shared signs.
+  // Explicit requests for multiple STWs retain their separate topics.
+  final explicitPost = topics.contains(StwTopic.postAsphyxia);
+  if (explicitPost &&
+      !RegExp(r'\btriage\b|\brop\b|\bancs\b|\bacs\b|kangaroo|\bkmc\b|respiratory distress|\brds?\b|\bhypoglycemia\b|\bsepsis\b|feeding and nutrition|fluids? (and|&) feeds?')
+          .hasMatch(n)) {
+    topics.removeWhere((t) => t != StwTopic.postAsphyxia);
+  }
+  // An explicit Feeding/Nutrition request uses its own source. Shared words
+  // such as antenatal, PMA, respiratory support or glucose do not select
+  // another clinical engine unless that STW is explicitly requested.
+  if (!explicitPost &&
+      topics.contains(StwTopic.feeding) &&
+      !RegExp(r'\btriage\b|\brop\b|\bancs\b|\bacs\b|kangaroo|\bkmc\b|respiratory distress|\brds?\b|hypoglyc\w*|\bsepsis\b')
+          .hasMatch(n)) {
+    topics.removeWhere((t) => t != StwTopic.feeding);
+  }
   // Explicit Sepsis questions use its own source even when its signs or
   // maternal factors also occur in other workflows. Explicit cross-STW
   // requests retain both topics (e.g. sepsis in respiratory distress).
-  if (topics.contains(StwTopic.sepsis) &&
+  if (!explicitPost &&
+      topics.contains(StwTopic.sepsis) &&
       !RegExp(r'\btriage\b|\brop\b|\bancs\b|\bacs\b|antenatal|kangaroo|\bkmc\b|respiratory distress|\brds?\b|hypoglyc\w*|\bbg\b|\bgir\b')
           .hasMatch(n)) {
     topics.removeWhere((t) => t != StwTopic.sepsis);
@@ -510,6 +553,8 @@ QueryAnalysis analyzeQuery(String query) {
 /// Topic of a region by its document.
 StwTopic? topicOfDocument(String document) {
   final d = document.toLowerCase();
+  if (d.startsWith('post asphyxia')) return StwTopic.postAsphyxia;
+  if (d.startsWith('feeding_nutrition')) return StwTopic.feeding;
   if (d.startsWith('sepsis_')) return StwTopic.sepsis;
   if (d.startsWith('respiratory')) return StwTopic.rd;
   if (d.startsWith('retinopathy')) return StwTopic.rop;

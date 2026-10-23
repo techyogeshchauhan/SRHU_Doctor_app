@@ -280,6 +280,29 @@ void main() {
     expect(_bubble('hub:hypoglycemia'), findsOneWidget);
   });
 
+  testWidgets('assessment list uses the shared STW presentation order',
+      (tester) async {
+    await _pump(tester, const Size(1280, 900), home: '/assessment-map');
+    await _tap(tester, find.text('List view'));
+    final scroller = find.byType(Scrollable).first;
+    final offsets = <double>[];
+    for (final title in [
+      'STW Hypoglycemia',
+      'STW Respiratory Distress',
+      'STW ROP'
+    ]) {
+      final header = find.text(title);
+      await tester.scrollUntilVisible(header, 250, scrollable: scroller);
+      await tester.pumpAndSettle();
+      expect(header, findsOneWidget);
+      final position = tester.state<ScrollableState>(scroller).position;
+      offsets.add(tester.getTopLeft(header).dy + position.pixels);
+    }
+    expect(offsets[0], lessThan(offsets[1]));
+    expect(offsets[1], lessThan(offsets[2]));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('live finding details retain values, source and PDF highlight',
       (tester) async {
     final ctx = babyCtx();

@@ -6,6 +6,7 @@ import 'package:neonatal_stw/features/clinical_workflow/state/assessment_control
 import 'package:neonatal_stw/features/clinical_workflow/ui/workflow_screen.dart';
 import 'package:neonatal_stw/data/repositories/screening_sync_repository.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
+import 'package:neonatal_stw/features/disease_selection/ui/disease_selection_screen.dart';
 import 'package:neonatal_stw/features/references/ui/pdf_viewer_screen.dart';
 import 'package:neonatal_stw/features/triage/domain/triage_workflow.dart';
 import 'package:neonatal_stw/shared/pdf_navigation.dart';
@@ -81,8 +82,9 @@ void main() {
       // Zero-click: the category is shown while typing.
       expect(find.byKey(const ValueKey('triage-category-emergency')),
           findsOneWidget);
-      expect(container.read(assessmentProvider).context.valueOf(
-          triageCategoryKey), triageEmergency);
+      expect(
+          container.read(assessmentProvider).context.valueOf(triageCategoryKey),
+          triageEmergency);
       await _enter(tester, triageWeightKey, '2.5');
       await tapVisible(tester, find.text('Term (T)'));
 
@@ -119,7 +121,8 @@ void main() {
       expect(find.byKey(const ValueKey('triage-category-emergency')),
           findsOneWidget);
       // Shown inline on the same page, no extra screen.
-      expect(find.textContaining('Is the neonate symptomatic?'), findsOneWidget);
+      expect(
+          find.textContaining('Is the neonate symptomatic?'), findsOneWidget);
       final no = find.descendant(
         of: find.byKey(const ValueKey(triageHypoglycemiaSymptomsKey)),
         matching: find.text('No'),
@@ -163,14 +166,13 @@ void main() {
     testWidgets('fast-track hides the maternal and newborn history',
         (tester) async {
       await _openTriage(tester);
-      expect(find.byKey(const ValueKey(triageMaternalHistoryKey)),
-          findsOneWidget);
-      await tapVisible(tester,
-          find.text('Baby is sick – proceed directly to examination'));
-      expect(find.byKey(const ValueKey(triageMaternalHistoryKey)),
-          findsNothing);
-      expect(find.byKey(const ValueKey(triageNewbornHistoryKey)),
-          findsNothing);
+      expect(
+          find.byKey(const ValueKey(triageMaternalHistoryKey)), findsOneWidget);
+      await tapVisible(
+          tester, find.text('Baby is sick – proceed directly to examination'));
+      expect(
+          find.byKey(const ValueKey(triageMaternalHistoryKey)), findsNothing);
+      expect(find.byKey(const ValueKey(triageNewbornHistoryKey)), findsNothing);
       expect(find.byKey(const ValueKey(triageHeartRateKey)), findsOneWidget);
     });
 
@@ -179,14 +181,14 @@ void main() {
       final container = await _openTriage(tester);
       final repo = container.read(screeningSyncRepositoryProvider);
       final started = repo.activeTimings({'triage'}).single.startedAt;
-      expect(find.byKey(const ValueKey('screening-elapsed-time')),
-          findsOneWidget);
+      expect(
+          find.byKey(const ValueKey('screening-elapsed-time')), findsOneWidget);
 
       await _enter(tester, triageHeartRateKey, '210');
       await _continuePage(tester);
 
-      expect(find.byKey(const ValueKey('screening-elapsed-time')),
-          findsOneWidget);
+      expect(
+          find.byKey(const ValueKey('screening-elapsed-time')), findsOneWidget);
       final timing = repo.activeTimings({'triage'}).single;
       expect(timing.startedAt, started);
       expect(timing.isCompleted, isTrue);
@@ -221,7 +223,31 @@ void main() {
         for (final d in conditionDefinitions)
           if (d.implemented && d.id != NeonatalCondition.triage) d.id,
       ];
-      expect(remaining, hasLength(6));
+      expect(remaining, hasLength(8));
+      expect(remaining, [
+        NeonatalCondition.fluidsAndFeeds,
+        NeonatalCondition.hypoglycemia,
+        NeonatalCondition.respiratoryDistress,
+        NeonatalCondition.hie,
+        NeonatalCondition.sepsis,
+        NeonatalCondition.kmc,
+        NeonatalCondition.ancs,
+        NeonatalCondition.rop,
+      ]);
+      expect(
+          tester
+              .widgetList<DiseaseCard>(find.byType(DiseaseCard))
+              .map((card) => card.title),
+          [
+            'Feeding and Nutrition in Neonates',
+            'Neonatal Hypoglycemia',
+            'Respiratory Distress in Neonates',
+            'Post Asphyxia',
+            'Sepsis in Neonates',
+            'Kangaroo Mother Care',
+            'Antenatal Corticosteroids for Preterm Birth',
+            'Retinopathy of Prematurity (ROP)',
+          ]);
       for (final c in remaining) {
         expect(find.byKey(ValueKey('next-stw-${c.name}')), findsOneWidget,
             reason: c.name);

@@ -329,7 +329,14 @@ class WorkflowScreen extends ConsumerWidget {
                           const AssessmentSummaryView(),
                         ] else
                           _QuestionPage(group: group),
-                        const DisclaimerFooter(),
+                        DisclaimerFooter(
+                          sourceVersion: ctx.selected
+                                  .contains(NeonatalCondition.fluidsAndFeeds)
+                              ? ctx.selected.length == 1
+                                  ? 'Oct 2026'
+                                  : 'Aug / Oct 2026'
+                              : 'Aug 2026',
+                        ),
                       ],
                     ),
                   ),
@@ -799,7 +806,7 @@ class _QuestionPage extends ConsumerWidget {
                 tone: Tone.info,
                 text: 'Answered once and used by: '
                     '${[
-                  for (final c in NeonatalCondition.values)
+                  for (final c in conditionDisplayOrder)
                     if (sharedBy.contains(c)) definitionOf(c).title,
                 ].join(' · ')}',
               ),
@@ -811,7 +818,7 @@ class _QuestionPage extends ConsumerWidget {
               spacing: 8,
               runSpacing: 6,
               children: [
-                for (final c in NeonatalCondition.values)
+                for (final c in conditionDisplayOrder)
                   if (ctx.selected.contains(c))
                     if (stwPdfFor(c) case final pdf?)
                       Builder(

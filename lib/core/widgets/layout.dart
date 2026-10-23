@@ -221,7 +221,8 @@ class ResultCard extends StatelessWidget {
             if (why.isNotEmpty) ...[
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.65),
                   borderRadius: BorderRadius.circular(8),
@@ -309,7 +310,13 @@ class StatusChip extends StatelessWidget {
     final bg = tone.background();
     return Chip(
       avatar: Icon(tone.icon, size: 16, color: fg),
-      label: Text(label),
+      // Chip labels are single-line by default; long labels wrap instead.
+      label: Text(
+        label,
+        softWrap: true,
+        maxLines: 3,
+        overflow: TextOverflow.visible,
+      ),
       labelStyle: TextStyle(
         color: fg,
         fontWeight: FontWeight.w700,
@@ -324,14 +331,16 @@ class StatusChip extends StatelessWidget {
 }
 
 class DisclaimerFooter extends StatelessWidget {
-  const DisclaimerFooter({super.key});
+  const DisclaimerFooter({super.key, this.sourceVersion = 'Aug 2026'});
+
+  final String sourceVersion;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Text(
-        'Based on ICMR/DHR Standard Treatment Workflows (Aug 2026). '
+        'Based on ICMR/DHR Standard Treatment Workflows ($sourceVersion). '
         'Advisory only — management of an individual patient is decided by '
         'the treating physician.',
         textAlign: TextAlign.center,
@@ -442,8 +451,6 @@ class RecommendationBar extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: fg,
                           fontWeight: FontWeight.w700,

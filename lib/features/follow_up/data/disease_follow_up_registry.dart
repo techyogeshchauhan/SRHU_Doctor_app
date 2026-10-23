@@ -2,6 +2,7 @@ import '../../condition_selection/domain/neonatal_condition.dart';
 import '../domain/follow_up_models.dart';
 import 'ancs_follow_up_data.dart';
 import 'hypo_follow_up_data.dart';
+import 'rd_follow_up_data.dart';
 import 'rop_follow_up_data.dart';
 
 /// Package containing follow-up MCQs and bedside clinical case scenarios for a disease.
@@ -58,10 +59,24 @@ class DiseaseFollowUpPackage {
 /// Registry mapping each disease to its official ICMR/DHR STW follow-up question package.
 ///
 /// Designed to support disease-specific question sets in the future.
-/// MCQs and case scenarios are provided for ROP, ANCS and Neonatal
-/// Hypoglycemia.
-/// When MCQs for Respiratory Distress or other conditions are added, register them here.
+/// MCQs and case scenarios are provided for Respiratory Distress, ROP, ANCS
+/// and Neonatal Hypoglycemia.
 const Map<NeonatalCondition, DiseaseFollowUpPackage> diseaseFollowUpRegistry = {
+  NeonatalCondition.respiratoryDistress: DiseaseFollowUpPackage(
+    condition: NeonatalCondition.respiratoryDistress,
+    title: 'Respiratory Distress in Neonates',
+    subtitle:
+        '10 MCQs and 10 clinical case scenarios from the supplied MCQs RD document.',
+    mcqs: rdFollowUpMcqs,
+    caseScenarios: rdFollowUpCaseScenarios,
+    shortName: 'Respiratory Distress',
+    introDescription:
+        'Review neonatal respiratory distress using the questions, answers and explanations in the supplied MCQs RD document.',
+    mcqTopics:
+        'Diagnosis, oxygen targets, CPAP initiation, surfactant, investigations, Silverman–Andersen Score, caffeine, gestational age, reassessment and weaning.',
+    caseTopics:
+        'Clinical scenarios covering initial support, escalation, surfactant, CPAP troubleshooting, sepsis, feeding, severity scoring and immediate stabilization.',
+  ),
   NeonatalCondition.rop: DiseaseFollowUpPackage(
     condition: NeonatalCondition.rop,
     title: 'Retinopathy of Prematurity (ROP)',

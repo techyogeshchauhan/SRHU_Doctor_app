@@ -52,108 +52,128 @@ class SasCalculator extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: const Color(0xFFCBD5E1), width: 1),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Big Score Display
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
+          child: LayoutBuilder(builder: (context, constraints) {
+            // Narrow cards: the severity chip moves under the score so it
+            // is not squeezed between the score and the action buttons.
+            final narrow = constraints.maxWidth < 300;
+            final status = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StatusChip(
+                  tone: severityTone(severity),
+                  label: severity == null
+                      ? '${score.gradedCount}/5 graded'
+                      : '${severity.label} RD',
+                ),
+                if (trend != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    trend,
+                    style: text.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF334155),
                     ),
-                    child: RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '${score.total}',
-                            style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                              color: AppTheme.primaryTeal,
+                  ),
+                ],
+              ],
+            );
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Big Score Display (scales down rather than overflow)
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          // Text.rich (not RichText) so the app font applies.
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '${score.total}',
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.primaryTeal,
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text: ' / 10',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const TextSpan(
-                            text: ' / 10',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF64748B),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  // Severity & Trend
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        StatusChip(
-                          tone: severityTone(severity),
-                          label: severity == null
-                              ? '${score.gradedCount}/5 graded'
-                              : '${severity.label} RD',
-                        ),
-                        if (trend != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            trend,
-                            style: text.bodySmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF334155),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  // Actions: Chart and Clear
-                  Semantics(
-                    button: true,
-                    label: 'Show Silverman-Andersen score chart',
-                    child: IconButton(
-                      tooltip: 'Show SAS chart',
-                      icon: const Icon(Icons.image_outlined, color: AppTheme.primaryTeal),
-                      onPressed: () => showSasChart(context),
-                    ),
-                  ),
-                  if (onClear != null)
+                    const SizedBox(width: 14),
+                    const SizedBox(width: 14),
+                    // Severity & Trend (own line on narrow cards)
+                    if (narrow) const Spacer() else Expanded(child: status),
+                    // Actions: Chart and Clear
                     Semantics(
                       button: true,
-                      label: 'Clear Silverman-Andersen score',
+                      label: 'Show Silverman-Andersen score chart',
                       child: IconButton(
-                        tooltip: 'Clear SAS',
-                        icon: const Icon(Icons.clear_all, color: Color(0xFF64748B)),
-                        onPressed: score.gradedCount == 0 ? null : onClear,
+                        tooltip: 'Show SAS chart',
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.image_outlined,
+                            color: AppTheme.primaryTeal),
+                        onPressed: () => showSasChart(context),
                       ),
                     ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Mild ≤3 · Moderate–severe ≥4',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF64748B),
+                    if (onClear != null)
+                      Semantics(
+                        button: true,
+                        label: 'Clear Silverman-Andersen score',
+                        child: IconButton(
+                          tooltip: 'Clear SAS',
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.clear_all,
+                              color: Color(0xFF64748B)),
+                          onPressed: score.gradedCount == 0 ? null : onClear,
+                        ),
+                      ),
+                  ],
                 ),
-              ),
-            ],
-          ),
+                if (narrow) ...[
+                  const SizedBox(height: 8),
+                  Align(alignment: Alignment.centerLeft, child: status),
+                ],
+                const SizedBox(height: 8),
+                const Text(
+                  'Mild ≤3 · Moderate–severe ≥4',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            );
+          }),
         ),
         const SizedBox(height: 16),
         // Item Radio Groups
@@ -173,7 +193,8 @@ class SasCalculator extends StatelessWidget {
                 ),
                 if (score.gradeOf(item) != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(6),

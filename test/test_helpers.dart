@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neonatal_stw/core/widgets/inputs.dart';
 
 /// Scrolls [f] into view (when inside a scrollable), then taps it.
 Future<void> tapVisible(WidgetTester tester, Finder f) async {
@@ -31,4 +32,18 @@ Future<void> goToHome(WidgetTester tester) async {
   final element = tester.element(find.byType(Navigator).first);
   GoRouter.of(element).go('/home');
   await tester.pumpAndSettle();
+}
+
+/// The text field labelled [label]: by its floating label, or by the label
+/// [AdaptiveLabelField] shows above the field when it does not fit inside.
+Finder fieldLabeled(String label) {
+  final inside = find.widgetWithText(TextField, label);
+  if (inside.evaluate().isNotEmpty) return inside;
+  return find.descendant(
+    of: find
+        .ancestor(
+            of: find.text(label), matching: find.byType(AdaptiveLabelField))
+        .first,
+    matching: find.byType(TextField),
+  );
 }

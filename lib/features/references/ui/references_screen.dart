@@ -10,6 +10,8 @@ import '../../../shared/pdf_navigation.dart';
 import '../../../shared/stw_disclaimer.dart';
 import '../../ancs/domain/ancs_content.dart';
 import '../../hypoglycemia/domain/hypo_content.dart';
+import '../../feeding/domain/feeding_content.dart';
+import '../../post_asphyxia/domain/post_asphyxia_content.dart';
 
 const triageReferences = [
   'MoHFW, Government of India. Facility Based Newborn Care: Training '
@@ -101,7 +103,49 @@ class ReferencesScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // 1. Respiratory Distress Card
+              // Neonatal emergency triage
+              _PdfWorkflowCard(
+                title: triageTitle,
+                subtitle: triageSubtitle,
+                accentColor: AppTheme.accentRd,
+                semanticsLabel: 'Open Neonatal Emergency Triage STW PDF',
+                mapFocus: 'triage',
+                onViewPdf: () => _openPdf(
+                  context,
+                  assetPath: triagePdfAsset,
+                  title: triageTitle,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              _PdfWorkflowCard(
+                title: feedingPdfTitle,
+                subtitle:
+                    'Standard Treatment Workflow ? ICMR / DHR ? October 2026',
+                accentColor: AppTheme.primaryTeal,
+                semanticsLabel: 'Open Feeding and Nutrition STW PDF',
+                mapFocus: 'fluidsAndFeeds',
+                onViewPdf: () => _openPdf(context,
+                    assetPath: feedingPdfAsset, title: feedingPdfTitle),
+              ),
+              const SizedBox(height: 12),
+
+              // Neonatal Hypoglycemia Card
+              _PdfWorkflowCard(
+                title: hypoPdfTitle,
+                subtitle: hypoSubtitle,
+                accentColor: _accentHypo,
+                semanticsLabel: 'Open Neonatal Hypoglycemia STW PDF',
+                mapFocus: 'hypoglycemia',
+                onViewPdf: () => _openPdf(
+                  context,
+                  assetPath: hypoPdfAsset,
+                  title: hypoPdfTitle,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Respiratory Distress Card
               _PdfWorkflowCard(
                 title: rdTitle,
                 subtitle: rdSubtitle,
@@ -116,22 +160,46 @@ class ReferencesScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // 2. Retinopathy of Prematurity Card
               _PdfWorkflowCard(
-                title: ropTitle,
-                subtitle: ropSubtitle,
-                accentColor: AppTheme.accentRop,
-                semanticsLabel: 'Open Retinopathy of Prematurity STW PDF',
-                mapFocus: 'rop',
+                title: postAsphyxiaPdfTitle,
+                subtitle:
+                    'Standard Treatment Workflow - ICD-11 KB21 - ICMR / DHR - August 2026',
+                accentColor: AppTheme.primaryTeal,
+                semanticsLabel: 'Open Post Asphyxia STW PDF',
+                mapFocus: 'hie',
+                onViewPdf: () => _openPdf(context,
+                    assetPath: postAsphyxiaPdfAsset,
+                    title: postAsphyxiaPdfTitle),
+              ),
+              const SizedBox(height: 20),
+              _PdfWorkflowCard(
+                title: sepsisPdfTitle,
+                subtitle:
+                    'Standard Treatment Workflow · ICD-10-P36 · ICMR / DHR · August 2026',
+                accentColor: AppTheme.primaryTeal,
+                semanticsLabel: 'Open Sepsis STW PDF',
+                mapFocus: 'sepsis',
+                onViewPdf: () => _openPdf(context,
+                    assetPath: sepsisPdfAsset, title: sepsisPdfTitle),
+              ),
+              const SizedBox(height: 20),
+
+              // Kangaroo Mother Care
+              _PdfWorkflowCard(
+                title: kmcTitle,
+                subtitle: kmcSubtitle,
+                accentColor: AppTheme.primaryTeal,
+                semanticsLabel: 'Open Kangaroo Mother Care STW PDF',
+                mapFocus: 'kmc',
                 onViewPdf: () => _openPdf(
                   context,
-                  assetPath: ropAsset,
-                  title: ropTitle,
+                  assetPath: kmcPdfAsset,
+                  title: kmcTitle,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
 
-              // 3. Antenatal Corticosteroids Card
+              // Antenatal Corticosteroids Card
               _PdfWorkflowCard(
                 title: ancsPdfTitle,
                 subtitle: ancsSubtitle,
@@ -147,62 +215,20 @@ class ReferencesScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // 4. Neonatal Hypoglycemia Card
+              // Retinopathy of Prematurity Card
               _PdfWorkflowCard(
-                title: hypoPdfTitle,
-                subtitle: hypoSubtitle,
-                accentColor: _accentHypo,
-                semanticsLabel: 'Open Neonatal Hypoglycemia STW PDF',
-                mapFocus: 'hypoglycemia',
+                title: ropTitle,
+                subtitle: ropSubtitle,
+                accentColor: AppTheme.accentRop,
+                semanticsLabel: 'Open Retinopathy of Prematurity STW PDF',
+                mapFocus: 'rop',
                 onViewPdf: () => _openPdf(
                   context,
-                  assetPath: hypoPdfAsset,
-                  title: hypoPdfTitle,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // 5. Neonatal emergency triage
-              _PdfWorkflowCard(
-                title: triageTitle,
-                subtitle: triageSubtitle,
-                accentColor: AppTheme.accentRd,
-                semanticsLabel: 'Open Neonatal Emergency Triage STW PDF',
-                mapFocus: 'triage',
-                onViewPdf: () => _openPdf(
-                  context,
-                  assetPath: triagePdfAsset,
-                  title: triageTitle,
+                  assetPath: ropAsset,
+                  title: ropTitle,
                 ),
               ),
               const SizedBox(height: 12),
-
-              // 6. Kangaroo Mother Care
-              _PdfWorkflowCard(
-                title: kmcTitle,
-                subtitle: kmcSubtitle,
-                accentColor: AppTheme.primaryTeal,
-                semanticsLabel: 'Open Kangaroo Mother Care STW PDF',
-                mapFocus: 'kmc',
-                onViewPdf: () => _openPdf(
-                  context,
-                  assetPath: kmcPdfAsset,
-                  title: kmcTitle,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              _PdfWorkflowCard(
-                title: sepsisPdfTitle,
-                subtitle:
-                    'Standard Treatment Workflow · ICD-10-P36 · ICMR / DHR · August 2026',
-                accentColor: AppTheme.primaryTeal,
-                semanticsLabel: 'Open Sepsis STW PDF',
-                mapFocus: 'sepsis',
-                onViewPdf: () => _openPdf(context,
-                    assetPath: sepsisPdfAsset, title: sepsisPdfTitle),
-              ),
-              const SizedBox(height: 20),
 
               // Sources cited in the STWs
               Card(
@@ -288,6 +314,20 @@ class ReferencesScreen extends StatelessWidget {
                         ),
                       ),
                       for (final (title, color, refs) in [
+                        (
+                          feedingPdfTitle,
+                          AppTheme.primaryTeal,
+                          feedingEvidence['feeding_references']!
+                              .skip(1)
+                              .toList()
+                        ),
+                        (
+                          postAsphyxiaPdfTitle,
+                          AppTheme.primaryTeal,
+                          postAsphyxiaEvidence['post_asphyxia_references']!
+                              .skip(1)
+                              .toList()
+                        ),
                         (ancsPdfTitle, _accentAncs, ancsReferences),
                         (hypoPdfTitle, _accentHypo, hypoReferences),
                         (triageTitle, AppTheme.accentRd, triageReferences),

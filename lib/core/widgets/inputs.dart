@@ -40,6 +40,76 @@ class CheckList<T> extends StatelessWidget {
   }
 }
 
+/// Placeholder for a field whose label is shown above it ([floatingLabel]
+/// null): a hint that only repeats the label ("Enter <label>") is dropped,
+/// as the label already says it and the hint would be cut short.
+String? placeholderFor(String? hint, String label, String? floatingLabel) {
+  if (hint == null || floatingLabel != null) return hint;
+  final bare = label.replaceAll('*', '').trim().toLowerCase();
+  return hint.toLowerCase().contains(bare) ? null : hint;
+}
+
+/// Shows [label] as the field's floating label when it fits on one line, or
+/// as wrapping text above the field so long questions are never cut short
+/// on narrow screens. [builder] receives the floating label, or null when
+/// the label is shown above.
+class AdaptiveLabelField extends StatelessWidget {
+  const AdaptiveLabelField({
+    super.key,
+    required this.label,
+    required this.builder,
+    this.trailingWidth = 0,
+  });
+
+  final String label;
+  final Widget Function(String? floatingLabel) builder;
+
+  /// Further width reserved at the end of the field (e.g. an icon).
+  final double trailingWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final theme = Theme.of(context);
+      final style = theme.textTheme.bodyLarge
+          ?.merge(theme.inputDecorationTheme.labelStyle);
+      double widthOf(String text) {
+        final painter = TextPainter(
+          text: TextSpan(text: text, style: style),
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+          maxLines: 1,
+        )..layout();
+        final width = painter.width;
+        painter.dispose();
+        return width;
+      }
+
+      // Content padding (14 + 14) plus border. Suffix text only appears
+      // once the label has floated (at 75% size), so it is not reserved.
+      final available = constraints.maxWidth - 32 - trailingWidth;
+      if (!constraints.hasBoundedWidth || widthOf(label) <= available) {
+        return builder(label);
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: AppTheme.primaryNavy,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          builder(null),
+        ],
+      );
+    });
+  }
+}
+
 /// Integer field with range validation. Reports `null` while empty/invalid.
 class NumberField extends StatefulWidget {
   const NumberField({
@@ -105,24 +175,31 @@ class _NumberFieldState extends State<NumberField> {
 
   @override
   Widget build(BuildContext context) {
-    final field = TextField(
-      controller: _controller,
-      enabled: widget.enabled,
-      keyboardType: TextInputType.number,
-      inputFormatters: [
-        TextInputFormatter.withFunction((oldValue, newValue) =>
-            RegExp(r'^\d*$').hasMatch(newValue.text) ? newValue : oldValue),
-      ],
-      decoration: InputDecoration(
-        labelText: widget.label,
-        hintText: _controller.text.isEmpty ? widget.hintText : null,
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-        suffixText: widget.suffix,
-        helperText: widget.helper,
-        helperMaxLines: 2,
-        errorText: _error,
+    final field = AdaptiveLabelField(
+      label: widget.label,
+      builder: (label) => TextField(
+        controller: _controller,
+        enabled: widget.enabled,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          TextInputFormatter.withFunction((oldValue, newValue) =>
+              RegExp(r'^\d*$').hasMatch(newValue.text) ? newValue : oldValue),
+        ],
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: _controller.text.isEmpty
+              ? placeholderFor(widget.hintText, widget.label, label)
+              : null,
+          hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+          hintMaxLines: 2,
+          suffixText: widget.suffix,
+          helperText: widget.helper,
+          helperMaxLines: 5,
+          errorText: _error,
+          errorMaxLines: 2,
+        ),
+        onChanged: _onChanged,
       ),
-      onChanged: _onChanged,
     );
     final hint = widget.rangeHint;
     if (hint == null) return field;
@@ -231,25 +308,32 @@ class _DecimalNumberFieldState extends State<DecimalNumberField> {
 
   @override
   Widget build(BuildContext context) {
-    final field = TextField(
-      controller: _controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        TextInputFormatter.withFunction((oldValue, newValue) =>
-            RegExp(r'^\d*\.?\d*$').hasMatch(newValue.text)
-                ? newValue
-                : oldValue),
-      ],
-      decoration: InputDecoration(
-        labelText: widget.label,
-        hintText: _controller.text.isEmpty ? widget.hintText : null,
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-        suffixText: widget.suffix,
-        helperText: widget.helper,
-        helperMaxLines: 2,
-        errorText: _error,
+    final field = AdaptiveLabelField(
+      label: widget.label,
+      builder: (label) => TextField(
+        controller: _controller,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          TextInputFormatter.withFunction((oldValue, newValue) =>
+              RegExp(r'^\d*\.?\d*$').hasMatch(newValue.text)
+                  ? newValue
+                  : oldValue),
+        ],
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: _controller.text.isEmpty
+              ? placeholderFor(widget.hintText, widget.label, label)
+              : null,
+          hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+          hintMaxLines: 2,
+          suffixText: widget.suffix,
+          helperText: widget.helper,
+          helperMaxLines: 5,
+          errorText: _error,
+          errorMaxLines: 2,
+        ),
+        onChanged: _onChanged,
       ),
-      onChanged: _onChanged,
     );
     final hint = widget.rangeHint;
     if (hint == null) return field;
@@ -373,13 +457,19 @@ class DateField extends StatelessWidget {
         );
         if (picked != null) onChanged(picked);
       },
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          helperText: helper,
-          suffixIcon: const Icon(Icons.calendar_today_outlined),
+      child: AdaptiveLabelField(
+        label: label,
+        trailingWidth: 48,
+        builder: (floatingLabel) => InputDecorator(
+          decoration: InputDecoration(
+            labelText: floatingLabel,
+            helperText: helper,
+            helperMaxLines: 5,
+            suffixIcon: const Icon(Icons.calendar_today_outlined),
+          ),
+          child:
+              Text(value == null ? 'Select date' : dateFormat.format(value!)),
         ),
-        child: Text(value == null ? 'Select date' : dateFormat.format(value!)),
       ),
     );
   }

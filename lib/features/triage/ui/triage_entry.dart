@@ -73,14 +73,25 @@ class TriageEntryCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Neonatal Emergency Triage',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryNavy,
-                  ),
+                const Row(
+                  children: [
+                    Icon(Icons.circle,
+                        key: ValueKey('stw-availability-triage'),
+                        size: 8,
+                        color: Color(0xFF16A34A)),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Neonatal Emergency Triage',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryNavy,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 2),
                 const Text(

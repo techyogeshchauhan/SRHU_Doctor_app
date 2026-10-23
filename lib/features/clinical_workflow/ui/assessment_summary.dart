@@ -210,7 +210,7 @@ class AssessmentSummaryView extends ConsumerWidget {
                 children: [
                   for (final t in summary.topics)
                     StatusChip(
-                      tone: t.available ? Tone.success : Tone.info,
+                      tone: t.available ? Tone.success : Tone.danger,
                       label: t.title,
                     ),
                 ],
@@ -244,7 +244,7 @@ class AssessmentSummaryView extends ConsumerWidget {
               children: [
                 Expanded(child: Text(t.title, style: heading)),
                 StatusChip(
-                  tone: t.available ? Tone.success : Tone.info,
+                  tone: t.available ? Tone.success : Tone.danger,
                   label: definitionOf(t.topic).status.label,
                 ),
               ],

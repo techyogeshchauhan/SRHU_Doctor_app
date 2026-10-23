@@ -11653,5 +11653,3335 @@
         ]
       }
     ]
+  },
+  {
+    "id": "feeding_stability",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "ASSESS PHYSIOLOGICAL STABILITY FOR ENTERAL FEEDING",
+    "section": "ASSESS PHYSIOLOGICAL STABILITY FOR ENTERAL FEEDING",
+    "type": "text",
+    "text": "ASSESS PHYSIOLOGICAL STABILITY FOR ENTERAL FEEDING\nLOOK FOR: Shock / poor perfusion • Recurrent apnoea requiring intervention / respiratory failure • Ongoing seizures with physiological instability • Severe hypothermia • Concerning abdominal signs: bilious vomiting, bloody stools, marked or progressive distension, tenderness or discoloration",
+    "aliases": [
+      "assess physiological stability for enteral feeding"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "signs",
+      "contraindication"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.108344,
+    "w": 0.947867,
+    "h": 0.045297,
+    "crop_image": "assets/regions/crops/feeding_stability.webp",
+    "segments": [
+      {
+        "text": "LOOK FOR: Shock / poor perfusion • Recurrent apnoea requiring intervention / respiratory failure • Ongoing seizures with physiological instability • Severe hypothermia • Concerning abdominal signs: bilious vomiting, bloody stools, marked or progressive distension, tenderness or discoloration",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.12616,
+            "width": 0.912739,
+            "height": 0.021484
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_unstable",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "UNSTABLE / CONTRAINDICATION PRESENT",
+    "section": "UNSTABLE / CONTRAINDICATION PRESENT",
+    "type": "text",
+    "text": "UNSTABLE / CONTRAINDICATION PRESENT\nStabilize and treat the cause\nStart appropriate IV fluids\nReassess clinical stability and readiness to start enteral feeds",
+    "aliases": [
+      "unstable / contraindication present"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "contraindication"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.164047,
+    "w": 0.463243,
+    "h": 0.04346,
+    "crop_image": "assets/regions/crops/feeding_unstable.webp",
+    "segments": [
+      {
+        "text": "Stabilize and treat the cause",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.182333,
+            "width": 0.162898,
+            "height": 0.00638
+          }
+        ]
+      },
+      {
+        "text": "Start appropriate IV fluids",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.189321,
+            "width": 0.14736,
+            "height": 0.00638
+          }
+        ]
+      },
+      {
+        "text": "Reassess clinical stability and readiness to start enteral feeds",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.196309,
+            "width": 0.347958,
+            "height": 0.00638
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_stable",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "STABLE / NO FEEDING CONTRAINDICATION",
+    "section": "STABLE / NO FEEDING CONTRAINDICATION",
+    "type": "text",
+    "text": "STABLE / NO FEEDING CONTRAINDICATION\nStart / continue enteral feeds at the earliest\nContinue the tolerated feed volume in referred babies\nChoose route by gestational maturity and clinical status",
+    "aliases": [
+      "stable / no feeding contraindication"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "timing"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.510756,
+    "y": 0.164047,
+    "w": 0.463243,
+    "h": 0.04346,
+    "crop_image": "assets/regions/crops/feeding_stable.webp",
+    "segments": [
+      {
+        "text": "Start / continue enteral feeds at the earliest",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.182328,
+            "width": 0.240761,
+            "height": 0.006178
+          }
+        ]
+      },
+      {
+        "text": "Continue the tolerated feed volume in referred babies",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.189113,
+            "width": 0.29976,
+            "height": 0.006178
+          }
+        ]
+      },
+      {
+        "text": "Choose route by gestational maturity and clinical status",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.195897,
+            "width": 0.309923,
+            "height": 0.006178
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_fluids",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "TOTAL DAILY FLUID REQUIREMENT",
+    "section": "TOTAL DAILY FLUID REQUIREMENT",
+    "type": "text",
+    "text": "TOTAL DAILY FLUID REQUIREMENT\nENTERAL + IV + OTHER FLUID INPUTS. Starting guide (mL/kg/day): Use day of life (D), not day of admission\nBW <1000 g OR GA <28 wk: D1 80; D2 90; D3 100; D4 120; D5 140; D6 150; D7 150–160\nBW ≥1000 g AND GA ≥28 wk: D1 60; D2 80; D3 100; D4 120; D5 140; D6 150; D7 150–160",
+    "aliases": [
+      "total daily fluid requirement"
+    ],
+    "example_questions": [],
+    "intents": [
+      "dose",
+      "schedule",
+      "management"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.219749,
+    "w": 0.463243,
+    "h": 0.065496,
+    "crop_image": "assets/regions/crops/feeding_fluids.webp",
+    "segments": [
+      {
+        "text": "ENTERAL + IV + OTHER FLUID INPUTS. Starting guide (mL/kg/day): Use day of life (D), not day of admission",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.238516,
+            "width": 0.365168,
+            "height": 0.012142
+          }
+        ]
+      },
+      {
+        "text": "BW <1000 g OR GA <28 wk: D1 80; D2 90; D3 100; D4 120; D5 140; D6 150; D7 150–160",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.254477,
+            "width": 0.427904,
+            "height": 0.012601
+          }
+        ]
+      },
+      {
+        "text": "BW ≥1000 g AND GA ≥28 wk: D1 60; D2 80; D3 100; D4 120; D5 140; D6 150; D7 150–160",
+        "bounding_boxes": [
+          {
+            "x": 0.217594,
+            "y": 0.254477,
+            "width": 0.239539,
+            "height": 0.012601
+          },
+          {
+            "x": 0.040385,
+            "y": 0.273207,
+            "width": 0.427904,
+            "height": 0.00544
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_iv_type",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "Maintenance IV fluid type",
+    "section": "Maintenance IV fluid type",
+    "type": "text",
+    "text": "Maintenance IV fluid type\nFirst 48 h: 10% dextrose\nAfter 48 h: Review serum Na, urine output and weight change before adding sodium. N/5 in 10% dextrose is an option; adjust for IV volume and enteral intake\nKCl: usually 2 mmol/kg/day; review urine output, serum K and other K intake first",
+    "aliases": [
+      "maintenance iv fluid type"
+    ],
+    "example_questions": [],
+    "intents": [
+      "dose",
+      "timing",
+      "management"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.284633,
+    "w": 0.463243,
+    "h": 0.035503,
+    "crop_image": "assets/regions/crops/feeding_iv_type.webp",
+    "segments": [
+      {
+        "text": "First 48 h: 10% dextrose",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.291297,
+            "width": 0.114419,
+            "height": 0.005372
+          }
+        ]
+      },
+      {
+        "text": "After 48 h: Review serum Na, urine output and weight change before adding sodium. N/5 in 10% dextrose is an option; adjust for IV volume and enteral intake",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.296718,
+            "width": 0.432997,
+            "height": 0.010793
+          }
+        ]
+      },
+      {
+        "text": "KCl: usually 2 mmol/kg/day; review urine output, serum K and other K intake first",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.30756,
+            "width": 0.390464,
+            "height": 0.005372
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_iv_review",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "IV REVIEW → TRANSITION TO FEEDS",
+    "section": "IV REVIEW → TRANSITION TO FEEDS",
+    "type": "text",
+    "text": "IV REVIEW → TRANSITION TO FEEDS\nAdjust total fluids and electrolytes as per daily weight change, urine output, blood glucose and clinical status\nIV volume = total fluids − feeds − other fluid inputs\nStart feeds after stabilization; taper IV as feeds progress; maintain hydration / glucose",
+    "aliases": [
+      "iv review → transition to feeds"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "wean"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.331154,
+    "w": 0.463243,
+    "h": 0.042236,
+    "crop_image": "assets/regions/crops/feeding_iv_review.webp",
+    "segments": [
+      {
+        "text": "Adjust total fluids and electrolytes as per daily weight change, urine output, blood glucose and clinical status",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.347028,
+            "width": 0.400444,
+            "height": 0.010928
+          }
+        ]
+      },
+      {
+        "text": "IV volume = total fluids − feeds − other fluid inputs",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.358557,
+            "width": 0.253827,
+            "height": 0.00544
+          }
+        ]
+      },
+      {
+        "text": "Start feeds after stabilization; taper IV as feeds progress; maintain hydration / glucose",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.364596,
+            "width": 0.416858,
+            "height": 0.00544
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_milk",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "MILK SOURCE",
+    "section": "MILK SOURCE",
+    "type": "text",
+    "text": "MILK SOURCE\nPreferred milk, in order: Mother’s own milk (MOM) → Pasteurized donor human milk → Appropriate formula if human milk unavailable\nStart expression within 1 h of birth; repeat every 2–3 h\nUse LMU for expression support, safe collection, storage and timely provision of MOM\nColostrum care: Apply mother’s own colostrum to buccal mucosa every 2–4 h when oral feeding is not possible",
+    "aliases": [
+      "milk source"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "timing",
+      "schedule"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.510756,
+    "y": 0.219749,
+    "w": 0.463243,
+    "h": 0.07223,
+    "crop_image": "assets/regions/crops/feeding_milk.webp",
+    "segments": [
+      {
+        "text": "Preferred milk, in order: Mother’s own milk (MOM) → Pasteurized donor human milk → Appropriate formula if human milk unavailable",
+        "bounding_boxes": [
+          {
+            "x": 0.525009,
+            "y": 0.236872,
+            "width": 0.421192,
+            "height": 0.019254
+          }
+        ]
+      },
+      {
+        "text": "Start expression within 1 h of birth; repeat every 2–3 h",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.257243,
+            "width": 0.282055,
+            "height": 0.00591
+          }
+        ]
+      },
+      {
+        "text": "Use LMU for expression support, safe collection, storage and timely provision of MOM",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.263757,
+            "width": 0.420312,
+            "height": 0.011873
+          }
+        ]
+      },
+      {
+        "text": "Colostrum care: Apply mother’s own colostrum to buccal mucosa every 2–4 h when oral feeding is not possible",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.276234,
+            "width": 0.412671,
+            "height": 0.011873
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_route",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "ROUTE OF FEEDING",
+    "section": "ROUTE OF FEEDING",
+    "type": "text",
+    "text": "ROUTE OF FEEDING\n<32 weeks: Orogastric (OG) tube feeds; encourage non-nutritive suckling at the expressed breast when stable\n32 to <34 weeks: Spoon/paladai feeds; offer breast\n≥34 weeks: Direct breastfeeding; supplement by spoon/paladai if intake is inadequate\nGestation/PMA is a guide. Use OG feeds if breastfeeding or spoon/paladai feeding causes coughing, choking, apnoea/desaturation, excessive fatigue or inadequate intake.",
+    "aliases": [
+      "route of feeding"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "procedure",
+      "management"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.510756,
+    "y": 0.299324,
+    "w": 0.463243,
+    "h": 0.07223,
+    "crop_image": "assets/regions/crops/feeding_route.webp",
+    "segments": [
+      {
+        "text": "<32 weeks: Orogastric (OG) tube feeds; encourage non-nutritive suckling at the expressed breast when stable",
+        "bounding_boxes": [
+          {
+            "x": 0.525009,
+            "y": 0.316195,
+            "width": 0.398557,
+            "height": 0.012277
+          }
+        ]
+      },
+      {
+        "text": "32 to <34 weeks: Spoon/paladai feeds; offer breast",
+        "bounding_boxes": [
+          {
+            "x": 0.525009,
+            "y": 0.331621,
+            "width": 0.292121,
+            "height": 0.006111
+          }
+        ]
+      },
+      {
+        "text": "≥34 weeks: Direct breastfeeding; supplement by spoon/paladai if intake is inadequate",
+        "bounding_boxes": [
+          {
+            "x": 0.525009,
+            "y": 0.342639,
+            "width": 0.404383,
+            "height": 0.012277
+          }
+        ]
+      },
+      {
+        "text": "Gestation/PMA is a guide. Use OG feeds if breastfeeding or spoon/paladai feeding causes coughing, choking, apnoea/desaturation, excessive fatigue or inadequate intake.",
+        "bounding_boxes": [
+          {
+            "x": 0.525009,
+            "y": 0.35749,
+            "width": 0.417753,
+            "height": 0.010523
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_standard",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "STANDARD START",
+    "section": "STANDARD START",
+    "type": "text",
+    "text": "STANDARD START\nSTANDARD START. APPLIES TO: GA ≥28 wk AND BW ≥1000 g, without antenatal AEDF/REDF; GA ≥35 wk, including antenatal AEDF/REDF†. Start time*: As soon as possible after birth. Start volume: 60 mL/kg/day. Advance daily as tolerated: 20–30 mL/kg/day. If BW <1000 g, use the third column irrespective of gestation. *Start once clinically stable, with reassuring abdominal assessment. †At ≥35 wk, AEDF/REDF alone does not require restricted feeds or IV fluids; individualize by clinical and abdominal assessment.",
+    "aliases": [
+      "standard start"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "dose",
+      "timing"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.383184,
+    "w": 0.947867,
+    "h": 0.121811,
+    "crop_image": "assets/regions/crops/feeding_standard.webp",
+    "segments": [
+      {
+        "text": "STANDARD START. APPLIES TO: GA ≥28 wk AND BW ≥1000 g, without antenatal AEDF/REDF; GA ≥35 wk, including antenatal AEDF/REDF†. Start time*: As soon as possible after birth. Start volume: 60 mL/kg/day. Advance daily as tolerated: 20–30 mL/kg/day. If BW <1000 g, use the third column irrespective of gestation. *Start once clinically stable, with reassuring abdominal assessment. †At ≥35 wk, AEDF/REDF alone does not require restricted feeds or IV fluids; individualize by clinical and abdominal assessment.",
+        "bounding_boxes": [
+          {
+            "x": 0.226243,
+            "y": 0.398264,
+            "width": 0.093903,
+            "height": 0.005507
+          },
+          {
+            "x": 0.153227,
+            "y": 0.408179,
+            "width": 0.230591,
+            "height": 0.00544
+          },
+          {
+            "x": 0.033259,
+            "y": 0.413667,
+            "width": 0.178398,
+            "height": 0.005529
+          },
+          {
+            "x": 0.153227,
+            "y": 0.419707,
+            "width": 0.217872,
+            "height": 0.00544
+          },
+          {
+            "x": 0.033259,
+            "y": 0.434633,
+            "width": 0.05879,
+            "height": 0.005843
+          },
+          {
+            "x": 0.1895,
+            "y": 0.435965,
+            "width": 0.167389,
+            "height": 0.006245
+          },
+          {
+            "x": 0.234245,
+            "y": 0.449738,
+            "width": 0.0779,
+            "height": 0.006245
+          },
+          {
+            "x": 0.033259,
+            "y": 0.450058,
+            "width": 0.069857,
+            "height": 0.005843
+          },
+          {
+            "x": 0.033259,
+            "y": 0.459402,
+            "width": 0.065727,
+            "height": 0.005037
+          },
+          {
+            "x": 0.224877,
+            "y": 0.461858,
+            "width": 0.096635,
+            "height": 0.006245
+          },
+          {
+            "x": 0.033259,
+            "y": 0.464484,
+            "width": 0.572387,
+            "height": 0.023136
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_aedf",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "CAUTIOUS START: AEDF/REDF",
+    "section": "CAUTIOUS START: AEDF/REDF",
+    "type": "text",
+    "text": "CAUTIOUS START: AEDF/REDF\nCAUTIOUS START: AEDF/REDF. APPLIES TO: GA 28–34⁶ wk AND BW ≥1000 g, with antenatal AEDF/REDF. Start time*: As soon as stable; aim by 12 h. Start volume: 20 mL/kg/day. Advance daily as tolerated: 20–30 mL/kg/day. If BW <1000 g, use the third column irrespective of gestation. *Start once clinically stable, with reassuring abdominal assessment. †At ≥35 wk, AEDF/REDF alone does not require restricted feeds or IV fluids; individualize by clinical and abdominal assessment.",
+    "aliases": [
+      "cautious start: aedf/redf"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "dose",
+      "timing"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.383184,
+    "w": 0.947867,
+    "h": 0.121811,
+    "crop_image": "assets/regions/crops/feeding_aedf.webp",
+    "segments": [
+      {
+        "text": "CAUTIOUS START: AEDF/REDF. APPLIES TO: GA 28–34⁶ wk AND BW ≥1000 g, with antenatal AEDF/REDF. Start time*: As soon as stable; aim by 12 h. Start volume: 20 mL/kg/day. Advance daily as tolerated: 20–30 mL/kg/day. If BW <1000 g, use the third column irrespective of gestation. *Start once clinically stable, with reassuring abdominal assessment. †At ≥35 wk, AEDF/REDF alone does not require restricted feeds or IV fluids; individualize by clinical and abdominal assessment.",
+        "bounding_boxes": [
+          {
+            "x": 0.476269,
+            "y": 0.398264,
+            "width": 0.154496,
+            "height": 0.005507
+          },
+          {
+            "x": 0.469056,
+            "y": 0.412042,
+            "width": 0.162995,
+            "height": 0.005708
+          },
+          {
+            "x": 0.033259,
+            "y": 0.413689,
+            "width": 0.060544,
+            "height": 0.005507
+          },
+          {
+            "x": 0.484059,
+            "y": 0.417802,
+            "width": 0.138915,
+            "height": 0.005708
+          },
+          {
+            "x": 0.033259,
+            "y": 0.434633,
+            "width": 0.05879,
+            "height": 0.005843
+          },
+          {
+            "x": 0.471882,
+            "y": 0.435965,
+            "width": 0.163268,
+            "height": 0.006245
+          },
+          {
+            "x": 0.514804,
+            "y": 0.449738,
+            "width": 0.077425,
+            "height": 0.006245
+          },
+          {
+            "x": 0.033259,
+            "y": 0.450058,
+            "width": 0.069857,
+            "height": 0.005843
+          },
+          {
+            "x": 0.033259,
+            "y": 0.459402,
+            "width": 0.065727,
+            "height": 0.005037
+          },
+          {
+            "x": 0.505199,
+            "y": 0.461858,
+            "width": 0.096635,
+            "height": 0.006245
+          },
+          {
+            "x": 0.033259,
+            "y": 0.464484,
+            "width": 0.572387,
+            "height": 0.023136
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_small",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "CAUTIOUS START: VERY SMALL INFANTS",
+    "section": "CAUTIOUS START: VERY SMALL INFANTS",
+    "type": "text",
+    "text": "CAUTIOUS START: VERY SMALL INFANTS\nCAUTIOUS START: VERY SMALL INFANTS. APPLIES TO: GA <28 wk OR BW <1000 g. Start time*: As soon as stable; aim by 12 h. Start volume: 10–20 mL/kg/day. Advance daily as tolerated: 20 mL/kg/day. If BW <1000 g, use the third column irrespective of gestation. *Start once clinically stable, with reassuring abdominal assessment. †At ≥35 wk, AEDF/REDF alone does not require restricted feeds or IV fluids; individualize by clinical and abdominal assessment.",
+    "aliases": [
+      "cautious start: very small infants"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "dose",
+      "timing"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.383184,
+    "w": 0.947867,
+    "h": 0.121811,
+    "crop_image": "assets/regions/crops/feeding_small.webp",
+    "segments": [
+      {
+        "text": "CAUTIOUS START: VERY SMALL INFANTS. APPLIES TO: GA <28 wk OR BW <1000 g. Start time*: As soon as stable; aim by 12 h. Start volume: 10–20 mL/kg/day. Advance daily as tolerated: 20 mL/kg/day. If BW <1000 g, use the third column irrespective of gestation. *Start once clinically stable, with reassuring abdominal assessment. †At ≥35 wk, AEDF/REDF alone does not require restricted feeds or IV fluids; individualize by clinical and abdominal assessment.",
+        "bounding_boxes": [
+          {
+            "x": 0.730287,
+            "y": 0.398264,
+            "width": 0.207101,
+            "height": 0.005507
+          },
+          {
+            "x": 0.033259,
+            "y": 0.413689,
+            "width": 0.060544,
+            "height": 0.005507
+          },
+          {
+            "x": 0.765562,
+            "y": 0.415347,
+            "width": 0.136553,
+            "height": 0.005708
+          },
+          {
+            "x": 0.033259,
+            "y": 0.434633,
+            "width": 0.05879,
+            "height": 0.005843
+          },
+          {
+            "x": 0.752204,
+            "y": 0.435965,
+            "width": 0.163268,
+            "height": 0.006245
+          },
+          {
+            "x": 0.786636,
+            "y": 0.449738,
+            "width": 0.094404,
+            "height": 0.006245
+          },
+          {
+            "x": 0.033259,
+            "y": 0.450058,
+            "width": 0.069857,
+            "height": 0.005843
+          },
+          {
+            "x": 0.033259,
+            "y": 0.459402,
+            "width": 0.065727,
+            "height": 0.005037
+          },
+          {
+            "x": 0.795125,
+            "y": 0.461858,
+            "width": 0.077426,
+            "height": 0.006245
+          },
+          {
+            "x": 0.033259,
+            "y": 0.464484,
+            "width": 0.572387,
+            "height": 0.023136
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_plan_notes",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "FULL FEEDS",
+    "section": "FULL FEEDS",
+    "type": "text",
+    "text": "FULL FEEDS\nIf BW <1000 g, use the third column irrespective of gestation.\n*Start once clinically stable, with reassuring abdominal assessment.\n†At ≥35 wk, AEDF/REDF alone does not require restricted feeds or IV fluids; individualize by clinical and abdominal assessment.\nFULL FEEDS: usually 150–180 mL/kg/day; individualize to growth and clinical status\nFREQUENCY: 2-hourly; consider 3-hourly when PMA >32 wk, stable, on full feeds and off respiratory support\nVOLUME PER FEED: daily enteral volume (mL) ÷12 (2-hourly) or ÷8 (3-hourly)",
+    "aliases": [
+      "full feeds"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "dose",
+      "schedule"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.471329,
+    "w": 0.947867,
+    "h": 0.033666,
+    "crop_image": "assets/regions/crops/feeding_plan_notes.webp",
+    "segments": [
+      {
+        "text": "If BW <1000 g, use the third column irrespective of gestation.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.472622,
+            "width": 0.282107,
+            "height": 0.004969
+          }
+        ]
+      },
+      {
+        "text": "*Start once clinically stable, with reassuring abdominal assessment.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.477636,
+            "width": 0.301093,
+            "height": 0.004969
+          }
+        ]
+      },
+      {
+        "text": "†At ≥35 wk, AEDF/REDF alone does not require restricted feeds or IV fluids; individualize by clinical and abdominal assessment.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.482651,
+            "width": 0.56526,
+            "height": 0.004969
+          }
+        ]
+      },
+      {
+        "text": "FULL FEEDS: usually 150–180 mL/kg/day; individualize to growth and clinical status",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.487665,
+            "width": 0.368484,
+            "height": 0.004969
+          }
+        ]
+      },
+      {
+        "text": "FREQUENCY: 2-hourly; consider 3-hourly when PMA >32 wk, stable, on full feeds and off respiratory support",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.492679,
+            "width": 0.478039,
+            "height": 0.004969
+          }
+        ]
+      },
+      {
+        "text": "VOLUME PER FEED: daily enteral volume (mL) ÷12 (2-hourly) or ÷8 (3-hourly)",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.497694,
+            "width": 0.338326,
+            "height": 0.004969
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_monitoring",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "MONITORING",
+    "section": "MONITORING",
+    "type": "text",
+    "text": "MONITORING\nBefore each feed: Clinical condition, vomiting and visible abdominal distension; verify feeding-tube position when used\nDaily: Weight change, actual milk intake and urine output; glucose / electrolytes as indicated\nWeekly: Plot weight, length and head circumference on INTERGROWTH-21st postnatal growth charts\nImmediately if warning signs: Abdominal signs: bilious vomiting, bloody stools, marked/progressive distension, tenderness/discoloration; Any systemic clinical deterioration\nDo not routinely check pre-feed gastric residuals or abdominal girth in well babies without signs of feeding intolerance.\nMeasure girth serially when there is distension or clinical concern.",
+    "aliases": [
+      "monitoring"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "schedule",
+      "signs"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.512952,
+    "w": 0.947867,
+    "h": 0.085696,
+    "crop_image": "assets/regions/crops/feeding_monitoring.webp",
+    "segments": [
+      {
+        "text": "Before each feed: Clinical condition, vomiting and visible abdominal distension; verify feeding-tube position when used",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.536886,
+            "width": 0.731876,
+            "height": 0.006044
+          }
+        ]
+      },
+      {
+        "text": "Daily: Weight change, actual milk intake and urine output; glucose / electrolytes as indicated",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.547904,
+            "width": 0.654511,
+            "height": 0.006044
+          }
+        ]
+      },
+      {
+        "text": "Weekly: Plot weight, length and head circumference on INTERGROWTH-21st postnatal growth charts",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.558922,
+            "width": 0.68625,
+            "height": 0.006044
+          }
+        ]
+      },
+      {
+        "text": "Immediately if warning signs: Abdominal signs: bilious vomiting, bloody stools, marked/progressive distension, tenderness/discoloration; Any systemic clinical deterioration",
+        "bounding_boxes": [
+          {
+            "x": 0.229539,
+            "y": 0.569169,
+            "width": 0.575551,
+            "height": 0.006044
+          },
+          {
+            "x": 0.040385,
+            "y": 0.572143,
+            "width": 0.158087,
+            "height": 0.006044
+          },
+          {
+            "x": 0.229539,
+            "y": 0.575118,
+            "width": 0.186769,
+            "height": 0.006044
+          }
+        ]
+      },
+      {
+        "text": "Do not routinely check pre-feed gastric residuals or abdominal girth in well babies without signs of feeding intolerance.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.58447,
+            "width": 0.612207,
+            "height": 0.005507
+          }
+        ]
+      },
+      {
+        "text": "Measure girth serially when there is distension or clinical concern.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.591077,
+            "width": 0.317324,
+            "height": 0.005372
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_poor_gain",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "POOR WEIGHT GAIN",
+    "section": "POOR WEIGHT GAIN",
+    "type": "text",
+    "text": "POOR WEIGHT GAIN\nAssess: actual milk intake/transfer, thermal stress, illness, anaemia and possible sodium deficiency\nOptimize: correct identified causes; consider 180–200 mL/kg/day if tolerated and no fluid restriction\nReview nutrient adequacy: Consider fortification if protein, energy or mineral intake remains insufficient",
+    "aliases": [
+      "poor weight gain"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "dose"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.600485,
+    "w": 0.947867,
+    "h": 0.032442,
+    "crop_image": "assets/regions/crops/feeding_poor_gain.webp",
+    "segments": [
+      {
+        "text": "Assess: actual milk intake/transfer, thermal stress, illness, anaemia and possible sodium deficiency",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.612573,
+            "width": 0.511031,
+            "height": 0.005775
+          }
+        ]
+      },
+      {
+        "text": "Optimize: correct identified causes; consider 180–200 mL/kg/day if tolerated and no fluid restriction",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.6184,
+            "width": 0.515526,
+            "height": 0.005775
+          }
+        ]
+      },
+      {
+        "text": "Review nutrient adequacy: Consider fortification if protein, energy or mineral intake remains insufficient",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.624228,
+            "width": 0.544506,
+            "height": 0.005775
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_iron",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "Iron",
+    "section": "Iron",
+    "type": "text",
+    "text": "Iron\nIron: Human-milk-fed preterm OR LBW infants. Elemental iron: BW <1500 g: 2–3 mg/kg/day; BW 1500–2499 g: 2 mg/kg/day. Start at 2 weeks of age once feeds are established. Continue to 6 months, then follow Anemia Mukt Bharat.",
+    "aliases": [
+      "iron"
+    ],
+    "example_questions": [],
+    "intents": [
+      "dose",
+      "timing",
+      "criteria"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.665369,
+    "w": 0.947867,
+    "h": 0.02326,
+    "crop_image": "assets/regions/crops/feeding_iron.webp",
+    "segments": [
+      {
+        "text": "Iron: Human-milk-fed preterm OR LBW infants. Elemental iron: BW <1500 g: 2–3 mg/kg/day; BW 1500–2499 g: 2 mg/kg/day. Start at 2 weeks of age once feeds are established. Continue to 6 months, then follow Anemia Mukt Bharat.",
+        "bounding_boxes": [
+          {
+            "x": 0.413356,
+            "y": 0.668345,
+            "width": 0.075027,
+            "height": 0.006119
+          },
+          {
+            "x": 0.669921,
+            "y": 0.671284,
+            "width": 0.24874,
+            "height": 0.006119
+          },
+          {
+            "x": 0.040385,
+            "y": 0.674222,
+            "width": 0.509106,
+            "height": 0.006119
+          },
+          {
+            "x": 0.669921,
+            "y": 0.67716,
+            "width": 0.277385,
+            "height": 0.006119
+          },
+          {
+            "x": 0.413356,
+            "y": 0.680098,
+            "width": 0.149022,
+            "height": 0.006119
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_vitamin_d",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "Vitamin D",
+    "section": "Vitamin D",
+    "type": "text",
+    "text": "Vitamin D\nVitamin D: Consider in human-milk-fed preterm/LBW infants. 400–800 IU/day. As per unit protocol. Start once feeds are established; review at discharge and follow-up.",
+    "aliases": [
+      "vitamin d"
+    ],
+    "example_questions": [],
+    "intents": [
+      "dose",
+      "timing",
+      "criteria"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.688629,
+    "w": 0.947867,
+    "h": 0.018363,
+    "crop_image": "assets/regions/crops/feeding_vitamin_d.webp",
+    "segments": [
+      {
+        "text": "Vitamin D: Consider in human-milk-fed preterm/LBW infants. 400–800 IU/day. As per unit protocol. Start once feeds are established; review at discharge and follow-up.",
+        "bounding_boxes": [
+          {
+            "x": 0.413356,
+            "y": 0.691483,
+            "width": 0.538285,
+            "height": 0.006119
+          },
+          {
+            "x": 0.040385,
+            "y": 0.694421,
+            "width": 0.359234,
+            "height": 0.006119
+          },
+          {
+            "x": 0.413356,
+            "y": 0.69736,
+            "width": 0.305743,
+            "height": 0.006119
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_minerals",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "Calcium / phosphorus",
+    "section": "Calcium / phosphorus",
+    "type": "text",
+    "text": "Calcium / phosphorus\nCalcium / phosphorus: Prioritize BW <1500 g OR GA <32 wk on unfortified human milk; others by intake / bone-disease risk. Preterm total intake targets: Ca 120–200; P 70–115 mg/kg/day. Supplement the shortfall. Monitor P / ALP in at-risk infants. Review at term PMA; continue if intake is inadequate or tests remain abnormal.",
+    "aliases": [
+      "calcium / phosphorus"
+    ],
+    "example_questions": [],
+    "intents": [
+      "dose",
+      "criteria",
+      "management"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.708217,
+    "w": 0.947867,
+    "h": 0.024485,
+    "crop_image": "assets/regions/crops/feeding_minerals.webp",
+    "segments": [
+      {
+        "text": "Calcium / phosphorus: Prioritize BW <1500 g OR GA <32 wk on unfortified human milk; others by intake / bone-disease risk. Preterm total intake targets: Ca 120–200; P 70–115 mg/kg/day. Supplement the shortfall. Monitor P / ALP in at-risk infants. Review at term PMA; continue if intake is inadequate or tests remain abnormal.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.711193,
+            "width": 0.916271,
+            "height": 0.017871
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_supplement_review",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "Count nutrients from milk, fortifier and medicines; avoid duplication.",
+    "section": "Count nutrients from milk, fortifier and medicines; avoid duplication.",
+    "type": "text",
+    "text": "Count nutrients from milk, fortifier and medicines; avoid duplication.\nCount nutrients from milk, fortifier and medicines; avoid duplication.\nConsider Zinc in human-milk-fed preterm or LBW infants.",
+    "aliases": [
+      "count nutrients from milk, fortifier and medicines; avoid duplication."
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "criteria"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.733314,
+    "w": 0.947867,
+    "h": 0.018363,
+    "crop_image": "assets/regions/crops/feeding_supplement_review.webp",
+    "segments": [
+      {
+        "text": "Count nutrients from milk, fortifier and medicines; avoid duplication.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.735903,
+            "width": 0.308768,
+            "height": 0.005372
+          }
+        ]
+      },
+      {
+        "text": "Consider Zinc in human-milk-fed preterm or LBW infants.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.741324,
+            "width": 0.25087,
+            "height": 0.005372
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_dos",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "DOs",
+    "section": "DOs",
+    "type": "text",
+    "text": "DOs\nPrioritize mother’s own milk; help mothers express and breastfeed\nStart enteral feeds at the earliest; advance rapidly as per tolerance\nReview actual intake, growth and total fluids daily",
+    "aliases": [
+      "dos"
+    ],
+    "example_questions": [],
+    "intents": [
+      "dos"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.755962,
+    "w": 0.463243,
+    "h": 0.0404,
+    "crop_image": "assets/regions/crops/feeding_dos.webp",
+    "segments": [
+      {
+        "text": "Prioritize mother’s own milk; help mothers express and breastfeed",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.773872,
+            "width": 0.32513,
+            "height": 0.006044
+          }
+        ]
+      },
+      {
+        "text": "Start enteral feeds at the earliest; advance rapidly as per tolerance",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.780583,
+            "width": 0.322974,
+            "height": 0.006044
+          }
+        ]
+      },
+      {
+        "text": "Review actual intake, growth and total fluids daily",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.787293,
+            "width": 0.243724,
+            "height": 0.006044
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_donts",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "DON’Ts",
+    "section": "DON’Ts",
+    "type": "text",
+    "text": "DON’Ts\nDo not delay feeds without a clinical contraindication\nDo not routinely check gastric residuals or abdominal girth\nDo not overlook bilious vomiting, bloody stools or abdominal signs",
+    "aliases": [
+      "don’ts"
+    ],
+    "example_questions": [],
+    "intents": [
+      "donts"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.510756,
+    "y": 0.755962,
+    "w": 0.463243,
+    "h": 0.0404,
+    "crop_image": "assets/regions/crops/feeding_donts.webp",
+    "segments": [
+      {
+        "text": "Do not delay feeds without a clinical contraindication",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.773872,
+            "width": 0.260792,
+            "height": 0.006044
+          }
+        ]
+      },
+      {
+        "text": "Do not routinely check gastric residuals or abdominal girth",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.780583,
+            "width": 0.288165,
+            "height": 0.006044
+          }
+        ]
+      },
+      {
+        "text": "Do not overlook bilious vomiting, bloody stools or abdominal signs",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.787293,
+            "width": 0.324908,
+            "height": 0.006044
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_kpis",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "KEY PERFORMANCE INDICATORS (KPIs)",
+    "section": "KEY PERFORMANCE INDICATORS (KPIs)",
+    "type": "text",
+    "text": "KEY PERFORMANCE INDICATORS (KPIs)\nTimely breastmilk feeding (%): Preterm/LBW neonates requiring facility-based care who received breastmilk within 12 h of birth (inborn) or admission (outborn) / All preterm/LBW neonates requiring facility-based care ×100. Target ≥80%\nExclusive breastmilk feeding at discharge (%): Preterm/LBW neonates admitted to SNCU/NICU who received exclusive breastmilk in the final 24 h before discharge / Eligible preterm/LBW neonates discharged alive from SNCU/NICU ×100. Target ≥90%",
+    "aliases": [
+      "key performance indicators (kpis)"
+    ],
+    "example_questions": [],
+    "intents": [
+      "kpi"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.798198,
+    "w": 0.947867,
+    "h": 0.055702,
+    "crop_image": "assets/regions/crops/feeding_kpis.webp",
+    "segments": [
+      {
+        "text": "Timely breastmilk feeding (%): Preterm/LBW neonates requiring facility-based care who received breastmilk within 12 h of birth (inborn) or admission (outborn) / All preterm/LBW neonates requiring facility-based care ×100. Target ≥80%",
+        "bounding_boxes": [
+          {
+            "x": 0.397993,
+            "y": 0.815484,
+            "width": 0.058173,
+            "height": 0.005596
+          },
+          {
+            "x": 0.151617,
+            "y": 0.815504,
+            "width": 0.138703,
+            "height": 0.006342
+          },
+          {
+            "x": 0.068475,
+            "y": 0.830187,
+            "width": 0.323917,
+            "height": 0.012142
+          },
+          {
+            "x": 0.431173,
+            "y": 0.839386,
+            "width": 0.025111,
+            "height": 0.006716
+          },
+          {
+            "x": 0.095275,
+            "y": 0.845489,
+            "width": 0.270318,
+            "height": 0.006044
+          }
+        ]
+      },
+      {
+        "text": "Exclusive breastmilk feeding at discharge (%): Preterm/LBW neonates admitted to SNCU/NICU who received exclusive breastmilk in the final 24 h before discharge / Eligible preterm/LBW neonates discharged alive from SNCU/NICU ×100. Target ≥90%",
+        "bounding_boxes": [
+          {
+            "x": 0.87807,
+            "y": 0.815484,
+            "width": 0.057968,
+            "height": 0.005596
+          },
+          {
+            "x": 0.590039,
+            "y": 0.815504,
+            "width": 0.221604,
+            "height": 0.006342
+          },
+          {
+            "x": 0.557964,
+            "y": 0.830187,
+            "width": 0.304684,
+            "height": 0.012142
+          },
+          {
+            "x": 0.911045,
+            "y": 0.839386,
+            "width": 0.025111,
+            "height": 0.006716
+          },
+          {
+            "x": 0.548925,
+            "y": 0.845489,
+            "width": 0.322763,
+            "height": 0.006044
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_related",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "RELATED INFORMATION",
+    "section": "RELATED INFORMATION",
+    "type": "text",
+    "text": "RELATED INFORMATION\nRELATED INFORMATION\nExpressing the first milk\nCup / paladai feeding\nFeeding low-birth-weight babies\nNNF clinical practice guideline",
+    "aliases": [
+      "related information"
+    ],
+    "example_questions": [],
+    "intents": [
+      "procedure"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.87104,
+    "w": 0.947867,
+    "h": 0.053254,
+    "crop_image": "assets/regions/crops/feeding_related.webp",
+    "segments": [
+      {
+        "text": "RELATED INFORMATION",
+        "bounding_boxes": [
+          {
+            "x": 0.417663,
+            "y": 0.8737,
+            "width": 0.164805,
+            "height": 0.008059
+          }
+        ]
+      },
+      {
+        "text": "Expressing the first milk",
+        "bounding_boxes": [
+          {
+            "x": 0.123441,
+            "y": 0.912208,
+            "width": 0.121337,
+            "height": 0.005969
+          }
+        ]
+      },
+      {
+        "text": "Cup / paladai feeding",
+        "bounding_boxes": [
+          {
+            "x": 0.446804,
+            "y": 0.912208,
+            "width": 0.106522,
+            "height": 0.005969
+          }
+        ]
+      },
+      {
+        "text": "Feeding low-birth-weight babies",
+        "bounding_boxes": [
+          {
+            "x": 0.73421,
+            "y": 0.912208,
+            "width": 0.163622,
+            "height": 0.005969
+          }
+        ]
+      },
+      {
+        "text": "NNF clinical practice guideline",
+        "bounding_boxes": [
+          {
+            "x": 0.756066,
+            "y": 0.9183,
+            "width": 0.119911,
+            "height": 0.00485
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_abbreviations",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "ABBREVIATIONS",
+    "section": "ABBREVIATIONS",
+    "type": "text",
+    "text": "ABBREVIATIONS\nABBREVIATIONS\nAEDF: Absent end-diastolic flow\nALP: Alkaline phosphatase\nBW: Birth weight\nD: Day of life\nGA: Gestational age\nIV: Intravenous\nKCl: Potassium chloride\nLBW: Low birth weight\nLMU: Lactation management unit\nMOM: Mother’s own milk\nNICU: Neonatal intensive care unit\nOG: Orogastric\nPMA: Postmenstrual age\nREDF: Reversed end-diastolic flow\nSNCU: Special newborn care unit",
+    "aliases": [
+      "abbreviations"
+    ],
+    "example_questions": [],
+    "intents": [
+      "abbreviation"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.92613,
+    "w": 0.947867,
+    "h": 0.035503,
+    "crop_image": "assets/regions/crops/feeding_abbreviations.webp",
+    "segments": [
+      {
+        "text": "ABBREVIATIONS",
+        "bounding_boxes": [
+          {
+            "x": 0.443762,
+            "y": 0.92879,
+            "width": 0.112607,
+            "height": 0.008059
+          }
+        ]
+      },
+      {
+        "text": "AEDF: Absent end-diastolic flow",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.94156,
+            "width": 0.125701,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "ALP: Alkaline phosphatase",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.945845,
+            "width": 0.104021,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "BW: Birth weight",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.95013,
+            "width": 0.067664,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "D: Day of life",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.954415,
+            "width": 0.049057,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "GA: Gestational age",
+        "bounding_boxes": [
+          {
+            "x": 0.273195,
+            "y": 0.94156,
+            "width": 0.076837,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "IV: Intravenous",
+        "bounding_boxes": [
+          {
+            "x": 0.273195,
+            "y": 0.945845,
+            "width": 0.058647,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "KCl: Potassium chloride",
+        "bounding_boxes": [
+          {
+            "x": 0.273195,
+            "y": 0.95013,
+            "width": 0.092718,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "LBW: Low birth weight",
+        "bounding_boxes": [
+          {
+            "x": 0.273195,
+            "y": 0.954415,
+            "width": 0.090178,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "LMU: Lactation management unit",
+        "bounding_boxes": [
+          {
+            "x": 0.506004,
+            "y": 0.94156,
+            "width": 0.132866,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "MOM: Mother’s own milk",
+        "bounding_boxes": [
+          {
+            "x": 0.506004,
+            "y": 0.945845,
+            "width": 0.097775,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "NICU: Neonatal intensive care unit",
+        "bounding_boxes": [
+          {
+            "x": 0.506004,
+            "y": 0.95013,
+            "width": 0.13448,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "OG: Orogastric",
+        "bounding_boxes": [
+          {
+            "x": 0.506004,
+            "y": 0.954415,
+            "width": 0.057566,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "PMA: Postmenstrual age",
+        "bounding_boxes": [
+          {
+            "x": 0.738814,
+            "y": 0.94156,
+            "width": 0.097088,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "REDF: Reversed end-diastolic flow",
+        "bounding_boxes": [
+          {
+            "x": 0.738814,
+            "y": 0.945845,
+            "width": 0.134101,
+            "height": 0.00485
+          }
+        ]
+      },
+      {
+        "text": "SNCU: Special newborn care unit",
+        "bounding_boxes": [
+          {
+            "x": 0.738814,
+            "y": 0.95013,
+            "width": 0.129121,
+            "height": 0.00485
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feeding_references",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "REFERENCES",
+    "section": "REFERENCES",
+    "type": "text",
+    "text": "REFERENCES\nREFERENCES\n1. WHO. Recommendations for care of the preterm or low-birth-weight infant. 2022.\n2. Embleton ND et al. Enteral Nutrition in Preterm Infants (2022): ESPGHAN Position Paper. J Pediatr Gastroenterol Nutr. 2023;76:248–268.",
+    "aliases": [
+      "references"
+    ],
+    "example_questions": [],
+    "intents": [
+      "reference"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.963469,
+    "w": 0.947867,
+    "h": 0.023872,
+    "crop_image": "assets/regions/crops/feeding_references.webp",
+    "segments": [
+      {
+        "text": "REFERENCES",
+        "bounding_boxes": [
+          {
+            "x": 0.455404,
+            "y": 0.966129,
+            "width": 0.089323,
+            "height": 0.008059
+          }
+        ]
+      },
+      {
+        "text": "1. WHO. Recommendations for care of the preterm or low-birth-weight infant. 2022.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.977053,
+            "width": 0.30145,
+            "height": 0.004477
+          }
+        ]
+      },
+      {
+        "text": "2. Embleton ND et al. Enteral Nutrition in Preterm Infants (2022): ESPGHAN Position Paper. J Pediatr Gastroenterol Nutr. 2023;76:248–268.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.98157,
+            "width": 0.495443,
+            "height": 0.004477
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_risk",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "1. IDENTIFY RISK",
+    "section": "1. IDENTIFY RISK",
+    "type": "text",
+    "text": "1. IDENTIFY RISK\nResuscitation • Delayed cry\nAcute perinatal event\nAbnormal neurological signs",
+    "aliases": [
+      "1. identify risk"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "signs"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.116302,
+    "w": 0.2922,
+    "h": 0.045909,
+    "crop_image": "assets/regions/crops/post_asphyxia_risk.webp",
+    "segments": [
+      {
+        "text": "Resuscitation • Delayed cry",
+        "bounding_boxes": [
+          {
+            "x": 0.09239,
+            "y": 0.137306,
+            "width": 0.159684,
+            "height": 0.007312
+          }
+        ]
+      },
+      {
+        "text": "Acute perinatal event",
+        "bounding_boxes": [
+          {
+            "x": 0.108354,
+            "y": 0.144684,
+            "width": 0.127754,
+            "height": 0.007312
+          }
+        ]
+      },
+      {
+        "text": "Abnormal neurological signs",
+        "bounding_boxes": [
+          {
+            "x": 0.087198,
+            "y": 0.152063,
+            "width": 0.170067,
+            "height": 0.007312
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_stabilize",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "2. STABILIZE",
+    "section": "2. STABILIZE",
+    "type": "text",
+    "text": "2. STABILIZE\nBreathing • Perfusion\nTemperature • Glucose",
+    "aliases": [
+      "2. stabilize"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.353965,
+    "y": 0.116302,
+    "w": 0.2922,
+    "h": 0.045909,
+    "crop_image": "assets/regions/crops/post_asphyxia_stabilize.webp",
+    "segments": [
+      {
+        "text": "Breathing • Perfusion",
+        "bounding_boxes": [
+          {
+            "x": 0.435019,
+            "y": 0.143433,
+            "width": 0.130094,
+            "height": 0.007536
+          }
+        ]
+      },
+      {
+        "text": "Temperature • Glucose",
+        "bounding_boxes": [
+          {
+            "x": 0.430664,
+            "y": 0.151037,
+            "width": 0.138803,
+            "height": 0.007536
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_assess",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "3. ASSESS",
+    "section": "3. ASSESS",
+    "type": "text",
+    "text": "3. ASSESS\nEncephalopathy (Modified Sarnat staging)",
+    "aliases": [
+      "3. assess"
+    ],
+    "example_questions": [],
+    "intents": [
+      "procedure",
+      "criteria"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.681799,
+    "y": 0.116302,
+    "w": 0.2922,
+    "h": 0.045909,
+    "crop_image": "assets/regions/crops/post_asphyxia_assess.webp",
+    "segments": [
+      {
+        "text": "Encephalopathy (Modified Sarnat staging)",
+        "bounding_boxes": [
+          {
+            "x": 0.75073,
+            "y": 0.143433,
+            "width": 0.154339,
+            "height": 0.015141
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_high_risk",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "HIGH-RISK FEATURES",
+    "section": "HIGH-RISK FEATURES",
+    "type": "text",
+    "text": "HIGH-RISK FEATURES\nApgar ≤5 at 10 min • Still requiring PPV at 10 min • Cord or within 1 h: pH ≤7.1 or base deficit ≥12 mmol/L",
+    "aliases": [
+      "high-risk features"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "signs"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.167107,
+    "w": 0.947867,
+    "h": 0.014691,
+    "crop_image": "assets/regions/crops/post_asphyxia_high_risk.webp",
+    "segments": [
+      {
+        "text": "Apgar ≤5 at 10 min • Still requiring PPV at 10 min • Cord or within 1 h: pH ≤7.1 or base deficit ≥12 mmol/L",
+        "bounding_boxes": [
+          {
+            "x": 0.175875,
+            "y": 0.170968,
+            "width": 0.588698,
+            "height": 0.007163
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_sarnat",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "ASSESS FOR HYPOXIC ISCHEMIC ENCEPHALOPATHY (HIE): MODIFIED SARNAT STAGING",
+    "section": "ASSESS FOR HYPOXIC ISCHEMIC ENCEPHALOPATHY (HIE): MODIFIED SARNAT STAGING",
+    "type": "text",
+    "text": "ASSESS FOR HYPOXIC ISCHEMIC ENCEPHALOPATHY (HIE): MODIFIED SARNAT STAGING\nConsciousness: MILD: Hyperalert; MODERATE: Lethargic; SEVERE: Stupor / coma\nSpontaneous activity: MILD: Normal / increased; MODERATE: Decreased; SEVERE: Absent\nPosture: MILD: Normal; MODERATE: Distal flexion; SEVERE: Decerebrate\nTone: MILD: Normal / increased; MODERATE: Hypotonia; SEVERE: Flaccid\nPrimitive reflexes: MILD: Suck: normal / incomplete; Moro: exaggerated; MODERATE: Suck: weak; Moro: incomplete; SEVERE: Suck / Moro: absent\nAutonomic signs: MILD: Pupils: normal; HR: normal / fast; Breathing: regular; MODERATE: Pupils: constricted; HR: slow; Breathing: periodic / irregular; SEVERE: Pupils: dilated / deviated; HR: variable; breathing: apnoea",
+    "aliases": [
+      "assess for hypoxic ischemic encephalopathy (hie): modified sarnat staging"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "signs",
+      "procedure"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.049888,
+    "y": 0.195877,
+    "w": 0.900355,
+    "h": 0.113241,
+    "crop_image": "assets/regions/crops/post_asphyxia_sarnat.webp",
+    "segments": [
+      {
+        "text": "Consciousness: MILD: Hyperalert; MODERATE: Lethargic; SEVERE: Stupor / coma",
+        "bounding_boxes": [
+          {
+            "x": 0.064141,
+            "y": 0.214438,
+            "width": 0.74232,
+            "height": 0.018731
+          }
+        ]
+      },
+      {
+        "text": "Spontaneous activity: MILD: Normal / increased; MODERATE: Decreased; SEVERE: Absent",
+        "bounding_boxes": [
+          {
+            "x": 0.233997,
+            "y": 0.214438,
+            "width": 0.535778,
+            "height": 0.007536
+          },
+          {
+            "x": 0.064141,
+            "y": 0.237263,
+            "width": 0.699516,
+            "height": 0.007536
+          }
+        ]
+      },
+      {
+        "text": "Posture: MILD: Normal; MODERATE: Distal flexion; SEVERE: Decerebrate",
+        "bounding_boxes": [
+          {
+            "x": 0.233997,
+            "y": 0.214438,
+            "width": 0.535778,
+            "height": 0.007536
+          },
+          {
+            "x": 0.064141,
+            "y": 0.248893,
+            "width": 0.732351,
+            "height": 0.007536
+          }
+        ]
+      },
+      {
+        "text": "Tone: MILD: Normal / increased; MODERATE: Hypotonia; SEVERE: Flaccid",
+        "bounding_boxes": [
+          {
+            "x": 0.233997,
+            "y": 0.214438,
+            "width": 0.535778,
+            "height": 0.007536
+          },
+          {
+            "x": 0.064141,
+            "y": 0.260524,
+            "width": 0.699432,
+            "height": 0.007536
+          }
+        ]
+      },
+      {
+        "text": "Primitive reflexes: MILD: Suck: normal / incomplete; Moro: exaggerated; MODERATE: Suck: weak; Moro: incomplete; SEVERE: Suck / Moro: absent",
+        "bounding_boxes": [
+          {
+            "x": 0.233997,
+            "y": 0.214438,
+            "width": 0.535778,
+            "height": 0.007536
+          },
+          {
+            "x": 0.064141,
+            "y": 0.271106,
+            "width": 0.775947,
+            "height": 0.015141
+          }
+        ]
+      },
+      {
+        "text": "Autonomic signs: MILD: Pupils: normal; HR: normal / fast; Breathing: regular; MODERATE: Pupils: constricted; HR: slow; Breathing: periodic / irregular; SEVERE: Pupils: dilated / deviated; HR: variable; breathing: apnoea",
+        "bounding_boxes": [
+          {
+            "x": 0.233997,
+            "y": 0.214438,
+            "width": 0.535778,
+            "height": 0.007536
+          },
+          {
+            "x": 0.233997,
+            "y": 0.288857,
+            "width": 0.636287,
+            "height": 0.007536
+          },
+          {
+            "x": 0.064141,
+            "y": 0.29266,
+            "width": 0.106376,
+            "height": 0.007536
+          },
+          {
+            "x": 0.233997,
+            "y": 0.296462,
+            "width": 0.676921,
+            "height": 0.007536
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_serial",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "Record seizures separately",
+    "section": "Record seizures separately",
+    "type": "text",
+    "text": "Record seizures separately\nRecord seizures separately; Repeat serial assessments; Initial normal examination does not exclude evolving HIE",
+    "aliases": [
+      "record seizures separately"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "schedule"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.049888,
+    "y": 0.309118,
+    "w": 0.900355,
+    "h": 0.010406,
+    "crop_image": "assets/regions/crops/post_asphyxia_serial.webp",
+    "segments": [
+      {
+        "text": "Record seizures separately; Repeat serial assessments; Initial normal examination does not exclude evolving HIE",
+        "bounding_boxes": [
+          {
+            "x": 0.049888,
+            "y": 0.31053,
+            "width": 0.672395,
+            "height": 0.007163
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_normal",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "NORMAL EXAMINATION",
+    "section": "NORMAL EXAMINATION",
+    "type": "text",
+    "text": "NORMAL EXAMINATION\nBreastfeed; Skin-to-skin if stable\nObserve ≥24 h; longer if concerns",
+    "aliases": [
+      "normal examination"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.335439,
+    "w": 0.308829,
+    "h": 0.051418,
+    "crop_image": "assets/regions/crops/post_asphyxia_normal.webp",
+    "segments": [
+      {
+        "text": "Breastfeed; Skin-to-skin if stable",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.355211,
+            "width": 0.183,
+            "height": 0.007014
+          }
+        ]
+      },
+      {
+        "text": "Observe ≥24 h; longer if concerns",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.3629,
+            "width": 0.188639,
+            "height": 0.007014
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_mild",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "MILD HIE",
+    "section": "MILD HIE",
+    "type": "text",
+    "text": "MILD HIE\nSupportive care in SNCU/NICU\nSerial neurological assessments\nSeizures/worsening: Urgent review/referral",
+    "aliases": [
+      "mild hie"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "refer"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.353965,
+    "y": 0.335439,
+    "w": 0.2922,
+    "h": 0.051418,
+    "crop_image": "assets/regions/crops/post_asphyxia_mild.webp",
+    "segments": [
+      {
+        "text": "Supportive care in SNCU/NICU",
+        "bounding_boxes": [
+          {
+            "x": 0.381285,
+            "y": 0.355211,
+            "width": 0.172438,
+            "height": 0.007014
+          }
+        ]
+      },
+      {
+        "text": "Serial neurological assessments",
+        "bounding_boxes": [
+          {
+            "x": 0.381285,
+            "y": 0.3629,
+            "width": 0.180454,
+            "height": 0.007014
+          }
+        ]
+      },
+      {
+        "text": "Seizures/worsening: Urgent review/referral",
+        "bounding_boxes": [
+          {
+            "x": 0.381285,
+            "y": 0.37059,
+            "width": 0.242768,
+            "height": 0.007014
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_urgent",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "MODERATE / SEVERE HIE OR UNSTABLE",
+    "section": "MODERATE / SEVERE HIE OR UNSTABLE",
+    "type": "text",
+    "text": "MODERATE / SEVERE HIE OR UNSTABLE\nStabilize: Contact referral NICU\nArrange urgent transfer for advanced care",
+    "aliases": [
+      "moderate / severe hie or unstable"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "refer",
+      "escalate"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.66517,
+    "y": 0.335439,
+    "w": 0.308829,
+    "h": 0.051418,
+    "crop_image": "assets/regions/crops/post_asphyxia_urgent.webp",
+    "segments": [
+      {
+        "text": "Stabilize: Contact referral NICU",
+        "bounding_boxes": [
+          {
+            "x": 0.69249,
+            "y": 0.355225,
+            "width": 0.18781,
+            "height": 0.007536
+          }
+        ]
+      },
+      {
+        "text": "Arrange urgent transfer for advanced care",
+        "bounding_boxes": [
+          {
+            "x": 0.69249,
+            "y": 0.363441,
+            "width": 0.258088,
+            "height": 0.007536
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_oxygen",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "HR / breathing / SpO₂",
+    "section": "HR / breathing / SpO₂",
+    "type": "text",
+    "text": "HR / breathing / SpO₂\nHR / breathing / SpO₂: Continuous; record hourly. SpO₂ target 91–95% on supplemental oxygen. Ventilation if apnoea / inadequate breathing",
+    "aliases": [
+      "hr / breathing / spo₂"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "schedule"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.049888,
+    "y": 0.408893,
+    "w": 0.900355,
+    "h": 0.029994,
+    "crop_image": "assets/regions/crops/post_asphyxia_oxygen.webp",
+    "segments": [
+      {
+        "text": "HR / breathing / SpO₂: Continuous; record hourly. SpO₂ target 91–95% on supplemental oxygen. Ventilation if apnoea / inadequate breathing",
+        "bounding_boxes": [
+          {
+            "x": 0.52976,
+            "y": 0.422678,
+            "width": 0.269584,
+            "height": 0.007462
+          },
+          {
+            "x": 0.064141,
+            "y": 0.426442,
+            "width": 0.347064,
+            "height": 0.007462
+          },
+          {
+            "x": 0.52976,
+            "y": 0.430207,
+            "width": 0.268456,
+            "height": 0.007462
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_perfusion",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "Perfusion / BP",
+    "section": "Perfusion / BP",
+    "type": "text",
+    "text": "Perfusion / BP\nPerfusion / BP: At least hourly initially; more if unstable. Treat shock; avoid indiscriminate fluid boluses",
+    "aliases": [
+      "perfusion / bp"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "schedule"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.049888,
+    "y": 0.438886,
+    "w": 0.900355,
+    "h": 0.014079,
+    "crop_image": "assets/regions/crops/post_asphyxia_perfusion.webp",
+    "segments": [
+      {
+        "text": "Perfusion / BP: At least hourly initially; more if unstable. Treat shock; avoid indiscriminate fluid boluses",
+        "bounding_boxes": [
+          {
+            "x": 0.064141,
+            "y": 0.442051,
+            "width": 0.74391,
+            "height": 0.007462
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_neurological",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "Neurological status",
+    "section": "Neurological status",
+    "type": "text",
+    "text": "Neurological status\nNeurological status: Hourly till 6 h; then 4-hourly for 24–48 h; immediately if worsening. Detect and treat seizures; EEG/aEEG where available",
+    "aliases": [
+      "neurological status"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "schedule"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.049888,
+    "y": 0.452965,
+    "w": 0.900355,
+    "h": 0.0202,
+    "crop_image": "assets/regions/crops/post_asphyxia_neurological.webp",
+    "segments": [
+      {
+        "text": "Neurological status: Hourly till 6 h; then 4-hourly for 24–48 h; immediately if worsening. Detect and treat seizures; EEG/aEEG where available",
+        "bounding_boxes": [
+          {
+            "x": 0.25419,
+            "y": 0.454508,
+            "width": 0.427348,
+            "height": 0.007462
+          },
+          {
+            "x": 0.064141,
+            "y": 0.458272,
+            "width": 0.12112,
+            "height": 0.007462
+          },
+          {
+            "x": 0.25419,
+            "y": 0.462037,
+            "width": 0.434855,
+            "height": 0.007462
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_temperature",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "Temperature",
+    "section": "Temperature",
+    "type": "text",
+    "text": "Temperature\nTemperature: Hourly until 6 h; 2-hourly once stable. Aim 36.5–37.0°C (unless under therapeutic hypothermia [TH]); Avoid hyperthermia (>37.5°C)",
+    "aliases": [
+      "temperature"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "schedule"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.049888,
+    "y": 0.473165,
+    "w": 0.900355,
+    "h": 0.0202,
+    "crop_image": "assets/regions/crops/post_asphyxia_temperature.webp",
+    "segments": [
+      {
+        "text": "Temperature: Hourly until 6 h; 2-hourly once stable. Aim 36.5–37.0°C (unless under therapeutic hypothermia [TH]); Avoid hyperthermia (>37.5°C)",
+        "bounding_boxes": [
+          {
+            "x": 0.52976,
+            "y": 0.47532,
+            "width": 0.36797,
+            "height": 0.007462
+          },
+          {
+            "x": 0.064141,
+            "y": 0.479084,
+            "width": 0.411265,
+            "height": 0.007462
+          },
+          {
+            "x": 0.52976,
+            "y": 0.482849,
+            "width": 0.175557,
+            "height": 0.007462
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_glucose",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "Blood glucose",
+    "section": "Blood glucose",
+    "type": "text",
+    "text": "Blood glucose\nBlood glucose: At 1, 2 and 6 h; then 6-hourly once stable. Aim 50–125 mg/dL; correct abnormalities. IV glucose if feeding unsafe",
+    "aliases": [
+      "blood glucose"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "schedule"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.049888,
+    "y": 0.493365,
+    "w": 0.900355,
+    "h": 0.018976,
+    "crop_image": "assets/regions/crops/post_asphyxia_glucose.webp",
+    "segments": [
+      {
+        "text": "Blood glucose: At 1, 2 and 6 h; then 6-hourly once stable. Aim 50–125 mg/dL; correct abnormalities. IV glucose if feeding unsafe",
+        "bounding_boxes": [
+          {
+            "x": 0.52976,
+            "y": 0.496131,
+            "width": 0.245317,
+            "height": 0.007462
+          },
+          {
+            "x": 0.064141,
+            "y": 0.499896,
+            "width": 0.432812,
+            "height": 0.007462
+          },
+          {
+            "x": 0.52976,
+            "y": 0.50366,
+            "width": 0.166601,
+            "height": 0.007462
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_fluids",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "Fluids / urine output",
+    "section": "Fluids / urine output",
+    "type": "text",
+    "text": "Fluids / urine output\nFluids / urine output: Record intake/output; review balance. Adjust fluids; baseline renal function / electrolytes. Repeat tests; blood gas / calcium as indicated",
+    "aliases": [
+      "fluids / urine output"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "schedule"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.049888,
+    "y": 0.51234,
+    "w": 0.900355,
+    "h": 0.017139,
+    "crop_image": "assets/regions/crops/post_asphyxia_fluids.webp",
+    "segments": [
+      {
+        "text": "Fluids / urine output: Record intake/output; review balance. Adjust fluids; baseline renal function / electrolytes. Repeat tests; blood gas / calcium as indicated",
+        "bounding_boxes": [
+          {
+            "x": 0.52976,
+            "y": 0.512965,
+            "width": 0.300122,
+            "height": 0.007462
+          },
+          {
+            "x": 0.064141,
+            "y": 0.516729,
+            "width": 0.417073,
+            "height": 0.007462
+          },
+          {
+            "x": 0.52976,
+            "y": 0.520494,
+            "width": 0.275333,
+            "height": 0.007462
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_feeding",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "Feeding",
+    "section": "Feeding",
+    "type": "text",
+    "text": "Feeding\nFeeding: Assess alertness, suck–swallow and tolerance. Breast milk when appropriate. Oral feeds when alert and safe",
+    "aliases": [
+      "feeding"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.049888,
+    "y": 0.529479,
+    "w": 0.900355,
+    "h": 0.018363,
+    "crop_image": "assets/regions/crops/post_asphyxia_feeding.webp",
+    "segments": [
+      {
+        "text": "Feeding: Assess alertness, suck–swallow and tolerance. Breast milk when appropriate. Oral feeds when alert and safe",
+        "bounding_boxes": [
+          {
+            "x": 0.25419,
+            "y": 0.530104,
+            "width": 0.456164,
+            "height": 0.007462
+          },
+          {
+            "x": 0.064141,
+            "y": 0.533868,
+            "width": 0.050897,
+            "height": 0.007462
+          },
+          {
+            "x": 0.25419,
+            "y": 0.537633,
+            "width": 0.459003,
+            "height": 0.007462
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_seizures",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "SEIZURES: Act immediately",
+    "section": "SEIZURES: Act immediately",
+    "type": "text",
+    "text": "SEIZURES: Act immediately\nStabilize airway and breathing → Phenobarbitone 20 mg/kg IV over 15 min (Refer to Seizures STW)\nCheck and correct blood glucose and calcium concurrently; urgent NICU consultation / referral",
+    "aliases": [
+      "seizures: act immediately"
+    ],
+    "example_questions": [],
+    "intents": [
+      "dose",
+      "management",
+      "refer"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.555188,
+    "w": 0.947867,
+    "h": 0.029994,
+    "crop_image": "assets/regions/crops/post_asphyxia_seizures.webp",
+    "segments": [
+      {
+        "text": "Stabilize airway and breathing → Phenobarbitone 20 mg/kg IV over 15 min (Refer to Seizures STW)",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.567018,
+            "width": 0.611983,
+            "height": 0.007611
+          }
+        ]
+      },
+      {
+        "text": "Check and correct blood glucose and calcium concurrently; urgent NICU consultation / referral",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.574698,
+            "width": 0.582918,
+            "height": 0.007611
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_cooling",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "THERAPEUTIC HYPOTHERMIA: TIME-CRITICAL REFERRAL",
+    "section": "THERAPEUTIC HYPOTHERMIA: TIME-CRITICAL REFERRAL",
+    "type": "text",
+    "text": "THERAPEUTIC HYPOTHERMIA: TIME-CRITICAL REFERRAL\nPotential candidates: GA ≥36 weeks, moderate/severe HIE + evidence of acute perinatal hypoxia → discuss immediately with referral NICU\nConfirm strict NNF criteria (scan NNF QR code below); initiate TH ASAP within 6 h of birth\nTH only in Level III/IV NICUs with adequate intensive care, continuous monitoring and experienced, trained personnel",
+    "aliases": [
+      "therapeutic hypothermia: time-critical referral"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "management",
+      "refer",
+      "timing"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.591915,
+    "w": 0.947867,
+    "h": 0.042236,
+    "crop_image": "assets/regions/crops/post_asphyxia_cooling.webp",
+    "segments": [
+      {
+        "text": "Potential candidates: GA ≥36 weeks, moderate/severe HIE + evidence of acute perinatal hypoxia → discuss immediately with referral NICU",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.60863,
+            "width": 0.796345,
+            "height": 0.007163
+          }
+        ]
+      },
+      {
+        "text": "Confirm strict NNF criteria (scan NNF QR code below); initiate TH ASAP within 6 h of birth",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.615858,
+            "width": 0.529084,
+            "height": 0.007163
+          }
+        ]
+      },
+      {
+        "text": "TH only in Level III/IV NICUs with adequate intensive care, continuous monitoring and experienced, trained personnel",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.623086,
+            "width": 0.679534,
+            "height": 0.007163
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_discharge",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "DISCHARGE",
+    "section": "DISCHARGE",
+    "type": "text",
+    "text": "DISCHARGE\nStable • Feeding safely • Family counselled • High-risk Neurodevelopmental follow-up including hearing assessment arranged",
+    "aliases": [
+      "discharge"
+    ],
+    "example_questions": [],
+    "intents": [
+      "followup",
+      "management"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.640272,
+    "w": 0.947867,
+    "h": 0.020812,
+    "crop_image": "assets/regions/crops/post_asphyxia_discharge.webp",
+    "segments": [
+      {
+        "text": "Stable • Feeding safely • Family counselled • High-risk Neurodevelopmental follow-up including hearing assessment arranged",
+        "bounding_boxes": [
+          {
+            "x": 0.124494,
+            "y": 0.645365,
+            "width": 0.756536,
+            "height": 0.007462
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_dos",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "DOs",
+    "section": "DOs",
+    "type": "text",
+    "text": "DOs\nRepeat and document neurological assessments\nMaintain oxygenation, perfusion, temperature and glucose within target ranges\nCounsel the family; ensure safe transfer and documented neurodevelopmental follow-up",
+    "aliases": [
+      "dos"
+    ],
+    "example_questions": [],
+    "intents": [
+      "dos"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.665369,
+    "w": 0.463243,
+    "h": 0.062436,
+    "crop_image": "assets/regions/crops/post_asphyxia_dos.webp",
+    "segments": [
+      {
+        "text": "Repeat and document neurological assessments",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.685145,
+            "width": 0.283203,
+            "height": 0.007163
+          }
+        ]
+      },
+      {
+        "text": "Maintain oxygenation, perfusion, temperature and glucose within target ranges",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.692985,
+            "width": 0.419433,
+            "height": 0.014391
+          }
+        ]
+      },
+      {
+        "text": "Counsel the family; ensure safe transfer and documented neurodevelopmental follow-up",
+        "bounding_boxes": [
+          {
+            "x": 0.053451,
+            "y": 0.708052,
+            "width": 0.332509,
+            "height": 0.014391
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_donts",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "DON’Ts",
+    "section": "DON’Ts",
+    "type": "text",
+    "text": "DON’Ts\nDo not assume an initially normal examination excludes evolving HIE\nDo not give prophylactic anticonvulsants or unnecessary oxygen/fluid boluses\nDo not delay TH referral in potentially eligible babies or start unmonitored cooling",
+    "aliases": [
+      "don’ts"
+    ],
+    "example_questions": [],
+    "intents": [
+      "donts"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.510756,
+    "y": 0.665369,
+    "w": 0.463243,
+    "h": 0.062436,
+    "crop_image": "assets/regions/crops/post_asphyxia_donts.webp",
+    "segments": [
+      {
+        "text": "Do not assume an initially normal examination excludes evolving HIE",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.685145,
+            "width": 0.400265,
+            "height": 0.007163
+          }
+        ]
+      },
+      {
+        "text": "Do not give prophylactic anticonvulsants or unnecessary oxygen/fluid boluses",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.692985,
+            "width": 0.404154,
+            "height": 0.014391
+          }
+        ]
+      },
+      {
+        "text": "Do not delay TH referral in potentially eligible babies or start unmonitored cooling",
+        "bounding_boxes": [
+          {
+            "x": 0.538075,
+            "y": 0.708052,
+            "width": 0.348177,
+            "height": 0.014391
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_kpis",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "KEY PERFORMANCE INDICATORS",
+    "section": "KEY PERFORMANCE INDICATORS",
+    "type": "text",
+    "text": "KEY PERFORMANCE INDICATORS\nTimely neurological assessment (%): At-risk neonates with a documented structured neurological assessment within 1 h* / All at-risk neonates ×100. Target >95%. *Within 1 h of birth (inborn) / admission (outborn)\nTimely physiological assessment (%): Neonates with suspected HIE with complete physiological assessment** within 1 h of admission / All admitted neonates with suspected HIE ×100. Target >95%. **Temperature, glucose, oxygenation and perfusion documented",
+    "aliases": [
+      "key performance indicators"
+    ],
+    "example_questions": [],
+    "intents": [
+      "kpi"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.73515,
+    "w": 0.947867,
+    "h": 0.068557,
+    "crop_image": "assets/regions/crops/post_asphyxia_kpis.webp",
+    "segments": [
+      {
+        "text": "Timely neurological assessment (%): At-risk neonates with a documented structured neurological assessment within 1 h* / All at-risk neonates ×100. Target >95%. *Within 1 h of birth (inborn) / admission (outborn)",
+        "bounding_boxes": [
+          {
+            "x": 0.090684,
+            "y": 0.752477,
+            "width": 0.191603,
+            "height": 0.007163
+          },
+          {
+            "x": 0.387295,
+            "y": 0.753072,
+            "width": 0.066375,
+            "height": 0.006492
+          },
+          {
+            "x": 0.102803,
+            "y": 0.763486,
+            "width": 0.262389,
+            "height": 0.013642
+          },
+          {
+            "x": 0.440776,
+            "y": 0.772675,
+            "width": 0.019228,
+            "height": 0.007089
+          },
+          {
+            "x": 0.181239,
+            "y": 0.780013,
+            "width": 0.105518,
+            "height": 0.00679
+          },
+          {
+            "x": 0.040385,
+            "y": 0.790994,
+            "width": 0.21324,
+            "height": 0.005372
+          }
+        ]
+      },
+      {
+        "text": "Timely physiological assessment (%): Neonates with suspected HIE with complete physiological assessment** within 1 h of admission / All admitted neonates with suspected HIE ×100. Target >95%. **Temperature, glucose, oxygenation and perfusion documented",
+        "bounding_boxes": [
+          {
+            "x": 0.568441,
+            "y": 0.752477,
+            "width": 0.195834,
+            "height": 0.007163
+          },
+          {
+            "x": 0.387295,
+            "y": 0.753072,
+            "width": 0.066375,
+            "height": 0.006492
+          },
+          {
+            "x": 0.575812,
+            "y": 0.763486,
+            "width": 0.276116,
+            "height": 0.013642
+          },
+          {
+            "x": 0.920648,
+            "y": 0.772675,
+            "width": 0.019228,
+            "height": 0.007089
+          },
+          {
+            "x": 0.598084,
+            "y": 0.780013,
+            "width": 0.231572,
+            "height": 0.00679
+          },
+          {
+            "x": 0.520258,
+            "y": 0.790994,
+            "width": 0.282094,
+            "height": 0.005372
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_related",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "RELATED INFORMATION",
+    "section": "RELATED INFORMATION",
+    "type": "text",
+    "text": "RELATED INFORMATION\nModified Sarnat assessment: Examination demonstration video\nTherapeutic hypothermia: NNF India position statement (2021)",
+    "aliases": [
+      "related information"
+    ],
+    "example_questions": [],
+    "intents": [
+      "procedure"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.836761,
+    "w": 0.947867,
+    "h": 0.068557,
+    "crop_image": "assets/regions/crops/post_asphyxia_related.webp",
+    "segments": [
+      {
+        "text": "Modified Sarnat assessment: Examination demonstration video",
+        "bounding_boxes": [
+          {
+            "x": 0.262171,
+            "y": 0.889581,
+            "width": 0.159833,
+            "height": 0.012375
+          }
+        ]
+      },
+      {
+        "text": "Therapeutic hypothermia: NNF India position statement (2021)",
+        "bounding_boxes": [
+          {
+            "x": 0.576102,
+            "y": 0.889581,
+            "width": 0.163882,
+            "height": 0.012375
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_abbreviations",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "ABBREVIATIONS",
+    "section": "ABBREVIATIONS",
+    "type": "text",
+    "text": "ABBREVIATIONS\nABBREVIATIONS\naEEG: Amplitude-integrated electroencephalography\nBP: Blood pressure\nEEG: Electroencephalography\nHIE: Hypoxic-ischemic encephalopathy\nHR: Heart rate\nSpO₂: Peripheral oxygen saturation\nNICU: Neonatal intensive care unit\nPPV: Positive pressure ventilation\nSNCU: Special newborn care unit\nTH: Therapeutic hypothermia",
+    "aliases": [
+      "abbreviations"
+    ],
+    "example_questions": [],
+    "intents": [
+      "abbreviation"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.907766,
+    "w": 0.947867,
+    "h": 0.0404,
+    "crop_image": "assets/regions/crops/post_asphyxia_abbreviations.webp",
+    "segments": [
+      {
+        "text": "ABBREVIATIONS",
+        "bounding_boxes": [
+          {
+            "x": 0.443762,
+            "y": 0.910427,
+            "width": 0.112607,
+            "height": 0.008059
+          }
+        ]
+      },
+      {
+        "text": "aEEG: Amplitude-integrated electroencephalography",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.925053,
+            "width": 0.242027,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "BP: Blood pressure",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.92995,
+            "width": 0.085851,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "EEG: Electroencephalography",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.934847,
+            "width": 0.135142,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "HIE: Hypoxic-ischemic encephalopathy",
+        "bounding_boxes": [
+          {
+            "x": 0.353965,
+            "y": 0.925053,
+            "width": 0.176977,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "HR: Heart rate",
+        "bounding_boxes": [
+          {
+            "x": 0.353965,
+            "y": 0.92995,
+            "width": 0.063999,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "SpO₂: Peripheral oxygen saturation",
+        "bounding_boxes": [
+          {
+            "x": 0.353965,
+            "y": 0.934847,
+            "width": 0.158821,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "NICU: Neonatal intensive care unit",
+        "bounding_boxes": [
+          {
+            "x": 0.667546,
+            "y": 0.925053,
+            "width": 0.155169,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "PPV: Positive pressure ventilation",
+        "bounding_boxes": [
+          {
+            "x": 0.667546,
+            "y": 0.92995,
+            "width": 0.151685,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "SNCU: Special newborn care unit",
+        "bounding_boxes": [
+          {
+            "x": 0.667546,
+            "y": 0.934847,
+            "width": 0.148986,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "TH: Therapeutic hypothermia",
+        "bounding_boxes": [
+          {
+            "x": 0.667546,
+            "y": 0.939743,
+            "width": 0.132692,
+            "height": 0.005596
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_references",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "REFERENCES",
+    "section": "REFERENCES",
+    "type": "text",
+    "text": "REFERENCES\nREFERENCES\n1. NNF Working Group. Position statement and guidelines for use of therapeutic hypothermia to treat neonatal hypoxic ischemic encephalopathy in India. October 2021.\n2. NSW Agency for Clinical Innovation. Hypoxic ischaemic encephalopathy in newborns: recognition, monitoring and early management. Clinical practice guide. August 2026.",
+    "aliases": [
+      "references"
+    ],
+    "example_questions": [],
+    "intents": [],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.950615,
+    "w": 0.947867,
+    "h": 0.032442,
+    "crop_image": "assets/regions/crops/post_asphyxia_references.webp",
+    "segments": [
+      {
+        "text": "REFERENCES",
+        "bounding_boxes": [
+          {
+            "x": 0.455404,
+            "y": 0.953275,
+            "width": 0.089323,
+            "height": 0.008059
+          }
+        ]
+      },
+      {
+        "text": "1. NNF Working Group. Position statement and guidelines for use of therapeutic hypothermia to treat neonatal hypoxic ischemic encephalopathy in India. October 2021.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.967289,
+            "width": 0.758579,
+            "height": 0.005596
+          }
+        ]
+      },
+      {
+        "text": "2. NSW Agency for Clinical Innovation. Hypoxic ischaemic encephalopathy in newborns: recognition, monitoring and early management. Clinical practice guide. August 2026.",
+        "bounding_boxes": [
+          {
+            "x": 0.040385,
+            "y": 0.972935,
+            "width": 0.7842,
+            "height": 0.005596
+          }
+        ]
+      }
+    ]
   }
 ]
