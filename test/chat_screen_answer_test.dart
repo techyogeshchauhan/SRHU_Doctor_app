@@ -122,7 +122,7 @@ void main() {
 
     expect(find.text('Did you mean…'), findsOneWidget);
     expect(find.text('View in PDF'), findsNothing);
-    await tester.tap(find.widgetWithText(ActionChip, option.sectionTitle).first);
+    await tester.tap(find.widgetWithText(InkWell, option.sectionTitle).first);
     await tester.pumpAndSettle();
 
     expect(find.text('View in PDF'), findsOneWidget);
@@ -133,6 +133,35 @@ void main() {
     ]);
     expect(logRepo.logs.last.query, q);
     expect(logRepo.logs.last.regionId, option.chunkId);
+  });
+
+  testWidgets('choosing an ask-back option scrolls the choice into view',
+      (tester) async {
+    const q = 'How soon must CPAP be started?';
+    final option = (await StwAnswerer(retriever).answer(q)).options.first;
+
+    await pumpChat(tester);
+    tester.view.physicalSize = const Size(360, 640);
+    await tester.pumpAndSettle();
+    // Earlier answers fill the screen, so new messages land below it.
+    for (final earlier in [
+      'Initial CPAP pressure in preterm ≤34 weeks',
+      'What are the red flags for neonatal sepsis?',
+    ]) {
+      await ask(tester, earlier);
+    }
+    await ask(tester, q);
+    await tester.tap(find.widgetWithText(InkWell, option.sectionTitle).first);
+    await tester.pumpAndSettle();
+
+    final list = find.byWidgetPredicate(
+        (w) => w is ListView && w.scrollDirection == Axis.vertical);
+    final view = tester.getRect(list);
+    // Tree order: the option in the ask-back bubble, then the user's choice.
+    final choice = find.text(option.sectionTitle).at(1);
+    final rect = tester.getRect(choice);
+    expect(rect.top >= view.top && rect.bottom <= view.bottom, isTrue,
+        reason: 'chosen option $rect should be visible in $view');
   });
 
   testWidgets('case question echoes values and offers the assessment',

@@ -279,6 +279,10 @@ void main() {
     final minerals = feedingEvidence['feeding_minerals']!.join();
     expect(minerals, contains('total intake targets'));
     expect(minerals, contains('Supplement the shortfall'));
+    expect(
+        ctx.findings.firstWhere((f) => f.id == 'feeding.key_message').actions, [
+      'EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH'
+    ]);
     expect(ctx.hasFinding('feeding.poor_gain'), isFalse);
     expect(
         walk({feeding}, {...input(), feedingPoorGainKey: true})
@@ -307,7 +311,7 @@ void main() {
     expect(map.root(feeding)!.pending, isFalse);
     expect(map.topicOfFile('Feeding_Nutrition Final 22 Oct 26.pdf'), feeding);
     final boxes = map.boxes.where((b) => b.topic == feeding).toList();
-    expect(boxes, hasLength(24));
+    expect(boxes, hasLength(25));
     for (final id in feedingEvidence.keys) {
       expect(map.box(id), isNotNull);
       expect(map.box(id)!.source!.document, feedingStwDocument);

@@ -14,7 +14,8 @@ edition is August 2026, ICD-11 KB21. SHA-256:
 The user confirmed PDF-only clinical content with full application integration.
 No external NNF guideline, video or other clinical source has been imported.
 
-The evidence generator creates 25 cards / 58 complete source excerpts, with
+The evidence generator creates 26 cards / 59 complete source excerpts (25/58
+before the banner card was added; see the addendum), with
 page geometry, crops, a full-page render, retrieval fallback entries and graph
 headings. Repeated Sarnat words are matched within their own table row and
 column-heading area. The table and hypothermia crop were visually checked
@@ -144,3 +145,12 @@ USB stay-awake setting (`0`) was restored, and the local Web and dashboard QA
 servers were stopped. Automatic approval review rejected removal of the
 temporary `dashboard/dist-post-asphyxia-qa` build folder with the reason
 "blocked by policy"; that generated folder remains in place.
+
+## Addendum — banner key message and KPI heading (23 October 2026)
+
+A PDF-vs-app review found two differences, now corrected through `tools/update_post_asphyxia_source.py`:
+
+- The banner line "RECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE" is a new `post_asphyxia_key_message` card (PDF points 22,1322–820,1354). The assessment summary shows it after the KPIs as "Key message".
+- The KPI heading now matches the poster: "KEY PERFORMANCE INDICATORS (KPIs)".
+
+No other card changed. The source validator passes with 26 cards / 59 excerpts.

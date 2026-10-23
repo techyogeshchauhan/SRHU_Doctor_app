@@ -12,11 +12,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neonatal_stw/app.dart';
+import 'package:neonatal_stw/features/chatbot/data/bm25_retriever.dart';
+import 'package:neonatal_stw/features/chatbot/domain/answering/stw_answerer.dart';
+import 'package:neonatal_stw/features/chatbot/state/chatbot_provider.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/clinical_question.dart';
 import 'package:neonatal_stw/features/clinical_workflow/state/assessment_controller.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
 import 'package:neonatal_stw/features/follow_up/data/disease_follow_up_registry.dart';
 import 'package:neonatal_stw/features/follow_up/state/follow_up_controller.dart';
+
+import 'chatbot_eval/eval_harness.dart';
 
 /// Loads the bundled Poppins/Inter fonts so text is measured with the real
 /// glyph widths instead of the wide test font.
@@ -173,7 +178,8 @@ Object? sampleAnswer(ClinicalQuestion q, int variant, DateTime today) {
 }
 
 Future<void> runAudit(WidgetTester tester, Size size, String title,
-    Future<void> Function(Audit audit, ProviderContainer c) body) async {
+    Future<void> Function(Audit audit, ProviderContainer c) body,
+    {List<Override> overrides = const []}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -192,7 +198,8 @@ Future<void> runAudit(WidgetTester tester, Size size, String title,
     }
   };
   try {
-    await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
+    await tester.pumpWidget(
+        ProviderScope(overrides: overrides, child: const NeonatalStwApp()));
     await tester.pumpAndSettle();
     await dismissDialogs(tester);
     final c =
@@ -350,21 +357,42 @@ void main() {
     });
 
     testWidgets('chatbot answers at $w', (tester) async {
+      final retriever = Bm25Retriever(
+        initialChunks: loadRegions(),
+        initialSynonyms: loadSynonyms(),
+      );
+      const askBack = 'How soon must CPAP be started?';
+      final option =
+          (await StwAnswerer(retriever).answer(askBack)).options.first;
       await runAudit(tester, size, 'chat', (audit, c) async {
         routerOf(tester).go('/chat');
         await settle(tester);
+        Future<void> ask(String q) async {
+          await tester.enterText(find.byType(TextField).last, q);
+          await tester.tap(find.byIcon(Icons.send_rounded));
+          await visit(tester, audit, 'chat: $q');
+        }
+
+        // "Did you mean" options, then the answer for the chosen one.
+        await ask(askBack);
+        expect(find.text('Did you mean…'), findsOneWidget);
+        await tester
+            .tap(find.widgetWithText(InkWell, option.sectionTitle).first);
+        await visit(tester, audit, 'chat: chosen option answer');
+
         for (final q in [
           'Initial CPAP pressure in preterm ≤34 weeks',
           'What are the red flags for neonatal sepsis?',
           'How should the baby be positioned for KMC?',
           'What is the starting feed volume for a 1200 g baby?',
           'Post asphyxia Sarnat staging',
+          'Baby glucose 32 mg/dL, no symptoms, what next?',
         ]) {
-          await tester.enterText(find.byType(TextField).last, q);
-          await tester.testTextInput.receiveAction(TextInputAction.send);
-          await visit(tester, audit, 'chat: $q');
+          await ask(q);
         }
-      });
+        // Answers must actually render, or this check would pass vacuously.
+        expect(find.text('View in PDF'), findsWidgets);
+      }, overrides: [stwRetrieverProvider.overrideWithValue(retriever)]);
     });
   }
 }

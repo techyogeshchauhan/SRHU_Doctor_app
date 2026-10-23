@@ -8,7 +8,7 @@ Validated on 23 October 2026. The user confirmed `Feeding_Nutrition Final 22 Oct
 - PDF SHA-256: `b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e`.
 - New pure Dart workflow/rules/content: `lib/features/feeding/domain/`.
 - Registered in the existing assessment registry, PDF navigation, module cards, references, chatbot topic/routing, Knowledge Graph and STW Map.
-- Evidence: 24 source cards and 79 complete source excerpts, matching region and fallback catalogs, local word geometry, crops and a full-page WebP render. Table excerpts retain population, row labels and shared qualifications.
+- Evidence: 25 source cards and 80 complete source excerpts (24/79 before the banner card was added; see the addendum), matching region and fallback catalogs, local word geometry, crops and a full-page WebP render. Table excerpts retain population, row labels and shared qualifications.
 - `tools/update_feeding_source.py` rebuilds only this document's evidence. `tools/validate_feeding_source.py` verifies the pinned PDF, excerpts, exact geometry, crops, full-page render and fallback/graph synchronization.
 
 ## Clinical traceability
@@ -63,3 +63,7 @@ Logs, screenshots and structured platform results are under ignored `build/feedi
 - Web/PWA: `build/web/`, synchronized to sibling `neonatal_stw_web/`.
 
 The verified production APK was installed with `-r` to preserve existing data, and the installed base APK hash was checked against the release artifact. The isolated QA app was removed and the temporary USB screen-awake setting restored. No commit, push or live-server deployment was performed.
+
+## Addendum — banner key message (23 October 2026)
+
+A PDF-vs-app review found that the printed banner line was not available as app text. `tools/update_feeding_source.py` now builds a `feeding_key_message` card from the banner box (PDF points 22,1396–820,1418), containing only the printed line "EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH". The assessment summary shows it after the KPIs as "Key message"; it is also in the region and fallback catalogs, the STW Map and the chatbot evidence. No other card changed. The source validator passes with 25 cards / 80 excerpts.

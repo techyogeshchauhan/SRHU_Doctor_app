@@ -86,6 +86,9 @@ const postAsphyxiaEvidence = <String, List<String>>{
     "Timely neurological assessment (%): At-risk neonates with a documented structured neurological assessment within 1 h* / All at-risk neonates ×100. Target >95%. *Within 1 h of birth (inborn) / admission (outborn)",
     "Timely physiological assessment (%): Neonates with suspected HIE with complete physiological assessment** within 1 h of admission / All admitted neonates with suspected HIE ×100. Target >95%. **Temperature, glucose, oxygenation and perfusion documented",
   ],
+  "post_asphyxia_key_message": [
+    "RECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE",
+  ],
   "post_asphyxia_related": [
     "Modified Sarnat assessment: Examination demonstration video",
     "Therapeutic hypothermia: NNF India position statement (2021)",
@@ -132,7 +135,9 @@ const postAsphyxiaHeadings = <String, String>{
   "post_asphyxia_discharge": "DISCHARGE",
   "post_asphyxia_dos": "DOs",
   "post_asphyxia_donts": "DON’Ts",
-  "post_asphyxia_kpis": "KEY PERFORMANCE INDICATORS",
+  "post_asphyxia_kpis": "KEY PERFORMANCE INDICATORS (KPIs)",
+  "post_asphyxia_key_message":
+      "RECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE",
   "post_asphyxia_related": "RELATED INFORMATION",
   "post_asphyxia_abbreviations": "ABBREVIATIONS",
   "post_asphyxia_references": "REFERENCES",

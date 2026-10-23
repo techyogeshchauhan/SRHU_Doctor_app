@@ -15003,6 +15003,57 @@
     ]
   },
   {
+    "id": "feeding_key_message",
+    "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "page": 1,
+    "title": "EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH",
+    "section": "EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH",
+    "type": "text",
+    "text": "EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH\nEARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH",
+    "aliases": [
+      "early breastmilk feeding and rapid advancement improve survival and growth"
+    ],
+    "example_questions": [],
+    "intents": [
+      "benefit"
+    ],
+    "source_revision": "Feeding_Nutrition Final 22 Oct 26.pdf",
+    "source_sha256": "b23f66e90f98f06e5edf27ba9a37d4f7f7fea6bc8cda037683323815d522769e",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.854512,
+    "w": 0.947867,
+    "h": 0.013467,
+    "crop_image": "assets/regions/crops/feeding_key_message.webp",
+    "segments": [
+      {
+        "text": "EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH",
+        "bounding_boxes": [
+          {
+            "x": 0.17747,
+            "y": 0.857789,
+            "width": 0.645191,
+            "height": 0.008208
+          }
+        ]
+      }
+    ],
+    "chunk_id": "feeding_key_message",
+    "section_title": "EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH",
+    "keywords": [
+      "early breastmilk feeding and rapid advancement improve survival and growth"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.026132,
+        "y": 0.854512,
+        "width": 0.947867,
+        "height": 0.013467
+      }
+    ]
+  },
+  {
     "id": "feeding_related",
     "document": "Feeding_Nutrition Final 22 Oct 26.pdf",
     "page": 1,
@@ -16805,12 +16856,12 @@
     "id": "post_asphyxia_kpis",
     "document": "Post Asphyxia 16-10-26.pdf",
     "page": 1,
-    "title": "KEY PERFORMANCE INDICATORS",
-    "section": "KEY PERFORMANCE INDICATORS",
+    "title": "KEY PERFORMANCE INDICATORS (KPIs)",
+    "section": "KEY PERFORMANCE INDICATORS (KPIs)",
     "type": "text",
-    "text": "KEY PERFORMANCE INDICATORS\nTimely neurological assessment (%): At-risk neonates with a documented structured neurological assessment within 1 h* / All at-risk neonates ×100. Target >95%. *Within 1 h of birth (inborn) / admission (outborn)\nTimely physiological assessment (%): Neonates with suspected HIE with complete physiological assessment** within 1 h of admission / All admitted neonates with suspected HIE ×100. Target >95%. **Temperature, glucose, oxygenation and perfusion documented",
+    "text": "KEY PERFORMANCE INDICATORS (KPIs)\nTimely neurological assessment (%): At-risk neonates with a documented structured neurological assessment within 1 h* / All at-risk neonates ×100. Target >95%. *Within 1 h of birth (inborn) / admission (outborn)\nTimely physiological assessment (%): Neonates with suspected HIE with complete physiological assessment** within 1 h of admission / All admitted neonates with suspected HIE ×100. Target >95%. **Temperature, glucose, oxygenation and perfusion documented",
     "aliases": [
-      "key performance indicators"
+      "key performance indicators (kpis)"
     ],
     "example_questions": [],
     "intents": [
@@ -16910,9 +16961,9 @@
       }
     ],
     "chunk_id": "post_asphyxia_kpis",
-    "section_title": "KEY PERFORMANCE INDICATORS",
+    "section_title": "KEY PERFORMANCE INDICATORS (KPIs)",
     "keywords": [
-      "key performance indicators"
+      "key performance indicators (kpis)"
     ],
     "bounding_boxes": [
       {
@@ -16920,6 +16971,58 @@
         "y": 0.73515,
         "width": 0.947867,
         "height": 0.068557
+      }
+    ]
+  },
+  {
+    "id": "post_asphyxia_key_message",
+    "document": "Post Asphyxia 16-10-26.pdf",
+    "page": 1,
+    "title": "RECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE",
+    "section": "RECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE",
+    "type": "text",
+    "text": "RECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE\nRECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE",
+    "aliases": [
+      "recognize evolving hie early • reassess serially • provide timely supportive care"
+    ],
+    "example_questions": [],
+    "intents": [
+      "benefit",
+      "management"
+    ],
+    "source_revision": "Post Asphyxia 16-10-26.pdf",
+    "source_sha256": "6759f46ab811d9bd40267d253117b7ff59691462ad78cfd2dfdcaacffc6071aa",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.809216,
+    "w": 0.947867,
+    "h": 0.019588,
+    "crop_image": "assets/regions/crops/post_asphyxia_key_message.webp",
+    "segments": [
+      {
+        "text": "RECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE",
+        "bounding_boxes": [
+          {
+            "x": 0.204849,
+            "y": 0.815533,
+            "width": 0.590433,
+            "height": 0.007462
+          }
+        ]
+      }
+    ],
+    "chunk_id": "post_asphyxia_key_message",
+    "section_title": "RECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE",
+    "keywords": [
+      "recognize evolving hie early • reassess serially • provide timely supportive care"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.026132,
+        "y": 0.809216,
+        "width": 0.947867,
+        "height": 0.019588
       }
     ]
   },

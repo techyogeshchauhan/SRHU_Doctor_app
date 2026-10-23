@@ -97,6 +97,9 @@ const feedingEvidence = <String, List<String>>{
     "Timely breastmilk feeding (%): Preterm/LBW neonates requiring facility-based care who received breastmilk within 12 h of birth (inborn) or admission (outborn) / All preterm/LBW neonates requiring facility-based care ×100. Target ≥80%",
     "Exclusive breastmilk feeding at discharge (%): Preterm/LBW neonates admitted to SNCU/NICU who received exclusive breastmilk in the final 24 h before discharge / Eligible preterm/LBW neonates discharged alive from SNCU/NICU ×100. Target ≥90%",
   ],
+  "feeding_key_message": [
+    "EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH",
+  ],
   "feeding_related": [
     "RELATED INFORMATION",
     "Expressing the first milk",
@@ -151,6 +154,8 @@ const feedingHeadings = <String, String>{
   "feeding_dos": "DOs",
   "feeding_donts": "DON’Ts",
   "feeding_kpis": "KEY PERFORMANCE INDICATORS (KPIs)",
+  "feeding_key_message":
+      "EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH",
   "feeding_related": "RELATED INFORMATION",
   "feeding_abbreviations": "ABBREVIATIONS",
   "feeding_references": "REFERENCES",

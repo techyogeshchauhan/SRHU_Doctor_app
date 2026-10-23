@@ -118,6 +118,10 @@ CARDS = {
         'Timely breastmilk feeding (%): Preterm/LBW neonates requiring facility-based care who received breastmilk within 12 h of birth (inborn) or admission (outborn) / All preterm/LBW neonates requiring facility-based care ×100. Target ≥80%',
         'Exclusive breastmilk feeding at discharge (%): Preterm/LBW neonates admitted to SNCU/NICU who received exclusive breastmilk in the final 24 h before discharge / Eligible preterm/LBW neonates discharged alive from SNCU/NICU ×100. Target ≥90%',
     ], ['kpi']),
+    # Full-width banner; it has no separate heading, so the printed line is both.
+    'key_message': ((22,1396,820,1418), 'EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH', [
+        'EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH',
+    ], ['benefit']),
     'related': ((22,1423,820,1510), 'RELATED INFORMATION', [], ['procedure']),
     'abbreviations': ((22,1513,820,1571), 'ABBREVIATIONS', [], ['abbreviation']),
     'references': ((22,1574,820,1613), 'REFERENCES', [], ['reference']),

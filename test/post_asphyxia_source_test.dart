@@ -197,7 +197,8 @@ void main() {
       'discharge',
       'dos',
       'donts',
-      'kpis'
+      'kpis',
+      'key_message'
     ]) {
       expect(
           ctx.findings

@@ -28,6 +28,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
 
+  /// Keys of rendered messages by index, so the newest user message can be
+  /// scrolled into view.
+  final Map<int, GlobalKey> _messageKeys = {};
+
   static const List<String> _sampleQueries = [
     'Initial CPAP pressure in preterm ≤34 weeks',
     'Caffeine citrate indication and dosage',
@@ -61,14 +65,32 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     ref.read(chatbotNotifierProvider.notifier).sendQuery(query);
     _textController.clear();
-    _scrollToBottom();
   }
 
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent + 80,
+  /// Scrolls the newest user message (a typed query or a chosen option) to
+  /// the top, so the answer below it is read from its start. With little
+  /// content this simply ends at the bottom.
+  void _scrollToLatest(ChatbotState state) {
+    final index = state.messages.lastIndexWhere((m) => m.isUser);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || !_scrollController.hasClients) return;
+      var target = index < 0 ? null : _messageKeys[index]?.currentContext;
+      if (target == null) {
+        // Not laid out yet (far below the view): go to the end first.
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        await WidgetsBinding.instance.endOfFrame;
+        if (!mounted) return;
+        target = index < 0 ? null : _messageKeys[index]?.currentContext;
+      }
+      if (target != null && target.mounted) {
+        await Scrollable.ensureVisible(
+          target,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      } else if (_scrollController.hasClients) {
+        await _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -107,6 +129,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(chatbotNotifierProvider);
     final theme = Theme.of(context);
+
+    // Auto-scroll on every new message (typed query, suggestion, chosen
+    // option, answer) and when the loading bubble appears.
+    ref.listen<ChatbotState>(chatbotNotifierProvider, (prev, next) {
+      final before = prev?.messages.length ?? 0;
+      if (next.messages.length < before) _messageKeys.clear();
+      if (next.messages.length > before ||
+          (next.isLoading && !(prev?.isLoading ?? false))) {
+        _scrollToLatest(next);
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -183,7 +216,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               return _buildLoadingBubble();
                             }
                             final msg = state.messages[index];
-                            return _buildMessageItem(context, msg, theme);
+                            return KeyedSubtree(
+                              key: _messageKeys.putIfAbsent(
+                                  index, () => GlobalKey()),
+                              child: _buildMessageItem(context, msg, theme),
+                            );
                           },
                         ),
                 ),
@@ -253,47 +290,53 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _sampleQueries.map((q) {
-              // A chip has a fixed height; this pill grows so long queries
-              // wrap in full on narrow phones.
-              return Material(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(
-                      color: AppTheme.midBlue.withValues(alpha: 0.3)),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: () => _submitQuery(q),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.search,
-                            size: 14, color: AppTheme.primaryBlue),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: Text(
-                            q,
-                            style: const TextStyle(
-                              fontSize: 12.5,
-                              color: AppTheme.primaryNavy,
-                              fontWeight: FontWeight.w500,
-                              height: 1.3,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+            children: [
+              for (final q in _sampleQueries)
+                _choicePill(q,
+                    icon: Icons.search, onTap: () => _submitQuery(q)),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  /// Tappable choice (suggested query or "Did you mean" option). Unlike a
+  /// chip it grows with its text, so long choices show in full.
+  Widget _choicePill(String text,
+      {required VoidCallback onTap, IconData? icon}) {
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: AppTheme.midBlue.withValues(alpha: 0.35)),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 14, color: AppTheme.primaryBlue),
+                const SizedBox(width: 6),
+              ],
+              Flexible(
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    color: AppTheme.primaryNavy,
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -440,8 +483,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             ? Colors.red.shade800
                             : AppTheme.primaryNavy,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   if (chunk != null)
@@ -493,22 +534,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       runSpacing: 8,
                       children: [
                         for (final option in answer.options)
-                          ActionChip(
-                            backgroundColor: Colors.white,
-                            side: BorderSide(
-                              color: AppTheme.midBlue.withValues(alpha: 0.4),
-                            ),
-                            label: Text(
-                              option.sectionTitle,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12.5,
-                                color: AppTheme.primaryNavy,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            onPressed: () => ref
+                          _choicePill(
+                            option.sectionTitle,
+                            onTap: () => ref
                                 .read(chatbotNotifierProvider.notifier)
                                 .chooseOption(msg, option),
                           ),
@@ -569,15 +597,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '📄 ${chunk.document} - Page ${chunk.page}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.primaryNavy,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(top: 1, right: 4),
+                                child: Icon(Icons.description_outlined,
+                                    size: 13, color: AppTheme.primaryNavy),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${chunk.document} - Page ${chunk.page}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.primaryNavy,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           Text(
                             'Highlighted section on page ${chunk.page}',

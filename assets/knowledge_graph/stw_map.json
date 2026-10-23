@@ -174,10 +174,12 @@
     "post_asphyxia_discharge": "DISCHARGE",
     "post_asphyxia_dos": "DOs",
     "post_asphyxia_donts": "DON’Ts",
-    "post_asphyxia_kpis": "KEY PERFORMANCE INDICATORS",
+    "post_asphyxia_kpis": "KEY PERFORMANCE INDICATORS (KPIs)",
     "post_asphyxia_related": "RELATED INFORMATION",
     "post_asphyxia_abbreviations": "ABBREVIATIONS",
-    "post_asphyxia_references": "REFERENCES"
+    "post_asphyxia_references": "REFERENCES",
+    "feeding_key_message": "EARLY BREASTMILK FEEDING AND RAPID ADVANCEMENT IMPROVE SURVIVAL AND GROWTH",
+    "post_asphyxia_key_message": "RECOGNIZE EVOLVING HIE EARLY • REASSESS SERIALLY • PROVIDE TIMELY SUPPORTIVE CARE"
   },
   "contexts": {
     "rd_initial_preterm_cpap_caffeine": [

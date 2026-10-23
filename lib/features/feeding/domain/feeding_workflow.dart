@@ -332,5 +332,6 @@ final feedingWorkflow = StwWorkflow(
     _evidence('donts', const AllOf([]), title: 'DON’Ts'),
     _evidence('kpis', const AllOf([]),
         title: 'Key performance indicators (KPIs)'),
+    _evidence('key_message', const AllOf([]), title: 'Key message'),
   ],
 );

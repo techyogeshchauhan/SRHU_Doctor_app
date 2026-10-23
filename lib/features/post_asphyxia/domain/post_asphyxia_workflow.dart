@@ -338,5 +338,7 @@ final postAsphyxiaWorkflow = StwWorkflow(
       'kpis'
     ])
       _evidence(suffix, _always),
+    // The banner text is its own heading; avoid repeating it as the title.
+    _evidence('key_message', _always, title: 'Key message'),
   ],
 );
