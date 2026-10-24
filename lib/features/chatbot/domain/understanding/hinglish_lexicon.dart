@@ -54,6 +54,14 @@ const hinglishPhrases = <String, String>{
   'se kam': 'below',
   'kaisa dikhta': 'look like signs',
   'kaisa lagta': 'look like signs',
+  // Extent of jaundice: hands and feet is Kramer zone 5 (palms and soles).
+  'haath pair': 'hands and feet',
+  'hath pair': 'hands and feet',
+  'haath paon': 'hands and feet',
+  'saans tez': 'fast breathing',
+  'tez saans': 'fast breathing',
+  'doodh nahi pee': 'poor feeding',
+  'doodh kam pee': 'poor feeding',
 };
 
 /// Single words.
@@ -184,6 +192,22 @@ const hinglishWords = <String, String>{
   'jyada': 'more',
   'daure': 'seizures',
   'piliya': 'jaundice',
+  'pilia': 'jaundice',
+  'peeliya': 'jaundice',
+  'peelia': 'jaundice',
+  'peela': 'yellow',
+  'pila': 'yellow',
+  'hatheli': 'palms',
+  'hatheliyan': 'palms',
+  'talve': 'soles',
+  'talwe': 'soles',
+  'talwon': 'soles',
+  'talvon': 'soles',
+  'chehra': 'face',
+  'chhati': 'chest',
+  'jaangh': 'thighs',
+  'haath': 'arms',
+  'sust': 'lethargic',
   'mausam': 'weather',
   // Particles (dropped)
   'hai': '',

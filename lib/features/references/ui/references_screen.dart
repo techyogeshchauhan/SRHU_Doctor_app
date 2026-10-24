@@ -11,6 +11,7 @@ import '../../../shared/stw_disclaimer.dart';
 import '../../ancs/domain/ancs_content.dart';
 import '../../hypoglycemia/domain/hypo_content.dart';
 import '../../feeding/domain/feeding_content.dart';
+import '../../jaundice/domain/jaundice_content.dart';
 import '../../post_asphyxia/domain/post_asphyxia_content.dart';
 
 const triageReferences = [
@@ -171,6 +172,17 @@ class ReferencesScreen extends StatelessWidget {
                     assetPath: postAsphyxiaPdfAsset,
                     title: postAsphyxiaPdfTitle),
               ),
+              const SizedBox(height: 12),
+              _PdfWorkflowCard(
+                title: jaundicePdfTitle,
+                subtitle:
+                    'Standard Treatment Workflow · ICD-10-P59.9 · Infants ≥35 weeks · ICMR / DHR · July 2020',
+                accentColor: const Color(0xFFB45309),
+                semanticsLabel: 'Open Neonatal Jaundice STW PDF',
+                mapFocus: 'jaundice',
+                onViewPdf: () => _openPdf(context,
+                    assetPath: jaundicePdfAsset, title: jaundicePdfTitle),
+              ),
               const SizedBox(height: 20),
               _PdfWorkflowCard(
                 title: sepsisPdfTitle,
@@ -327,6 +339,11 @@ class ReferencesScreen extends StatelessWidget {
                           postAsphyxiaEvidence['post_asphyxia_references']!
                               .skip(1)
                               .toList()
+                        ),
+                        (
+                          jaundicePdfTitle,
+                          const Color(0xFFB45309),
+                          jaundiceEvidence['jaundice_references']!
                         ),
                         (ancsPdfTitle, _accentAncs, ancsReferences),
                         (hypoPdfTitle, _accentHypo, hypoReferences),

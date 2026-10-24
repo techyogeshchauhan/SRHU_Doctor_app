@@ -6,6 +6,7 @@ import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../data/repositories/audit_log_repository.dart';
 import '../../../data/repositories/chat_log_repository.dart';
+import '../../case_entry/domain/case_parser.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../knowledge_graph/ui/stw_map_link.dart';
 import '../../../shared/pdf_navigation.dart';
@@ -268,7 +269,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ask clinical questions about Triage, Kangaroo Mother Care (KMC), Respiratory Distress in Neonates (RD), Retinopathy of Prematurity (ROP), Antenatal Corticosteroids (ANCS) Neonatal Hypoglycemia, Sepsis in Neonates, Post Asphyxia or Feeding and Nutrition in Neonates. Answers are extracted directly from the approved STWs with visual PDF highlighting.',
+            'Ask clinical questions about Triage, Kangaroo Mother Care (KMC), Respiratory Distress in Neonates (RD), Retinopathy of Prematurity (ROP), Antenatal Corticosteroids (ANCS) Neonatal Hypoglycemia, Sepsis in Neonates, Post Asphyxia, Neonatal Jaundice or Feeding and Nutrition in Neonates. Answers are extracted directly from the approved STWs with visual PDF highlighting.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.black87,
               height: 1.4,
@@ -371,7 +372,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget _buildMessageItem(
       BuildContext context, ChatMessage msg, ThemeData theme) {
     if (msg.isUser) {
-      return Align(
+      // A case description spanning several STWs can be opened as a guided
+      // multi-STW assessment instead.
+      final parsed = parseCase(msg.text);
+      final asCase = parsed.topics.length >= 2 && parsed.items.length >= 2;
+      final bubble = Align(
         alignment: Alignment.centerRight,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 6),
@@ -402,6 +407,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
           ),
         ),
+      );
+      if (!asCase) return bubble;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          bubble,
+          ActionChip(
+            key: const ValueKey('open-as-case'),
+            avatar: const Icon(Icons.edit_note_rounded,
+                size: 16, color: AppTheme.primaryBlue),
+            label: const Text('Open as guided case →',
+                style: TextStyle(fontSize: 12, color: AppTheme.primaryBlue)),
+            onPressed: () {
+              ref.read(auditLogProvider).tap('chat_open_as_case');
+              context.push('/case', extra: msg.text);
+            },
+          ),
+        ],
       );
     }
 
@@ -701,6 +724,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         StwTopic.sepsis => NeonatalCondition.sepsis,
         StwTopic.feeding => NeonatalCondition.fluidsAndFeeds,
         StwTopic.postAsphyxia => NeonatalCondition.hie,
+        StwTopic.jaundice => NeonatalCondition.jaundice,
         null => null,
       };
 

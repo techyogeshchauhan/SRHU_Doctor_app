@@ -408,6 +408,14 @@ Section numbers refer to `docs/STW_APP_SPEC_FROM_PDFs.md`.
 
 Ambiguous STW lines (spec §6, open points 6.1–6.9) are implemented as documented and tagged **Requires clinical review** in the summary.
 
+### Neonatal Jaundice ≥35 weeks (`jaundice_rules.dart`, `jaundice_workflow.dart`)
+
+Serious jaundice (any one of 4 criteria) → intensive phototherapy. Otherwise a TSB is needed if any criterion applies (first 24 hrs, beyond 24 hrs >12–14 mg/dL, near PT cut-off, or unsure). The STW prints no cut-off chart, so the clinician records TSB against the unit chart. GA <35 weeks is not covered. Details and open review points: `docs/JAUNDICE_AND_CASE_HISTORY_VALIDATION.md`.
+
+### Case history → multi-STW plan (`case_entry/`)
+
+Free text is read by on-device rules into topics and pre-filled answers (`case_parser.dart`). The clinician confirms them on the review screen and again on each page; recommendations come only from the STW rules. Multi-STW summaries begin with an "Immediate actions" strip.
+
 ---
 
 ## 9. Web, PWA and deployment

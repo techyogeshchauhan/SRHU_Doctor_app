@@ -185,6 +185,16 @@ class _ConditionSelectionScreenState
         ),
         actions: [
           IconButton(
+            key: const ValueKey('open-case-history'),
+            icon: const Icon(Icons.edit_note_rounded,
+                color: AppTheme.primaryNavy),
+            tooltip: 'Case history',
+            onPressed: () {
+              ref.read(auditLogProvider).tap('open_case_history');
+              context.push('/case');
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.account_tree_outlined,
                 color: AppTheme.primaryNavy),
             tooltip: 'STW Map',

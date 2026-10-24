@@ -37,7 +37,7 @@ void main() {
     expect(listedConditionCount,
         stwModuleDefinitions.map((d) => d.id).toSet().length);
     // Triage runs before the modules and is not counted as one.
-    expect(availableDiseaseCount, 8);
+    expect(availableDiseaseCount, 9);
     expect(listedConditionCount, 13);
   });
 

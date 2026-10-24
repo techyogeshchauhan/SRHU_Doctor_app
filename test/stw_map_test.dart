@@ -118,6 +118,7 @@ void main() {
           NeonatalCondition.respiratoryDistress,
           NeonatalCondition.rop,
           NeonatalCondition.kmc,
+          NeonatalCondition.jaundice,
         });
       }
     });

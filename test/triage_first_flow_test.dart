@@ -223,13 +223,14 @@ void main() {
         for (final d in conditionDefinitions)
           if (d.implemented && d.id != NeonatalCondition.triage) d.id,
       ];
-      expect(remaining, hasLength(8));
+      expect(remaining, hasLength(9));
       expect(remaining, [
         NeonatalCondition.fluidsAndFeeds,
         NeonatalCondition.hypoglycemia,
         NeonatalCondition.respiratoryDistress,
         NeonatalCondition.hie,
         NeonatalCondition.sepsis,
+        NeonatalCondition.jaundice,
         NeonatalCondition.kmc,
         NeonatalCondition.ancs,
         NeonatalCondition.rop,
@@ -244,6 +245,7 @@ void main() {
             'Respiratory Distress in Neonates',
             'Post Asphyxia',
             'Sepsis in Neonates',
+            'Neonatal Jaundice',
             'Kangaroo Mother Care',
             'Antenatal Corticosteroids for Preterm Birth',
             'Retinopathy of Prematurity (ROP)',
