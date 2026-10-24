@@ -98,11 +98,56 @@ level and chart questions stay out of scope.
   guided case →" under a chat message that holds two or more values across
   two or more STWs.
 
+## Part 3: Structured case entry (no narrative typing)
+
+The Case history screen now opens on **Select findings**. **Type or dictate**
+is still there as the alternative, and each mode keeps its entries when you
+switch between them.
+
+- **Sections** (collapsible, Basic information open first):
+  - Basic information: GA known / uncertain / not recorded, completed weeks
+    and + days, birth weight in kg, age in hours or days.
+  - Temperature: °C or °F.
+  - Respiratory assessment: RR, RD signs present / none / not assessed, and
+    "Apnoea/gasping, poor effort or shock".
+  - Jaundice assessment: yes / no / unknown. When yes: Kramer zone, "visible
+    in first 24 hrs" (only for babies 24 h or older), ABE and posturing signs,
+    TcB, TSB.
+  - Other findings: BG, hypoglycemia "whom to screen", sepsis red flags and
+    yellow signs, post asphyxia risk.
+- **Options are the existing STW question options.** Nothing new is added:
+  no new findings, thresholds or classifications.
+- **Validation.** Limits come from the question each field fills (for
+  example, birth weight 300–6000 g, entered as 0.3–6 kg). A value outside the
+  limits gets an error message under the field and blocks the review; it is
+  never clamped or accepted. An empty field means "not recorded".
+- **Nothing changes silently.** The summary shows values as entered. The
+  analysis screen shows any conversion with a note: kg → g, days → hours
+  (at least N × 24, "check the age in hours"), °F → °C. A value that no
+  selected STW asks is labelled "Not asked by the selected STWs: not used".
+- **Temperature is never classified.** It pre-fills only the Triage
+  temperature question, and Triage classifies it only if the clinician adds
+  Triage on the analysis screen. It selects no STW by itself.
+- **Flags.** These appear under "Check before starting" and no guidance is
+  inferred for them: jaundice unknown, jaundice extent not recorded, GA not
+  recorded with jaundice (the STW covers ≥35 weeks only), and an age of
+  0 days or day 1 (not converted to hours).
+- **Flow.** Form → Review case (summary with Edit per section) → Analyse
+  Case → the existing analysis screen (values, detected STWs with their PDF
+  references, flags) → Start guided plan → the existing assessment. Text and
+  form use the same builder (`buildCase` in `case_parser.dart`); the engine,
+  STW rules and Triage logic are unchanged.
+- **Sepsis.** When red flags or yellow signs are selected, the sepsis stage
+  is pre-filled as "Initial assessment" (those questions belong to that
+  stage), with a note to change it if this is a review.
+
 ## Verification
 
 - `flutter test`: the full suite passes, including the new
   `jaundice_rules_test`, `jaundice_workflow_test`, `jaundice_chatbot_test`,
-  `case_parser_test` and `case_entry_flow_widget_test`.
+  `case_parser_test`, `structured_case_test` and
+  `case_entry_flow_widget_test` (structured flow, edit and validation, flags,
+  mode switching, a 360 px phone layout, and the text/dictation flow).
 - `flutter analyze`: no issues in `lib/`.
 - Manual: Home → Case history → "Baby, 36 wk, BW 2.4 kg, day 3. RR 70/min.
   Jaundice up to palms and soles." Then try "33 wk, jaundice up to chest" and

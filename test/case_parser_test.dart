@@ -108,7 +108,10 @@ void main() {
   test('day 1 is not converted (could be under or over 24 h)', () {
     final c = parseCase('day 1, jaundice face');
     expect(c.answers, isNot(contains(jaundiceAgeHoursKey)));
-    expect(c.notes.single, contains('Enter the age in hours'));
+    expect(c.flags, [
+      contains('Enter the age in hours'),
+      contains('Gestational age not recorded'),
+    ]);
     expect(parseCase('20 hrs old, jaundice face').answers[jaundiceAgeHoursKey],
         20);
     expect(parseCase('jaundice in first 24 hrs').answers,

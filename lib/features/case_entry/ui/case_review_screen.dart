@@ -8,6 +8,7 @@ import '../../../core/widgets/back_to_home_button.dart';
 import '../../../core/widgets/layout.dart';
 import '../../clinical_workflow/domain/shared_questions.dart';
 import '../../clinical_workflow/state/assessment_controller.dart';
+import '../../../shared/pdf_navigation.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../domain/case_parser.dart';
 
@@ -77,6 +78,16 @@ class _CaseReviewScreenState extends ConsumerState<CaseReviewScreen> {
     final p = widget.parsed;
     final text = Theme.of(context).textTheme;
     final small = text.bodySmall?.copyWith(color: AppTheme.mutedText);
+    // Answers the selected STWs do not ask are dropped by the engine; say so
+    // instead of dropping them silently.
+    final kept = ref
+        .read(assessmentEngineProvider)
+        .evaluate(
+          selected: _topics,
+          answers: _answers,
+          today: ref.read(assessmentTodayProvider),
+        )
+        .answers;
     final offered = [
       for (final d in conditionDefinitions)
         if (d.implemented) d.id,
@@ -113,6 +124,14 @@ class _CaseReviewScreenState extends ConsumerState<CaseReviewScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (p.flags.isNotEmpty)
+                  SectionCard(
+                    key: const ValueKey('case-flags'),
+                    title: 'Check before starting',
+                    subtitle: 'Missing or ambiguous information. No guidance '
+                        'is inferred for it.',
+                    child: Bullets(p.flags),
+                  ),
                 SectionCard(
                   title: 'Values read from the case',
                   subtitle: 'Check each value. You will confirm them again on '
@@ -124,6 +143,7 @@ class _CaseReviewScreenState extends ConsumerState<CaseReviewScreen> {
                             for (final item in p.items)
                               if (_answers.containsKey(item.key))
                                 _ItemRow(
+                                  unused: !kept.containsKey(item.key),
                                   key: ValueKey('case-item-${item.key}'),
                                   item: item,
                                   controller: _edits[item.key],
@@ -160,6 +180,31 @@ class _CaseReviewScreenState extends ConsumerState<CaseReviewScreen> {
                               '${definitionOf(e.key).title}: ${e.value}',
                               style: small),
                         ),
+                      if (_topics.any((c) => stwPdfFor(c) != null)) ...[
+                        const SizedBox(height: 10),
+                        Text('STW references', style: small),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          children: [
+                            for (final c in offered)
+                              if (_topics.contains(c))
+                                if (stwPdfFor(c) case final pdf?)
+                                  OutlinedButton.icon(
+                                    key: ValueKey('case-pdf-${c.name}'),
+                                    onPressed: () => openStwPdf(context,
+                                        assetPath: pdf.asset,
+                                        title: pdf.title,
+                                        origin: 'case_review'),
+                                    icon: const Icon(
+                                        Icons.picture_as_pdf_outlined,
+                                        size: 16),
+                                    label: Text(pdf.title),
+                                  ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -204,12 +249,16 @@ class _ItemRow extends StatelessWidget {
     required this.onChanged,
     required this.onRemove,
     this.controller,
+    this.unused = false,
   });
 
   final ParsedItem item;
   final TextEditingController? controller;
   final ValueChanged<String> onChanged;
   final VoidCallback onRemove;
+
+  /// Not asked by any selected STW.
+  final bool unused;
 
   @override
   Widget build(BuildContext context) {
@@ -254,6 +303,9 @@ class _ItemRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text('From: "${item.source}"', style: small),
                 if (item.note != null) Text(item.note!, style: small),
+                if (unused)
+                  Text('Not asked by the selected STWs: not used',
+                      style: small?.copyWith(fontStyle: FontStyle.italic)),
               ],
             ),
           ),

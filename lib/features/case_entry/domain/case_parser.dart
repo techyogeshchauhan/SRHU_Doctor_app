@@ -1,24 +1,31 @@
-/// Free-text case history → STW topics and pre-filled answers. Pure Dart.
+/// Case history → STW topics and pre-filled answers. Pure Dart.
 ///
-/// Deterministic rules on top of the chatbot's `analyzeQuery()`; no AI. The
-/// parser only fills answers to existing questions (keyed by their ids):
-/// every recommendation still comes from the STW rules, and every value is
-/// shown to the clinician to confirm before and during the assessment.
+/// Two inputs share one builder: free text ([parseCase], deterministic rules
+/// on top of the chatbot's `analyzeQuery()`; no AI) and the structured form
+/// (`structured_case.dart`). Both fill [CaseFacts]; [buildCase] turns them
+/// into topics and answers to existing questions (keyed by their ids). Every
+/// recommendation still comes from the STW rules, and every value is shown to
+/// the clinician to confirm before and during the assessment.
 library;
 
 import '../../chatbot/domain/understanding/query_analyzer.dart';
+import '../../clinical_workflow/domain/clinical_question.dart';
 import '../../clinical_workflow/domain/shared_questions.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../hypoglycemia/domain/hypo_rules.dart';
 import '../../hypoglycemia/domain/hypo_workflow.dart';
 import '../../jaundice/domain/jaundice_rules.dart';
 import '../../jaundice/domain/jaundice_workflow.dart';
+import '../../post_asphyxia/domain/post_asphyxia_workflow.dart';
 import '../../rd/domain/rd_rules.dart';
 import '../../rd/domain/rd_workflow.dart';
+import '../../sepsis/domain/sepsis_workflow.dart';
+import '../../triage/domain/triage_workflow.dart';
 
 /// How a value can be edited on the review screen.
 enum ParsedValueKind { integer, decimal, fixed }
 
-/// One value read from the text, for the "We understood" screen.
+/// One value read from the case, for the "We understood" screen.
 class ParsedItem {
   const ParsedItem({
     required this.key,
@@ -39,14 +46,15 @@ class ParsedItem {
   /// Value as shown, with its unit (e.g. "70/min").
   final String display;
 
-  /// The words of the case history it was read from.
+  /// The words of the case history it was read from, or the value as the
+  /// clinician entered it on the form.
   final String source;
   final ParsedValueKind kind;
 
   /// Topic whose question it fills; null for shared baby details.
   final NeonatalCondition? topic;
 
-  /// How the value was derived, when not written as such (e.g. kg → g).
+  /// How the value was derived, when not entered as such (e.g. kg → g).
   final String? note;
 }
 
@@ -59,8 +67,10 @@ class ParsedCase {
     required this.items,
     required this.notes,
     required this.unrecognised,
+    this.flags = const [],
   });
 
+  /// The free text, or the structured summary for form input.
   final String text;
 
   /// STW topics the findings point to (in topic order).
@@ -74,13 +84,45 @@ class ParsedCase {
   final List<ParsedItem> items;
 
   /// Things understood but not pre-filled (e.g. "Noted as absent: no
-  /// grunting", "Day 1: enter the age in hours").
+  /// grunting").
   final List<String> notes;
+
+  /// Missing, ambiguous or unsupported information the clinician should
+  /// check. No guidance is inferred for these.
+  final List<String> flags;
 
   /// Parts of the text nothing matched; they were ignored.
   final List<String> unrecognised;
 
   bool get isEmpty => topics.isEmpty && items.isEmpty;
+}
+
+/// Values of one case before they become answers. Each value keeps where it
+/// came from ([gaSrc], ...): a clause of the text, or the entry on the form.
+class CaseFacts {
+  int? ga, gaDays, bw, rr, bg, ageHours, dayOfLife, ageDays, kramer;
+  String? gaSrc, bwSrc, rrSrc, bgSrc, ageSrc, daySrc, ageDaysSrc, kramerSrc;
+
+  /// GA recorded as uncertain (the "GA uncertain" answer).
+  bool gaUncertain = false;
+  String? bwNote;
+  double? temperatureC, tsb, tcb;
+  String? temperatureSrc, temperatureNote, tsbSrc, tcbSrc;
+  bool jaundice = false, jaundiceDenied = false, kramerUnsure = false;
+  bool? jaundiceBefore24h;
+  var rdNamed = false, hypoNamed = false, sepsisNamed = false;
+  var asphyxiaNamed = false;
+
+  /// "Apnoea/gasping, poor effort or shock" (RD §1.2).
+  var rdEmergency = false;
+
+  /// RD signs recorded as checked with none present.
+  var rdSignsNone = false;
+  final rdSigns = <String>{}, abe = <String>{}, posture = <String>{};
+  final hypoRisks = <String>{}, sepsisRed = <String>{};
+  final sepsisYellow = <String>{}, paRisk = <String>{};
+  final rdSignSrc = <String>[], abeSrc = <String>[];
+  final notes = <String>[], flags = <String>[], unrecognised = <String>[];
 }
 
 /// Splits on commas, semicolons, line breaks, full stops (not decimal
@@ -94,22 +136,10 @@ final _filler = RegExp(r'^(baby|newborn|neonate|infant|male|female|boy|girl|'
     r'case|history|of|a|an|the|and|with|is|has|was|on|at|aged?|born|'
     r'delivered|admitted|presented|presenting|noted|seen|present)$');
 
-ParsedCase parseCase(String text) {
-  final items = <ParsedItem>[];
-  final notes = <String>[];
-  final unrecognised = <String>[];
+ParsedCase parseCase(String text) => buildCase(_factsFromText(text), text);
 
-  int? ga, gaDays, bw, rr, bg, ageHours, dayOfLife, kramer;
-  double? tsb, tcb;
-  String? gaSrc, bwSrc, rrSrc, bgSrc, ageSrc, daySrc, kramerSrc;
-  String? tsbSrc, tcbSrc;
-  var bwFromKg = false;
-  var jaundice = false, jaundiceDenied = false;
-  var rdNamed = false, hypoNamed = false, sepsisNamed = false;
-  var asphyxiaNamed = false;
-  final rdSigns = <String>{}, abe = <String>{}, posture = <String>{};
-  final rdSignSrc = <String>[], abeSrc = <String>[];
-
+CaseFacts _factsFromText(String text) {
+  final f = CaseFacts();
   var jaundiceContext = false;
   for (final raw in text.split(_clauseSplit)) {
     final clause = raw.trim();
@@ -126,97 +156,99 @@ ParsedCase parseCase(String text) {
     }
 
     if (e.gaWeeks != null && e.gaComparator != null) {
-      notes.add('"$clause": GA given as a comparison, not used');
+      f.notes.add('"$clause": GA given as a comparison, not used');
       used = true;
-    } else if (ga == null) {
+    } else if (f.ga == null) {
       take(e.gaWeeks, (v) {
-        ga = v;
-        gaDays = e.gaDays;
-        gaSrc = clause;
+        f.ga = v;
+        f.gaDays = e.gaDays;
+        f.gaSrc = clause;
       }, when: e.gaWeeks != null && e.gaWeeks! >= 22 && e.gaWeeks! <= 44);
     }
-    if (bw == null) {
+    if (f.bw == null) {
       final current = RegExp(r'current|present|today|now|weighs').hasMatch(n);
       if (current && e.weightG != null) {
-        notes.add('"$clause": current weight is not asked; birth weight '
+        f.notes.add('"$clause": current weight is not asked; birth weight '
             'not filled');
         used = true;
       } else {
         take(e.weightG, (v) {
-          bw = v;
-          bwSrc = clause;
-          bwFromKg = RegExp(r'\d\s*(kg|kgs|kilos?)\b').hasMatch(n);
+          f.bw = v;
+          f.bwSrc = clause;
+          if (RegExp(r'\d\s*(kg|kgs|kilos?)\b').hasMatch(n)) {
+            f.bwNote = 'Converted from kg';
+          }
         }, when: e.weightG != null && e.weightG! >= 300 && e.weightG! <= 6000);
       }
     }
-    if (rr == null) {
+    if (f.rr == null) {
       take(e.rr, (v) {
-        rr = v;
-        rrSrc = clause;
+        f.rr = v;
+        f.rrSrc = clause;
       }, when: e.rr != null && e.rr! <= 150);
     }
-    if (bg == null) {
+    if (f.bg == null) {
       take(e.bg, (v) {
-        bg = v;
-        bgSrc = clause;
+        f.bg = v;
+        f.bgSrc = clause;
       }, when: e.bg != null && e.bg! <= 600);
     }
-    if (ageHours == null) {
+    if (f.ageHours == null) {
       take(e.ageHours, (v) {
-        ageHours = v;
-        ageSrc = clause;
+        f.ageHours = v;
+        f.ageSrc = clause;
       }, when: e.ageHours != null && e.ageHours! <= 720);
     }
-    if (dayOfLife == null) {
+    if (f.dayOfLife == null) {
       take(e.dayOfLife, (v) {
-        dayOfLife = v;
-        daySrc = clause;
+        f.dayOfLife = v;
+        f.daySrc = clause;
       });
     }
     if (e.rdSigns.isNotEmpty) {
-      rdSigns.addAll(e.rdSigns);
-      rdSignSrc.add(clause);
+      f.rdSigns.addAll(e.rdSigns);
+      f.rdSignSrc.add(clause);
       used = true;
     }
 
     // Jaundice extent may follow in its own clause: "jaundice, up to palms".
     if (e.jaundice == true) {
-      jaundice = true;
+      f.jaundice = true;
       jaundiceContext = true;
       used = true;
     } else if (e.jaundice == false) {
-      jaundiceDenied = true;
+      f.jaundiceDenied = true;
       jaundiceContext = false;
-      notes.add('Noted as absent: $clause');
+      f.notes.add('Noted as absent: $clause');
       used = true;
     }
     final zone = e.kramerZone ??
         (jaundiceContext && e.jaundice == null && e.rdSigns.isEmpty
             ? kramerZoneOf(n, jaundiceContext: true)
             : null);
-    if (zone != null && (kramer == null || zone > kramer)) {
-      kramer = zone;
-      kramerSrc = clause;
+    if (zone != null && (f.kramer == null || zone > f.kramer!)) {
+      f.kramer = zone;
+      f.kramerSrc = clause;
       used = true;
     } else if (zone != null) {
       used = true;
     }
     if (e.abeSigns.isNotEmpty || e.postureSigns.isNotEmpty) {
-      abe.addAll(e.abeSigns);
-      posture.addAll(e.postureSigns);
-      abeSrc.add(clause);
+      f.abe.addAll(e.abeSigns);
+      f.posture.addAll(e.postureSigns);
+      f.abeSrc.add(clause);
       used = true;
     }
-    if (tsb == null) {
+    if (f.tsb == null) {
       take(e.tsb, (v) {
-        tsb = v;
-        tsbSrc = clause;
+        f.tsb = v;
+        f.tsbSrc = clause;
       });
     }
-    if (tcb == null) {
+    if (f.tcb == null) {
       take(e.tcb, (v) {
-        tcb = v;
-        tcbSrc = clause;
+        f.tcb = v;
+        f.tcbSrc = clause;
       });
     }
 
@@ -225,14 +257,14 @@ ParsedCase parseCase(String text) {
       if (m == null) return false;
       used = true;
       final negated = _negationWord.hasMatch(n.substring(0, m.start));
-      if (negated) notes.add('Noted as absent: $clause');
+      if (negated) f.notes.add('Noted as absent: $clause');
       return !negated;
     }
 
-    rdNamed |= named(RegExp(r'respiratory distress|\brds?\b'));
-    hypoNamed |= named(RegExp(r'hypoglyc\w*|low blood glucose'));
-    sepsisNamed |= named(RegExp(r'\bsepsis\b|\bseptic\w*'));
-    asphyxiaNamed |= named(RegExp(r'asphyx\w*|\bhie\b|hypoxic.?ischa?emic'));
+    f.rdNamed |= named(RegExp(r'respiratory distress|\brds?\b'));
+    f.hypoNamed |= named(RegExp(r'hypoglyc\w*|low blood glucose'));
+    f.sepsisNamed |= named(RegExp(r'\bsepsis\b|\bseptic\w*'));
+    f.asphyxiaNamed |= named(RegExp(r'asphyx\w*|\bhie\b|hypoxic.?ischa?emic'));
 
     if (!used) {
       if (_negationWord.hasMatch(n) &&
@@ -240,40 +272,80 @@ ParsedCase parseCase(String text) {
               RegExp(r'grunt|retract|flar|\brr\b|resp\w*|breath\w*|letharg|'
                       r'feed\w*|tone|cry')
                   .hasMatch(n))) {
-        notes.add('Noted as absent: $clause');
+        f.notes.add('Noted as absent: $clause');
       } else if (!n.split(' ').every(_filler.hasMatch)) {
-        unrecognised.add(clause);
+        f.unrecognised.add(clause);
       }
     }
   }
+  return f;
+}
 
-  // ---- Topics: from findings, not keywords alone ----
+String _labels(Iterable<String> values, Map<String, String> labels) =>
+    values.map((v) => labels[v] ?? v).join(', ');
+
+Map<String, String> _optionLabels(List<QuestionOption> options) => {
+      for (final o in options) '${o.value}': o.label,
+    };
+
+/// Topics, answers and confirm-screen items from [f]. Topics follow the
+/// findings the STWs act on, never a keyword alone.
+ParsedCase buildCase(CaseFacts f, String text) {
+  final items = <ParsedItem>[];
+  final notes = [...f.notes];
+  final flags = [...f.flags];
+  final rr = f.rr, ga = f.ga, kramer = f.kramer;
+
+  // ---- Topics ----
   final reasons = <NeonatalCondition, String>{};
-  if ((rr != null && rr! >= rrThresholdPerMin) ||
-      rdSigns.isNotEmpty ||
-      rdNamed) {
+  final rrSign = rr != null && rr >= rrThresholdPerMin;
+  if (rrSign || f.rdSigns.isNotEmpty || f.rdNamed || f.rdEmergency) {
     reasons[NeonatalCondition.respiratoryDistress] = [
-      if (rr != null && rr! >= rrThresholdPerMin) 'RR $rr/min (≥60)',
-      for (final s in rdSigns) RdSign.values.byName(s).label,
-      if (rdNamed && rdSigns.isEmpty && (rr ?? 0) < 60) 'respiratory distress',
+      if (rrSign) 'RR $rr/min (≥60)',
+      for (final s in f.rdSigns) RdSign.values.byName(s).label,
+      if (f.rdEmergency) qRdEmergency.question,
+      if (f.rdNamed && f.rdSigns.isEmpty && !rrSign && !f.rdEmergency)
+        'respiratory distress',
     ].join(', ');
   }
-  final jaundicePresent =
-      (jaundice || kramer != null || tsb != null || tcb != null) &&
-          !(jaundiceDenied && !jaundice && kramer == null);
+  final jaundicePresent = (f.jaundice ||
+          kramer != null ||
+          f.kramerUnsure ||
+          f.tsb != null ||
+          f.tcb != null) &&
+      !(f.jaundiceDenied && !f.jaundice && kramer == null);
   if (jaundicePresent) {
     reasons[NeonatalCondition.jaundice] = [
-      if (kramer != null) 'Kramer zone $kramer' else if (jaundice) 'jaundice',
-      if (tsb != null) 'TSB $tsb mg/dL',
-      if (tcb != null) 'TcB $tcb mg/dL',
+      if (kramer != null) 'Kramer zone $kramer' else if (f.jaundice) 'jaundice',
+      if (f.tsb != null) 'TSB ${f.tsb} mg/dL',
+      if (f.tcb != null) 'TcB ${f.tcb} mg/dL',
     ].join(', ');
   }
-  if (bg != null || hypoNamed) {
-    reasons[NeonatalCondition.hypoglycemia] =
-        bg != null ? 'BG $bg mg/dL' : 'hypoglycemia';
+  final hypoRiskLabels = {for (final r in HypoRisk.values) r.name: r.label};
+  if (f.bg != null || f.hypoNamed || f.hypoRisks.isNotEmpty) {
+    reasons[NeonatalCondition.hypoglycemia] = [
+      if (f.bg != null) 'BG ${f.bg} mg/dL',
+      if (f.hypoRisks.isNotEmpty)
+        'whom to screen: ${_labels(f.hypoRisks, hypoRiskLabels)}',
+      if (f.bg == null && f.hypoRisks.isEmpty) 'hypoglycemia',
+    ].join(', ');
   }
-  if (sepsisNamed) reasons[NeonatalCondition.sepsis] = 'sepsis';
-  if (asphyxiaNamed) reasons[NeonatalCondition.hie] = 'asphyxia';
+  final redLabels = _optionLabels(qSepsisRed.options);
+  final yellowLabels = _optionLabels(qSepsisYellow.options);
+  if (f.sepsisNamed || f.sepsisRed.isNotEmpty || f.sepsisYellow.isNotEmpty) {
+    reasons[NeonatalCondition.sepsis] = [
+      if (f.sepsisRed.isNotEmpty)
+        'red flags: ${_labels(f.sepsisRed, redLabels)}',
+      if (f.sepsisYellow.isNotEmpty)
+        'yellow signs: ${_labels(f.sepsisYellow, yellowLabels)}',
+      if (f.sepsisRed.isEmpty && f.sepsisYellow.isEmpty) 'sepsis',
+    ].join('; ');
+  }
+  final paLabels = _optionLabels(qPaRisk.options);
+  if (f.asphyxiaNamed || f.paRisk.isNotEmpty) {
+    reasons[NeonatalCondition.hie] =
+        f.paRisk.isEmpty ? 'asphyxia' : 'risk: ${_labels(f.paRisk, paLabels)}';
+  }
 
   // ---- Answers and confirm-screen items ----
   final answers = <String, Object?>{};
@@ -297,112 +369,217 @@ ParsedCase parseCase(String text) {
     answers[gaKnownKey] = true;
     put(
         gaWeeksKey,
-        ga!,
+        ga,
         'Gestational age',
-        gaDays == null ? '$ga wk' : '$ga+$gaDays wk',
-        gaSrc!,
+        f.gaDays == null ? '$ga wk' : '$ga+${f.gaDays} wk',
+        f.gaSrc!,
         ParsedValueKind.integer);
-    if (gaDays != null) answers[gaDaysKey] = gaDays;
+    if (f.gaDays != null) answers[gaDaysKey] = f.gaDays;
+  } else if (f.gaUncertain) {
+    put(gaKnownKey, false, 'Gestational age', 'GA uncertain', f.gaSrc!,
+        ParsedValueKind.fixed);
   }
-  if (bw != null) {
-    put(birthWeightKey, bw!, 'Birth weight', '$bw g', bwSrc!,
+  if (f.bw != null) {
+    put(birthWeightKey, f.bw!, 'Birth weight', '${f.bw} g', f.bwSrc!,
         ParsedValueKind.integer,
-        note: bwFromKg ? 'Converted from kg' : null);
+        note: f.bwNote);
   }
   if (rr != null) {
-    put(rdRrKey, rr!, 'Respiratory rate', '$rr/min', rrSrc!,
+    put(rdRrKey, rr, 'Respiratory rate', '$rr/min', f.rrSrc!,
         ParsedValueKind.integer,
         topic: NeonatalCondition.respiratoryDistress);
   }
-  if (rdSigns.isNotEmpty) {
-    put(
-        rdSignsKey,
-        <Object>{...rdSigns},
-        'Respiratory distress signs',
-        rdSigns.map((s) => RdSign.values.byName(s).label).join(', '),
-        rdSignSrc.join(' · '),
+  if (f.rdEmergency) {
+    put(rdEmergencyKey, true, qRdEmergency.question, 'Present', 'Selected',
         ParsedValueKind.fixed,
         topic: NeonatalCondition.respiratoryDistress);
   }
+  if (f.rdSigns.isNotEmpty || f.rdSignsNone) {
+    put(
+        rdSignsKey,
+        <Object>{...f.rdSigns},
+        'Respiratory distress signs',
+        f.rdSigns.isEmpty
+            ? 'None of these signs'
+            : f.rdSigns.map((s) => RdSign.values.byName(s).label).join(', '),
+        f.rdSignSrc.isEmpty ? 'Selected' : f.rdSignSrc.join(' · '),
+        ParsedValueKind.fixed,
+        topic: NeonatalCondition.respiratoryDistress);
+  }
+
+  // Age in hours, as entered or derived; null when it cannot be told.
+  int? ageHours = f.ageHours;
+  String? ageSrc = f.ageSrc, ageNote;
+  if (ageHours == null && f.dayOfLife != null && f.dayOfLife! >= 2) {
+    ageHours = f.dayOfLife! * 24;
+    ageSrc = f.daySrc;
+    ageNote = 'Day ${f.dayOfLife} × 24 h: check the age in hours';
+  } else if (ageHours == null && f.ageDays != null && f.ageDays! >= 1) {
+    ageHours = f.ageDays! * 24;
+    ageSrc = f.ageDaysSrc;
+    ageNote = '${f.ageDays} days × 24 h (at least): check the age in hours';
+  }
+  final ageNeeded =
+      jaundicePresent || reasons.containsKey(NeonatalCondition.sepsis);
+  if (ageHours == null && ageNeeded) {
+    if (f.dayOfLife != null) {
+      flags.add('Day ${f.dayOfLife}: may be under or over 24 h. Enter the age '
+          'in hours on the assessment page.');
+    } else if (f.ageDays == 0) {
+      flags.add('Age 0 days: under 24 h, exact hours not known. Enter the age '
+          'in hours on the assessment page.');
+    }
+  }
+
   if (jaundicePresent) {
     const j = NeonatalCondition.jaundice;
     if (ageHours != null) {
-      put(jaundiceAgeHoursKey, ageHours!, 'Age', '$ageHours h', ageSrc!,
+      put(jaundiceAgeHoursKey, ageHours, 'Age', '$ageHours h', ageSrc!,
           ParsedValueKind.integer,
+          topic: j, note: ageNote);
+    }
+    if (f.jaundiceBefore24h != null && (ageHours == null || ageHours >= 24)) {
+      put(
+          jaundiceBefore24hKey,
+          f.jaundiceBefore24h!,
+          qJaundiceBefore24h.question,
+          f.jaundiceBefore24h! ? 'Yes' : 'No',
+          'Selected',
+          ParsedValueKind.fixed,
           topic: j);
-    } else if (dayOfLife != null && dayOfLife! >= 2) {
-      put(jaundiceAgeHoursKey, dayOfLife! * 24, 'Age', '${dayOfLife! * 24} h',
-          daySrc!, ParsedValueKind.integer,
-          topic: j, note: 'Day $dayOfLife × 24 h: check the age in hours');
-    } else if (dayOfLife != null) {
-      notes.add('Day $dayOfLife: may be under or over 24 h. Enter the age in '
-          'hours on the jaundice page.');
     }
     if (kramer != null) {
       final z = KramerZone.byNumber(kramer)!;
-      put(
-          jaundiceKramerKey,
-          z.name,
-          'Jaundice extent',
-          'Kramer zone ${z.number} (${z.label})',
-          kramerSrc!,
-          ParsedValueKind.fixed,
+      final src = f.kramerSrc!;
+      put(jaundiceKramerKey, z.name, 'Jaundice extent',
+          'Kramer zone ${z.number} (${z.label})', src, ParsedValueKind.fixed,
           topic: j,
           note: RegExp(r'haath|hath|hands and feet', caseSensitive: false)
-                  .hasMatch(kramerSrc)
+                  .hasMatch(src)
               ? 'Hands and feet read as palms and soles; change to zone 4 if '
                   'only arms/legs'
               : null);
+    } else if (f.kramerUnsure) {
+      put(
+          jaundiceKramerKey,
+          kramerUnsure,
+          'Jaundice extent',
+          'Unsure about visual assessment',
+          f.kramerSrc ?? 'Selected',
+          ParsedValueKind.fixed,
+          topic: j);
+    } else {
+      flags.add('Jaundice extent not recorded: it is asked on the jaundice '
+          'page.');
     }
-    if (abe.isNotEmpty) {
+    if (f.abe.isNotEmpty) {
       put(
           jaundiceAbeKey,
-          <Object>{...abe},
+          <Object>{...f.abe},
           'Signs of ABE',
-          abe.map((s) => AbeSign.values.byName(s).label).join(', '),
-          abeSrc.join(' · '),
+          f.abe.map((s) => AbeSign.values.byName(s).label).join(', '),
+          f.abeSrc.isEmpty ? 'Selected' : f.abeSrc.join(' · '),
           ParsedValueKind.fixed,
           topic: j);
     }
-    if (posture.isNotEmpty) {
+    if (f.posture.isNotEmpty) {
       put(
           jaundicePostureKey,
-          <Object>{...posture},
+          <Object>{...f.posture},
           'Abnormal posturing / related signs',
-          posture.map((s) => PostureSign.values.byName(s).label).join(', '),
-          abeSrc.join(' · '),
+          f.posture.map((s) => PostureSign.values.byName(s).label).join(', '),
+          f.abeSrc.isEmpty ? 'Selected' : f.abeSrc.join(' · '),
           ParsedValueKind.fixed,
           topic: j);
     }
-    if (tcb != null) {
-      put(jaundiceTcbKey, tcb!, 'TcB', '$tcb mg/dL', tcbSrc!,
+    if (f.tcb != null) {
+      put(jaundiceTcbKey, f.tcb!, 'TcB', '${f.tcb} mg/dL', f.tcbSrc!,
           ParsedValueKind.decimal,
           topic: j);
     }
-    if (tsb != null) {
-      put(jaundiceTsbKey, tsb!, 'TSB', '$tsb mg/dL', tsbSrc!,
+    if (f.tsb != null) {
+      put(jaundiceTsbKey, f.tsb!, 'TSB', '${f.tsb} mg/dL', f.tsbSrc!,
           ParsedValueKind.decimal,
           topic: j);
     }
-    if (ga != null && ga! < 38) {
+    if (ga != null && ga < 38) {
       put(
           jaundiceRiskKey,
           <Object>{JaundiceRisk.gestationBelow38.name},
           'Jaundice risk factor',
           JaundiceRisk.gestationBelow38.label,
-          gaSrc!,
+          f.gaSrc!,
           ParsedValueKind.fixed,
           topic: j,
           note: 'From the gestational age');
     }
-  } else if (abe.isNotEmpty || posture.isNotEmpty) {
-    notes.add('${abeSrc.join(' · ')}: used only as jaundice signs; no '
+    if (ga == null && !f.gaUncertain) {
+      flags.add('Gestational age not recorded: the Jaundice STW covers '
+          'infants ≥35 weeks only; it is asked first.');
+    }
+  } else if (f.abe.isNotEmpty || f.posture.isNotEmpty) {
+    notes.add('${f.abeSrc.join(' · ')}: used only as jaundice signs; no '
         'jaundice recorded');
   }
-  if (bg != null) {
-    put(hypoBgKey, bg!, 'Blood glucose', '$bg mg/dL', bgSrc!,
+  if (f.bg != null) {
+    put(hypoBgKey, f.bg!, 'Blood glucose', '${f.bg} mg/dL', f.bgSrc!,
         ParsedValueKind.integer,
         topic: NeonatalCondition.hypoglycemia);
+  }
+  if (f.hypoRisks.isNotEmpty) {
+    put(hypoRiskKey, <Object>{...f.hypoRisks}, 'Hypoglycemia risk factors',
+        _labels(f.hypoRisks, hypoRiskLabels), 'Selected', ParsedValueKind.fixed,
+        topic: NeonatalCondition.hypoglycemia);
+  }
+  if (f.sepsisRed.isNotEmpty || f.sepsisYellow.isNotEmpty) {
+    const s = NeonatalCondition.sepsis;
+    // The red/yellow questions belong to the initial assessment.
+    put(sepsisStageKey, 'initial', 'Sepsis assessment stage',
+        'Initial assessment', 'Case entry', ParsedValueKind.fixed,
+        topic: s, note: 'Change on the sepsis page if this is a review');
+    if (ageHours != null) {
+      put(sepsisAgeKey, ageHours, 'Age', '$ageHours h', ageSrc!,
+          ParsedValueKind.integer,
+          topic: s, note: ageNote);
+    }
+    if (ga != null) {
+      put(sepsisGaKey, ga, 'Gestation at birth', '$ga wk', f.gaSrc!,
+          ParsedValueKind.integer,
+          topic: s);
+    }
+    if (f.bw != null) {
+      put(sepsisBwKey, f.bw!, 'Birth weight', '${f.bw} g', f.bwSrc!,
+          ParsedValueKind.integer,
+          topic: s, note: f.bwNote);
+    }
+    if (f.sepsisRed.isNotEmpty) {
+      put(sepsisRedKey, <Object>{...f.sepsisRed}, 'Sepsis red flags',
+          _labels(f.sepsisRed, redLabels), 'Selected', ParsedValueKind.fixed,
+          topic: s);
+    }
+    if (f.sepsisYellow.isNotEmpty) {
+      put(
+          sepsisYellowKey,
+          <Object>{...f.sepsisYellow},
+          'Sepsis yellow signs',
+          _labels(f.sepsisYellow, yellowLabels),
+          'Selected',
+          ParsedValueKind.fixed,
+          topic: s);
+    }
+  }
+  if (f.paRisk.isNotEmpty) {
+    put(qPaRisk.id, <Object>{...f.paRisk}, 'Post asphyxia risk observations',
+        _labels(f.paRisk, paLabels), 'Selected', ParsedValueKind.fixed,
+        topic: NeonatalCondition.hie);
+  }
+  if (f.temperatureC != null) {
+    // Recorded only: it is classified by the Triage STW if Triage is run.
+    put(triageTemperatureKey, f.temperatureC!, 'Temperature',
+        '${f.temperatureC} °C', f.temperatureSrc!, ParsedValueKind.decimal,
+        topic: NeonatalCondition.triage, note: f.temperatureNote);
+    notes.add('Temperature is recorded, not classified. Only the Triage STW '
+        'uses it; add Triage below to have it assessed.');
   }
 
   final ordered = {
@@ -416,6 +593,7 @@ ParsedCase parseCase(String text) {
     answers: answers,
     items: items,
     notes: notes,
-    unrecognised: unrecognised,
+    flags: flags,
+    unrecognised: f.unrecognised,
   );
 }

@@ -9,6 +9,7 @@ import '../../../core/widgets/layout.dart';
 import '../../../data/repositories/audit_log_repository.dart';
 import '../../clinical_workflow/voice/voice_prompts.dart';
 import '../domain/case_parser.dart';
+import 'structured_case_form.dart';
 
 const caseEntryExample =
     'e.g. Baby, 36 wk, BW 2.4 kg, day 3. RR 70/min. Jaundice up to palms '
@@ -30,6 +31,10 @@ class _CaseEntryScreenState extends ConsumerState<CaseEntryScreen> {
   late final _text = TextEditingController(text: widget.initialText ?? '');
   var _language = VoiceLanguage.english;
   var _listening = false;
+
+  /// Structured form first; free text when opened with text (e.g. chat).
+  late var _mode =
+      widget.initialText == null ? _CaseInput.form : _CaseInput.text;
   var _partial = '';
 
   @override
@@ -87,9 +92,11 @@ class _CaseEntryScreenState extends ConsumerState<CaseEntryScreen> {
     });
   }
 
-  void _analyse() {
-    final parsed = parseCase(_text.text);
+  void _analyse() => _openAnalysis(parseCase(_text.text), 'text');
+
+  void _openAnalysis(ParsedCase parsed, String input) {
     ref.read(auditLogProvider).tap('case_entry_analyse', {
+      'input': input,
       'topics': [for (final c in parsed.topics) c.name],
       'fields': [for (final i in parsed.items) i.key],
     });
@@ -131,76 +138,115 @@ class _CaseEntryScreenState extends ConsumerState<CaseEntryScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Type or dictate a short case history. The app reads the '
-                  'values with fixed rules on this device, shows what it '
-                  'understood for you to confirm, then guides management with '
-                  'every STW the case triggers.',
+                  'Select the findings (or type / dictate them). You review '
+                  'what was recorded, the app shows the STWs the findings '
+                  'trigger, then guides management with each of them.',
                   style: text.bodyMedium?.copyWith(color: AppTheme.mutedText),
                 ),
                 const SizedBox(height: 12),
-                TextField(
-                  key: const ValueKey('case-text'),
-                  controller: _text,
-                  minLines: 5,
-                  maxLines: 10,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                  onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    hintText: caseEntryExample,
-                    hintMaxLines: 3,
-                    border: OutlineInputBorder(),
-                    helperText: 'Do not enter names or other identifiers.',
-                  ),
-                ),
-                if (_listening) ...[
-                  const SizedBox(height: 8),
-                  AlertBanner(
-                    tone: Tone.info,
-                    text: _partial.isEmpty ? 'Listening… speak now' : _partial,
-                  ),
-                ],
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    OutlinedButton.icon(
-                      key: const ValueKey('case-mic'),
-                      onPressed: _toggleMic,
-                      icon: Icon(_listening
-                          ? Icons.stop_circle_outlined
-                          : Icons.mic_none_rounded),
-                      label: Text(_listening ? 'Stop' : 'Dictate'),
-                      style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(0, 46)),
+                SegmentedButton<_CaseInput>(
+                  key: const ValueKey('case-input-mode'),
+                  segments: const [
+                    ButtonSegment(
+                      value: _CaseInput.form,
+                      icon: Icon(Icons.checklist_rounded),
+                      label: Text('Select findings'),
                     ),
-                    SegmentedButton<VoiceLanguage>(
-                      segments: [
-                        for (final l in VoiceLanguage.values)
-                          ButtonSegment(value: l, label: Text(l.shortLabel)),
-                      ],
-                      selected: {_language},
-                      showSelectedIcon: false,
-                      onSelectionChanged: _listening
-                          ? null
-                          : (s) => setState(() => _language = s.single),
+                    ButtonSegment(
+                      value: _CaseInput.text,
+                      icon: Icon(Icons.keyboard_voice_outlined),
+                      label: Text('Type or dictate'),
                     ),
                   ],
+                  selected: {_mode},
+                  onSelectionChanged: (m) => setState(() => _mode = m.single),
                 ),
-                const SizedBox(height: 16),
-                FilledButton.icon(
-                  key: const ValueKey('case-analyse'),
-                  onPressed: _text.text.trim().isEmpty ? null : _analyse,
-                  icon: const Icon(Icons.manage_search_rounded),
-                  label: const Text('Analyse'),
-                  style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+                const SizedBox(height: 12),
+                // Both inputs keep what was entered while the other is shown.
+                Visibility(
+                  visible: _mode == _CaseInput.form,
+                  maintainState: true,
+                  child: StructuredCaseForm(
+                    onAnalyse: (c) => _openAnalysis(c, 'form'),
+                  ),
+                ),
+                Visibility(
+                  visible: _mode == _CaseInput.text,
+                  maintainState: true,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        key: const ValueKey('case-text'),
+                        controller: _text,
+                        minLines: 5,
+                        maxLines: 10,
+                        keyboardType: TextInputType.multiline,
+                        textCapitalization: TextCapitalization.sentences,
+                        onChanged: (_) => setState(() {}),
+                        decoration: const InputDecoration(
+                          hintText: caseEntryExample,
+                          hintMaxLines: 3,
+                          border: OutlineInputBorder(),
+                          helperText:
+                              'Do not enter names or other identifiers.',
+                        ),
+                      ),
+                      if (_listening) ...[
+                        const SizedBox(height: 8),
+                        AlertBanner(
+                          tone: Tone.info,
+                          text: _partial.isEmpty
+                              ? 'Listening… speak now'
+                              : _partial,
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          OutlinedButton.icon(
+                            key: const ValueKey('case-mic'),
+                            onPressed: _toggleMic,
+                            icon: Icon(_listening
+                                ? Icons.stop_circle_outlined
+                                : Icons.mic_none_rounded),
+                            label: Text(_listening ? 'Stop' : 'Dictate'),
+                            style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(0, 46)),
+                          ),
+                          SegmentedButton<VoiceLanguage>(
+                            segments: [
+                              for (final l in VoiceLanguage.values)
+                                ButtonSegment(
+                                    value: l, label: Text(l.shortLabel)),
+                            ],
+                            selected: {_language},
+                            showSelectedIcon: false,
+                            onSelectionChanged: _listening
+                                ? null
+                                : (s) => setState(() => _language = s.single),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        key: const ValueKey('case-analyse'),
+                        onPressed: _text.text.trim().isEmpty ? null : _analyse,
+                        icon: const Icon(Icons.manage_search_rounded),
+                        label: const Text('Analyse'),
+                        style: FilledButton.styleFrom(
+                            minimumSize: const Size(0, 48)),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 const AlertBanner(
                   tone: Tone.info,
-                  text: 'The case text stays on this device. Recommendations '
+                  text: 'The case stays on this device. Recommendations '
                       'come only from the STW rules, after you confirm each '
                       'value.',
                 ),
@@ -212,3 +258,5 @@ class _CaseEntryScreenState extends ConsumerState<CaseEntryScreen> {
     );
   }
 }
+
+enum _CaseInput { form, text }
