@@ -34,6 +34,7 @@ const availableTitles = [
   'Respiratory Distress in Neonates',
   'Post Asphyxia',
   'Sepsis in Neonates',
+  'Neonatal Jaundice (≥35 weeks)',
   'Kangaroo Mother Care (KMC)',
   'Antenatal Corticosteroids for Preterm Birth',
   'Retinopathy of Prematurity',
@@ -61,6 +62,7 @@ void main() {
       NeonatalCondition.ancs,
       NeonatalCondition.sepsis,
       NeonatalCondition.hypoglycemia,
+      NeonatalCondition.jaundice,
       NeonatalCondition.hie,
       NeonatalCondition.rop,
     ]);

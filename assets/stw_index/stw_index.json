@@ -17319,5 +17319,1764 @@
         "height": 0.032442
       }
     ]
+  },
+  {
+    "id": "jaundice_scope",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "NEONATAL JAUNDICE IN INFANTS ≥ 35 WEEKS",
+    "section": "NEONATAL JAUNDICE IN INFANTS ≥ 35 WEEKS",
+    "type": "text",
+    "text": "NEONATAL JAUNDICE IN INFANTS ≥ 35 WEEKS\nStandard Treatment Workflow (STW)\nICD-10-P59.9",
+    "aliases": [
+      "neonatal jaundice in infants ≥ 35 weeks"
+    ],
+    "example_questions": [],
+    "intents": [
+      "definition",
+      "criteria"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.140161,
+    "y": 0.064884,
+    "w": 0.719809,
+    "h": 0.052642,
+    "crop_image": "assets/regions/crops/jaundice_scope.webp",
+    "segments": [
+      {
+        "text": "Standard Treatment Workflow (STW)",
+        "bounding_boxes": [
+          {
+            "x": 0.270931,
+            "y": 0.06856,
+            "width": 0.456419,
+            "height": 0.016003
+          }
+        ]
+      },
+      {
+        "text": "NEONATAL JAUNDICE IN INFANTS ≥ 35 WEEKS",
+        "bounding_boxes": [
+          {
+            "x": 0.146687,
+            "y": 0.083117,
+            "width": 0.704909,
+            "height": 0.020214
+          }
+        ]
+      },
+      {
+        "text": "ICD-10-P59.9",
+        "bounding_boxes": [
+          {
+            "x": 0.426468,
+            "y": 0.100645,
+            "width": 0.14534,
+            "height": 0.015161
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_scope",
+    "section_title": "NEONATAL JAUNDICE IN INFANTS ≥ 35 WEEKS",
+    "keywords": [
+      "neonatal jaundice in infants ≥ 35 weeks"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.140161,
+        "y": 0.064884,
+        "width": 0.719809,
+        "height": 0.052642
+      }
+    ]
+  },
+  {
+    "id": "jaundice_visual",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "VISUAL ASSESMENT",
+    "section": "VISUAL ASSESMENT",
+    "type": "text",
+    "text": "VISUAL ASSESMENT\nExamine the baby in bright natural/ white fluorescent light\nMake sure the baby is naked and no yellow/ off white background\nExamine blanched skin\nAssess severity of jaundice",
+    "aliases": [
+      "visual assesment"
+    ],
+    "example_questions": [],
+    "intents": [
+      "procedure",
+      "signs"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.296951,
+    "y": 0.133441,
+    "w": 0.279134,
+    "h": 0.149356,
+    "crop_image": "assets/regions/crops/jaundice_visual.webp",
+    "segments": [
+      {
+        "text": "Examine the baby in bright natural/ white fluorescent light",
+        "bounding_boxes": [
+          {
+            "x": 0.315264,
+            "y": 0.159812,
+            "width": 0.234259,
+            "height": 0.019559
+          }
+        ]
+      },
+      {
+        "text": "Make sure the baby is naked and no yellow/ off white background",
+        "bounding_boxes": [
+          {
+            "x": 0.307729,
+            "y": 0.194872,
+            "width": 0.249342,
+            "height": 0.018947
+          }
+        ]
+      },
+      {
+        "text": "Examine blanched skin",
+        "bounding_boxes": [
+          {
+            "x": 0.343874,
+            "y": 0.232359,
+            "width": 0.177033,
+            "height": 0.010377
+          }
+        ]
+      },
+      {
+        "text": "Assess severity of jaundice",
+        "bounding_boxes": [
+          {
+            "x": 0.332802,
+            "y": 0.268056,
+            "width": 0.199178,
+            "height": 0.010377
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_visual",
+    "section_title": "VISUAL ASSESMENT",
+    "keywords": [
+      "visual assesment"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.296951,
+        "y": 0.133441,
+        "width": 0.279134,
+        "height": 0.149356
+      }
+    ]
+  },
+  {
+    "id": "jaundice_risk_factors",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "LOOK FOR THESE RISK FACTORS",
+    "section": "LOOK FOR THESE RISK FACTORS",
+    "type": "text",
+    "text": "LOOK FOR THESE RISK FACTORS\nGestation < 38 weeks\nPrevious sibling requiring treatment for jaundice\nBlood group incompatibility (ABO/Rh)\nHigh prevalence of G6PD deficiency\nExclusively breast fed baby with weight loss >3% per day; or >10% cumulative\nTotal serum bilirubin (TSB) / Transcutaneous bilirubin (TcB) value in the high/ high-intermediate risk zone",
+    "aliases": [
+      "look for these risk factors",
+      "jaundice risk factors",
+      "risk factors for hyperbilirubinemia"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "prevention"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.582024,
+    "y": 0.153029,
+    "w": 0.394351,
+    "h": 0.137114,
+    "crop_image": "assets/regions/crops/jaundice_risk_factors.webp",
+    "segments": [
+      {
+        "text": "Gestation < 38 weeks",
+        "bounding_boxes": [
+          {
+            "x": 0.597886,
+            "y": 0.171791,
+            "width": 0.172277,
+            "height": 0.011175
+          }
+        ]
+      },
+      {
+        "text": "Previous sibling requiring treatment for jaundice",
+        "bounding_boxes": [
+          {
+            "x": 0.59609,
+            "y": 0.18342,
+            "width": 0.3244,
+            "height": 0.022804
+          }
+        ]
+      },
+      {
+        "text": "Blood group incompatibility (ABO/Rh)",
+        "bounding_boxes": [
+          {
+            "x": 0.597886,
+            "y": 0.206678,
+            "width": 0.310616,
+            "height": 0.011175
+          }
+        ]
+      },
+      {
+        "text": "High prevalence of G6PD deficiency",
+        "bounding_boxes": [
+          {
+            "x": 0.597886,
+            "y": 0.218307,
+            "width": 0.29472,
+            "height": 0.011175
+          }
+        ]
+      },
+      {
+        "text": "Exclusively breast fed baby with weight loss >3% per day; or >10% cumulative",
+        "bounding_boxes": [
+          {
+            "x": 0.59609,
+            "y": 0.229936,
+            "width": 0.356679,
+            "height": 0.022804
+          }
+        ]
+      },
+      {
+        "text": "Total serum bilirubin (TSB) / Transcutaneous bilirubin (TcB) value in the high/ high-intermediate risk zone",
+        "bounding_boxes": [
+          {
+            "x": 0.59609,
+            "y": 0.253194,
+            "width": 0.361385,
+            "height": 0.034433
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_risk_factors",
+    "section_title": "LOOK FOR THESE RISK FACTORS",
+    "keywords": [
+      "look for these risk factors",
+      "jaundice risk factors",
+      "risk factors for hyperbilirubinemia"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.582024,
+        "y": 0.153029,
+        "width": 0.394351,
+        "height": 0.137114
+      }
+    ]
+  },
+  {
+    "id": "jaundice_kramer",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "KRAMER ZONES",
+    "section": "KRAMER ZONES",
+    "type": "text",
+    "text": "KRAMER ZONES\nClinical examination every 12 hrs during the initial 3 to 5 days of life; use TcB if available\n1 Face and neck: 4 to 6 mg/dL\n2 Chest and upper abdomen: 8 to 10 mg/dL\n3 Lower abdomen and thighs: 12 to 14 mg/dL\n4 Legs and arms/ forearms: 15 to 18 mg/dL\n5 Palms and soles: >15 to 20 mg/dL",
+    "aliases": [
+      "kramer zones",
+      "kramer zones",
+      "kramer zone",
+      "visual assessment of jaundice",
+      "approx serum bilirubin"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "signs",
+      "schedule",
+      "procedure"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.011878,
+    "y": 0.327482,
+    "w": 0.60578,
+    "h": 0.088757,
+    "crop_image": "assets/regions/crops/jaundice_kramer.webp",
+    "segments": [
+      {
+        "text": "Clinical examination every 12 hrs during the initial 3 to 5 days of life; use TcB if available",
+        "bounding_boxes": [
+          {
+            "x": 0.020697,
+            "y": 0.333403,
+            "width": 0.089499,
+            "height": 0.082437
+          }
+        ]
+      },
+      {
+        "text": "1 Face and neck: 4 to 6 mg/dL",
+        "bounding_boxes": [
+          {
+            "x": 0.472649,
+            "y": 0.343642,
+            "width": 0.08344,
+            "height": 0.009578
+          },
+          {
+            "x": 0.239931,
+            "y": 0.344355,
+            "width": 0.095585,
+            "height": 0.009578
+          },
+          {
+            "x": 0.224509,
+            "y": 0.344967,
+            "width": 0.004624,
+            "height": 0.009179
+          }
+        ]
+      },
+      {
+        "text": "2 Chest and upper abdomen: 8 to 10 mg/dL",
+        "bounding_boxes": [
+          {
+            "x": 0.239944,
+            "y": 0.358767,
+            "width": 0.178571,
+            "height": 0.009578
+          },
+          {
+            "x": 0.471874,
+            "y": 0.359009,
+            "width": 0.088532,
+            "height": 0.009578
+          },
+          {
+            "x": 0.223177,
+            "y": 0.359045,
+            "width": 0.007275,
+            "height": 0.009179
+          }
+        ]
+      },
+      {
+        "text": "3 Lower abdomen and thighs: 12 to 14 mg/dL",
+        "bounding_boxes": [
+          {
+            "x": 0.472783,
+            "y": 0.373876,
+            "width": 0.092273,
+            "height": 0.009578
+          },
+          {
+            "x": 0.239944,
+            "y": 0.373979,
+            "width": 0.182915,
+            "height": 0.009578
+          },
+          {
+            "x": 0.223202,
+            "y": 0.374349,
+            "width": 0.007224,
+            "height": 0.009179
+          }
+        ]
+      },
+      {
+        "text": "4 Legs and arms/ forearms: 15 to 18 mg/dL",
+        "bounding_boxes": [
+          {
+            "x": 0.472956,
+            "y": 0.388581,
+            "width": 0.09194,
+            "height": 0.009578
+          },
+          {
+            "x": 0.239944,
+            "y": 0.388677,
+            "width": 0.163161,
+            "height": 0.009578
+          },
+          {
+            "x": 0.222588,
+            "y": 0.38904,
+            "width": 0.008466,
+            "height": 0.009179
+          }
+        ]
+      },
+      {
+        "text": "5 Palms and soles: >15 to 20 mg/dL",
+        "bounding_boxes": [
+          {
+            "x": 0.473785,
+            "y": 0.402038,
+            "width": 0.102528,
+            "height": 0.009578
+          },
+          {
+            "x": 0.239944,
+            "y": 0.402457,
+            "width": 0.105867,
+            "height": 0.009578
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_kramer",
+    "section_title": "KRAMER ZONES",
+    "keywords": [
+      "kramer zones",
+      "kramer zones",
+      "kramer zone",
+      "visual assessment of jaundice",
+      "approx serum bilirubin"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.011878,
+        "y": 0.327482,
+        "width": 0.60578,
+        "height": 0.088757
+      }
+    ]
+  },
+  {
+    "id": "jaundice_serious",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "SERIOUS JAUNDICE",
+    "section": "SERIOUS JAUNDICE",
+    "type": "text",
+    "text": "SERIOUS JAUNDICE\nVisible jaundice in first 24 hrs OR\nYellow palms and soles anytime OR\nSigns of acute bilirubin encephalopathy (ABE) like poor suck/feeding, lethargy, hypotonia OR\nAbnormal posturing such as arching, retrocollis, opisthotonus, convulsion, fever, high pitched cry",
+    "aliases": [
+      "serious jaundice",
+      "serious jaundice",
+      "severe jaundice",
+      "acute bilirubin encephalopathy",
+      "yellow palms and soles"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "signs",
+      "definition"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.719809,
+    "y": 0.325645,
+    "w": 0.277946,
+    "h": 0.090593,
+    "crop_image": "assets/regions/crops/jaundice_serious.webp",
+    "segments": [
+      {
+        "text": "Visible jaundice in first 24 hrs OR",
+        "bounding_boxes": [
+          {
+            "x": 0.734655,
+            "y": 0.33973,
+            "width": 0.225301,
+            "height": 0.009667
+          }
+        ]
+      },
+      {
+        "text": "Yellow palms and soles anytime OR",
+        "bounding_boxes": [
+          {
+            "x": 0.734655,
+            "y": 0.348912,
+            "width": 0.243375,
+            "height": 0.009667
+          }
+        ]
+      },
+      {
+        "text": "Signs of acute bilirubin encephalopathy (ABE) like poor suck/feeding, lethargy, hypotonia OR",
+        "bounding_boxes": [
+          {
+            "x": 0.734655,
+            "y": 0.358094,
+            "width": 0.253977,
+            "height": 0.02803
+          }
+        ]
+      },
+      {
+        "text": "Abnormal posturing such as arching, retrocollis, opisthotonus, convulsion, fever, high pitched cry",
+        "bounding_boxes": [
+          {
+            "x": 0.734655,
+            "y": 0.385639,
+            "width": 0.253473,
+            "height": 0.02803
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_serious",
+    "section_title": "SERIOUS JAUNDICE",
+    "keywords": [
+      "serious jaundice",
+      "serious jaundice",
+      "severe jaundice",
+      "acute bilirubin encephalopathy",
+      "yellow palms and soles"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.719809,
+        "y": 0.325645,
+        "width": 0.277946,
+        "height": 0.090593
+      }
+    ]
+  },
+  {
+    "id": "jaundice_start_pt",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "Start Intensive Phototherapy",
+    "section": "Start Intensive Phototherapy",
+    "type": "text",
+    "text": "Start Intensive Phototherapy\nDocument serum bilirubin simultaneously\nPrepare for exchange blood transfusion (EBT) if signs of ABE are present",
+    "aliases": [
+      "start intensive phototherapy",
+      "intensive phototherapy",
+      "start phototherapy"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management",
+      "escalate"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.073644,
+    "y": 0.48051,
+    "w": 0.456117,
+    "h": 0.041012,
+    "crop_image": "assets/regions/crops/jaundice_start_pt.webp",
+    "segments": [
+      {
+        "text": "Start Intensive Phototherapy",
+        "bounding_boxes": [
+          {
+            "x": 0.206374,
+            "y": 0.483363,
+            "width": 0.221529,
+            "height": 0.010107
+          }
+        ]
+      },
+      {
+        "text": "Document serum bilirubin simultaneously",
+        "bounding_boxes": [
+          {
+            "x": 0.090663,
+            "y": 0.492405,
+            "width": 0.303289,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Prepare for exchange blood transfusion (EBT) if signs of ABE are present",
+        "bounding_boxes": [
+          {
+            "x": 0.08985,
+            "y": 0.500978,
+            "width": 0.428865,
+            "height": 0.01815
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_start_pt",
+    "section_title": "Start Intensive Phototherapy",
+    "keywords": [
+      "start intensive phototherapy",
+      "intensive phototherapy",
+      "start phototherapy"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.073644,
+        "y": 0.48051,
+        "width": 0.456117,
+        "height": 0.041012
+      }
+    ]
+  },
+  {
+    "id": "jaundice_needs_tsb",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "Does the infant require TSB measurement ?",
+    "section": "Does the infant require TSB measurement ?",
+    "type": "text",
+    "text": "Does the infant require TSB measurement ?\nJaundice in first 24 hrs ?\nBeyond 24 hrs: more than 12-14 mg/dL on visual assessment / TcB or near PT cut-off ?\nUnsure about visual assessment ?",
+    "aliases": [
+      "does the infant require tsb measurement ?",
+      "tsb measurement",
+      "serum bilirubin measurement",
+      "when to measure tsb"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "procedure"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.615282,
+    "y": 0.48051,
+    "w": 0.356341,
+    "h": 0.065496,
+    "crop_image": "assets/regions/crops/jaundice_needs_tsb.webp",
+    "segments": [
+      {
+        "text": "Jaundice in first 24 hrs ?",
+        "bounding_boxes": [
+          {
+            "x": 0.632053,
+            "y": 0.49643,
+            "width": 0.188061,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Beyond 24 hrs: more than 12-14 mg/dL on visual assessment / TcB or near PT cut-off ?",
+        "bounding_boxes": [
+          {
+            "x": 0.632053,
+            "y": 0.505612,
+            "width": 0.317037,
+            "height": 0.027942
+          }
+        ]
+      },
+      {
+        "text": "Unsure about visual assessment ?",
+        "bounding_boxes": [
+          {
+            "x": 0.632053,
+            "y": 0.533157,
+            "width": 0.268402,
+            "height": 0.009578
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_needs_tsb",
+    "section_title": "Does the infant require TSB measurement ?",
+    "keywords": [
+      "does the infant require tsb measurement ?",
+      "tsb measurement",
+      "serum bilirubin measurement",
+      "when to measure tsb"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.615282,
+        "y": 0.48051,
+        "width": 0.356341,
+        "height": 0.065496
+      }
+    ]
+  },
+  {
+    "id": "jaundice_tsb_cutoff",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "As per TSB, determine if baby requires phototherapy/ EBT if TSB at/more than cut-off?",
+    "section": "As per TSB, determine if baby requires phototherapy/ EBT if TSB at/more than cut-off?",
+    "type": "text",
+    "text": "As per TSB, determine if baby requires phototherapy/ EBT if TSB at/more than cut-off?\n",
+    "aliases": [
+      "as per tsb, determine if baby requires phototherapy/ ebt if tsb at/more than cut-off?",
+      "phototherapy cut-off",
+      "tsb cut-off"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "management"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.128283,
+    "y": 0.529479,
+    "w": 0.380097,
+    "h": 0.025097,
+    "crop_image": "assets/regions/crops/jaundice_tsb_cutoff.webp",
+    "segments": [
+      {
+        "text": "As per TSB, determine if baby requires phototherapy/ EBT if TSB at/more than cut-off?",
+        "bounding_boxes": [
+          {
+            "x": 0.137073,
+            "y": 0.532585,
+            "width": 0.360128,
+            "height": 0.019289
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_tsb_cutoff",
+    "section_title": "As per TSB, determine if baby requires phototherapy/ EBT if TSB at/more than cut-off?",
+    "keywords": [
+      "as per tsb, determine if baby requires phototherapy/ ebt if tsb at/more than cut-off?",
+      "phototherapy cut-off",
+      "tsb cut-off"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.128283,
+        "y": 0.529479,
+        "width": 0.380097,
+        "height": 0.025097
+      }
+    ]
+  },
+  {
+    "id": "jaundice_above_cutoff",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "Continue phototherapy/prepare for EBT and determine the cause",
+    "section": "Continue phototherapy/prepare for EBT and determine the cause",
+    "type": "text",
+    "text": "Continue phototherapy/prepare for EBT and determine the cause\n",
+    "aliases": [
+      "continue phototherapy/prepare for ebt and determine the cause"
+    ],
+    "example_questions": [],
+    "intents": [
+      "management"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.05939,
+    "y": 0.57294,
+    "w": 0.465619,
+    "h": 0.022648,
+    "crop_image": "assets/regions/crops/jaundice_above_cutoff.webp",
+    "segments": [
+      {
+        "text": "Continue phototherapy/prepare for EBT and determine the cause",
+        "bounding_boxes": [
+          {
+            "x": 0.067809,
+            "y": 0.576186,
+            "width": 0.292304,
+            "height": 0.017533
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_above_cutoff",
+    "section_title": "Continue phototherapy/prepare for EBT and determine the cause",
+    "keywords": [
+      "continue phototherapy/prepare for ebt and determine the cause"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.05939,
+        "y": 0.57294,
+        "width": 0.465619,
+        "height": 0.022648
+      }
+    ]
+  },
+  {
+    "id": "jaundice_investigation",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "Investigation:",
+    "section": "Investigation:",
+    "type": "text",
+    "text": "Investigation:\nBlood type and DCT (if mother is 'O' or Rh -ve\nG6PD status\nPeipheral smear and reticulocyte count",
+    "aliases": [
+      "investigation:",
+      "jaundice investigations",
+      "dct",
+      "g6pd",
+      "reticulocyte count"
+    ],
+    "example_questions": [],
+    "intents": [
+      "procedure",
+      "management"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.035634,
+    "y": 0.597424,
+    "w": 0.399102,
+    "h": 0.036115,
+    "crop_image": "assets/regions/crops/jaundice_investigation.webp",
+    "segments": [
+      {
+        "text": "Blood type and DCT (if mother is 'O' or Rh -ve",
+        "bounding_boxes": [
+          {
+            "x": 0.048172,
+            "y": 0.606941,
+            "width": 0.374416,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "G6PD status",
+        "bounding_boxes": [
+          {
+            "x": 0.048172,
+            "y": 0.614287,
+            "width": 0.10378,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Peipheral smear and reticulocyte count",
+        "bounding_boxes": [
+          {
+            "x": 0.048172,
+            "y": 0.621632,
+            "width": 0.329049,
+            "height": 0.009578
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_investigation",
+    "section_title": "Investigation:",
+    "keywords": [
+      "investigation:",
+      "jaundice investigations",
+      "dct",
+      "g6pd",
+      "reticulocyte count"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.035634,
+        "y": 0.597424,
+        "width": 0.399102,
+        "height": 0.036115
+      }
+    ]
+  },
+  {
+    "id": "jaundice_below_cutoff",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "Stop phototherapy",
+    "section": "Stop phototherapy",
+    "type": "text",
+    "text": "Stop phototherapy\n",
+    "aliases": [
+      "stop phototherapy"
+    ],
+    "example_questions": [],
+    "intents": [
+      "stop",
+      "management"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.458492,
+    "y": 0.591303,
+    "w": 0.152039,
+    "h": 0.018363,
+    "crop_image": "assets/regions/crops/jaundice_below_cutoff.webp",
+    "segments": [
+      {
+        "text": "Stop phototherapy",
+        "bounding_boxes": [
+          {
+            "x": 0.466531,
+            "y": 0.595902,
+            "width": 0.134597,
+            "height": 0.009578
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_below_cutoff",
+    "section_title": "Stop phototherapy",
+    "keywords": [
+      "stop phototherapy"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.458492,
+        "y": 0.591303,
+        "width": 0.152039,
+        "height": 0.018363
+      }
+    ]
+  },
+  {
+    "id": "jaundice_stop_pt",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "Stop phototherapy",
+    "section": "Stop phototherapy",
+    "type": "text",
+    "text": "Stop phototherapy\nTSB falls below 13-14 mg/dL or 2 mg/dL below cut-off",
+    "aliases": [
+      "stop phototherapy",
+      "stop phototherapy",
+      "stopping phototherapy"
+    ],
+    "example_questions": [],
+    "intents": [
+      "stop",
+      "criteria"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.035634,
+    "y": 0.634763,
+    "w": 0.394351,
+    "h": 0.023872,
+    "crop_image": "assets/regions/crops/jaundice_stop_pt.webp",
+    "segments": [
+      {
+        "text": "TSB falls below 13-14 mg/dL or 2 mg/dL below cut-off",
+        "bounding_boxes": [
+          {
+            "x": 0.042505,
+            "y": 0.646725,
+            "width": 0.372348,
+            "height": 0.009578
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_stop_pt",
+    "section_title": "Stop phototherapy",
+    "keywords": [
+      "stop phototherapy",
+      "stop phototherapy",
+      "stopping phototherapy"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.035634,
+        "y": 0.634763,
+        "width": 0.394351,
+        "height": 0.023872
+      }
+    ]
+  },
+  {
+    "id": "jaundice_continue_visual",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "Continue visual assessment/TcB (if available) every 12 to 24 hrs till discharge",
+    "section": "Continue visual assessment/TcB (if available) every 12 to 24 hrs till discharge",
+    "type": "text",
+    "text": "Continue visual assessment/TcB (if available) every 12 to 24 hrs till discharge\n",
+    "aliases": [
+      "continue visual assessment/tcb (if available) every 12 to 24 hrs till discharge",
+      "visual assessment frequency",
+      "tcb monitoring"
+    ],
+    "example_questions": [],
+    "intents": [
+      "schedule",
+      "management"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.779199,
+    "y": 0.568043,
+    "w": 0.185297,
+    "h": 0.051418,
+    "crop_image": "assets/regions/crops/jaundice_continue_visual.webp",
+    "segments": [
+      {
+        "text": "Continue visual assessment/TcB (if available) every 12 to 24 hrs till discharge",
+        "bounding_boxes": [
+          {
+            "x": 0.78825,
+            "y": 0.580131,
+            "width": 0.16128,
+            "height": 0.036022
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_continue_visual",
+    "section_title": "Continue visual assessment/TcB (if available) every 12 to 24 hrs till discharge",
+    "keywords": [
+      "continue visual assessment/tcb (if available) every 12 to 24 hrs till discharge",
+      "visual assessment frequency",
+      "tcb monitoring"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.779199,
+        "y": 0.568043,
+        "width": 0.185297,
+        "height": 0.051418
+      }
+    ]
+  },
+  {
+    "id": "jaundice_optimal_pt",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "ENSURING OPTIMAL PHOTOTHERAPY",
+    "section": "ENSURING OPTIMAL PHOTOTHERAPY",
+    "type": "text",
+    "text": "ENSURING OPTIMAL PHOTOTHERAPY\nKeep the baby naked (only small nappy to cover the genitalia and eye covers)\nPlace the baby close to the lights\nPhototherapy can be interrupted for feeding & clinical procedures\nEncourage frequent breastfeeding\nMonitor temperature regularly\nMaintain equipment as per manufacturer’s instructions\nFrequency of repeat TSB measurement depends on cause, severity, age and gestation\nHemolytic jaundice : 6 to 8 hourly during initial 24 to 48 hrs\nNon-hemolytic jaundice : 12-24 hourly",
+    "aliases": [
+      "ensuring optimal phototherapy",
+      "optimal phototherapy",
+      "repeat tsb frequency"
+    ],
+    "example_questions": [],
+    "intents": [
+      "procedure",
+      "management",
+      "schedule"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.029695,
+    "y": 0.662921,
+    "w": 0.483436,
+    "h": 0.109569,
+    "crop_image": "assets/regions/crops/jaundice_optimal_pt.webp",
+    "segments": [
+      {
+        "text": "Keep the baby naked (only small nappy to cover the genitalia and eye covers)",
+        "bounding_boxes": [
+          {
+            "x": 0.044583,
+            "y": 0.675048,
+            "width": 0.426525,
+            "height": 0.01815
+          }
+        ]
+      },
+      {
+        "text": "Place the baby close to the lights",
+        "bounding_boxes": [
+          {
+            "x": 0.044583,
+            "y": 0.692192,
+            "width": 0.23064,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Phototherapy can be interrupted for feeding & clinical procedures",
+        "bounding_boxes": [
+          {
+            "x": 0.044583,
+            "y": 0.700764,
+            "width": 0.459731,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Encourage frequent breastfeeding",
+        "bounding_boxes": [
+          {
+            "x": 0.044583,
+            "y": 0.709336,
+            "width": 0.244148,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Monitor temperature regularly",
+        "bounding_boxes": [
+          {
+            "x": 0.044583,
+            "y": 0.717909,
+            "width": 0.213631,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Maintain equipment as per manufacturer’s instructions",
+        "bounding_boxes": [
+          {
+            "x": 0.044583,
+            "y": 0.726481,
+            "width": 0.38868,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Frequency of repeat TSB measurement depends on cause, severity, age and gestation",
+        "bounding_boxes": [
+          {
+            "x": 0.044669,
+            "y": 0.735053,
+            "width": 0.414677,
+            "height": 0.01815
+          }
+        ]
+      },
+      {
+        "text": "Hemolytic jaundice : 6 to 8 hourly during initial 24 to 48 hrs",
+        "bounding_boxes": [
+          {
+            "x": 0.069328,
+            "y": 0.752116,
+            "width": 0.138458,
+            "height": 0.009667
+          },
+          {
+            "x": 0.21812,
+            "y": 0.752197,
+            "width": 0.265414,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Non-hemolytic jaundice : 12-24 hourly",
+        "bounding_boxes": [
+          {
+            "x": 0.069328,
+            "y": 0.760688,
+            "width": 0.171849,
+            "height": 0.009667
+          },
+          {
+            "x": 0.251511,
+            "y": 0.760769,
+            "width": 0.083126,
+            "height": 0.009578
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_optimal_pt",
+    "section_title": "ENSURING OPTIMAL PHOTOTHERAPY",
+    "keywords": [
+      "ensuring optimal phototherapy",
+      "optimal phototherapy",
+      "repeat tsb frequency"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.029695,
+        "y": 0.662921,
+        "width": 0.483436,
+        "height": 0.109569
+      }
+    ]
+  },
+  {
+    "id": "jaundice_optimal_ebt",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "ENSURING OPTIMAL EXCHANGE BLOOD TRANSFUSION (EBT)",
+    "section": "ENSURING OPTIMAL EXCHANGE BLOOD TRANSFUSION (EBT)",
+    "type": "text",
+    "text": "ENSURING OPTIMAL EXCHANGE BLOOD TRANSFUSION (EBT)\nImmediate EBT is recommended if infant shows signs of ABE or if TSB is above the recommended age and risk specific cut off\nExchange volume = Twice the estimated blood volume of 80-100 mL/kg",
+    "aliases": [
+      "ensuring optimal exchange blood transfusion (ebt)",
+      "exchange blood transfusion",
+      "exchange transfusion",
+      "ebt volume"
+    ],
+    "example_questions": [],
+    "intents": [
+      "criteria",
+      "procedure",
+      "dose",
+      "escalate"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.517882,
+    "y": 0.656187,
+    "w": 0.25419,
+    "h": 0.108956,
+    "crop_image": "assets/regions/crops/jaundice_optimal_ebt.webp",
+    "segments": [
+      {
+        "text": "Immediate EBT is recommended if infant shows signs of ABE or if TSB is above the recommended age and risk specific cut off",
+        "bounding_boxes": [
+          {
+            "x": 0.532187,
+            "y": 0.680546,
+            "width": 0.223467,
+            "height": 0.051212
+          }
+        ]
+      },
+      {
+        "text": "Exchange volume = Twice the estimated blood volume of 80-100 mL/kg",
+        "bounding_boxes": [
+          {
+            "x": 0.531004,
+            "y": 0.732588,
+            "width": 0.208401,
+            "height": 0.030395
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_optimal_ebt",
+    "section_title": "ENSURING OPTIMAL EXCHANGE BLOOD TRANSFUSION (EBT)",
+    "keywords": [
+      "ensuring optimal exchange blood transfusion (ebt)",
+      "exchange blood transfusion",
+      "exchange transfusion",
+      "ebt volume"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.517882,
+        "y": 0.656187,
+        "width": 0.25419,
+        "height": 0.108956
+      }
+    ]
+  },
+  {
+    "id": "jaundice_discharge",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "DISCHARGE ADVICE",
+    "section": "DISCHARGE ADVICE",
+    "type": "text",
+    "text": "DISCHARGE ADVICE\nReinforce breastfeeding at discharge\nIf discharged before 72 hrs; follow up at 48 to 72 hrs after discharge",
+    "aliases": [
+      "discharge advice"
+    ],
+    "example_questions": [],
+    "intents": [
+      "followup",
+      "management"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.778011,
+    "y": 0.662308,
+    "w": 0.214992,
+    "h": 0.078351,
+    "crop_image": "assets/regions/crops/jaundice_discharge.webp",
+    "segments": [
+      {
+        "text": "Reinforce breastfeeding at discharge",
+        "bounding_boxes": [
+          {
+            "x": 0.791111,
+            "y": 0.681158,
+            "width": 0.189374,
+            "height": 0.021206
+          }
+        ]
+      },
+      {
+        "text": "If discharged before 72 hrs; follow up at 48 to 72 hrs after discharge",
+        "bounding_boxes": [
+          {
+            "x": 0.791111,
+            "y": 0.704413,
+            "width": 0.191941,
+            "height": 0.032834
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_discharge",
+    "section_title": "DISCHARGE ADVICE",
+    "keywords": [
+      "discharge advice"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.778011,
+        "y": 0.662308,
+        "width": 0.214992,
+        "height": 0.078351
+      }
+    ]
+  },
+  {
+    "id": "jaundice_dos",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "SOME IMPORTANT DO’S",
+    "section": "SOME IMPORTANT DO’S",
+    "type": "text",
+    "text": "SOME IMPORTANT DO’S\nEncourage frequent breastfeeding\nAvoid exposure to naphthalene balls\nComplete evaluation of newborn is important to evaluate for risk factors and underlying causes\nDo pre-discharge risk assessment",
+    "aliases": [
+      "some important do’s"
+    ],
+    "example_questions": [],
+    "intents": [
+      "dos"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.026132,
+    "y": 0.773713,
+    "w": 0.383661,
+    "h": 0.079575,
+    "crop_image": "assets/regions/crops/jaundice_dos.webp",
+    "segments": [
+      {
+        "text": "Encourage frequent breastfeeding",
+        "bounding_boxes": [
+          {
+            "x": 0.034713,
+            "y": 0.792821,
+            "width": 0.248571,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Avoid exposure to naphthalene balls",
+        "bounding_boxes": [
+          {
+            "x": 0.034713,
+            "y": 0.805676,
+            "width": 0.259117,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Complete evaluation of newborn is important to evaluate for risk factors and underlying causes",
+        "bounding_boxes": [
+          {
+            "x": 0.034713,
+            "y": 0.81853,
+            "width": 0.343711,
+            "height": 0.01876
+          }
+        ]
+      },
+      {
+        "text": "Do pre-discharge risk assessment",
+        "bounding_boxes": [
+          {
+            "x": 0.034713,
+            "y": 0.840566,
+            "width": 0.240872,
+            "height": 0.009578
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_dos",
+    "section_title": "SOME IMPORTANT DO’S",
+    "keywords": [
+      "some important do’s"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.026132,
+        "y": 0.773713,
+        "width": 0.383661,
+        "height": 0.079575
+      }
+    ]
+  },
+  {
+    "id": "jaundice_donts",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "SOME IMPORTANT DON’TS",
+    "section": "SOME IMPORTANT DON’TS",
+    "type": "text",
+    "text": "SOME IMPORTANT DON’TS\nSunlight should not be used for treatment of hyperbilirubinemia\nDo not rely on visual assessment/ TcB while the baby is under phototherapy\nDo not give phenobarbitone for treatment of hyperbilirubinemia\nDo not stop breastfeeding",
+    "aliases": [
+      "some important don’ts"
+    ],
+    "example_questions": [],
+    "intents": [
+      "donts"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.415731,
+    "y": 0.773713,
+    "w": 0.560643,
+    "h": 0.079575,
+    "crop_image": "assets/regions/crops/jaundice_donts.webp",
+    "segments": [
+      {
+        "text": "Sunlight should not be used for treatment of hyperbilirubinemia",
+        "bounding_boxes": [
+          {
+            "x": 0.424935,
+            "y": 0.792131,
+            "width": 0.459919,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Do not rely on visual assessment/ TcB while the baby is under phototherapy",
+        "bounding_boxes": [
+          {
+            "x": 0.424935,
+            "y": 0.807431,
+            "width": 0.539402,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Do not give phenobarbitone for treatment of hyperbilirubinemia",
+        "bounding_boxes": [
+          {
+            "x": 0.424935,
+            "y": 0.822732,
+            "width": 0.46039,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "Do not stop breastfeeding",
+        "bounding_boxes": [
+          {
+            "x": 0.424935,
+            "y": 0.840485,
+            "width": 0.187038,
+            "height": 0.009578
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_donts",
+    "section_title": "SOME IMPORTANT DON’TS",
+    "keywords": [
+      "some important don’ts"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.415731,
+        "y": 0.773713,
+        "width": 0.560643,
+        "height": 0.079575
+      }
+    ]
+  },
+  {
+    "id": "jaundice_abbreviations",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "ABBREVIATIONS",
+    "section": "ABBREVIATIONS",
+    "type": "text",
+    "text": "ABBREVIATIONS\nABE: Acute bilirubin encephalopathy\nDCT: Direct coombs test\nEBT: Exchange blood transfusion\nG6PD: Glucose-6-phosphate dehydrogenase\nTcB: Transcutaneous bilirubin\nTSB: Total serum bilirubin",
+    "aliases": [
+      "abbreviations"
+    ],
+    "example_questions": [],
+    "intents": [
+      "abbreviation"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.017817,
+    "y": 0.852064,
+    "w": 0.963309,
+    "h": 0.041624,
+    "crop_image": "assets/regions/crops/jaundice_abbreviations.webp",
+    "segments": [
+      {
+        "text": "ABE: Acute bilirubin encephalopathy",
+        "bounding_boxes": [
+          {
+            "x": 0.025734,
+            "y": 0.868932,
+            "width": 0.035064,
+            "height": 0.009858
+          },
+          {
+            "x": 0.064832,
+            "y": 0.869182,
+            "width": 0.225322,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "DCT: Direct coombs test",
+        "bounding_boxes": [
+          {
+            "x": 0.025734,
+            "y": 0.87995,
+            "width": 0.034522,
+            "height": 0.009858
+          },
+          {
+            "x": 0.064291,
+            "y": 0.8802,
+            "width": 0.135525,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "EBT: Exchange blood transfusion",
+        "bounding_boxes": [
+          {
+            "x": 0.367822,
+            "y": 0.868932,
+            "width": 0.032726,
+            "height": 0.009858
+          },
+          {
+            "x": 0.404582,
+            "y": 0.869182,
+            "width": 0.199421,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "G6PD: Glucose-6-phosphate dehydrogenase",
+        "bounding_boxes": [
+          {
+            "x": 0.367822,
+            "y": 0.87995,
+            "width": 0.045868,
+            "height": 0.009858
+          },
+          {
+            "x": 0.417724,
+            "y": 0.8802,
+            "width": 0.269035,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "TcB: Transcutaneous bilirubin",
+        "bounding_boxes": [
+          {
+            "x": 0.75267,
+            "y": 0.868932,
+            "width": 0.031087,
+            "height": 0.009858
+          },
+          {
+            "x": 0.787791,
+            "y": 0.869182,
+            "width": 0.177555,
+            "height": 0.009578
+          }
+        ]
+      },
+      {
+        "text": "TSB: Total serum bilirubin",
+        "bounding_boxes": [
+          {
+            "x": 0.75267,
+            "y": 0.87995,
+            "width": 0.03247,
+            "height": 0.009858
+          },
+          {
+            "x": 0.789174,
+            "y": 0.8802,
+            "width": 0.147467,
+            "height": 0.009578
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_abbreviations",
+    "section_title": "ABBREVIATIONS",
+    "keywords": [
+      "abbreviations"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.017817,
+        "y": 0.852064,
+        "width": 0.963309,
+        "height": 0.041624
+      }
+    ]
+  },
+  {
+    "id": "jaundice_references",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "REFERENCES",
+    "section": "REFERENCES",
+    "type": "text",
+    "text": "REFERENCES\n1. Screening, Prevention and Management of Neonatal Hyperbilirubinemia. Clinical Practice Guidelines. National Neonatology Forum India 2020. www.nnfi.org/cpg\n2.Management of hyperbilirubinemia in the newborn infant 35 or more weeks of gestation. American Academy of Pediatrics Practice Guidelines . www.cdc.gov",
+    "aliases": [
+      "references"
+    ],
+    "example_questions": [],
+    "intents": [],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.011878,
+    "y": 0.894912,
+    "w": 0.969248,
+    "h": 0.057539,
+    "crop_image": "assets/regions/crops/jaundice_references.webp",
+    "segments": [
+      {
+        "text": "1. Screening, Prevention and Management of Neonatal Hyperbilirubinemia. Clinical Practice Guidelines. National Neonatology Forum India 2020. www.nnfi.org/cpg",
+        "bounding_boxes": [
+          {
+            "x": 0.019424,
+            "y": 0.912427,
+            "width": 0.934711,
+            "height": 0.017964
+          }
+        ]
+      },
+      {
+        "text": "2.Management of hyperbilirubinemia in the newborn infant 35 or more weeks of gestation. American Academy of Pediatrics Practice Guidelines . www.cdc.gov",
+        "bounding_boxes": [
+          {
+            "x": 0.019414,
+            "y": 0.930795,
+            "width": 0.935693,
+            "height": 0.017964
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_references",
+    "section_title": "REFERENCES",
+    "keywords": [
+      "references"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.011878,
+        "y": 0.894912,
+        "width": 0.969248,
+        "height": 0.057539
+      }
+    ]
+  },
+  {
+    "id": "jaundice_key_message",
+    "document": "Neonatal Jaundice.pdf",
+    "page": 1,
+    "title": "HYPERBILIRUBINEMIA IS A PREVENTABLE CAUSE OF BRAIN DAMAGE",
+    "section": "HYPERBILIRUBINEMIA IS A PREVENTABLE CAUSE OF BRAIN DAMAGE",
+    "type": "text",
+    "text": "HYPERBILIRUBINEMIA IS A PREVENTABLE CAUSE OF BRAIN DAMAGE\n",
+    "aliases": [
+      "hyperbilirubinemia is a preventable cause of brain damage"
+    ],
+    "example_questions": [],
+    "intents": [
+      "benefit",
+      "prevention"
+    ],
+    "source_revision": "Neonatal Jaundice.pdf",
+    "source_sha256": "19aadebc9175451e411416f50a78a2c2009116208205082a12ccdd978f46ac12",
+    "pw": 841.89,
+    "ph": 1633.68,
+    "x": 0.237561,
+    "y": 0.951839,
+    "w": 0.525009,
+    "h": 0.015303,
+    "crop_image": "assets/regions/crops/jaundice_key_message.webp",
+    "segments": [
+      {
+        "text": "HYPERBILIRUBINEMIA IS A PREVENTABLE CAUSE OF BRAIN DAMAGE",
+        "bounding_boxes": [
+          {
+            "x": 0.282006,
+            "y": 0.954739,
+            "width": 0.45736,
+            "height": 0.009915
+          }
+        ]
+      }
+    ],
+    "chunk_id": "jaundice_key_message",
+    "section_title": "HYPERBILIRUBINEMIA IS A PREVENTABLE CAUSE OF BRAIN DAMAGE",
+    "keywords": [
+      "hyperbilirubinemia is a preventable cause of brain damage"
+    ],
+    "bounding_boxes": [
+      {
+        "x": 0.237561,
+        "y": 0.951839,
+        "width": 0.525009,
+        "height": 0.015303
+      }
+    ]
   }
 ]

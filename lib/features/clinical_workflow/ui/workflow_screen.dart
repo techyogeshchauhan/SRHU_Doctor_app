@@ -330,12 +330,7 @@ class WorkflowScreen extends ConsumerWidget {
                         ] else
                           _QuestionPage(group: group),
                         DisclaimerFooter(
-                          sourceVersion: ctx.selected
-                                  .contains(NeonatalCondition.fluidsAndFeeds)
-                              ? ctx.selected.length == 1
-                                  ? 'Oct 2026'
-                                  : 'Aug / Oct 2026'
-                              : 'Aug 2026',
+                          sourceVersion: _sourceVersion(ctx.selected),
                         ),
                       ],
                     ),
@@ -997,6 +992,18 @@ class _NoAssessment extends StatelessWidget {
   }
 }
 
+/// STW versions shown in the footer for the selected topics.
+String _sourceVersion(Set<NeonatalCondition> selected) {
+  final others = {...selected}..remove(NeonatalCondition.jaundice);
+  final rest = others.contains(NeonatalCondition.fluidsAndFeeds)
+      ? others.length == 1
+          ? 'Oct 2026'
+          : 'Aug / Oct 2026'
+      : 'Aug 2026';
+  if (!selected.contains(NeonatalCondition.jaundice)) return rest;
+  return others.isEmpty ? 'Jul 2020' : 'Jul 2020 / $rest';
+}
+
 String _pdfButtonLabel(NeonatalCondition c) => switch (c) {
       NeonatalCondition.respiratoryDistress => 'Respiratory Distress STW PDF',
       NeonatalCondition.rop => 'ROP STW PDF',
@@ -1005,6 +1012,7 @@ String _pdfButtonLabel(NeonatalCondition c) => switch (c) {
       NeonatalCondition.triage => 'Triage STW PDF',
       NeonatalCondition.kmc => 'KMC STW PDF',
       NeonatalCondition.sepsis => 'Sepsis STW PDF',
+      NeonatalCondition.jaundice => 'Jaundice STW PDF',
       _ => '${definitionOf(c).title} PDF',
     };
 
@@ -1015,5 +1023,6 @@ Color _pdfAccent(NeonatalCondition c) => switch (c) {
       NeonatalCondition.kmc => AppTheme.primaryTeal,
       NeonatalCondition.ancs => const Color(0xFF0F766E),
       NeonatalCondition.hypoglycemia => const Color(0xFFB45309),
+      NeonatalCondition.jaundice => const Color(0xFFB45309),
       _ => AppTheme.primaryNavy,
     };

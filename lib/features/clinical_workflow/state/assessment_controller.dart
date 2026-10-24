@@ -97,6 +97,39 @@ class AssessmentController extends Notifier<AssessmentState> {
     }
   }
 
+  /// Starts a fresh assessment for [selected] with answers read from a case
+  /// history. Pre-filled answers are not marked completed: every page is
+  /// still shown with the values filled in for the clinician to confirm or
+  /// edit. Only topic codes and field names reach the audit trail, never
+  /// the case text or values.
+  void startFromCase(
+    Set<NeonatalCondition> selected,
+    Map<String, Object?> prefilled,
+  ) {
+    final syncRepo = ref.read(screeningSyncRepositoryProvider);
+    syncRepo
+        .startAssessmentSession({for (final c in selected) diseaseCodeOf(c)});
+    final ctx = _engine.evaluate(
+      selected: selected,
+      answers: prefilled,
+      completed: const {},
+      today: ref.read(assessmentTodayProvider),
+    );
+    state = AssessmentState(
+      context: ctx,
+      history: const [],
+      cursor: null,
+      currentGroup: _engine.nextGroup(ctx),
+    );
+    ref.read(auditLogProvider).log('case_entry_started', {
+      'topics': [for (final c in selected) diseaseCodeOf(c)],
+      'fields': ctx.answers.keys.toList()..sort(),
+    });
+    for (final c in selected) {
+      syncRepo.startDiseaseScreening(diseaseCodeOf(c));
+    }
+  }
+
   /// Resets the current screening progress back to empty.
   void reset() {
     state = build();

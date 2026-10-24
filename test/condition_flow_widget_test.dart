@@ -23,7 +23,7 @@ Future<void> _pumpToSelection(
 
 void main() {
   testWidgets(
-      'selection lists all 13 modules in standard order, with 8 selectable and 5 disabled',
+      'selection lists all 13 modules in standard order, with 9 selectable and 4 disabled',
       (tester) async {
     await _pumpToSelection(tester);
 
@@ -67,17 +67,17 @@ void main() {
     expect(ropFinder, findsOneWidget);
     expect(rdFinder, findsOneWidget);
 
-    // 6. Uniform status badges: 8 available, 5 awaiting STW
-    expect(find.text('Available'), findsNWidgets(8));
-    expect(find.text('Awaiting STW'), findsNWidgets(5));
+    // 6. Uniform status badges: 9 available, 4 awaiting STW
+    expect(find.text('Available'), findsNWidgets(9));
+    expect(find.text('Awaiting STW'), findsNWidgets(4));
 
     // Verify all 13 module titles are present
     for (final d in stwModuleDefinitions) {
       expect(find.text(d.title), findsOneWidget);
     }
 
-    // 7. Inactive condition (e.g. Jaundice) cannot be selected
-    await tester.tap(find.text('STW Jaundice'), warnIfMissed: false);
+    // 7. Inactive condition (e.g. Seizures) cannot be selected
+    await tester.tap(find.text('STW Seizures'), warnIfMissed: false);
     await tester.pumpAndSettle();
     expect(find.textContaining('Selected:'), findsNothing);
     expect(find.text('1'), findsNothing);

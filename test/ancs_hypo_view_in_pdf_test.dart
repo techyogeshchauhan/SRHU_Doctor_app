@@ -38,6 +38,6 @@ void main() {
   test('RD and ROP PDFs are unchanged in the registry', () {
     expect(stwPdfFor(NeonatalCondition.respiratoryDistress)!.asset, rdPdfAsset);
     expect(stwPdfFor(NeonatalCondition.rop)!.asset, ropPdfAsset);
-    expect(stwPdfFor(NeonatalCondition.jaundice), isNull);
+    expect(stwPdfFor(NeonatalCondition.seizures), isNull);
   });
 }

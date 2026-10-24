@@ -18,7 +18,8 @@ enum StwTopic {
   kmc,
   sepsis,
   feeding,
-  postAsphyxia
+  postAsphyxia,
+  jaundice
 }
 
 /// Kinds of question; regions in assets/regions/regions.json list the ones
@@ -77,6 +78,50 @@ class QueryEntities {
 
   /// Clinician's own severity word: 'mild' or 'moderateSevere'.
   String? severityWord;
+
+  /// "+ days" of a GA written as "36+3 wk".
+  int? gaDays;
+
+  /// Respiratory rate (/min).
+  int? rr;
+
+  /// Respiratory distress signs described as present (`RdSign` names).
+  Set<String> rdSigns = {};
+
+  /// True: jaundice described; false: explicitly absent; null: not said.
+  bool? jaundice;
+
+  /// Highest Kramer zone (1–5) the jaundice is described to reach.
+  int? kramerZone;
+
+  /// Postnatal age when stated in hours ("36 hrs old").
+  int? ageHours;
+
+  /// Day of life when stated as "day 3" / "3 days old".
+  int? dayOfLife;
+
+  /// Signs of acute bilirubin encephalopathy (`AbeSign` names) and abnormal
+  /// posturing (`PostureSign` names) described as present.
+  Set<String> abeSigns = {};
+  Set<String> postureSigns = {};
+
+  /// Bilirubin values (mg/dL).
+  double? tsb;
+  double? tcb;
+
+  /// Values that describe a case (used to offer the guided case entry).
+  int get caseValueCount => [
+        gaWeeks,
+        weightG,
+        bg,
+        rr,
+        kramerZone,
+        ageHours ?? dayOfLife,
+        tsb,
+        tcb,
+        if (rdSigns.isNotEmpty) true,
+        if (abeSigns.isNotEmpty || postureSigns.isNotEmpty) true,
+      ].where((v) => v != null).length;
 
   bool get hasPatientValue =>
       bg != null ||
@@ -181,16 +226,21 @@ final _outOfScope = RegExp(
   r"chemotherap\w*|copd|ards|ketoacidosis|dka|insulin|eczema|cream|lasik|"
   r"coffee|labetalol|magnesium|tocoly\w*|appendectomy|paracetamol|"
   r"diabetic retinopathy|sleep apnea|"
+  // The Jaundice STW prints no hour-specific phototherapy / exchange
+  // transfusion chart: cut-off values stay out of scope.
   r"phototherapy threshold|threshold for.*phototherapy|bilirubin level|bilirubin cutoff|phototherapy cutoff|"
   r"exchange transfusion threshold|exchange transfusion level|phototherapy chart|phototherapy nomogram|"
-  r"(jaundice|bilirubin).*(when\b|threshold|cutoff|level|chart)|"
-  r"(when\b|threshold|cutoff|level|chart).*(phototherapy|exchange)|"
-  r"neonatal jaundice treatment|"
+  r"(jaundice|bilirubin).*(threshold|cutoff|level|chart)|"
+  r"(threshold|cutoff|level|chart).*(phototherapy|exchange)|"
   r"hypothermia management|"
   r"weather|cricket|cake|recipe|hypertension with)\b",
 );
 
 final _topicPatterns = <StwTopic, RegExp>{
+  StwTopic.jaundice: RegExp(
+      r'jaundice|icterus|hyperbilirubin\w*|bilirubin|phototherapy|kramer|'
+      r'\btsb\b|\btcb\b|exchange (blood )?transfusion|\bebt\b|'
+      r'yellow palms|palms and soles|\bdct\b|coombs'),
   StwTopic.postAsphyxia: RegExp(
       r'post.?asphyxia\w*|perinatal asphyxia|birth asphyxia|\bhie\b|hypoxic.?ischa?emic encephalopathy|sarnat|therapeutic hypothermia'),
   StwTopic.feeding: RegExp(
@@ -334,12 +384,18 @@ QueryEntities _entities(String n) {
     final m = RegExp(r'(\d{2,3})\s*mg/?dl').firstMatch(n);
     if (m != null) {
       final before = n.substring(0, m.start);
-      if (!_comparator.hasMatch(before)) e.bg = _num(m.group(1));
+      // "TSB 18 mg/dL" / "zone 3: 12 to 14 mg/dL" are bilirubin, not BG.
+      final bilirubin = RegExp(r'(bilirubin|\btsb\b|\btcb\b|\bsbr?\b|zone|'
+              r'kramer|cut-?off|jaundice)\D{0,20}$')
+          .hasMatch(before);
+      if (!_comparator.hasMatch(before) && !bilirubin) {
+        e.bg = _num(m.group(1));
+      }
     }
   }
 
   for (final m in RegExp(
-    r'(\d{2})(?:\s*\+\s*\d)?\s*-?\s*(?:weeks?|wks?|wk)\b',
+    r'(\d{2})(?:\s*\+\s*(\d))?\s*-?\s*(?:weeks?|wks?|wk)\b',
   ).allMatches(n)) {
     final before = n.substring(0, m.start);
     final after = n.substring(m.end);
@@ -354,14 +410,18 @@ QueryEntities _entities(String n) {
                 ? '<'
                 : null;
     e.gaWeeks = _num(m.group(1));
+    e.gaDays = _num(m.group(2));
     e.gaComparator = cmp;
     break;
   }
   e.term = RegExp(r'\bterm (baby|neonate|newborn|infant)').hasMatch(n);
 
   final w = RegExp(r'(\d{3,4})\s*(?:g|gm|grams?)\b').firstMatch(n);
-  e.weightG =
-      _num(w?.group(1)) ?? _valueAfter(n, r'birth weight|\bbw\b', maxGap: 10);
+  final kg = RegExp(r'(?<![\d.])(\d(?:\.\d{1,3})?)\s*(?:kg|kgs|kilos?)\b')
+      .firstMatch(n);
+  e.weightG = _num(w?.group(1)) ??
+      (kg == null ? null : (double.parse(kg.group(1)!) * 1000).round()) ??
+      _valueAfter(n, r'birth weight|\bbw\b', maxGap: 10);
   e.sas = _valueAfter(n, r'\bsas\b', maxGap: 8);
   e.gir = _valueAfter(n, r'\bgir\b', maxGap: 8);
   e.peep = _valueAfter(n, r'\bpeep\b', maxGap: 6);
@@ -424,7 +484,124 @@ QueryEntities _entities(String n) {
   } else if (RegExp(r'\b(moderate|severe)\b').hasMatch(n)) {
     e.severityWord = 'moderateSevere';
   }
+  _caseEntities(n, e);
   return e;
+}
+
+/// "no grunting", "without retractions", "grunting absent", "RR normal".
+final _negatedBefore = RegExp(
+    r"\b(no|not|nil|without|absent|denies|negative for|free of)\b[^,]{0,30}$");
+final _negatedAfter =
+    RegExp(r'^[^,]{0,12}\b(absent|not present|not seen|nil|negative|not)\b');
+
+/// True when [re] matches [n] at least once without a negation next to it.
+bool _mentioned(String n, RegExp re) => re.allMatches(n).any((m) =>
+    !_negatedBefore.hasMatch(n.substring(0, m.start)) &&
+    !_negatedAfter.hasMatch(n.substring(m.end)));
+
+final _jaundiceWord =
+    RegExp(r'jaundice\w*|icter\w*|yellow\w*|hyperbilirubin\w*|kramer');
+
+/// Body parts the jaundice reaches, highest Kramer zone first. "Hands and
+/// feet" (Hinglish "haath pair") is read as palms and soles.
+final _kramerParts = <int, RegExp>{
+  5: RegExp(r'palms?|soles?|hands and feet'),
+  4: RegExp(r'\blegs?\b|\barms?\b|forearms?|limbs?|extremit\w*|knees?|shins?'),
+  3: RegExp(r'thighs?|lower abdomen|below (the )?umbilicus|umbilicus'),
+  2: RegExp(r'chest(?! (wall|retraction|indrawing|recession|x-?ray))|'
+      r'upper abdomen|trunk|abdomen'),
+  1: RegExp(r'\bface\b|\bneck\b|\bhead\b|sclera\w*'),
+};
+
+/// Highest Kramer zone described in [n]: "kramer 4", "zone 5 jaundice", or
+/// the body part reached ("jaundice up to palms and soles"). Body parts
+/// count only when [jaundiceContext] is true (else "chest" could be a chest
+/// retraction).
+int? kramerZoneOf(String n, {required bool jaundiceContext}) {
+  final explicit = RegExp(r"kramer'?s?\s*(?:zone)?\s*([1-5])\b|"
+          r'\bzone\s*([1-5])\b(?=[^,]{0,20}(jaundice|icter|yellow))|'
+          r'(?:jaundice|icter\w*)[^,]{0,20}\bzone\s*([1-5])\b')
+      .firstMatch(n);
+  if (explicit != null) {
+    return int.parse(
+        explicit.group(1) ?? explicit.group(2) ?? explicit.group(4)!);
+  }
+  if (!jaundiceContext) return null;
+  for (final e in _kramerParts.entries) {
+    if (e.value.hasMatch(n)) return e.key;
+  }
+  return null;
+}
+
+/// Case-history values: RR, RD signs, jaundice extent, age, ABE signs and
+/// bilirubin values.
+void _caseEntities(String n, QueryEntities e) {
+  final rr = _valueAfter(n, r'\brr\b|resp\w* rate|breathing rate|respirations?',
+          maxGap: 8) ??
+      _num(RegExp(r'(\d{2,3})\s*breaths?\b').firstMatch(n)?.group(1));
+  e.rr = rr;
+
+  e.rdSigns = {
+    if (_mentioned(n, RegExp(r'grunt\w*'))) 'grunting',
+    if (_mentioned(
+        n,
+        RegExp(r'retraction\w*|indrawing|recession\w*|subcostal|intercostal|'
+            r'xiphoid')))
+      'retractions',
+    if (_mentioned(n, RegExp(r'flaring|nasal flar\w*|alae? nasi')))
+      'nasalFlaring',
+    if (_mentioned(n, RegExp(r'tachypn\w*|fast breathing|rapid breathing')))
+      'rrAbove60',
+  };
+
+  final jaundiceSaid = _jaundiceWord.hasMatch(n);
+  if (jaundiceSaid) e.jaundice = _mentioned(n, _jaundiceWord);
+  e.kramerZone = kramerZoneOf(n, jaundiceContext: e.jaundice == true);
+
+  final hours = RegExp(r'(?<![\d.])(\d{1,3})\s*-?\s*(?:hours?|hrs?|h)\b'
+          r'(?!\s*(?:after|before|ago|post|later|apart|interval))')
+      .allMatches(n)
+      .where((m) => !RegExp(
+              r'(every|within|for|after|since|q|in|first|initial|last|past)\s*$')
+          .hasMatch(n.substring(0, m.start)))
+      .firstOrNull;
+  e.ageHours = _num(hours?.group(1));
+  final day = RegExp(
+          r'\b(?:day of life|day|dol)\s*-?\s*(\d{1,2})\b(?!\s*(?:weeks?|wks?|days?))|'
+          r'(\d{1,2})\s*(?:st|nd|rd|th)?\s*day of life|'
+          r'(?:aged?\s*)?(\d{1,2})\s*days?\s*(?:old|of life|of age)')
+      .firstMatch(n);
+  e.dayOfLife = _num(day?.group(1) ?? day?.group(2) ?? day?.group(3));
+
+  e.abeSigns = {
+    if (_mentioned(
+        n,
+        RegExp(r'poor (suck\w*|feed\w*)|not feeding|feeding poorly|'
+            r'refus\w* feeds?|unable to feed|poor feeding')))
+      'poorSuck',
+    if (_mentioned(n, RegExp(r'letharg\w*|drows\w*|sleepy'))) 'lethargy',
+    if (_mentioned(n, RegExp(r'hypoton\w*|floppy|\blimp\b'))) 'hypotonia',
+  };
+  e.postureSigns = {
+    if (_mentioned(n, RegExp(r'arching'))) 'arching',
+    if (_mentioned(n, RegExp(r'retrocollis'))) 'retrocollis',
+    if (_mentioned(n, RegExp(r'opisthoton\w*'))) 'opisthotonus',
+    if (_mentioned(n, RegExp(r'convuls\w*|seizur\w*|\bfits?\b'))) 'convulsion',
+    if (_mentioned(n, RegExp(r'fever\w*|febrile|pyrexi\w*'))) 'fever',
+    if (_mentioned(n, RegExp(r'high.?pitched cry|shrill cry')))
+      'highPitchedCry',
+  };
+
+  double? value(String keys) {
+    final m = RegExp(
+            '(?:$keys)\\D{0,8}?(\\d{1,2}(?:\\.\\d)?)(?![\\d.]*\\s*(?:weeks?|wks?|hours?|hrs?|days?|%))')
+        .firstMatch(n);
+    return m == null ? null : double.parse(m.group(1)!);
+  }
+
+  e.tcb = value(r'\btcb\b|transcutaneous bilirubin');
+  e.tsb = value(
+      r'\btsb\b|\bsbr?\b|(?<!transcutaneous )(?:total |serum )?bilirubin');
 }
 
 // ---------------------------------------------------------------------------
@@ -554,6 +731,7 @@ QueryAnalysis analyzeQuery(String query) {
 StwTopic? topicOfDocument(String document) {
   final d = document.toLowerCase();
   if (d.startsWith('post asphyxia')) return StwTopic.postAsphyxia;
+  if (d.startsWith('neonatal jaundice')) return StwTopic.jaundice;
   if (d.startsWith('feeding_nutrition')) return StwTopic.feeding;
   if (d.startsWith('sepsis_')) return StwTopic.sepsis;
   if (d.startsWith('respiratory')) return StwTopic.rd;

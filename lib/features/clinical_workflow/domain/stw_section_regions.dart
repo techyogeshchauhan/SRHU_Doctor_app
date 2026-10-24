@@ -18,6 +18,7 @@ const _triage = triageStwDocument;
 const _kmc = kmcStwDocument;
 const _ancs = ancsStwDocument;
 const _hypo = hypoStwDocument;
+const _jaundice = jaundiceStwDocument;
 
 const Map<String, String> stwSectionRegions = {
   // Respiratory Distress in Neonates
@@ -135,4 +136,5 @@ const Set<String> sectionsOutsideStwPdf = {
   '$_kmc|Whole document (August 2026)',
   '$_ancs|Whole document (August 2026)',
   '$_hypo|Whole document (ICD-11 KB60.4)',
+  '$_jaundice|Whole document (ICD-10 P59.9)',
 };

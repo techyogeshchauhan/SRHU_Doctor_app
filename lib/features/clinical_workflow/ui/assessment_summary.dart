@@ -164,6 +164,54 @@ class _FooterLink extends StatelessWidget {
       );
 }
 
+/// Findings needing action across all STWs of a multi-STW assessment, each
+/// labelled with its STW. Order is the summary's (level, then display
+/// order); details and sources are in each STW's section below.
+class _ImmediateActions extends StatelessWidget {
+  const _ImmediateActions({required this.actions});
+
+  final List<(TopicSummary, ClinicalFinding)> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return SectionCard(
+      key: const ValueKey('immediate-actions'),
+      title: 'Immediate actions',
+      subtitle: 'From all STWs below, most urgent first. Details and sources '
+          'are in each STW section.',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (t, f) in actions)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  StatusChip(
+                    tone: toneFor(f.level),
+                    label: t.title.replaceFirst('STW ', ''),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      f.title,
+                      style: text.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryNavy,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Combined assessment for all selected topics.
 class AssessmentSummaryView extends ConsumerWidget {
   const AssessmentSummaryView({super.key});
@@ -193,6 +241,8 @@ class AssessmentSummaryView extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 12),
+        if (summary.showImmediateActions)
+          _ImmediateActions(actions: summary.immediateActions),
         for (final s in summary.subjects)
           SectionCard(
             title: s.label == 'Baby' ? 'Baby details' : s.label,

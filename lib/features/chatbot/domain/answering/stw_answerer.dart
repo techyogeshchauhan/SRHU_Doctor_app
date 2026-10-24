@@ -16,6 +16,7 @@ import '../understanding/query_analyzer.dart';
 import 'answer_composer.dart';
 import 'case_router.dart';
 import 'feeding_answers.dart';
+import 'jaundice_answers.dart';
 import 'post_asphyxia_answers.dart';
 import 'sepsis_answers.dart';
 import 'stw_answer.dart';
@@ -225,6 +226,23 @@ class StwAnswerer {
             ])
               if (byId[id] case final c?) c
           ]);
+    }
+    if (isJaundiceQuestion(a)) {
+      final region = byId[jaundiceAnswerRegion(a)];
+      if (region != null) {
+        return StwAnswer.answer(
+            analysis: a, region: region, lines: region.segments);
+      }
+      if (a.intents.contains(QueryIntent.management)) {
+        return StwAnswer.clarify(
+            analysis: a,
+            prompt: 'Does the infant have serious jaundice? The STW gives no '
+                'cut-off chart; TSB is compared with your unit\'s chart.',
+            options: [
+              for (final id in jaundiceManagementOptions)
+                if (byId[id] case final c?) c
+            ]);
+      }
     }
     if (a.topics.length == 1 && a.topics.contains(StwTopic.feeding)) {
       // The poster gives no zinc dose, formula brand, or post-D7 fluid guide.

@@ -6,6 +6,9 @@ import 'data/repositories/audit_log_repository.dart';
 import 'core/widgets/chat_launcher.dart';
 import 'core/widgets/release_notes_dialog.dart';
 import 'core/widgets/responsive.dart';
+import 'features/case_entry/domain/case_parser.dart';
+import 'features/case_entry/ui/case_entry_screen.dart';
+import 'features/case_entry/ui/case_review_screen.dart';
 import 'features/chatbot/ui/chat_screen.dart';
 import 'features/clinical_workflow/ui/workflow_screen.dart';
 import 'features/condition_selection/domain/neonatal_condition.dart';
@@ -124,6 +127,19 @@ GoRouter buildRouter() => GoRouter(
         GoRoute(
           path: '/chat',
           builder: (_, __) => const ChatScreen(),
+        ),
+        GoRoute(
+          path: '/case',
+          builder: (_, state) =>
+              CaseEntryScreen(initialText: state.extra as String?),
+        ),
+        GoRoute(
+          path: '/case/review',
+          builder: (context, state) => switch (state.extra) {
+            final ParsedCase parsed => CaseReviewScreen(parsed: parsed),
+            // Opened without a parsed case (e.g. page reload): start over.
+            _ => const CaseEntryScreen(),
+          },
         ),
         GoRoute(
           path: '/pdf-viewer',

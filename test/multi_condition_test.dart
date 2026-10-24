@@ -94,7 +94,7 @@ void main() {
   });
 
   test('pending topics add no questions and no findings', () {
-    final w = walk({NeonatalCondition.seizures, NeonatalCondition.jaundice}, {});
+    final w = walk({NeonatalCondition.seizures, NeonatalCondition.transport}, {});
     expect(w.pages, isEmpty);
     expect(w.ctx.findings, isEmpty);
   });

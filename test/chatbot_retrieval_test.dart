@@ -132,7 +132,7 @@ void main() {
         'What should be done at a temperature below 35.5 degrees in triage?':
           'triage_hypothermia',
         'Phenobarbitone dose for neonatal seizures': 'triage_seizures',
-        'Which jaundice signs are listed for intensive phototherapy?':
+        'What does the triage STW recommend for serious jaundice?':
             'triage_jaundice',
         'Bacche ko daure pad rahe hain, kaunsi dawa?': 'triage_seizures',
         'What is Kangaroo Mother Care?': 'kmc_definition',

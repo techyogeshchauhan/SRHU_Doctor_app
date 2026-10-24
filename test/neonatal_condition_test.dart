@@ -36,7 +36,7 @@ void main() {
   });
 
   test(
-      'the nine supplied workflows are implemented; others carry no description',
+      'the ten supplied workflows are implemented; others carry no description',
       () {
     final implemented = {
       for (final d in conditionDefinitions)
@@ -47,6 +47,7 @@ void main() {
       NeonatalCondition.triage,
       NeonatalCondition.kmc,
       NeonatalCondition.respiratoryDistress,
+      NeonatalCondition.jaundice,
       NeonatalCondition.ancs,
       NeonatalCondition.hypoglycemia,
       NeonatalCondition.sepsis,

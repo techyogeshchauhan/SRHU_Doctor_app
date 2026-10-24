@@ -97,7 +97,13 @@ const List<ConditionDefinition> conditionDefinitions = [
         'Sepsis signs, risk factors, treatment and review as per ICMR/DHR STW.',
     status: ConditionStatus.available,
   ),
-  ConditionDefinition(id: NeonatalCondition.jaundice, title: 'STW Jaundice'),
+  ConditionDefinition(
+    id: NeonatalCondition.jaundice,
+    title: 'STW Jaundice',
+    description: 'Neonatal jaundice in infants ≥35 weeks as per the July 2020 '
+        'ICMR/DHR STW.',
+    status: ConditionStatus.available,
+  ),
   ConditionDefinition(id: NeonatalCondition.seizures, title: 'STW Seizures'),
   ConditionDefinition(
     id: NeonatalCondition.kmc,

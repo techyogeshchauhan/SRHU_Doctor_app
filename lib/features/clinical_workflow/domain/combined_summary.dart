@@ -115,6 +115,28 @@ class CombinedAssessmentSummary {
   /// Subjects of the assessment, in order (the baby line first when shown).
   final List<SubjectLine> subjects;
 
+  /// Findings at [FindingLevel.action] or above across every topic, each
+  /// with its topic: most urgent level first; within a level, the existing
+  /// topic display order and rule order. No cross-STW priority is added.
+  List<(TopicSummary, ClinicalFinding)> get immediateActions {
+    final all = [
+      for (final t in topics)
+        for (final f in t.findings)
+          if (f.level.index >= FindingLevel.action.index) (t, f),
+    ];
+    final indexed = all.indexed.toList()
+      ..sort((a, b) {
+        final c = b.$2.$2.level.index.compareTo(a.$2.$2.level.index);
+        return c != 0 ? c : a.$1.compareTo(b.$1);
+      });
+    return [for (final (_, x) in indexed) x];
+  }
+
+  /// The strip is shown for multi-STW assessments only; one STW's findings
+  /// already read top to bottom.
+  bool get showImmediateActions =>
+      topics.length > 1 && immediateActions.isNotEmpty;
+
   String toPlainText() {
     final b = StringBuffer()..writeln('CLINICAL ASSESSMENT SUMMARY');
     for (final s
@@ -124,6 +146,14 @@ class CombinedAssessmentSummary {
     b
       ..writeln('Topics assessed: ${selectedTitles.join(', ')}')
       ..writeln('Questions answered: $answered of $applicable applicable');
+    if (showImmediateActions) {
+      b
+        ..writeln()
+        ..writeln('IMMEDIATE ACTIONS');
+      for (final (t, f) in immediateActions) {
+        b.writeln('  • [${t.title}] ${f.title}');
+      }
+    }
     for (final t in topics) {
       b
         ..writeln()

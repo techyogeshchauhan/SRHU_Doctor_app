@@ -86,6 +86,11 @@ class DiseaseSelectionScreen extends ConsumerWidget {
         Icons.bloodtype_outlined,
         AppTheme.primaryNavy
       ),
+      NeonatalCondition.jaundice: (
+        'Neonatal Jaundice (≥35 weeks)',
+        Icons.wb_sunny_outlined,
+        Color(0xFFB45309)
+      ),
     };
 
     // Number only visible cards, starting again at one after filtering.

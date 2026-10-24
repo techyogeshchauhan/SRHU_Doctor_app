@@ -14,8 +14,20 @@ const kmcStwDocument = 'Kangaroo Mother Care';
 const sepsisStwDocument = 'Sepsis in Neonates';
 const feedingStwDocument = 'Feeding and Nutrition in Neonates';
 const postAsphyxiaStwDocument = 'Post Asphyxia';
+const jaundiceStwDocument = 'Neonatal Jaundice';
 
 class SourceReference {
+  /// Neonatal Jaundice in infants ≥35 weeks STW (ICD-10 P59.9). [section] is
+  /// the heading of the PDF box the content comes from (single-page poster).
+  const SourceReference.jaundice(
+    this.section, {
+    this.needsClinicalReview = false,
+    this.note,
+    this.regionId,
+  })  : document = jaundiceStwDocument,
+        authority = 'ICMR/DHR',
+        version = 'July 2020';
+
   const SourceReference.postAsphyxia(
     this.section, {
     this.needsClinicalReview = false,

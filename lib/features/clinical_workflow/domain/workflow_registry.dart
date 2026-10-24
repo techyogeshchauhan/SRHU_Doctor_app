@@ -5,6 +5,7 @@ import '../../ancs/domain/ancs_workflow.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../hypoglycemia/domain/hypo_workflow.dart';
 import '../../feeding/domain/feeding_workflow.dart';
+import '../../jaundice/domain/jaundice_workflow.dart';
 import '../../post_asphyxia/domain/post_asphyxia_workflow.dart';
 import '../../kmc/domain/kmc_workflow.dart';
 import '../../rd/domain/rd_workflow.dart';
@@ -25,5 +26,6 @@ WorkflowDefinition workflowFor(NeonatalCondition c) => switch (c) {
       NeonatalCondition.hypoglycemia => hypoWorkflow,
       NeonatalCondition.sepsis => sepsisWorkflow,
       NeonatalCondition.hie => postAsphyxiaWorkflow,
+      NeonatalCondition.jaundice => jaundiceWorkflow,
       _ => PendingWorkflow(c),
     };

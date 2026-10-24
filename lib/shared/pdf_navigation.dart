@@ -28,6 +28,8 @@ const feedingPdfAsset = 'assets/pdfs/Feeding_Nutrition Final 22 Oct 26.pdf';
 const feedingPdfTitle = 'Feeding and Nutrition in Neonates';
 const postAsphyxiaPdfAsset = 'assets/pdfs/Post Asphyxia 16-10-26.pdf';
 const postAsphyxiaPdfTitle = 'Post Asphyxia';
+const jaundicePdfAsset = 'assets/pdfs/Neonatal Jaundice.pdf';
+const jaundicePdfTitle = 'Neonatal Jaundice';
 
 /// A bundled STW PDF.
 class StwPdf {
@@ -51,6 +53,8 @@ StwPdf? stwPdfFor(NeonatalCondition c) => switch (c) {
       NeonatalCondition.sepsis => const StwPdf(sepsisPdfAsset, sepsisPdfTitle),
       NeonatalCondition.hie =>
         const StwPdf(postAsphyxiaPdfAsset, postAsphyxiaPdfTitle),
+      NeonatalCondition.jaundice =>
+        const StwPdf(jaundicePdfAsset, jaundicePdfTitle),
       _ => null,
     };
 
@@ -81,6 +85,9 @@ StwPdf? stwPdfForDocument(String document) => switch (document) {
       postAsphyxiaStwDocument ||
       'Post Asphyxia 16-10-26.pdf' =>
         stwPdfFor(NeonatalCondition.hie),
+      jaundiceStwDocument ||
+      'Neonatal Jaundice.pdf' =>
+        stwPdfFor(NeonatalCondition.jaundice),
       feedingStwDocument ||
       'Feeding_Nutrition Final 22 Oct 26.pdf' =>
         stwPdfFor(NeonatalCondition.fluidsAndFeeds),
