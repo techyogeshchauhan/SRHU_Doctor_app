@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/config/features.dart';
 import '../../../core/theme.dart';
 import '../../../core/utils/condition_exit_dialog.dart';
 import '../../../core/widgets/app_refresh_button.dart';
@@ -184,16 +185,17 @@ class _ConditionSelectionScreenState
           errorBuilder: (_, __, ___) => const SizedBox.shrink(),
         ),
         actions: [
-          IconButton(
-            key: const ValueKey('open-case-history'),
-            icon: const Icon(Icons.edit_note_rounded,
-                color: AppTheme.primaryNavy),
-            tooltip: 'Case history',
-            onPressed: () {
-              ref.read(auditLogProvider).tap('open_case_history');
-              context.push('/case');
-            },
-          ),
+          if (kCaseHistoryEnabled)
+            IconButton(
+              key: const ValueKey('open-case-history'),
+              icon: const Icon(Icons.edit_note_rounded,
+                  color: AppTheme.primaryNavy),
+              tooltip: 'Case history',
+              onPressed: () {
+                ref.read(auditLogProvider).tap('open_case_history');
+                context.push('/case');
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.account_tree_outlined,
                 color: AppTheme.primaryNavy),
