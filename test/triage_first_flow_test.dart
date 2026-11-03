@@ -173,7 +173,8 @@ void main() {
           findsOneWidget);
     });
 
-    testWidgets('fast-track skips only the history', (tester) async {
+    testWidgets('fast-track shows only emergency signs, then the usual flow',
+        (tester) async {
       final container = await _openTriage(tester);
       const history = [
         triageMaternalRisksKey,
@@ -188,6 +189,9 @@ void main() {
       }
       await tapVisible(tester, find.text('Foul-smelling liquor'));
       await _enter(tester, triageHeartRateKey, '210');
+      await _enter(tester, triageBloodGlucoseKey, '35');
+      expect(find.byKey(const ValueKey(triageHypoglycemiaSymptomsKey)),
+          findsOneWidget);
 
       final toggle =
           find.text('Baby is sick – proceed directly to examination');
@@ -195,30 +199,54 @@ void main() {
       for (final id in history) {
         expect(find.byKey(ValueKey(id)), findsNothing, reason: id);
       }
-      // Measurements and emergency signs stay; the HR still classifies.
+      // Only emergency signs remain; hidden measurements cannot classify.
       for (final id in const [
         triageWeightKey,
+        triageGestationKey,
+        triageTemperatureKey,
         triageHeartRateKey,
         triageRespiratoryRateKey,
-        triageEmergencySignsKey,
+        triageSpo2Key,
+        triageBloodGlucoseKey,
+        triageHypoglycemiaSymptomsKey,
       ]) {
-        expect(find.byKey(ValueKey(id)), findsOneWidget, reason: id);
+        expect(find.byKey(ValueKey(id)), findsNothing, reason: id);
       }
+      expect(
+          find.byKey(const ValueKey(triageEmergencySignsKey)), findsOneWidget);
       final answers = container.read(assessmentProvider).context.answers;
-      expect(answers[triageHeartRateKey], 210);
+      expect(answers.containsKey(triageHeartRateKey), isFalse);
+      expect(answers.containsKey(triageBloodGlucoseKey), isFalse);
       expect(answers.containsKey(triageMaternalRisksKey), isFalse);
+      expect(find.byKey(const ValueKey('triage-category-emergency')),
+          findsNothing);
+
+      await tapVisible(tester, find.textContaining('Shock (cold peripheries'));
       expect(find.byKey(const ValueKey('triage-category-emergency')),
           findsOneWidget);
 
       // The examination still follows.
-      await _toResults(tester);
+      await _continuePage(tester);
+      expect(find.text('Examination: Look / Listen / Feel'), findsOneWidget);
+      for (final q in triageExaminationQuestions) {
+        expect(find.byKey(ValueKey(q.id)), findsOneWidget, reason: q.id);
+      }
+      await tapVisible(tester, find.text('Jaundice'));
+      await _continuePage(tester);
+      expect(container.read(assessmentProvider).isComplete, isTrue);
       expect(find.byKey(const ValueKey('triage-treatment-dashboard')),
           findsOneWidget);
+      expect(find.byKey(const ValueKey('triage-card-circulation-flagged')),
+          findsOneWidget);
+      expect(
+          find.byKey(const ValueKey('suggested-stw-jaundice')), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('fast-track switched off again restores every question',
         (tester) async {
-      await _openTriage(tester);
+      final container = await _openTriage(tester);
+      await _enter(tester, triageHeartRateKey, '210');
       final toggle =
           find.text('Baby is sick – proceed directly to examination');
       await tapVisible(tester, toggle);
@@ -241,6 +269,15 @@ void main() {
       ]) {
         expect(find.byKey(ValueKey(id)), findsOneWidget, reason: id);
       }
+      expect(
+          container
+              .read(assessmentProvider)
+              .context
+              .answers
+              .containsKey(triageHeartRateKey),
+          isFalse);
+      expect(find.byKey(const ValueKey('triage-category-emergency')),
+          findsNothing);
     });
 
     testWidgets(

@@ -181,29 +181,63 @@ void main() {
     expect(ctx.valueOf(triageCategoryKey), triageEmergency);
   });
 
-  test('fast-track skips only the maternal and newborn history', () {
+  test('fast-track shows only emergency signs before examination', () {
     final all = {..._page1, ..._page2};
     expect(_applicable(_eval({})), all);
     expect(_applicable(_eval({triageFastTrackKey: true})),
-        all.difference(_history));
+        {triageFastTrackKey, triageEmergencySignsKey, ..._page2});
   });
 
-  test('fast-track: history answers are dropped; measurements still count', () {
+  test('fast-track drops history, measurements and dependent symptoms', () {
     final answers = <String, Object?>{
       triageMaternalRisksKey: <Object>{'foulLiquor'},
       triageRhStatusKey: 'negative',
+      triageAntenatalSteroidsKey: 'complete',
       triageMaternalHistoryKey: 'maternal fever',
       triageNewbornRisksKey: <Object>{'delayedCry'},
       triageNewbornHistoryKey: 'not feeding',
+      triageWeightKey: 1500,
+      triageGestationKey: triagePreterm,
+      triageTemperatureKey: 35.0,
       triageHeartRateKey: 210,
+      triageRespiratoryRateKey: 70,
+      triageSpo2Key: 85,
+      triageBloodGlucoseKey: 35,
+      triageHypoglycemiaSymptomsKey: true,
       triageExamLookKey: <Object>{'jaundice'},
     };
     final sick = _eval({...answers, triageFastTrackKey: true});
-    expect(sick.answers.keys,
-        {triageFastTrackKey, triageHeartRateKey, triageExamLookKey});
-    expect(sick.valueOf(triageCategoryKey), triageEmergency);
+    expect(sick.answers.keys, {triageFastTrackKey, triageExamLookKey});
+    expect(sick.valueOf(triageCategoryKey), isNull);
+    expect(sick.valueOf(triageHypoglycemiaKey), isFalse);
+    expect(sick.valueOf(triageTachypneaKey), isFalse);
     expect([for (final s in triageStwSuggestions(sick)) s.stw],
         [NeonatalCondition.jaundice]);
+  });
+
+  test('fast-track emergency signs continue through examination to results',
+      () {
+    var ctx = _eval({
+      triageFastTrackKey: true,
+      triageEmergencySignsKey: <Object>{'shock'},
+    });
+    expect(_engine.nextGroup(ctx), triageAssessmentGroup);
+    expect(_engine.pageQuestions(ctx, triageAssessmentGroup).map((q) => q.id),
+        [triageFastTrackKey, triageEmergencySignsKey]);
+    for (final group in [triageAssessmentGroup, triageExaminationGroup]) {
+      expect(_engine.canConfirm(ctx, group), isTrue);
+      final r = _engine.confirmPage(ctx, group);
+      ctx = _engine.evaluate(
+        selected: ctx.selected,
+        answers: r.answers,
+        completed: r.completed,
+        today: _today,
+      );
+      expect(_engine.nextGroup(ctx),
+          group == triageAssessmentGroup ? triageExaminationGroup : null);
+      expect(ctx.valueOf(triageCategoryKey), triageEmergency);
+      expect(_card(ctx, 'circulation').flagged, isTrue);
+    }
   });
 
   test('fast-track off: every question is asked as before', () {

@@ -5,7 +5,8 @@
 /// page 1, never chosen: any emergency sign or threshold classifies the
 /// neonate as EMERGENCY, otherwise a Priority threshold (temperature,
 /// weight, RR) classifies PRIORITY. Measurements may be left blank.
-/// "Baby is sick" (fast-track) skips the history.
+/// "Baby is sick" (fast-track) skips history and measurements, leaving
+/// emergency signs before the examination page.
 library;
 
 import '../../clinical_workflow/domain/clinical_finding.dart';
@@ -136,7 +137,8 @@ const qTriageFastTrack = ClinicalQuestion(
   group: triageAssessmentGroup,
   question: 'Baby is sick – proceed directly to examination',
   type: QuestionType.boolean,
-  helper: 'Skips the maternal and newborn history.',
+  helper: 'Skips history and measurements. Select emergency signs, then '
+      'continue to examination.',
   sources: [SourceReference.dataEntry('Skip history when the baby is sick')],
 );
 
@@ -755,7 +757,7 @@ String triageDextroseBolusVolumeText(int weightG) =>
     '${_thousandths(2 * weightG)} mL of 10% dextrose (straight '
     'multiplication of the STW per-kg value; verify before giving)';
 
-/// "Baby is sick" skips the maternal and newborn history. Skipped
+/// "Baby is sick" skips history and measurements. Skipped
 /// questions do not apply, so the engine drops any answer already entered.
 final _notFastTrack = Not(const Var(triageFastTrackKey).eq(true));
 
@@ -771,16 +773,20 @@ final triageWorkflow = StwWorkflow(
     QuestionUse(qTriageMaternalHistory, when: _notFastTrack),
     QuestionUse(qTriageNewbornRisks, when: _notFastTrack),
     QuestionUse(qTriageNewbornHistory, when: _notFastTrack),
-    const QuestionUse(qTriageWeight),
-    const QuestionUse(qTriageGestation),
-    const QuestionUse(qTriageTemperature),
-    const QuestionUse(qTriageHeartRate),
-    const QuestionUse(qTriageRespiratoryRate),
-    const QuestionUse(qTriageSpo2),
-    const QuestionUse(qTriageBloodGlucose),
+    QuestionUse(qTriageWeight, when: _notFastTrack),
+    QuestionUse(qTriageGestation, when: _notFastTrack),
+    QuestionUse(qTriageTemperature, when: _notFastTrack),
+    QuestionUse(qTriageHeartRate, when: _notFastTrack),
+    QuestionUse(qTriageRespiratoryRate, when: _notFastTrack),
+    QuestionUse(qTriageSpo2, when: _notFastTrack),
+    QuestionUse(qTriageBloodGlucose, when: _notFastTrack),
     QuestionUse(
       qTriageHypoglycemiaSymptoms,
-      when: AllOf([_bg.ge(triageRbsIvBelow), _bg.lt(triageRbsEmergencyBelow)]),
+      when: AllOf([
+        _notFastTrack,
+        _bg.ge(triageRbsIvBelow),
+        _bg.lt(triageRbsEmergencyBelow),
+      ]),
       required: true,
     ),
     const QuestionUse(qTriageEmergencySigns),
