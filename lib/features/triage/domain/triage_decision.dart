@@ -2,8 +2,9 @@
 /// Dart.
 ///
 /// Holds the inputs, the computed classification and why, the flagged
-/// treatment cards with their STW links, and the doses shown. Free-text
-/// history is never included, only whether it was provided.
+/// treatment cards with their STW links, the doses shown, the structured
+/// history and examination, and the STWs they suggested. Free-text history
+/// is never included, only whether it was provided.
 library;
 
 import '../../clinical_workflow/domain/condition_expr.dart';
@@ -13,6 +14,10 @@ import 'triage_workflow.dart';
 List<String> _list(Object? v) => v is List ? [for (final x in v) '$x'] : [];
 
 bool _provided(Object? v) => v is String && v.trim().isNotEmpty;
+
+/// Ticked option values, sorted; empty when none or not asked.
+List<String> _ticked(Object? v) =>
+    v is Set ? ([for (final x in v) '$x']..sort()) : [];
 
 /// `EMERGENCY`, `PRIORITY` or `NO_SIGNS`.
 String triageCategoryCode(VariableReader r) =>
@@ -65,6 +70,24 @@ Map<String, Object?> triageDecisionRecord(VariableReader r) {
       'maternalHistoryProvided': _provided(r.valueOf(triageMaternalHistoryKey)),
       'newbornHistoryProvided': _provided(r.valueOf(triageNewbornHistoryKey)),
     },
+    'history': {
+      'maternal': _ticked(r.valueOf(triageMaternalRisksKey)),
+      'rhStatus': r.valueOf(triageRhStatusKey),
+      'antenatalSteroids': r.valueOf(triageAntenatalSteroidsKey),
+      'newborn': _ticked(r.valueOf(triageNewbornRisksKey)),
+    },
+    'examination': {
+      'look': _ticked(r.valueOf(triageExamLookKey)),
+      'listen': _ticked(r.valueOf(triageExamListenKey)),
+      'airEntry': r.valueOf(triageAirEntryKey),
+      'feel': _ticked(r.valueOf(triageExamFeelKey)),
+      'fontanelle': r.valueOf(triageFontanelleKey),
+      'tone': r.valueOf(triageToneKey),
+    },
+    'suggestedStws': [
+      for (final s in triageStwSuggestions(r))
+        {'stw': s.stw.name, 'reasons': s.reasons},
+    ],
     'flaggedCards': [
       for (final c in flagged)
         {'id': c.id, 'title': c.title, 'because': c.flaggedBecause},

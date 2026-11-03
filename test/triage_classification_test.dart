@@ -29,6 +29,39 @@ TriageProtocolCard _card(ClinicalAssessmentContext ctx, String id) =>
 Set<String> _applicable(ClinicalAssessmentContext ctx) =>
     {for (final rq in _engine.applicableQuestions(ctx)) rq.id};
 
+const _history = {
+  triageMaternalRisksKey,
+  triageRhStatusKey,
+  triageAntenatalSteroidsKey,
+  triageMaternalHistoryKey,
+  triageNewbornRisksKey,
+  triageNewbornHistoryKey,
+};
+
+/// Triage page questions shown by default (the symptomatic question
+/// depends on the RBS).
+const _page1 = {
+  triageFastTrackKey,
+  ..._history,
+  triageWeightKey,
+  triageGestationKey,
+  triageTemperatureKey,
+  triageHeartRateKey,
+  triageRespiratoryRateKey,
+  triageSpo2Key,
+  triageBloodGlucoseKey,
+  triageEmergencySignsKey,
+};
+
+const _page2 = {
+  triageExamLookKey,
+  triageExamListenKey,
+  triageAirEntryKey,
+  triageExamFeelKey,
+  triageFontanelleKey,
+  triageToneKey,
+};
+
 void main() {
   group('every single emergency trigger classifies EMERGENCY', () {
     final triggers = <String, Map<String, Object?>>{
@@ -92,31 +125,20 @@ void main() {
     expect(_category({}), isNull);
   });
 
-  test('only history, vitals and emergency signs are asked', () {
+  test('history, vitals, emergency signs and the examination are asked', () {
     final ids = {
       for (final rq in _engine.resolve({NeonatalCondition.triage})) rq.id,
     };
-    expect(ids, {
-      triageFastTrackKey,
-      triageMaternalHistoryKey,
-      triageNewbornHistoryKey,
-      triageWeightKey,
-      triageGestationKey,
-      triageTemperatureKey,
-      triageHeartRateKey,
-      triageRespiratoryRateKey,
-      triageSpo2Key,
-      triageBloodGlucoseKey,
-      triageHypoglycemiaSymptomsKey,
-      triageEmergencySignsKey,
-    });
+    expect(ids, {..._page1, triageHypoglycemiaSymptomsKey, ..._page2});
     for (final removed in [
       'triage_perfusion_signs',
       'triage_priority_signs',
       'triage_nonurgent_signs',
       'triage_specific_findings',
     ]) {
-      expect(triageGroups.single.questionOrder, isNot(contains(removed)));
+      for (final g in triageGroups) {
+        expect(g.questionOrder, isNot(contains(removed)));
+      }
     }
   });
 
@@ -134,75 +156,54 @@ void main() {
         contains('triage.classificationUndetermined'));
   });
 
-  test('Triage is a single page that goes straight to the results', () {
-    final first = _eval({});
-    final group = _engine.nextGroup(first);
-    expect(group, triageAssessmentGroup);
-    final r = _engine.confirmPage(
+  test('Triage page, then the examination page, then the results', () {
+    expect(_engine.nextGroup(_eval({})), triageAssessmentGroup);
+    var r = _engine.confirmPage(
         _eval({triageHeartRateKey: 210}), triageAssessmentGroup);
-    final done = _engine.evaluate(
+    var ctx = _engine.evaluate(
       selected: {NeonatalCondition.triage},
       answers: r.answers,
       completed: r.completed,
       today: _today,
     );
-    expect(_engine.nextGroup(done), isNull);
-    expect(done.valueOf(triageCategoryKey), triageEmergency);
+    expect(_engine.nextGroup(ctx), triageExaminationGroup);
+    expect(ctx.valueOf(triageCategoryKey), triageEmergency);
+    r = _engine.confirmPage(ctx, triageExaminationGroup);
+    ctx = _engine.evaluate(
+      selected: {NeonatalCondition.triage},
+      answers: r.answers,
+      completed: r.completed,
+      today: _today,
+    );
+    expect(_engine.nextGroup(ctx), isNull);
+    // Nothing ticked is recorded as none.
+    expect(ctx.answers[triageExamLookKey], <Object>{});
+    expect(ctx.valueOf(triageCategoryKey), triageEmergency);
   });
 
-  test('fast-track goes straight to the emergency signs', () {
-    expect(_applicable(_eval({})), {
-      triageFastTrackKey,
-      triageMaternalHistoryKey,
-      triageNewbornHistoryKey,
-      triageWeightKey,
-      triageGestationKey,
-      triageTemperatureKey,
-      triageHeartRateKey,
-      triageRespiratoryRateKey,
-      triageSpo2Key,
-      triageBloodGlucoseKey,
-      triageEmergencySignsKey,
-    });
+  test('fast-track skips only the maternal and newborn history', () {
+    final all = {..._page1, ..._page2};
+    expect(_applicable(_eval({})), all);
     expect(_applicable(_eval({triageFastTrackKey: true})),
-        {triageFastTrackKey, triageEmergencySignsKey});
-    expect(
-        _applicable(
-            _eval({triageFastTrackKey: true, triageBloodGlucoseKey: 30})),
-        {triageFastTrackKey, triageEmergencySignsKey});
+        all.difference(_history));
   });
 
-  test('fast-track: skipped answers are dropped and feed no rule', () {
-    final skipped = <String, Object?>{
-      triageMaternalHistoryKey: 'PROM >18 h',
+  test('fast-track: history answers are dropped; measurements still count', () {
+    final answers = <String, Object?>{
+      triageMaternalRisksKey: <Object>{'foulLiquor'},
+      triageRhStatusKey: 'negative',
+      triageMaternalHistoryKey: 'maternal fever',
+      triageNewbornRisksKey: <Object>{'delayedCry'},
       triageNewbornHistoryKey: 'not feeding',
-      triageWeightKey: 1500,
-      triageGestationKey: triagePreterm,
-      triageTemperatureKey: 35.0,
       triageHeartRateKey: 210,
-      triageRespiratoryRateKey: 70,
-      triageSpo2Key: 85,
-      triageBloodGlucoseKey: 30,
-      triageHypoglycemiaSymptomsKey: true,
+      triageExamLookKey: <Object>{'jaundice'},
     };
-    expect(_category(skipped), triageEmergency);
-
-    final sick = _eval({...skipped, triageFastTrackKey: true});
-    expect(sick.answers.keys, {triageFastTrackKey});
-    expect(sick.valueOf(triageCategoryKey), isNull);
-    expect(sick.findings, isEmpty);
-
-    // Classification then comes from the emergency signs alone.
-    final withSign = _eval({
-      ...skipped,
-      triageFastTrackKey: true,
-      triageEmergencySignsKey: <Object>{'shock'},
-    });
-    expect(withSign.valueOf(triageCategoryKey), triageEmergency);
-    expect(triageReasonsFor(withSign), [
-      'Shock (cold peripheries, mottled/grey skin, CRT >3 s, weak pulses, '
-          'low BP)',
-    ]);
+    final sick = _eval({...answers, triageFastTrackKey: true});
+    expect(sick.answers.keys,
+        {triageFastTrackKey, triageHeartRateKey, triageExamLookKey});
+    expect(sick.valueOf(triageCategoryKey), triageEmergency);
+    expect([for (final s in triageStwSuggestions(sick)) s.stw],
+        [NeonatalCondition.jaundice]);
   });
 
   test('fast-track off: every question is asked as before', () {

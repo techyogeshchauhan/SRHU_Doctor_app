@@ -18,6 +18,7 @@ import '../../follow_up/state/follow_up_controller.dart';
 import '../../triage/domain/triage_workflow.dart';
 import '../../triage/ui/triage_category_banner.dart';
 import '../../triage/ui/triage_entry.dart';
+import '../../triage/state/triage_handoff.dart';
 import '../../triage/ui/triage_treatment_dashboard.dart';
 import '../state/assessment_controller.dart';
 import '../voice/voice_entry_bar.dart';
@@ -485,6 +486,9 @@ class WorkflowScreen extends ConsumerWidget {
                               key: const ValueKey('next-step'),
                               onPressed: () {
                                 audit.tap('next_step');
+                                // Suggested STWs for the Next STW pages.
+                                ref.read(triageHandoffProvider.notifier).set(
+                                    triageStwSuggestions(ctx));
                                 context.push('/next-stw');
                               },
                               icon: const Icon(Icons.arrow_forward, size: 15),

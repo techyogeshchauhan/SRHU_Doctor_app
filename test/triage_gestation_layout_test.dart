@@ -73,4 +73,51 @@ void main() {
           triageTerm);
     });
   }
+
+  for (final size in const [Size(320, 640), Size(360, 640), Size(412, 915)]) {
+    testWidgets(
+        'history and examination lay out without overflow '
+        '(${size.width.toInt()}x${size.height.toInt()})', (tester) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(const ProviderScope(child: NeonatalStwApp()));
+      await tester.pumpAndSettle();
+      await tapVisible(tester, find.text('Continue'));
+
+      for (final id in const [
+        triageMaternalRisksKey,
+        triageRhStatusKey,
+        triageAntenatalSteroidsKey,
+        triageNewbornRisksKey,
+      ]) {
+        await tester.ensureVisible(find.byKey(ValueKey(id)));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: id);
+      }
+      await tapVisible(tester, find.text('Negative'));
+      await tapVisible(tester, find.widgetWithText(FilledButton, 'Continue'));
+      expect(find.text('Examination: Look / Listen / Feel'), findsOneWidget);
+      for (final q in triageExaminationQuestions) {
+        await tester.ensureVisible(find.byKey(ValueKey(q.id)));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: q.id);
+      }
+      // Compact radios: the options start on the label's line.
+      final tone = find.byKey(const ValueKey(triageToneKey));
+      final label = tester.getRect(
+          find.descendant(of: tone, matching: find.text('Muscle tone')));
+      final normal = tester
+          .getRect(find.descendant(of: tone, matching: find.text('Normal')));
+      expect(normal.left, greaterThan(label.right));
+      expect(normal.top, lessThan(label.bottom));
+      await tapVisible(tester, find.text('Hypotonia'));
+      expect(
+          ProviderScope.containerOf(tester.element(tone))
+              .read(assessmentProvider)
+              .context
+              .answers[triageToneKey],
+          'hypotonia');
+    });
+  }
 }

@@ -111,7 +111,7 @@ void main() {
       triageSpo2Key,
       triageBloodGlucoseKey,
     ]);
-    final order = triageGroups.single.questionOrder;
+    final order = triageGroups.first.questionOrder;
     expect(order.indexOf(triageWeightKey),
         lessThan(order.indexOf(triageTemperatureKey)));
     expect(order.indexOf(triageHeartRateKey),

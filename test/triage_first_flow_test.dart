@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
 import 'package:neonatal_stw/features/clinical_workflow/state/assessment_controller.dart';
-import 'package:neonatal_stw/features/clinical_workflow/ui/question_field.dart';
 import 'package:neonatal_stw/features/clinical_workflow/ui/workflow_screen.dart';
 import 'package:neonatal_stw/data/repositories/screening_sync_repository.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
 import 'package:neonatal_stw/features/disease_selection/ui/disease_selection_screen.dart';
+import 'package:neonatal_stw/features/hypoglycemia/domain/hypo_workflow.dart';
 import 'package:neonatal_stw/features/knowledge_graph/ui/assessment_map_screen.dart';
 import 'package:neonatal_stw/features/triage/domain/triage_workflow.dart';
 
@@ -41,6 +41,13 @@ Future<ProviderContainer> _completeTriage(WidgetTester tester) async {
   }
   expect(container.read(assessmentProvider).isComplete, isTrue);
   return container;
+}
+
+/// Confirms the Triage page, then the examination page (nothing ticked).
+Future<void> _toResults(WidgetTester tester) async {
+  await _continuePage(tester);
+  expect(find.text('Examination: Look / Listen / Feel'), findsOneWidget);
+  await _continuePage(tester);
 }
 
 /// Types [text] into the field of Triage question [id].
@@ -88,7 +95,7 @@ void main() {
       await _enter(tester, triageWeightKey, '2.5');
       await tapVisible(tester, find.text('Term (T)'));
 
-      await _continuePage(tester);
+      await _toResults(tester);
       // Baby details come from the Triage answers.
       expect(find.text('GA Term · Weight 2.5 kg'), findsOneWidget);
       expect(find.textContaining('GA — · BW —'), findsNothing);
@@ -129,7 +136,7 @@ void main() {
         matching: find.text('No'),
       );
       await tapVisible(tester, no);
-      await _continuePage(tester);
+      await _toResults(tester);
 
       expect(find.byKey(const ValueKey('triage-treatment-dashboard')),
           findsOneWidget);
@@ -158,7 +165,7 @@ void main() {
       await tapVisible(tester, find.textContaining('Shock (cold peripheries'));
       expect(find.byKey(const ValueKey('triage-category-emergency')),
           findsOneWidget);
-      await _continuePage(tester);
+      await _toResults(tester);
       expect(find.byKey(const ValueKey('triage-card-shock')), findsNothing);
       expect(find.byKey(const ValueKey('triage-card-circulation-flagged')),
           findsOneWidget);
@@ -166,54 +173,46 @@ void main() {
           findsOneWidget);
     });
 
-    testWidgets('fast-track goes straight to the emergency signs',
-        (tester) async {
+    testWidgets('fast-track skips only the history', (tester) async {
       final container = await _openTriage(tester);
-      const skipped = [
+      const history = [
+        triageMaternalRisksKey,
+        triageRhStatusKey,
+        triageAntenatalSteroidsKey,
         triageMaternalHistoryKey,
+        triageNewbornRisksKey,
         triageNewbornHistoryKey,
-        triageWeightKey,
-        triageGestationKey,
-        triageTemperatureKey,
-        triageHeartRateKey,
-        triageRespiratoryRateKey,
-        triageSpo2Key,
-        triageBloodGlucoseKey,
       ];
-      for (final id in skipped) {
+      for (final id in history) {
         expect(find.byKey(ValueKey(id)), findsOneWidget, reason: id);
       }
+      await tapVisible(tester, find.text('Foul-smelling liquor'));
       await _enter(tester, triageHeartRateKey, '210');
-      expect(find.byKey(const ValueKey('triage-category-emergency')),
-          findsOneWidget);
 
       final toggle =
           find.text('Baby is sick – proceed directly to examination');
       await tapVisible(tester, toggle);
-      for (final id in skipped) {
+      for (final id in history) {
         expect(find.byKey(ValueKey(id)), findsNothing, reason: id);
       }
-      // The emergency signs follow the toggle directly.
-      final fields = find.byType(QuestionField);
-      expect(fields, findsNWidgets(2));
-      expect(tester.widget<QuestionField>(fields.last).question.id,
-          triageEmergencySignsKey);
-      // The HR typed before is dropped and no longer classifies.
-      expect(
-          container
-              .read(assessmentProvider)
-              .context
-              .answers
-              .containsKey(triageHeartRateKey),
-          isFalse);
-      expect(find.byKey(const ValueKey('triage-category-emergency')),
-          findsNothing);
-
-      await tapVisible(tester, find.textContaining('Shock (cold peripheries'));
+      // Measurements and emergency signs stay; the HR still classifies.
+      for (final id in const [
+        triageWeightKey,
+        triageHeartRateKey,
+        triageRespiratoryRateKey,
+        triageEmergencySignsKey,
+      ]) {
+        expect(find.byKey(ValueKey(id)), findsOneWidget, reason: id);
+      }
+      final answers = container.read(assessmentProvider).context.answers;
+      expect(answers[triageHeartRateKey], 210);
+      expect(answers.containsKey(triageMaternalRisksKey), isFalse);
       expect(find.byKey(const ValueKey('triage-category-emergency')),
           findsOneWidget);
-      await _continuePage(tester);
-      expect(find.byKey(const ValueKey('triage-card-circulation-flagged')),
+
+      // The examination still follows.
+      await _toResults(tester);
+      expect(find.byKey(const ValueKey('triage-treatment-dashboard')),
           findsOneWidget);
     });
 
@@ -225,7 +224,11 @@ void main() {
       await tapVisible(tester, toggle);
       await tapVisible(tester, toggle);
       for (final id in const [
+        triageMaternalRisksKey,
+        triageRhStatusKey,
+        triageAntenatalSteroidsKey,
         triageMaternalHistoryKey,
+        triageNewbornRisksKey,
         triageNewbornHistoryKey,
         triageWeightKey,
         triageGestationKey,
@@ -245,7 +248,7 @@ void main() {
         (tester) async {
       await _openTriage(tester);
       await _enter(tester, triageHeartRateKey, '210');
-      await _continuePage(tester);
+      await _toResults(tester);
 
       final summary = find.text('Clinical Assessment Summary');
       expect(summary, findsOneWidget);
@@ -277,7 +280,7 @@ void main() {
       await _enter(tester, triageRespiratoryRateKey, '70');
       expect(find.byKey(const ValueKey('triage-category-priority')),
           findsOneWidget);
-      await _continuePage(tester);
+      await _toResults(tester);
       expect(container.read(assessmentProvider).isComplete, isTrue);
       expect(
           find.text(
@@ -295,6 +298,68 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets(
+        'history and examination suggest STWs; the suggested STW opens '
+        'pre-filled', (tester) async {
+      final container = await _openTriage(tester);
+      await tapVisible(tester, find.text('Gestational diabetes mellitus'));
+      await _continuePage(tester);
+      // Page 2: examination.
+      expect(find.text('Examination: Look / Listen / Feel'), findsOneWidget);
+      expect(find.byKey(const ValueKey(triageExamLookKey)), findsOneWidget);
+      await tapVisible(tester, find.text('Capillary refill time (CRT) >3 s'));
+      await _continuePage(tester);
+      expect(container.read(assessmentProvider).isComplete, isTrue);
+
+      final card = find.byKey(const ValueKey('suggested-stws'));
+      expect(card, findsOneWidget);
+      expect(
+          find.descendant(
+              of: card,
+              matching: find.text('Capillary refill time (CRT) >3 s')),
+          findsOneWidget);
+      expect(
+          find.byKey(const ValueKey('suggested-stw-sepsis')), findsOneWidget);
+      expect(find.byKey(const ValueKey('suggested-stw-hypoglycemia')),
+          findsOneWidget);
+      // At the top: right under the summary heading, before Baby details.
+      final heading = tester.getRect(find.text('Clinical Assessment Summary'));
+      expect(tester.getRect(card).top, greaterThan(heading.bottom));
+      expect(tester.getRect(card).bottom,
+          lessThan(tester.getRect(find.text('Baby details')).top));
+
+      await tapVisible(
+          tester, find.byKey(const ValueKey('open-suggested-stws')));
+      expect(find.text('Select the Next STW'), findsOneWidget);
+      // Suggested first and pre-ticked, with the reason.
+      final first = tester.widget<DiseaseCard>(find.byType(DiseaseCard).first);
+      expect(first.suggestion, startsWith('Suggested: '));
+      for (final c in ['hypoglycemia', 'sepsis']) {
+        expect(
+            tester
+                .widget<Checkbox>(find.byKey(ValueKey('next-stw-checkbox-$c')))
+                .value,
+            isTrue,
+            reason: c);
+      }
+      expect(
+          tester
+              .widget<Checkbox>(
+                  find.byKey(const ValueKey('next-stw-checkbox-rop')))
+              .value,
+          isFalse);
+
+      await tapVisible(
+          tester, find.byKey(const ValueKey('continue-selected-stws')));
+      await tapVisible(
+          tester, find.byKey(const ValueKey('selected-stw-hypoglycemia')));
+      final hypo = container.read(assessmentProvider);
+      expect(hypo.context.selected, {NeonatalCondition.hypoglycemia});
+      // Pre-filled, not confirmed: the clinician still reviews every page.
+      expect(hypo.context.answers[hypoRiskKey], {'idm'});
+      expect(hypo.context.completedQuestions, isEmpty);
+    });
+
     testWidgets('the timer is kept from data entry to the dashboard',
         (tester) async {
       final container = await _openTriage(tester);
@@ -304,7 +369,7 @@ void main() {
           find.byKey(const ValueKey('screening-elapsed-time')), findsOneWidget);
 
       await _enter(tester, triageHeartRateKey, '210');
-      await _continuePage(tester);
+      await _toResults(tester);
 
       expect(
           find.byKey(const ValueKey('screening-elapsed-time')), findsOneWidget);

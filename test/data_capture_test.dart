@@ -16,7 +16,8 @@ import 'package:neonatal_stw/features/triage/domain/triage_workflow.dart';
 /// Captures what the assessment sends for sync instead of queueing it.
 class _RecordingRepo extends ScreeningSyncRepository {
   _RecordingRepo()
-      : super(queue: OfflineQueue(apiClient: ApiClient(baseUrl: '', apiKey: '')));
+      : super(
+            queue: OfflineQueue(apiClient: ApiClient(baseUrl: '', apiKey: '')));
 
   final responses = <String, Object?>{};
   final decisions = <String, Map<String, Object?>>{};
@@ -54,7 +55,8 @@ class _RecordingRepo extends ScreeningSyncRepository {
 
 class _RecordingAudit extends AuditLog {
   _RecordingAudit()
-      : super(queue: OfflineQueue(apiClient: ApiClient(baseUrl: '', apiKey: '')));
+      : super(
+            queue: OfflineQueue(apiClient: ApiClient(baseUrl: '', apiKey: '')));
 
   final events = <(String, Map<String, Object?>)>[];
 
@@ -90,6 +92,12 @@ void main() {
       ..answer(triageGestationKey, triageTerm)
       ..answer(triageHeartRateKey, 210)
       ..answer(triageEmergencySignsKey, <Object>{'shock'})
+      ..answer(triageMaternalRisksKey, <Object>{'foulLiquor'})
+      ..answer(triageRhStatusKey, 'negative')
+      ..confirmPage()
+      // Page 2: examination.
+      ..answer(triageExamFeelKey, <Object>{'crtProlonged'})
+      ..answer(triageToneKey, 'normal')
       ..confirmPage();
     expect(container.read(assessmentProvider).isComplete, isTrue);
 
@@ -104,11 +112,38 @@ void main() {
     expect(dose['drug'], 'Normal saline');
     expect(dose['volumeMl'], 25);
     expect(dose['rate'], 'Term: give the NS bolus over 15–20 min.');
-    expect(
-        (d['stwLinks'] as List).cast<Map>().map((l) => l['regionId']),
+    expect((d['stwLinks'] as List).cast<Map>().map((l) => l['regionId']),
         contains('triage_shock'));
     expect((d['findings'] as List).cast<Map>().map((f) => f['id']),
         contains('triage.classification'));
+    expect(d['history'], {
+      'maternal': ['foulLiquor'],
+      'rhStatus': 'negative',
+      'antenatalSteroids': null,
+      'newborn': <String>[],
+    });
+    expect((d['examination'] as Map)['feel'], ['crtProlonged']);
+    expect((d['examination'] as Map)['look'], <String>[]);
+    expect((d['examination'] as Map)['tone'], 'normal');
+    expect(d['suggestedStws'], [
+      {
+        'stw': 'sepsis',
+        'reasons': ['Foul-smelling liquor', 'Capillary refill time (CRT) >3 s'],
+      },
+      {
+        'stw': 'jaundice',
+        'reasons': ['Maternal Rh status: Negative'],
+      },
+    ]);
+  });
+
+  test('structured history and examination are synced as option values', () {
+    controller()
+      ..answer(triageNewbornRisksKey, <Object>{'delayedCry', 'apneaCyanosis'})
+      ..answer(triageRhStatusKey, 'negative');
+    expect(repo.responses[triageNewbornRisksKey],
+        unorderedEquals(['delayedCry', 'apneaCyanosis']));
+    expect(repo.responses[triageRhStatusKey], 'negative');
   });
 
   test('free-text history is never synced; only whether it was provided', () {
@@ -117,7 +152,9 @@ void main() {
     expect(repo.responses.containsKey(triageMaternalHistoryKey), isFalse);
     expect(repo.responses['${triageMaternalHistoryKey}_provided'], isTrue);
     expect(
-        repo.responses.values.whereType<String>().any((v) => v.contains('Sunita')),
+        repo.responses.values
+            .whereType<String>()
+            .any((v) => v.contains('Sunita')),
         isFalse);
 
     controller().answer(triageMaternalHistoryKey, null);
@@ -126,6 +163,7 @@ void main() {
     controller()
       ..answer(triageMaternalHistoryKey, 'Sunita')
       ..answer(triageHeartRateKey, 150)
+      ..confirmPage()
       ..confirmPage();
     final baseline = repo.decisions['triage']!['baseline'] as Map;
     expect(baseline['maternalHistoryProvided'], isTrue);
@@ -138,10 +176,11 @@ void main() {
       ..answer(triageHeartRateKey, 210)
       ..confirmPage()
       ..back();
-    expect(
-        audit.events.map((e) => e.$1), containsAllInOrder(['page_confirmed', 'page_back']));
+    expect(audit.events.map((e) => e.$1),
+        containsAllInOrder(['page_confirmed', 'page_back']));
     final confirmed = audit.events.firstWhere((e) => e.$1 == 'page_confirmed');
-    expect(confirmed.$2, {'group': triageAssessmentGroup, 'next': 'results'});
+    expect(confirmed.$2,
+        {'group': triageAssessmentGroup, 'next': triageExaminationGroup});
   });
 
   test('a Triage with no sign is recorded as NO_SIGNS without doses', () {
@@ -170,10 +209,10 @@ void main() {
           triageHypoglycemiaSymptomsKey: false,
         })['computedDoses'],
         isEmpty);
-    final dose = (decision({triageBloodGlucoseKey: 15})['computedDoses']
-            as List)
-        .cast<Map>()
-        .single;
+    final dose =
+        (decision({triageBloodGlucoseKey: 15})['computedDoses'] as List)
+            .cast<Map>()
+            .single;
     expect(dose['drug'], '10% dextrose');
     expect(dose['volumeMl'], 6);
   });
@@ -212,7 +251,8 @@ void main() {
       expect(find.byIcon(Icons.cloud_queue_rounded), findsOneWidget);
       expect(find.text('7'), findsOneWidget);
       expect(
-          find.byTooltip('7 records waiting to sync (offline; retrying at 10:30)'),
+          find.byTooltip(
+              '7 records waiting to sync (offline; retrying at 10:30)'),
           findsOneWidget);
     });
 

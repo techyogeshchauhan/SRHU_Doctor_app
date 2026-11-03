@@ -59,7 +59,15 @@ class AssessmentController extends Notifier<AssessmentState> {
   /// - The previous screening was already completed
   /// - Or when explicitly requested via [forceReset].
   /// Normal navigation within an active screening (Back <-> Continue) preserves all answers.
-  void start(Set<NeonatalCondition> selected, {bool forceReset = false}) {
+  ///
+  /// A reset starts from [prefilled] (e.g. Triage findings carried into a
+  /// suggested STW). Pre-filled pages are not marked completed: the
+  /// clinician still sees and confirms them.
+  void start(
+    Set<NeonatalCondition> selected, {
+    bool forceReset = false,
+    Map<String, Object?> prefilled = const {},
+  }) {
     final prev = state.context;
     final isDifferentDisease =
         prev.selected.length != selected.length ||
@@ -74,7 +82,7 @@ class AssessmentController extends Notifier<AssessmentState> {
       syncRepo.startAssessmentSession({for (final c in selected) diseaseCodeOf(c)});
       final ctx = _engine.evaluate(
         selected: selected,
-        answers: const {},
+        answers: prefilled,
         completed: const {},
         today: ref.read(assessmentTodayProvider),
       );

@@ -15,6 +15,7 @@ import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../condition_selection/ui/condition_selection_screen.dart';
 import '../../disease_selection/ui/disease_selection_screen.dart';
 import '../../references/ui/stw_reference_screen.dart';
+import '../../triage/state/triage_handoff.dart';
 
 /// Opened with "Next Step" once the Triage results are shown: lists the
 /// remaining available STWs. Continue opens a separate list of checked modules.
@@ -34,6 +35,15 @@ class _NextStwScreenState extends ConsumerState<NextStwScreen> {
 
   bool get _showSelected => widget.selectedModules != null;
 
+  @override
+  void initState() {
+    super.initState();
+    // STWs suggested by the Triage history and examination start ticked.
+    if (!_showSelected) {
+      _selected.addAll(ref.read(triageHandoffProvider).map((s) => s.stw));
+    }
+  }
+
   void _toggle(NeonatalCondition condition) {
     setState(() {
       if (!_selected.add(condition)) _selected.remove(condition);
@@ -43,12 +53,19 @@ class _NextStwScreenState extends ConsumerState<NextStwScreen> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final remaining = [
+    final handoff = ref.watch(triageHandoffProvider);
+    final suggested = {for (final s in handoff) s.stw: s};
+    final available = [
       for (final d in stwModuleDefinitions)
         if (d.implemented &&
             (!_showSelected || widget.selectedModules!.contains(d.id)) &&
             stwPdfFor(d.id) != null)
           d.id,
+    ];
+    // Suggested STWs first, each group in the usual order.
+    final remaining = [
+      ...available.where(suggested.containsKey),
+      ...available.where((c) => !suggested.containsKey(c)),
     ];
 
     void showSelected() {
@@ -66,9 +83,12 @@ class _NextStwScreenState extends ConsumerState<NextStwScreen> {
       final code = diseaseCodeOf(condition);
       audit.log('module_entered', {'disease': code, 'via': 'next_step'});
       clearConditionData(ref);
-      ref
-          .read(assessmentProvider.notifier)
-          .start({condition}, forceReset: true);
+      // Answers carried over from the Triage findings, to be confirmed.
+      ref.read(assessmentProvider.notifier).start(
+        {condition},
+        forceReset: true,
+        prefilled: suggested[condition]?.prefill ?? const {},
+      );
       setState(() => _completed.remove(condition));
       await context.push('/workflow', extra: {'returnToSelectedStws': true});
       if (!mounted) return;
@@ -163,6 +183,10 @@ class _NextStwScreenState extends ConsumerState<NextStwScreen> {
                     icon: conditionIcons[c] ?? Icons.medical_services_outlined,
                     accentColor: _accentOf(c),
                     highlighted: !_showSelected && _selected.contains(c),
+                    suggestion: switch (suggested[c]) {
+                      final s? => 'Suggested: ${s.reasons.join(' · ')}',
+                      null => null,
+                    },
                     trailing: _showSelected
                         ? (_completed.contains(c)
                             ? Icon(

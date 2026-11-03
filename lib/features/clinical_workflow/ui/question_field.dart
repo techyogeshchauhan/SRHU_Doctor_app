@@ -193,13 +193,20 @@ class QuestionField extends StatelessWidget {
         // Label, dense radio buttons and mic on one line; the options wrap
         // under each other on narrow phones.
         if (!hasOwnLabel && q.inlineLabel) ...[
-          Row(
-            children: [
-              labelText,
-              const SizedBox(width: 8),
-              Expanded(child: input),
-              if (mic != null) mic,
-            ],
+          // A long label wraps within about a third of the row.
+          LayoutBuilder(
+            builder: (context, constraints) => Row(
+              children: [
+                ConstrainedBox(
+                  constraints:
+                      BoxConstraints(maxWidth: constraints.maxWidth * 0.35),
+                  child: labelText,
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: input),
+                if (mic != null) mic,
+              ],
+            ),
           ),
           if (q.helper != null) Text(q.helper!, style: text.bodySmall),
         ] else if (!hasOwnLabel)

@@ -1,10 +1,11 @@
 /// Neonatal emergency triage workflow from the July 2020 ICMR/DHR STW.
 ///
-/// One page of history, measurements and emergency signs. The triage
-/// category is computed, never chosen: any emergency sign or threshold
-/// classifies the neonate as EMERGENCY, otherwise a Priority threshold
-/// (temperature, weight) classifies PRIORITY. Measurements may be left blank.
-/// "Baby is sick" (fast-track) asks only the emergency signs.
+/// Page 1: history, measurements and emergency signs; page 2: examination
+/// (see triage_history_exam.dart). The triage category is computed from
+/// page 1, never chosen: any emergency sign or threshold classifies the
+/// neonate as EMERGENCY, otherwise a Priority threshold (temperature,
+/// weight, RR) classifies PRIORITY. Measurements may be left blank.
+/// "Baby is sick" (fast-track) skips the history.
 library;
 
 import '../../clinical_workflow/domain/clinical_finding.dart';
@@ -15,6 +16,9 @@ import '../../clinical_workflow/domain/source_reference.dart';
 import '../../clinical_workflow/domain/workflow_definition.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../rd/domain/rd_rules.dart' show rrThresholdPerMin;
+import 'triage_history_exam.dart';
+
+export 'triage_history_exam.dart';
 
 const _triage = NeonatalCondition.triage;
 
@@ -93,7 +97,11 @@ const triageGroups = [
         "Examples indicate the expected input format only. Enter the baby's actual measured values.",
     questionOrder: [
       triageFastTrackKey,
+      triageMaternalRisksKey,
+      triageRhStatusKey,
+      triageAntenatalSteroidsKey,
       triageMaternalHistoryKey,
+      triageNewbornRisksKey,
       triageNewbornHistoryKey,
       triageWeightKey,
       triageGestationKey,
@@ -106,6 +114,21 @@ const triageGroups = [
       triageEmergencySignsKey,
     ],
   ),
+  QuestionGroup(
+    triageExaminationGroup,
+    'Examination: Look / Listen / Feel',
+    subtitle: 'Tick the findings present; nothing ticked is recorded as '
+        'none. Findings suggest STWs to consider next and do not change the '
+        'triage category.',
+    questionOrder: [
+      triageExamLookKey,
+      triageExamListenKey,
+      triageAirEntryKey,
+      triageExamFeelKey,
+      triageFontanelleKey,
+      triageToneKey,
+    ],
+  ),
 ];
 
 const qTriageFastTrack = ClinicalQuestion(
@@ -113,24 +136,23 @@ const qTriageFastTrack = ClinicalQuestion(
   group: triageAssessmentGroup,
   question: 'Baby is sick – proceed directly to examination',
   type: QuestionType.boolean,
-  helper: 'Skips the history and measurements and goes straight to the '
-      'emergency signs.',
+  helper: 'Skips the maternal and newborn history.',
   sources: [SourceReference.dataEntry('Skip history when the baby is sick')],
 );
 
 const qTriageMaternalHistory = ClinicalQuestion(
   id: triageMaternalHistoryKey,
   group: triageAssessmentGroup,
-  question: 'Maternal history (H/O)',
+  question: 'Other maternal history (optional)',
   type: QuestionType.text,
-  inputHint: 'e.g., PROM >18 h, maternal fever',
+  inputHint: 'e.g., maternal fever',
   sources: [SourceReference.dataEntry('Maternal history, free text')],
 );
 
 const qTriageNewbornHistory = ClinicalQuestion(
   id: triageNewbornHistoryKey,
   group: triageAssessmentGroup,
-  question: 'Newborn history (NB H/O)',
+  question: 'Other newborn history (optional)',
   type: QuestionType.text,
   inputHint: 'e.g., not feeding since morning',
   sources: [SourceReference.dataEntry('Newborn history, free text')],
@@ -733,9 +755,8 @@ String triageDextroseBolusVolumeText(int weightG) =>
     '${_thousandths(2 * weightG)} mL of 10% dextrose (straight '
     'multiplication of the STW per-kg value; verify before giving)';
 
-/// "Baby is sick" skips everything before the emergency signs. Skipped
-/// questions do not apply, so the engine drops any answer already entered
-/// and it feeds no rule.
+/// "Baby is sick" skips the maternal and newborn history. Skipped
+/// questions do not apply, so the engine drops any answer already entered.
 final _notFastTrack = Not(const Var(triageFastTrackKey).eq(true));
 
 final triageWorkflow = StwWorkflow(
@@ -744,22 +765,27 @@ final triageWorkflow = StwWorkflow(
   groups: triageGroups,
   uses: [
     const QuestionUse(qTriageFastTrack),
+    QuestionUse(qTriageMaternalRisks, when: _notFastTrack),
+    QuestionUse(qTriageRhStatus, when: _notFastTrack),
+    QuestionUse(qTriageAntenatalSteroids, when: _notFastTrack),
     QuestionUse(qTriageMaternalHistory, when: _notFastTrack),
+    QuestionUse(qTriageNewbornRisks, when: _notFastTrack),
     QuestionUse(qTriageNewbornHistory, when: _notFastTrack),
-    QuestionUse(qTriageWeight, when: _notFastTrack),
-    QuestionUse(qTriageGestation, when: _notFastTrack),
-    QuestionUse(qTriageTemperature, when: _notFastTrack),
-    QuestionUse(qTriageHeartRate, when: _notFastTrack),
-    QuestionUse(qTriageRespiratoryRate, when: _notFastTrack),
-    QuestionUse(qTriageSpo2, when: _notFastTrack),
-    QuestionUse(qTriageBloodGlucose, when: _notFastTrack),
-    // Follows the RBS: hidden with it in fast-track.
+    const QuestionUse(qTriageWeight),
+    const QuestionUse(qTriageGestation),
+    const QuestionUse(qTriageTemperature),
+    const QuestionUse(qTriageHeartRate),
+    const QuestionUse(qTriageRespiratoryRate),
+    const QuestionUse(qTriageSpo2),
+    const QuestionUse(qTriageBloodGlucose),
     QuestionUse(
       qTriageHypoglycemiaSymptoms,
       when: AllOf([_bg.ge(triageRbsIvBelow), _bg.lt(triageRbsEmergencyBelow)]),
       required: true,
     ),
     const QuestionUse(qTriageEmergencySigns),
+    // Page 2, after the Triage page is confirmed.
+    for (final q in triageExaminationQuestions) QuestionUse(q),
   ],
   variables: triageVariables,
   rules: triageRules,
