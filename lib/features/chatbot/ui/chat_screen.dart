@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/config/features.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../data/repositories/audit_log_repository.dart';
@@ -375,7 +376,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       // A case description spanning several STWs can be opened as a guided
       // multi-STW assessment instead.
       final parsed = parseCase(msg.text);
-      final asCase = parsed.topics.length >= 2 && parsed.items.length >= 2;
+      final asCase = kCaseHistoryEnabled &&
+          parsed.topics.length >= 2 &&
+          parsed.items.length >= 2;
       final bubble = Align(
         alignment: Alignment.centerRight,
         child: Container(

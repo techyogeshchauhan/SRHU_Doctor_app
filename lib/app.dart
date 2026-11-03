@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'core/config/features.dart';
 import 'core/theme.dart';
 import 'data/repositories/audit_log_repository.dart';
 import 'core/widgets/chat_launcher.dart';
@@ -130,11 +131,14 @@ GoRouter buildRouter() => GoRouter(
         ),
         GoRoute(
           path: '/case',
+          // Old links land on Home while Case History is switched off.
+          redirect: (_, __) => kCaseHistoryEnabled ? null : '/home',
           builder: (_, state) =>
               CaseEntryScreen(initialText: state.extra as String?),
         ),
         GoRoute(
           path: '/case/review',
+          redirect: (_, __) => kCaseHistoryEnabled ? null : '/home',
           builder: (context, state) => switch (state.extra) {
             final ParsedCase parsed => CaseReviewScreen(parsed: parsed),
             // Opened without a parsed case (e.g. page reload): start over.

@@ -33,6 +33,10 @@ void main() {
     triageTemperatureKey: ['triage_emergency_signs', 'triage_priority_signs'],
     triageSpo2Key: ['triage_emergency_signs', 'triage_emergency_actions'],
     triageHeartRateKey: ['triage_emergency_signs'],
+    triageRespiratoryRateKey: [
+      'triage_priority_signs',
+      'rd_diagnostic_criteria',
+    ],
     triageBloodGlucoseKey: ['triage_hypoglycemia'],
   };
 
@@ -67,7 +71,8 @@ void main() {
           u.question,
   ];
 
-  test('every numeric ANCS / Hypoglycemia / Triage input has a PDF hint or none',
+  test(
+      'every numeric ANCS / Hypoglycemia / Triage input has a PDF hint or none',
       () {
     for (final q in numeric) {
       if (noRangeInPdf.contains(q.id)) {

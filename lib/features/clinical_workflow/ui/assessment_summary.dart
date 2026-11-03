@@ -11,6 +11,8 @@ import '../../../shared/pdf_navigation.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../follow_up/data/disease_follow_up_registry.dart';
 import '../../follow_up/state/follow_up_controller.dart';
+import '../../triage/domain/triage_workflow.dart';
+import '../../triage/state/triage_handoff.dart';
 import '../domain/clinical_finding.dart';
 import '../domain/combined_summary.dart';
 import '../state/assessment_controller.dart';
@@ -213,6 +215,85 @@ class _ImmediateActions extends StatelessWidget {
 }
 
 /// Combined assessment for all selected topics.
+/// STWs to consider next, from the Triage history and examination (and RR
+/// / respiratory distress), each with the findings behind it.
+class _SuggestedStws extends ConsumerWidget {
+  const _SuggestedStws({required this.suggestions});
+
+  final List<StwSuggestion> suggestions;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final text = Theme.of(context).textTheme;
+    return SectionCard(
+      key: const ValueKey('suggested-stws'),
+      title: 'Suggested STWs',
+      subtitle: 'Based on the history and examination. Consider these '
+          'STWs next; they are not diagnoses.',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final s in suggestions)
+            Padding(
+              key: ValueKey('suggested-stw-${s.stw.name}'),
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2, right: 6),
+                    child: Icon(Icons.star_rounded,
+                        size: 18, color: AppTheme.primaryTeal),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          stwPdfFor(s.stw)?.title ?? definitionOf(s.stw).title,
+                          style: text.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryNavy,
+                          ),
+                        ),
+                        Text(s.reasons.join(' · '), style: text.bodySmall),
+                      ],
+                    ),
+                  ),
+                  if (stwPdfFor(s.stw) case final pdf?)
+                    IconButton(
+                      tooltip: 'View ${pdf.title} PDF',
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(Icons.picture_as_pdf_outlined,
+                          size: 18, color: AppTheme.primaryBlue),
+                      onPressed: () => openStwPdf(
+                        context,
+                        assetPath: pdf.asset,
+                        title: pdf.title,
+                        origin: 'suggested_stw',
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FilledButton.icon(
+              key: const ValueKey('open-suggested-stws'),
+              onPressed: () {
+                ref.read(triageHandoffProvider.notifier).set(suggestions);
+                context.push('/next-stw');
+              },
+              icon: const Icon(Icons.arrow_forward, size: 16),
+              label: const Text('Choose the next STW'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class AssessmentSummaryView extends ConsumerWidget {
   const AssessmentSummaryView({super.key});
 
@@ -233,59 +314,50 @@ class AssessmentSummaryView extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Clinical Assessment Summary',
-          style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: AppTheme.primaryNavy,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Clinical Assessment Summary',
+                style: text.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primaryNavy,
+                ),
+              ),
+            ),
+            // Compact link in the corner: how the answers led to the findings.
+            if (ctx.findings.isNotEmpty)
+              Tooltip(
+                message: 'Assessment map: how your answers led here',
+                child: TextButton.icon(
+                  key: const ValueKey('open-assessment-map'),
+                  onPressed: () => context.push('/assessment-map'),
+                  icon: const Icon(Icons.account_tree_outlined, size: 16),
+                  label: const Text('Map'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.primaryBlue,
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    textStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 12),
+        if (ctx.selected.contains(NeonatalCondition.triage))
+          if (triageStwSuggestions(ctx) case final suggestions
+              when suggestions.isNotEmpty)
+            _SuggestedStws(suggestions: suggestions),
         if (summary.showImmediateActions)
           _ImmediateActions(actions: summary.immediateActions),
         for (final s in summary.subjects)
           SectionCard(
             title: s.label == 'Baby' ? 'Baby details' : s.label,
             child: Text(s.line, style: text.bodyLarge),
-          ),
-        SectionCard(
-          title: 'Topics assessed',
-          subtitle: 'Selected for assessment — not diagnoses',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  for (final t in summary.topics)
-                    StatusChip(
-                      tone: t.available ? Tone.success : Tone.danger,
-                      label: t.title,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Questions answered: ${summary.answered} of '
-                '${summary.applicable} applicable',
-                style: text.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-        if (ctx.findings.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: OutlinedButton.icon(
-              onPressed: () => context.push('/assessment-map'),
-              icon: const Icon(Icons.account_tree_outlined, size: 18),
-              label: const Text('Assessment map: how your answers led here'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.primaryNavy,
-                minimumSize: const Size(0, 46),
-              ),
-            ),
           ),
         for (final t in summary.topics) ...[
           Padding(

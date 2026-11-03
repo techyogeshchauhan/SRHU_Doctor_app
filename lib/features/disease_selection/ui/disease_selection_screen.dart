@@ -204,6 +204,7 @@ class DiseaseCard extends StatelessWidget {
     this.highlighted = false,
     this.onOpenStwText,
     this.trailing,
+    this.suggestion,
   });
 
   final String title;
@@ -217,6 +218,9 @@ class DiseaseCard extends StatelessWidget {
 
   /// Optional control in place of the navigation arrow.
   final Widget? trailing;
+
+  /// Why this STW is suggested (from the Triage findings); hidden when null.
+  final String? suggestion;
 
   /// Opens the verbatim STW text (DOs/DON'Ts, KPIs, ...); hidden when null.
   final VoidCallback? onOpenStwText;
@@ -302,6 +306,31 @@ class DiseaseCard extends StatelessWidget {
                         )),
                       ],
                     ),
+                    if (suggestion != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.star_rounded,
+                                size: 15, color: AppTheme.primaryTeal),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                suggestion!,
+                                key: ValueKey('disease-card-suggestion-$number'),
+                                style: const TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.primaryTeal,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 6,

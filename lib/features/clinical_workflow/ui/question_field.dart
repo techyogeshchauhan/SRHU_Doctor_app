@@ -53,6 +53,7 @@ class QuestionField extends StatelessWidget {
       QuestionType.singleChoice => RadioChoiceGroup<Object>(
           value: value,
           onChanged: onChanged,
+          dense: q.inlineLabel,
           horizontal:
               options.every((o) => o.image == null && o.subtitle == null) &&
                   options.every((o) => o.label.length <= 14),
@@ -163,28 +164,54 @@ class QuestionField extends StatelessWidget {
             ),
           );
 
+    final labelText = Text(
+      label,
+      style: text.titleSmall?.copyWith(
+        color: AppTheme.primaryNavy,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+
+    Widget stacked() => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(child: labelText),
+                if (mic != null) mic,
+              ],
+            ),
+            if (q.helper != null) Text(q.helper!, style: text.bodySmall),
+            const SizedBox(height: 6),
+            input,
+          ],
+        );
+
     final field = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (!hasOwnLabel) ...[
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: text.titleSmall?.copyWith(
-                    color: AppTheme.primaryNavy,
-                    fontWeight: FontWeight.w600,
-                  ),
+        // Label, dense radio buttons and mic on one line; the options wrap
+        // under each other on narrow phones.
+        if (!hasOwnLabel && q.inlineLabel) ...[
+          // A long label wraps within about a third of the row.
+          LayoutBuilder(
+            builder: (context, constraints) => Row(
+              children: [
+                ConstrainedBox(
+                  constraints:
+                      BoxConstraints(maxWidth: constraints.maxWidth * 0.35),
+                  child: labelText,
                 ),
-              ),
-              if (mic != null) mic,
-            ],
+                const SizedBox(width: 8),
+                Expanded(child: input),
+                if (mic != null) mic,
+              ],
+            ),
           ),
           if (q.helper != null) Text(q.helper!, style: text.bodySmall),
-          const SizedBox(height: 6),
-        ],
-        if (hasOwnLabel && mic != null)
+        ] else if (!hasOwnLabel)
+          stacked()
+        else if (mic != null)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

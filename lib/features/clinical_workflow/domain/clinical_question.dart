@@ -83,6 +83,7 @@ class ClinicalQuestion {
     this.helper,
     this.stwRange,
     this.pastOnly = false,
+    this.inlineLabel = false,
   }) : variable = variable ?? id;
 
   final String id;
@@ -117,6 +118,10 @@ class ClinicalQuestion {
 
   /// Date questions: no date after the assessment date (e.g. date of birth).
   final bool pastOnly;
+
+  /// Display only: the label and compact radio buttons share one line
+  /// (options wrap on narrow screens) instead of a label line plus tiles.
+  final bool inlineLabel;
   final List<SourceReference> sources;
 
   /// Null when [value] is acceptable for this question, else the reason.

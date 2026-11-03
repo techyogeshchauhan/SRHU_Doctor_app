@@ -9,6 +9,7 @@ import '../../features/follow_up/domain/follow_up_models.dart';
 import '../../features/follow_up/state/follow_up_controller.dart';
 import '../../features/rd/state/rd_controller.dart';
 import '../../features/rop/state/rop_controller.dart';
+import '../../features/triage/state/triage_handoff.dart';
 import '../../shared/baby_context.dart';
 import '../theme.dart';
 
@@ -97,6 +98,8 @@ void clearConditionData(dynamic ref, {bool clearSelections = false}) {
   ref.read(babyProvider.notifier).clear();
   if (clearSelections) {
     ref.read(conditionSelectionProvider.notifier).clear();
+    // A new baby: no Triage suggestion may pre-fill its STWs.
+    ref.read(triageHandoffProvider.notifier).clear();
   }
 }
 

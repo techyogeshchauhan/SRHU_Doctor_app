@@ -18,6 +18,7 @@ import '../../follow_up/state/follow_up_controller.dart';
 import '../../triage/domain/triage_workflow.dart';
 import '../../triage/ui/triage_category_banner.dart';
 import '../../triage/ui/triage_entry.dart';
+import '../../triage/state/triage_handoff.dart';
 import '../../triage/ui/triage_treatment_dashboard.dart';
 import '../state/assessment_controller.dart';
 import '../voice/voice_entry_bar.dart';
@@ -316,6 +317,8 @@ class WorkflowScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (group == null) ...[
+                          // Summary first, then the Triage treatment cards.
+                          const AssessmentSummaryView(),
                           if (triageDone) const TriageTreatmentDashboard(),
                           if (triageDone)
                             const Padding(
@@ -326,7 +329,6 @@ class WorkflowScreen extends ConsumerWidget {
                                 text: nextStepInstruction,
                               ),
                             ),
-                          const AssessmentSummaryView(),
                         ] else
                           _QuestionPage(group: group),
                         DisclaimerFooter(
@@ -484,6 +486,9 @@ class WorkflowScreen extends ConsumerWidget {
                               key: const ValueKey('next-step'),
                               onPressed: () {
                                 audit.tap('next_step');
+                                // Suggested STWs for the Next STW pages.
+                                ref.read(triageHandoffProvider.notifier).set(
+                                    triageStwSuggestions(ctx));
                                 context.push('/next-stw');
                               },
                               icon: const Icon(Icons.arrow_forward, size: 15),
@@ -818,16 +823,20 @@ class _QuestionPage extends ConsumerWidget {
                     if (stwPdfFor(c) case final pdf?)
                       Builder(
                         builder: (context) {
-                          final regionId = questions
-                              .where((rq) => rq.topics.contains(c))
-                              .expand((rq) => rq.question.sources)
-                              .where((s) =>
-                                  s.document == pdf.title ||
-                                  stwPdfForDocument(s.document)?.asset ==
-                                      pdf.asset)
-                              .map((s) => s.pdfRegionId)
-                              .firstWhere((id) => id != null,
-                                  orElse: () => null);
+                          // Triage opens the whole PDF with no box
+                          // highlighted.
+                          final regionId = c == NeonatalCondition.triage
+                              ? null
+                              : questions
+                                  .where((rq) => rq.topics.contains(c))
+                                  .expand((rq) => rq.question.sources)
+                                  .where((s) =>
+                                      s.document == pdf.title ||
+                                      stwPdfForDocument(s.document)?.asset ==
+                                          pdf.asset)
+                                  .map((s) => s.pdfRegionId)
+                                  .firstWhere((id) => id != null,
+                                      orElse: () => null);
 
                           return OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
