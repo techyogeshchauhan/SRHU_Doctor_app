@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/app.dart';
 import 'package:neonatal_stw/features/clinical_workflow/state/assessment_controller.dart';
+import 'package:neonatal_stw/features/clinical_workflow/ui/question_field.dart';
 import 'package:neonatal_stw/features/clinical_workflow/ui/workflow_screen.dart';
 import 'package:neonatal_stw/data/repositories/screening_sync_repository.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
 import 'package:neonatal_stw/features/disease_selection/ui/disease_selection_screen.dart';
-import 'package:neonatal_stw/features/references/ui/pdf_viewer_screen.dart';
+import 'package:neonatal_stw/features/knowledge_graph/ui/assessment_map_screen.dart';
 import 'package:neonatal_stw/features/triage/domain/triage_workflow.dart';
-import 'package:neonatal_stw/shared/pdf_navigation.dart';
 
 import 'test_helpers.dart';
 
@@ -102,8 +102,12 @@ void main() {
         expect(find.byKey(ValueKey('triage-card-$id')), findsOneWidget,
             reason: id);
       }
-      expect(find.byKey(const ValueKey('triage-card-circulation-flagged')),
+      // HR >200/min: the Temperature card (hyperthermia); Circulation no
+      // longer lists persistent HR.
+      expect(find.byKey(const ValueKey('triage-card-temperature-flagged')),
           findsOneWidget);
+      expect(find.byKey(const ValueKey('triage-card-circulation-flagged')),
+          findsNothing);
       expect(s.context.findings.map((f) => f.id),
           containsAll(['triage.classification', 'triage.emergencyActions']));
       expect(find.byKey(const ValueKey('next-step')), findsOneWidget);
@@ -111,12 +115,9 @@ void main() {
     });
 
     testWidgets(
-        'RBS 35 flags the Hypoglycemia card; its STW button opens the PDF',
-        (tester) async {
-      // Regions are decoded off the main isolate; cache them with real async
-      // so the fake-async zone finds them when the link is tapped.
-      await tester.runAsync(() => stwRegionTarget('triage_hypoglycemia'));
-      await _openTriage(tester);
+        'RBS 35: no Hypoglycemia card on the dashboard; the treatment is in '
+        'the summary', (tester) async {
+      final container = await _openTriage(tester);
       await _enter(tester, triageBloodGlucoseKey, '35');
       expect(find.byKey(const ValueKey('triage-category-emergency')),
           findsOneWidget);
@@ -130,18 +131,19 @@ void main() {
       await tapVisible(tester, no);
       await _continuePage(tester);
 
-      expect(find.byKey(const ValueKey('triage-card-hypoglycemia-flagged')),
+      expect(find.byKey(const ValueKey('triage-treatment-dashboard')),
           findsOneWidget);
-      expect(find.byKey(const ValueKey('triage-card-shock-flagged')),
+      expect(
+          find.byKey(const ValueKey('triage-card-hypoglycemia')), findsNothing);
+      expect(find.byKey(const ValueKey('triage-card-hypoglycemia-flagged')),
           findsNothing);
-      final link = find.byKey(
-          const ValueKey('triage-link-hypoglycemia-triage_hypoglycemia'));
-      expect(link, findsOneWidget);
-      await tapVisible(tester, link);
-      expect(find.byType(PdfViewerScreen), findsOneWidget);
+      expect(find.byKey(const ValueKey('triage-card-shock')), findsNothing);
+      expect(
+          container.read(assessmentProvider).context.findings.map((f) => f.id),
+          contains('triage.hypoglycemia.feeding'));
     });
 
-    testWidgets('the Shock sign highlights the Shock -> Bolus pathway',
+    testWidgets('the Shock sign flags Circulation and links the Shock box',
         (tester) async {
       await _openTriage(tester);
       // The removed checklists are not on the page.
@@ -157,23 +159,140 @@ void main() {
       expect(find.byKey(const ValueKey('triage-category-emergency')),
           findsOneWidget);
       await _continuePage(tester);
-      expect(find.byKey(const ValueKey('triage-card-shock-flagged')),
+      expect(find.byKey(const ValueKey('triage-card-shock')), findsNothing);
+      expect(find.byKey(const ValueKey('triage-card-circulation-flagged')),
           findsOneWidget);
-      expect(find.byKey(const ValueKey('triage-link-shock-triage_shock')),
+      expect(find.byKey(const ValueKey('triage-link-circulation-triage_shock')),
           findsOneWidget);
     });
 
-    testWidgets('fast-track hides the maternal and newborn history',
+    testWidgets('fast-track goes straight to the emergency signs',
+        (tester) async {
+      final container = await _openTriage(tester);
+      const skipped = [
+        triageMaternalHistoryKey,
+        triageNewbornHistoryKey,
+        triageWeightKey,
+        triageGestationKey,
+        triageTemperatureKey,
+        triageHeartRateKey,
+        triageRespiratoryRateKey,
+        triageSpo2Key,
+        triageBloodGlucoseKey,
+      ];
+      for (final id in skipped) {
+        expect(find.byKey(ValueKey(id)), findsOneWidget, reason: id);
+      }
+      await _enter(tester, triageHeartRateKey, '210');
+      expect(find.byKey(const ValueKey('triage-category-emergency')),
+          findsOneWidget);
+
+      final toggle =
+          find.text('Baby is sick – proceed directly to examination');
+      await tapVisible(tester, toggle);
+      for (final id in skipped) {
+        expect(find.byKey(ValueKey(id)), findsNothing, reason: id);
+      }
+      // The emergency signs follow the toggle directly.
+      final fields = find.byType(QuestionField);
+      expect(fields, findsNWidgets(2));
+      expect(tester.widget<QuestionField>(fields.last).question.id,
+          triageEmergencySignsKey);
+      // The HR typed before is dropped and no longer classifies.
+      expect(
+          container
+              .read(assessmentProvider)
+              .context
+              .answers
+              .containsKey(triageHeartRateKey),
+          isFalse);
+      expect(find.byKey(const ValueKey('triage-category-emergency')),
+          findsNothing);
+
+      await tapVisible(tester, find.textContaining('Shock (cold peripheries'));
+      expect(find.byKey(const ValueKey('triage-category-emergency')),
+          findsOneWidget);
+      await _continuePage(tester);
+      expect(find.byKey(const ValueKey('triage-card-circulation-flagged')),
+          findsOneWidget);
+    });
+
+    testWidgets('fast-track switched off again restores every question',
         (tester) async {
       await _openTriage(tester);
+      final toggle =
+          find.text('Baby is sick – proceed directly to examination');
+      await tapVisible(tester, toggle);
+      await tapVisible(tester, toggle);
+      for (final id in const [
+        triageMaternalHistoryKey,
+        triageNewbornHistoryKey,
+        triageWeightKey,
+        triageGestationKey,
+        triageTemperatureKey,
+        triageHeartRateKey,
+        triageRespiratoryRateKey,
+        triageSpo2Key,
+        triageBloodGlucoseKey,
+        triageEmergencySignsKey,
+      ]) {
+        expect(find.byKey(ValueKey(id)), findsOneWidget, reason: id);
+      }
+    });
+
+    testWidgets(
+        'results: summary at the top, no Topics assessed, compact map link',
+        (tester) async {
+      await _openTriage(tester);
+      await _enter(tester, triageHeartRateKey, '210');
+      await _continuePage(tester);
+
+      final summary = find.text('Clinical Assessment Summary');
+      expect(summary, findsOneWidget);
       expect(
-          find.byKey(const ValueKey(triageMaternalHistoryKey)), findsOneWidget);
-      await tapVisible(
-          tester, find.text('Baby is sick – proceed directly to examination'));
+          tester.getRect(summary).bottom,
+          lessThan(tester
+              .getRect(find.byKey(const ValueKey('triage-treatment-dashboard')))
+              .top));
+      expect(find.text('Topics assessed'), findsNothing);
+      expect(find.textContaining('Questions answered:'), findsNothing);
+      // The map is a small link beside the heading, not a full-width button.
+      final map = find.byKey(const ValueKey('open-assessment-map'));
+      expect(map, findsOneWidget);
       expect(
-          find.byKey(const ValueKey(triageMaternalHistoryKey)), findsNothing);
-      expect(find.byKey(const ValueKey(triageNewbornHistoryKey)), findsNothing);
-      expect(find.byKey(const ValueKey(triageHeartRateKey)), findsOneWidget);
+          find.text('Assessment map: how your answers led here'), findsNothing);
+      expect(tester.getRect(map).height, lessThan(44));
+      expect(tester.getRect(map).center.dy,
+          closeTo(tester.getRect(summary).center.dy, 12));
+      expect(find.text('DOs'), findsNothing);
+      expect(find.text("DON'Ts"), findsNothing);
+      expect(find.text('Key performance indicators (KPIs)'), findsNothing);
+      await tapVisible(tester, map);
+      expect(find.byType(AssessmentMapScreen), findsOneWidget);
+    });
+
+    testWidgets('RR 70 classifies PRIORITY and points to the RD STW',
+        (tester) async {
+      final container = await _openTriage(tester);
+      await _enter(tester, triageRespiratoryRateKey, '70');
+      expect(find.byKey(const ValueKey('triage-category-priority')),
+          findsOneWidget);
+      await _continuePage(tester);
+      expect(container.read(assessmentProvider).isComplete, isTrue);
+      expect(
+          find.text(
+              'Respiratory distress: follow the Respiratory Distress STW'),
+          findsOneWidget);
+      expect(find.text('Select Respiratory Distress as the next STW.'),
+          findsOneWidget);
+      // Priority shows the flagged cards; both link the RD STW.
+      expect(find.byKey(const ValueKey('triage-card-breathing-flagged')),
+          findsOneWidget);
+      expect(
+          find.byKey(
+              const ValueKey('triage-link-respiratory-rd_immediate_actions')),
+          findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('the timer is kept from data entry to the dashboard',
@@ -209,13 +328,11 @@ void main() {
       expect(find.text('Clinical Assessment Summary'), findsOneWidget);
       expect(find.byKey(const ValueKey('next-stw-sepsis')), findsNothing);
 
-      // The instruction sits above the summary.
+      // The summary is at the top; the instruction follows the results.
       final instruction = find.text(nextStepInstruction);
       expect(instruction, findsOneWidget);
-      expect(
-          tester.getRect(instruction).bottom,
-          lessThan(
-              tester.getRect(find.text('Clinical Assessment Summary')).top));
+      expect(tester.getRect(find.text('Clinical Assessment Summary')).bottom,
+          lessThan(tester.getRect(instruction).top));
       await tapVisible(tester, find.byKey(const ValueKey('next-step')));
 
       expect(find.text('Select the Next STW'), findsOneWidget);

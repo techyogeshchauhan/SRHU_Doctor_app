@@ -9,6 +9,10 @@ import '../domain/triage_treatment.dart';
 import '../domain/triage_workflow.dart';
 import 'triage_category_banner.dart';
 
+/// Cards not shown on the dashboard. Their treatment stays in the summary
+/// findings (Shock, Hypoglycemia) and in the saved decision record.
+const _hiddenCards = {'shock', 'hypoglycemia'};
+
 /// Shown as soon as the Triage page is confirmed: the computed category,
 /// the TABC cards and the protocol cards, each linking to its STW box.
 /// Emergency shows every card; Priority only the flagged ones.
@@ -23,7 +27,7 @@ class TriageTreatmentDashboard extends ConsumerWidget {
     final emergency = category == triageEmergency;
     final cards = [
       for (final c in triageTreatmentCards(ctx))
-        if (emergency || c.flagged) c,
+        if ((emergency || c.flagged) && !_hiddenCards.contains(c.id)) c,
     ];
     final tabc = cards.where((c) => c.isTabc).toList();
     final protocols = cards.where((c) => !c.isTabc).toList()
@@ -108,9 +112,7 @@ class _ProtocolCardView extends StatelessWidget {
         color: c.flagged ? tone.background() : Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: c.flagged
-              ? fg.withValues(alpha: 0.55)
-              : AppTheme.dividerColor,
+          color: c.flagged ? fg.withValues(alpha: 0.55) : AppTheme.dividerColor,
           width: c.flagged ? 1.6 : 1,
         ),
       ),
@@ -213,8 +215,7 @@ class _ProtocolCardView extends StatelessWidget {
                     icon: const Icon(Icons.picture_as_pdf_outlined, size: 14),
                     label: Text(link.label),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor:
-                          c.flagged ? fg : AppTheme.primaryBlue,
+                      foregroundColor: c.flagged ? fg : AppTheme.primaryBlue,
                       backgroundColor: Colors.white,
                       visualDensity: VisualDensity.compact,
                       padding: const EdgeInsets.symmetric(

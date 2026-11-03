@@ -365,7 +365,9 @@ StwMap buildStwMap({
 
       final fixed = <MapNode>[];
       final worded = <(String, SourceReference)>[];
-      for (final rule in w.rules) {
+      // Like questions, a rule may cite a box of another STW (e.g. Triage
+      // citing the Respiratory Distress definition).
+      for (final rule in [for (final ww in workflows) ...ww.rules]) {
         if (rule.source.pdfRegionId != r.id) continue;
         final content = _fixedContent(rule);
         if (content == null) {

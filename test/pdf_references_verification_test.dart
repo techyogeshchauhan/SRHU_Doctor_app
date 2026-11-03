@@ -526,6 +526,11 @@ void main() {
       expect(find.byType(PdfViewerScreen), findsOneWidget);
       expect(find.text('Neonatal Emergency Triage Assessment and Management'),
           findsWidgets);
+      // The whole PDF, with no box (e.g. PRIORITY) highlighted.
+      final viewer =
+          tester.widget<PdfViewerScreen>(find.byType(PdfViewerScreen));
+      expect(viewer.assetPath, triagePdfAsset);
+      expect(viewer.highlightTarget, isNull);
     });
 
     testWidgets('KMC workflow displays KMC STW PDF button', (tester) async {

@@ -233,12 +233,38 @@ class AssessmentSummaryView extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Clinical Assessment Summary',
-          style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: AppTheme.primaryNavy,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Clinical Assessment Summary',
+                style: text.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primaryNavy,
+                ),
+              ),
+            ),
+            // Compact link in the corner: how the answers led to the findings.
+            if (ctx.findings.isNotEmpty)
+              Tooltip(
+                message: 'Assessment map: how your answers led here',
+                child: TextButton.icon(
+                  key: const ValueKey('open-assessment-map'),
+                  onPressed: () => context.push('/assessment-map'),
+                  icon: const Icon(Icons.account_tree_outlined, size: 16),
+                  label: const Text('Map'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.primaryBlue,
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    textStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 12),
         if (summary.showImmediateActions)
@@ -247,45 +273,6 @@ class AssessmentSummaryView extends ConsumerWidget {
           SectionCard(
             title: s.label == 'Baby' ? 'Baby details' : s.label,
             child: Text(s.line, style: text.bodyLarge),
-          ),
-        SectionCard(
-          title: 'Topics assessed',
-          subtitle: 'Selected for assessment — not diagnoses',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  for (final t in summary.topics)
-                    StatusChip(
-                      tone: t.available ? Tone.success : Tone.danger,
-                      label: t.title,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Questions answered: ${summary.answered} of '
-                '${summary.applicable} applicable',
-                style: text.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-        if (ctx.findings.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: OutlinedButton.icon(
-              onPressed: () => context.push('/assessment-map'),
-              icon: const Icon(Icons.account_tree_outlined, size: 18),
-              label: const Text('Assessment map: how your answers led here'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.primaryNavy,
-                minimumSize: const Size(0, 46),
-              ),
-            ),
           ),
         for (final t in summary.topics) ...[
           Padding(

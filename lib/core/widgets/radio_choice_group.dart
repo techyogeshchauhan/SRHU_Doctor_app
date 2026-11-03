@@ -23,6 +23,7 @@ class RadioChoiceGroup<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.horizontal = false,
+    this.dense = false,
     this.enabled = true,
   });
 
@@ -32,10 +33,27 @@ class RadioChoiceGroup<T> extends StatelessWidget {
 
   /// Compact wrapping row (for short labels like "Zone I / II / III").
   final bool horizontal;
+
+  /// Plain radio buttons in a wrapping row, without tile borders: fits
+  /// beside a question label (e.g. "Gestation  ○ Term  ○ Preterm").
+  final bool dense;
   final bool enabled;
 
   @override
   Widget build(BuildContext context) {
+    if (dense) {
+      return Wrap(
+        spacing: 4,
+        children: [
+          for (final o in options)
+            _DenseRadioOption<T>(
+              option: o,
+              selected: o.value == value,
+              onTap: enabled ? () => onChanged(o.value) : null,
+            ),
+        ],
+      );
+    }
     final tiles = [
       for (final o in options)
         _RadioOptionTile<T>(
@@ -54,6 +72,69 @@ class RadioChoiceGroup<T> extends StatelessWidget {
         for (final t in tiles)
           Padding(padding: const EdgeInsets.only(bottom: 6), child: t),
       ],
+    );
+  }
+}
+
+/// One borderless radio button: icon and label, 40 px tall touch target.
+class _DenseRadioOption<T> extends StatelessWidget {
+  const _DenseRadioOption({
+    required this.option,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final ChoiceOption<T> option;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    return Semantics(
+      inMutuallyExclusiveGroup: true,
+      checked: selected,
+      button: true,
+      enabled: onTap != null,
+      label: option.label,
+      excludeSemantics: true,
+      child: Opacity(
+        opacity: onTap == null ? 0.5 : 1,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 40),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    selected
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    color: selected ? scheme.primary : scheme.outline,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      option.label,
+                      style: text.bodyMedium?.copyWith(
+                        fontWeight:
+                            selected ? FontWeight.w600 : FontWeight.normal,
+                        color: selected ? scheme.primary : null,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

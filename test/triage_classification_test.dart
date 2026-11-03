@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/assessment_context.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/assessment_engine.dart';
 import 'package:neonatal_stw/features/clinical_workflow/domain/combined_summary.dart';
+import 'package:neonatal_stw/features/clinical_workflow/domain/source_reference.dart';
 import 'package:neonatal_stw/features/condition_selection/domain/neonatal_condition.dart';
 import 'package:neonatal_stw/features/triage/domain/triage_treatment.dart';
 import 'package:neonatal_stw/features/triage/domain/triage_workflow.dart';
@@ -54,8 +55,7 @@ void main() {
         final ctx = _eval(answers);
         expect(ctx.valueOf(triageCategoryKey), triageEmergency);
         expect(triageReasonsFor(ctx), isNotEmpty);
-        expect(
-            ctx.findings.where((f) => f.id == 'triage.emergencyActions'),
+        expect(ctx.findings.where((f) => f.id == 'triage.emergencyActions'),
             hasLength(1));
       });
     }
@@ -79,8 +79,7 @@ void main() {
     // No category question exists at all.
     final questions = _engine.resolve({NeonatalCondition.triage});
     expect(questions.where((q) => q.id == 'triage_category'), isEmpty);
-    expect(
-        questions.where((q) => q.question.question.contains('category')),
+    expect(questions.where((q) => q.question.question.contains('category')),
         isEmpty);
   });
 
@@ -88,8 +87,8 @@ void main() {
       () {
     expect(_category({triageWeightKey: 1500}), triagePriority);
     expect(_category({triageTemperatureKey: 36.0}), triagePriority);
-    expect(_category({triageWeightKey: 2500, triageTemperatureKey: 36.8}),
-        isNull);
+    expect(
+        _category({triageWeightKey: 2500, triageTemperatureKey: 36.8}), isNull);
     expect(_category({}), isNull);
   });
 
@@ -105,6 +104,7 @@ void main() {
       triageGestationKey,
       triageTemperatureKey,
       triageHeartRateKey,
+      triageRespiratoryRateKey,
       triageSpo2Key,
       triageBloodGlucoseKey,
       triageHypoglycemiaSymptomsKey,
@@ -121,8 +121,8 @@ void main() {
   });
 
   test('confirmed with no trigger: no category, no invented label', () {
-    final r = _engine.confirmPage(_eval({triageWeightKey: 2500}),
-        triageAssessmentGroup);
+    final r = _engine.confirmPage(
+        _eval({triageWeightKey: 2500}), triageAssessmentGroup);
     final done = _engine.evaluate(
       selected: {NeonatalCondition.triage},
       answers: r.answers,
@@ -150,13 +150,66 @@ void main() {
     expect(done.valueOf(triageCategoryKey), triageEmergency);
   });
 
-  test('fast-track hides the maternal and newborn history', () {
-    expect(_applicable(_eval({})),
-        containsAll([triageMaternalHistoryKey, triageNewbornHistoryKey]));
-    final sick = _applicable(_eval({triageFastTrackKey: true}));
-    expect(sick, isNot(contains(triageMaternalHistoryKey)));
-    expect(sick, isNot(contains(triageNewbornHistoryKey)));
-    expect(sick, contains(triageHeartRateKey));
+  test('fast-track goes straight to the emergency signs', () {
+    expect(_applicable(_eval({})), {
+      triageFastTrackKey,
+      triageMaternalHistoryKey,
+      triageNewbornHistoryKey,
+      triageWeightKey,
+      triageGestationKey,
+      triageTemperatureKey,
+      triageHeartRateKey,
+      triageRespiratoryRateKey,
+      triageSpo2Key,
+      triageBloodGlucoseKey,
+      triageEmergencySignsKey,
+    });
+    expect(_applicable(_eval({triageFastTrackKey: true})),
+        {triageFastTrackKey, triageEmergencySignsKey});
+    expect(
+        _applicable(
+            _eval({triageFastTrackKey: true, triageBloodGlucoseKey: 30})),
+        {triageFastTrackKey, triageEmergencySignsKey});
+  });
+
+  test('fast-track: skipped answers are dropped and feed no rule', () {
+    final skipped = <String, Object?>{
+      triageMaternalHistoryKey: 'PROM >18 h',
+      triageNewbornHistoryKey: 'not feeding',
+      triageWeightKey: 1500,
+      triageGestationKey: triagePreterm,
+      triageTemperatureKey: 35.0,
+      triageHeartRateKey: 210,
+      triageRespiratoryRateKey: 70,
+      triageSpo2Key: 85,
+      triageBloodGlucoseKey: 30,
+      triageHypoglycemiaSymptomsKey: true,
+    };
+    expect(_category(skipped), triageEmergency);
+
+    final sick = _eval({...skipped, triageFastTrackKey: true});
+    expect(sick.answers.keys, {triageFastTrackKey});
+    expect(sick.valueOf(triageCategoryKey), isNull);
+    expect(sick.findings, isEmpty);
+
+    // Classification then comes from the emergency signs alone.
+    final withSign = _eval({
+      ...skipped,
+      triageFastTrackKey: true,
+      triageEmergencySignsKey: <Object>{'shock'},
+    });
+    expect(withSign.valueOf(triageCategoryKey), triageEmergency);
+    expect(triageReasonsFor(withSign), [
+      'Shock (cold peripheries, mottled/grey skin, CRT >3 s, weak pulses, '
+          'low BP)',
+    ]);
+  });
+
+  test('fast-track off: every question is asked as before', () {
+    expect(
+      _applicable(_eval({triageFastTrackKey: false})),
+      _applicable(_eval({})),
+    );
   });
 
   test('the symptomatic question applies only when 20 <= RBS < 45', () {
@@ -182,7 +235,8 @@ void main() {
     final card = _card(ctx, 'hypoglycemia');
     expect(card.flagged, isTrue);
     expect(card.links.map((l) => l.regionId), contains('triage_hypoglycemia'));
-    expect(card.links.map((l) => l.stw), contains(NeonatalCondition.hypoglycemia));
+    expect(
+        card.links.map((l) => l.stw), contains(NeonatalCondition.hypoglycemia));
     expect(_card(ctx, 'shock').flagged, isFalse);
   });
 
@@ -194,12 +248,14 @@ void main() {
     final card = _card(ctx, 'hypoglycemia');
     final applies = card.actions.where((a) => a.applies).map((a) => a.text);
     expect(applies.single, contains('supervised breastfeeding'));
-    expect(ctx.findings.map((f) => f.id),
-        containsAll(['triage.hypoglycemia.feeding', 'triage.glucoseEmergencyTrigger']));
+    expect(
+        ctx.findings.map((f) => f.id),
+        containsAll(
+            ['triage.hypoglycemia.feeding', 'triage.glucoseEmergencyTrigger']));
     expect(ctx.findings.map((f) => f.id),
         isNot(contains('triage.hypoglycemia.iv')));
-    final trigger =
-        ctx.findings.singleWhere((f) => f.id == 'triage.glucoseEmergencyTrigger');
+    final trigger = ctx.findings
+        .singleWhere((f) => f.id == 'triage.glucoseEmergencyTrigger');
     expect(trigger.source.needsClinicalReview, isTrue);
   });
 
@@ -252,8 +308,9 @@ void main() {
 
   test('every card link points at an existing box of its STW', () {
     final regions = {
-      for (final r in jsonDecode(
-              File('assets/regions/regions.json').readAsStringSync()) as List)
+      for (final r
+          in jsonDecode(File('assets/regions/regions.json').readAsStringSync())
+              as List)
         (r as Map)['id'] as String,
     };
     final ctx = _eval({
@@ -292,5 +349,109 @@ void main() {
         CombinedAssessmentSummary.from(_eval({triageWeightKey: 2500}))
             .toPlainText(),
         contains('Baby: GA — · Weight 2.5 kg'));
+  });
+
+  group('respiratory rate', () {
+    Set<String> findingIds(ClinicalAssessmentContext ctx) =>
+        {for (final f in ctx.findings) f.id};
+
+    test('RR >=60/min without retractions or grunt classifies PRIORITY', () {
+      final ctx = _eval({triageRespiratoryRateKey: 70});
+      expect(ctx.valueOf(triageTachypneaKey), isTrue);
+      expect(ctx.valueOf(triageCategoryKey), triagePriority);
+      expect(triageReasonsFor(ctx), [
+        'RR 70/min (≥60/min): tachypnea without retractions or grunt',
+      ]);
+    });
+
+    test('the threshold is the RD STW value: 60/min', () {
+      expect(_eval({triageRespiratoryRateKey: 59}).valueOf(triageCategoryKey),
+          isNull);
+      expect(_eval({triageRespiratoryRateKey: 60}).valueOf(triageCategoryKey),
+          triagePriority);
+    });
+
+    test('abnormal RR directs to the Respiratory Distress STW', () {
+      final ctx = _eval({triageRespiratoryRateKey: 72});
+      final f = ctx.findings
+          .singleWhere((f) => f.id == 'triage.respiratoryDistressStw');
+      expect(f.source.document, rdStwDocument);
+      expect(f.source.pdfRegionId, 'rd_diagnostic_criteria');
+      expect(f.content.why, ['RR 72/min (≥60/min)']);
+      expect(f.content.actions,
+          contains('Select Respiratory Distress as the next STW.'));
+      for (final id in ['breathing', 'respiratory']) {
+        final card = _card(ctx, id);
+        expect(card.flaggedBecause, contains('RR 72/min (≥60/min)'));
+        expect(card.links.map((l) => l.stw),
+            contains(NeonatalCondition.respiratoryDistress));
+      }
+    });
+
+    test('with retractions or grunt it is the Emergency sign instead', () {
+      final ctx = _eval({
+        triageRespiratoryRateKey: 70,
+        triageEmergencySignsKey: <Object>{'respiratoryDistress'},
+      });
+      expect(ctx.valueOf(triageCategoryKey), triageEmergency);
+      expect(ctx.valueOf(triagePriorityReasonsKey), isEmpty);
+      expect(findingIds(ctx), contains('triage.respiratoryDistressStw'));
+    });
+
+    test('the respiratory distress sign alone also directs to the RD STW', () {
+      final ctx = _eval({
+        triageEmergencySignsKey: <Object>{'respiratoryDistress'},
+      });
+      expect(findingIds(ctx), contains('triage.respiratoryDistressStw'));
+    });
+
+    test('normal or blank RR: no tachypnea, no RD finding', () {
+      for (final answers in [
+        <String, Object?>{},
+        {triageRespiratoryRateKey: 45},
+      ]) {
+        final ctx = _eval(answers);
+        expect(ctx.valueOf(triageTachypneaKey), isFalse);
+        expect(
+            findingIds(ctx), isNot(contains('triage.respiratoryDistressStw')));
+        expect(_card(ctx, 'breathing').flagged, isFalse);
+      }
+    });
+  });
+
+  test("DOs, DON'Ts and KPIs are not part of the Triage results", () {
+    final r = _engine.confirmPage(
+        _eval({triageHeartRateKey: 210}), triageAssessmentGroup);
+    final done = _engine.evaluate(
+      selected: {NeonatalCondition.triage},
+      answers: r.answers,
+      completed: r.completed,
+      today: _today,
+    );
+    final ids = {for (final f in done.findings) f.id};
+    expect(
+        ids,
+        isNot(anyOf(contains('triage.dos'), contains('triage.donts'),
+            contains('triage.kpis'))));
+    // The other results are still given.
+    expect(
+        ids,
+        containsAll([
+          'triage.initialChecks',
+          'triage.followSpecific',
+          'triage.persistentTachycardia'
+        ]));
+  });
+
+  test('Circulation no longer lists persistent HR >200/min', () {
+    final ctx = _eval({triageHeartRateKey: 210});
+    final circulation = _card(ctx, 'circulation');
+    expect(circulation.flagged, isFalse);
+    expect(circulation.actions.map((a) => a.text).join(),
+        isNot(contains('Persistent HR')));
+    // Still covered by the Temperature card and the summary finding.
+    expect(_card(ctx, 'temperature').flagged, isTrue);
+    expect(ctx.findings.map((f) => f.id),
+        contains('triage.persistentTachycardia'));
   });
 }

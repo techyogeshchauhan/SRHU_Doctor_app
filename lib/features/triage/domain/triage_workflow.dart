@@ -4,6 +4,7 @@
 /// category is computed, never chosen: any emergency sign or threshold
 /// classifies the neonate as EMERGENCY, otherwise a Priority threshold
 /// (temperature, weight) classifies PRIORITY. Measurements may be left blank.
+/// "Baby is sick" (fast-track) asks only the emergency signs.
 library;
 
 import '../../clinical_workflow/domain/clinical_finding.dart';
@@ -13,6 +14,7 @@ import '../../clinical_workflow/domain/condition_expr.dart';
 import '../../clinical_workflow/domain/source_reference.dart';
 import '../../clinical_workflow/domain/workflow_definition.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
+import '../../rd/domain/rd_rules.dart' show rrThresholdPerMin;
 
 const _triage = NeonatalCondition.triage;
 
@@ -26,6 +28,7 @@ const triageWeightKey = 'triage_weight_g';
 const triageGestationKey = 'triage_gestation';
 const triageTemperatureKey = 'triage_temperature_c';
 const triageHeartRateKey = 'triage_heart_rate';
+const triageRespiratoryRateKey = 'triage_respiratory_rate';
 const triageSpo2Key = 'triage_spo2';
 const triageBloodGlucoseKey = 'triage_blood_glucose';
 const triageHypoglycemiaSymptomsKey = 'triage_hypoglycemia_symptoms';
@@ -39,6 +42,7 @@ const triageCategoryKey = 'triage_category';
 const triageShockKey = 'triage_shock';
 const triageHypoglycemiaKey = 'triage_hypoglycemia';
 const triageRespiratoryEmergencyKey = 'triage_respiratory_emergency';
+const triageTachypneaKey = 'triage_tachypnea';
 
 const triageEmergency = 'emergency';
 const triagePriority = 'priority';
@@ -65,9 +69,11 @@ const _srcHypothermia = SourceReference.triage('HYPOTHERMIA');
 const _srcSeizures = SourceReference.triage('SEIZURES');
 const _srcDehydration = SourceReference.triage('SEVERE DEHYDRATION');
 const _srcTachycardia = SourceReference.triage('PERSISTENT HR >200/MIN');
-const _srcDos = SourceReference.triage("DOs");
-const _srcDonts = SourceReference.triage("DON'Ts");
 const _srcKpi = SourceReference.triage('KEY PERFORMANCE INDICATORS (KPIs)');
+
+/// RD STW definition: RR ≥60/min is one of the signs of respiratory distress.
+const _srcRdDefinition =
+    SourceReference.rd('§1.1 Definition: RD present if ANY ONE');
 const _srcGlucoseTrigger = SourceReference.triage(
   'HYPOGLYCEMIA',
   needsClinicalReview: true,
@@ -93,6 +99,7 @@ const triageGroups = [
       triageGestationKey,
       triageTemperatureKey,
       triageHeartRateKey,
+      triageRespiratoryRateKey,
       triageSpo2Key,
       triageBloodGlucoseKey,
       triageHypoglycemiaSymptomsKey,
@@ -106,7 +113,8 @@ const qTriageFastTrack = ClinicalQuestion(
   group: triageAssessmentGroup,
   question: 'Baby is sick – proceed directly to examination',
   type: QuestionType.boolean,
-  helper: 'Skips the maternal and newborn history.',
+  helper: 'Skips the history and measurements and goes straight to the '
+      'emergency signs.',
   sources: [SourceReference.dataEntry('Skip history when the baby is sick')],
 );
 
@@ -147,6 +155,7 @@ const qTriageGestation = ClinicalQuestion(
   group: triageAssessmentGroup,
   question: 'Gestation',
   type: QuestionType.singleChoice,
+  inlineLabel: true,
   options: [
     QuestionOption(triageTerm, 'Term (T)'),
     QuestionOption(triagePreterm, 'Preterm (PT)'),
@@ -178,6 +187,22 @@ const qTriageHeartRate = ClinicalQuestion(
   // EMERGENCY: Persistent tachycardia >200/min.
   stwRange: 'STW: Persistent tachycardia >200/min: Emergency',
   sources: [_srcEmergencySigns, _srcTachycardia],
+);
+
+const qTriageRespiratoryRate = ClinicalQuestion(
+  id: triageRespiratoryRateKey,
+  group: triageAssessmentGroup,
+  question: 'Respiratory rate (RR)',
+  type: QuestionType.numeric,
+  min: 0,
+  max: 150,
+  unit: '/min',
+  inputHint: 'e.g., 50',
+  // PRIORITY: Tachypnea without retractions or grunt; RD STW §1.1:
+  // RR ≥60/min.
+  stwRange: 'STW: RR ≥60/min: tachypnea · Priority (without retractions or '
+      'grunt) · see Respiratory Distress STW',
+  sources: [_srcPrioritySigns, _srcRdDefinition],
 );
 
 const qTriageSpo2 = ClinicalQuestion(
@@ -265,19 +290,31 @@ List<String> _emergencyTriggers(VariableReader r) {
       'HR ${_fmt(hr)}/min (>200/min)',
     if (spo2 is num && spo2 < triageSpo2EmergencyBelow)
       'SpO₂ ${_fmt(spo2)}% (<91%)',
-    ..._labels(qTriageEmergencySigns, _values(r.valueOf(triageEmergencySignsKey))),
+    ..._labels(
+        qTriageEmergencySigns, _values(r.valueOf(triageEmergencySignsKey))),
     if (bg is num && bg < triageRbsEmergencyBelow)
       'RBS ${_fmt(bg)} mg/dL (<45 mg/dL)',
   ];
 }
 
+bool _tachypnea(VariableReader r) {
+  final rr = r.valueOf(triageRespiratoryRateKey);
+  return rr is num && rr >= rrThresholdPerMin;
+}
+
 List<String> _priorityReasons(VariableReader r) {
   final temperature = r.valueOf(triageTemperatureKey);
   final weight = r.valueOf(triageWeightKey);
+  final rr = r.valueOf(triageRespiratoryRateKey);
+  // With retractions or grunt it is the Emergency sign instead.
+  final retractions = _values(r.valueOf(triageEmergencySignsKey))
+      .contains('respiratoryDistress');
   return [
     if (temperature is num && temperature >= 35.5 && temperature <= 36.4)
       'Temperature ${_fmt(temperature)}°C (35.5 to 36.4°C)',
     if (weight is num && weight < 1800) 'Weight ${_fmt(weight)} g (<1800 g)',
+    if (rr is num && _tachypnea(r) && !retractions)
+      'RR ${_fmt(rr)}/min (≥60/min): tachypnea without retractions or grunt',
   ];
 }
 
@@ -317,8 +354,7 @@ final triageVariables = [
     (r) => {
       if (_list(r.valueOf(triageEmergencyTriggersKey)).isNotEmpty)
         triageEmergency,
-      if (_list(r.valueOf(triagePriorityReasonsKey)).isNotEmpty)
-        triagePriority,
+      if (_list(r.valueOf(triagePriorityReasonsKey)).isNotEmpty) triagePriority,
     },
   ),
   const ClinicalVariable(
@@ -350,6 +386,11 @@ final triageVariables = [
           signs.contains('respiratoryDistress') ||
           (spo2 is num && spo2 < triageSpo2EmergencyBelow);
     },
+  ),
+  const ClinicalVariable(
+    triageTachypneaKey,
+    'RR ≥60/min (Respiratory Distress STW)',
+    _tachypnea,
   ),
 ];
 
@@ -657,54 +698,32 @@ final triageRules = <ClinicalRule>[
     ),
   ),
   ClinicalRule(
-    id: 'triage.dos',
+    id: 'triage.respiratoryDistressStw',
     topic: _triage,
-    when: _pageConfirmed,
-    source: _srcDos,
-    then: (_) => const FindingContent(
-      category: FindingCategory.pathway,
-      level: FindingLevel.info,
-      title: 'DOs',
-      actions: [
-        'Screen every neonate immediately on arrival for emergency and priority signs.',
-        'Maintain TABC, assess SpO₂ and blood glucose, and start indicated treatment promptly. Reassess after each intervention.',
-        'Administer the first dose of antibiotic within 1 hour if there is a high likelihood of sepsis.',
-      ],
-    ),
-  ),
-  ClinicalRule(
-    id: 'triage.donts',
-    topic: _triage,
-    when: _pageConfirmed,
-    source: _srcDonts,
-    then: (_) => const FindingContent(
-      category: FindingCategory.alert,
-      level: FindingLevel.action,
-      title: "DON'Ts",
-      actions: [
-        'Do NOT delay emergency treatment for investigations or documentation.',
-        'Obtain blood culture before the first dose of antibiotics, but do not delay treatment.',
-        'Do NOT discharge a neonate with persistent emergency or priority signs; arrange admission or appropriate referral.',
-      ],
-    ),
-  ),
-  ClinicalRule(
-    id: 'triage.kpis',
-    topic: _triage,
-    when: _pageConfirmed,
-    source: _srcKpi,
-    then: (_) => const FindingContent(
-      category: FindingCategory.assessment,
-      level: FindingLevel.info,
-      title: 'Key performance indicators (KPIs)',
-      actions: [
-        'Triage classification documented (%): neonates with a documented triage category at initial assessment ÷ all neonates assessed × 100.',
-        'Complete triage measurements (%): sick neonates with temperature, SpO₂ AND blood glucose recorded at initial assessment ÷ all sick neonates assessed × 100.',
-      ],
-      why: [
-        'Triage every neonate on arrival — treat emergency signs immediately and assess priority signs promptly.',
-      ],
-    ),
+    when: AnyOf([
+      const Var(triageTachypneaKey).eq(true),
+      const Var(triageEmergencySignsKey).contains('respiratoryDistress'),
+    ]),
+    source: _srcRdDefinition,
+    then: (r) {
+      final rr = r.valueOf(triageRespiratoryRateKey);
+      return FindingContent(
+        category: FindingCategory.furtherAssessment,
+        level: FindingLevel.action,
+        title: 'Respiratory distress: follow the Respiratory Distress STW',
+        actions: const [
+          'Assess and manage as per the Respiratory Distress STW.',
+          'Select Respiratory Distress as the next STW.',
+        ],
+        why: [
+          if (rr is num && rr >= rrThresholdPerMin)
+            'RR ${_fmt(rr)}/min (≥60/min)',
+          if (_values(r.valueOf(triageEmergencySignsKey))
+              .contains('respiratoryDistress'))
+            'Respiratory distress (retractions, grunt) recorded',
+        ],
+      );
+    },
   ),
 ];
 
@@ -714,26 +733,27 @@ String triageDextroseBolusVolumeText(int weightG) =>
     '${_thousandths(2 * weightG)} mL of 10% dextrose (straight '
     'multiplication of the STW per-kg value; verify before giving)';
 
+/// "Baby is sick" skips everything before the emergency signs. Skipped
+/// questions do not apply, so the engine drops any answer already entered
+/// and it feeds no rule.
+final _notFastTrack = Not(const Var(triageFastTrackKey).eq(true));
+
 final triageWorkflow = StwWorkflow(
   _triage,
   source: const SourceReference.triage('Whole document (July 2020)'),
   groups: triageGroups,
   uses: [
     const QuestionUse(qTriageFastTrack),
-    QuestionUse(
-      qTriageMaternalHistory,
-      when: Not(const Var(triageFastTrackKey).eq(true)),
-    ),
-    QuestionUse(
-      qTriageNewbornHistory,
-      when: Not(const Var(triageFastTrackKey).eq(true)),
-    ),
-    const QuestionUse(qTriageWeight),
-    const QuestionUse(qTriageGestation),
-    const QuestionUse(qTriageTemperature),
-    const QuestionUse(qTriageHeartRate),
-    const QuestionUse(qTriageSpo2),
-    const QuestionUse(qTriageBloodGlucose),
+    QuestionUse(qTriageMaternalHistory, when: _notFastTrack),
+    QuestionUse(qTriageNewbornHistory, when: _notFastTrack),
+    QuestionUse(qTriageWeight, when: _notFastTrack),
+    QuestionUse(qTriageGestation, when: _notFastTrack),
+    QuestionUse(qTriageTemperature, when: _notFastTrack),
+    QuestionUse(qTriageHeartRate, when: _notFastTrack),
+    QuestionUse(qTriageRespiratoryRate, when: _notFastTrack),
+    QuestionUse(qTriageSpo2, when: _notFastTrack),
+    QuestionUse(qTriageBloodGlucose, when: _notFastTrack),
+    // Follows the RBS: hidden with it in fast-track.
     QuestionUse(
       qTriageHypoglycemiaSymptoms,
       when: AllOf([_bg.ge(triageRbsIvBelow), _bg.lt(triageRbsEmergencyBelow)]),

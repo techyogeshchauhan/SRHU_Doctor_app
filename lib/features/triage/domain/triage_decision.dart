@@ -35,15 +35,18 @@ Map<String, Object?> triageClinicalState(VariableReader r) {
       'shock': r.valueOf(triageShockKey) == true,
       'hypoglycemia': r.valueOf(triageHypoglycemiaKey) == true,
       'respiratoryEmergency': r.valueOf(triageRespiratoryEmergencyKey) == true,
+      'tachypnea': r.valueOf(triageTachypneaKey) == true,
       'ivDextroseIndicated': triageIvDextroseIndicated(r),
     },
     'vitals': {
       'temperatureC': r.valueOf(triageTemperatureKey),
       'heartRate': r.valueOf(triageHeartRateKey),
+      'respiratoryRate': r.valueOf(triageRespiratoryRateKey),
       'spo2': r.valueOf(triageSpo2Key),
       'rbs': r.valueOf(triageBloodGlucoseKey),
       'symptomatic': r.valueOf(triageHypoglycemiaSymptomsKey),
-      'emergencySigns': signs is Set ? ([for (final s in signs) '$s']..sort()) : [],
+      'emergencySigns':
+          signs is Set ? ([for (final s in signs) '$s']..sort()) : [],
     },
   };
 }

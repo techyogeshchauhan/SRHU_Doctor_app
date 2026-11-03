@@ -56,8 +56,8 @@ class TriageProtocolCard {
 
 const _triage = NeonatalCondition.triage;
 
-const _linkEmergencyActions =
-    StwLink(_triage, 'triage_emergency_actions', 'Triage STW: Treat immediately');
+const _linkEmergencyActions = StwLink(
+    _triage, 'triage_emergency_actions', 'Triage STW: Treat immediately');
 const _linkHypothermia =
     StwLink(_triage, 'triage_hypothermia', 'Triage STW: Hypothermia');
 const _linkShock = StwLink(_triage, 'triage_shock', 'Triage STW: Shock');
@@ -93,9 +93,14 @@ List<TriageProtocolCard> triageTreatmentCards(VariableReader r) {
   final ivDextrose = triageIvDextroseIndicated(r);
 
   final shockSigns = [if (shock) 'Shock'];
-  final tempText = temperature is num ? 'Temperature ${_fmt(temperature)}°C' : '';
+  final tempText =
+      temperature is num ? 'Temperature ${_fmt(temperature)}°C' : '';
   final hrText = hr is num ? 'HR ${_fmt(hr)}/min (>200/min)' : '';
   final spo2Text = spo2 is num ? 'SpO₂ ${_fmt(spo2)}% (<91%)' : '';
+  // RR ≥60/min: the RD-linked cards are flagged (Respiratory Distress STW).
+  final rr = r.valueOf(triageRespiratoryRateKey);
+  final tachypnea = r.valueOf(triageTachypneaKey) == true;
+  final rrText = rr is num ? 'RR ${_fmt(rr)}/min (≥60/min)' : '';
 
   return [
     TriageProtocolCard(
@@ -114,7 +119,8 @@ List<TriageProtocolCard> triageTreatmentCards(VariableReader r) {
         ProtocolAction(
           'Temperature 35.5–36.4°C and baby is well: warm environment, '
           'skin-to-skin contact; recheck in 30 min.',
-          applies: temperature is num && temperature >= 35.5 && temperature < 36.5,
+          applies:
+              temperature is num && temperature >= 35.5 && temperature < 36.5,
         ),
         const ProtocolAction(
           'If unwell or temperature fails to improve, nurse under a warmer.',
@@ -146,6 +152,7 @@ List<TriageProtocolCard> triageTreatmentCards(VariableReader r) {
         if (cyanosis) 'Central cyanosis',
         if (distress) 'Respiratory distress',
         if (apnea) 'Apnea or gasping',
+        if (tachypnea) rrText,
       ],
       actions: [
         ProtocolAction(
@@ -164,7 +171,6 @@ List<TriageProtocolCard> triageTreatmentCards(VariableReader r) {
       title: 'Circulation',
       flaggedBecause: [
         ...shockSigns,
-        if (tachycardia) hrText,
         if (dehydration) 'Severe dehydration',
       ],
       actions: [
@@ -172,11 +178,6 @@ List<TriageProtocolCard> triageTreatmentCards(VariableReader r) {
             applies: shock || dehydration),
         ProtocolAction('Manage shock, dehydration and seizures.',
             applies: shock || dehydration),
-        ProtocolAction(
-          'Persistent HR >200/min: check ECG for arrhythmia; refer for further '
-          'management.',
-          applies: tachycardia,
-        ),
       ],
       links: const [_linkEmergencyActions, _linkShock],
     ),
@@ -238,6 +239,7 @@ List<TriageProtocolCard> triageTreatmentCards(VariableReader r) {
         if (cyanosis) 'Central cyanosis',
         if (lowSpo2) spo2Text,
         if (distress) 'Respiratory distress',
+        if (tachypnea) rrText,
       ],
       actions: [
         ProtocolAction(
