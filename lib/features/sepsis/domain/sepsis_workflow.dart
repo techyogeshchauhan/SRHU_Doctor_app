@@ -231,6 +231,36 @@ int _count(VariableReader r, String key) =>
 num? _number(VariableReader r, String key) =>
     r.valueOf(key) is num ? r.valueOf(key) as num : null;
 
+String _fmtNum(num v) => v == v.roundToDouble() ? '${v.toInt()}' : '$v';
+
+List<String> _ticked(VariableReader r, ClinicalQuestion q) {
+  final v = r.valueOf(q.variable);
+  if (v is! Set) return const [];
+  return [
+    for (final o in q.options)
+      if (v.contains(o.value)) o.label,
+  ];
+}
+
+/// The recorded flags and criteria behind the red/yellow classification,
+/// so the finding says which signs triggered it.
+List<String> _classificationWhy(VariableReader r) {
+  final age = _number(r, sepsisAgeKey);
+  final maternalApplies = age != null && age < 72;
+  final ga = _number(r, sepsisGaKey);
+  final bw = _number(r, sepsisBwKey);
+  return [
+    for (final l in _ticked(r, qSepsisRed)) 'Red flag: $l',
+    if (maternalApplies && r.valueOf(sepsisMaternalRedKey) == true)
+      'Red flag: foul-smelling liquor or chorioamnionitis (age <72 h)',
+    for (final l in _ticked(r, qSepsisYellow)) 'Yellow flag: $l',
+    if (maternalApplies)
+      for (final l in _ticked(r, qSepsisMaternal)) 'Yellow flag (maternal): $l',
+    if (ga != null && ga <= 32) 'Gestation ${_fmtNum(ga)} weeks (≤32 weeks)',
+    if (bw != null && bw < 1500) 'Birth weight ${_fmtNum(bw)} g (<1500 g)',
+  ];
+}
+
 ClinicalRule _evidenceRule(
   String id,
   Cond when,
@@ -239,17 +269,19 @@ ClinicalRule _evidenceRule(
   FindingCategory category = FindingCategory.pathway,
   FindingLevel level = FindingLevel.info,
   List<String>? actions,
+  List<String> Function(VariableReader r)? why,
 }) =>
     ClinicalRule(
       id: 'sepsis.$id',
       topic: NeonatalCondition.sepsis,
       when: when,
       source: SourceReference.sepsis(title, regionId: 'sepsis_$card'),
-      then: (_) => FindingContent(
+      then: (r) => FindingContent(
           category: category,
           level: level,
           title: title,
-          actions: actions ?? sepsisEvidence['sepsis_$card']!),
+          actions: actions ?? sepsisEvidence['sepsis_$card']!,
+          why: why?.call(r) ?? const []),
     );
 
 final sepsisWorkflow = StwWorkflow(
@@ -315,10 +347,12 @@ final sepsisWorkflow = StwWorkflow(
         'assessment', 'Assess every neonate'),
     _evidenceRule('high', const Var(sepsisClassKey).eq('highProbability'),
         'high_probability', 'HIGH PROBABILITY OF SEPSIS',
-        category: FindingCategory.treatment, level: FindingLevel.urgent),
+        category: FindingCategory.treatment,
+        level: FindingLevel.urgent,
+        why: _classificationWhy),
     _evidenceRule('observe', const Var(sepsisClassKey).eq('observe'),
         'observation', 'AT-RISK / SUSPECT SEPSIS',
-        level: FindingLevel.action),
+        level: FindingLevel.action, why: _classificationWhy),
     _evidenceRule(
         'overlap',
         const Var(sepsisClassKey).eq('overlap'),
@@ -326,6 +360,7 @@ final sepsisWorkflow = StwWorkflow(
         'Overlapping PDF criteria — clinical review required',
         category: FindingCategory.furtherAssessment,
         level: FindingLevel.action,
+        why: _classificationWhy,
         actions: const [
           'One yellow flag with gestation >32 weeks and birth weight <1500 g matches both the HIGH PROBABILITY and AT-RISK / SUSPECT boxes. The PDF does not state precedence.',
           'High probability: one yellow flag AND gestation ≤32 weeks or birth weight <1500 g.',

@@ -39,6 +39,58 @@ enum _WorkflowMenuAction {
   refresh,
 }
 
+/// Required question that a blocked Continue sent the clinician to; [seq]
+/// changes on every tap so the same field can be revealed again.
+final missingQuestionProvider =
+    StateProvider<({String id, int seq})?>((_) => null);
+
+/// Names the first unanswered required question, outlines it and scrolls
+/// to it (it may be above or below the visible part of the page).
+void _explainBlockedContinue(
+    BuildContext context, WidgetRef ref, String group) {
+  final ctx = ref.read(assessmentProvider).context;
+  final missing =
+      ref.read(assessmentEngineProvider).firstMissingRequired(ctx, group);
+  if (missing == null) return;
+  final notifier = ref.read(missingQuestionProvider.notifier);
+  notifier.state = (id: missing.id, seq: (notifier.state?.seq ?? 0) + 1);
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(
+      behavior: SnackBarBehavior.floating,
+      content: Text('Answer "${missing.question.question}" to continue.'),
+    ));
+}
+
+/// Scrolls [child] into view whenever [request] changes to a new value.
+class _RevealOnRequest extends StatefulWidget {
+  const _RevealOnRequest({required this.request, required this.child});
+
+  final int? request;
+  final Widget child;
+
+  @override
+  State<_RevealOnRequest> createState() => _RevealOnRequestState();
+}
+
+class _RevealOnRequestState extends State<_RevealOnRequest> {
+  @override
+  void didUpdateWidget(_RevealOnRequest old) {
+    super.didUpdateWidget(old);
+    if (widget.request != null && widget.request != old.request) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Scrollable.ensureVisible(context,
+              alignment: 0.15, duration: const Duration(milliseconds: 300));
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
 /// Dynamic clinical assessment: shows the page chosen by the engine from
 /// the current context, then the combined summary.
 class WorkflowScreen extends ConsumerWidget {
@@ -458,23 +510,38 @@ class WorkflowScreen extends ConsumerWidget {
                           ),
                         ),
                         if (group != null)
-                          FilledButton.icon(
-                            onPressed: canContinue ? n.confirmPage : null,
-                            icon: const Icon(Icons.arrow_forward, size: 15),
-                            label: const Text('Continue'),
-                            style: FilledButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: compact ? 10 : 14,
-                                vertical: 10,
-                              ),
-                              minimumSize: const Size(0, 44),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              textStyle: const TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                          // A disabled button ignores taps; this explains
+                          // which required question is still unanswered.
+                          GestureDetector(
+                            onTap: canContinue
+                                ? null
+                                : () => _explainBlockedContinue(
+                                    context, ref, group),
+                            child: FilledButton.icon(
+                              onPressed: canContinue
+                                  ? () {
+                                      ref
+                                          .read(missingQuestionProvider.notifier)
+                                          .state = null;
+                                      n.confirmPage();
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.arrow_forward, size: 15),
+                              label: const Text('Continue'),
+                              style: FilledButton.styleFrom(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: compact ? 10 : 14,
+                                  vertical: 10,
+                                ),
+                                minimumSize: const Size(0, 44),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                textStyle: const TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           )
@@ -786,6 +853,7 @@ class _QuestionPage extends ConsumerWidget {
         ref.watch(voiceEntryProvider.select((s) => s.available)) != false;
     final voiceQuestion =
         ref.watch(voiceEntryProvider.select((s) => s.questionId));
+    final missing = ref.watch(missingQuestionProvider);
     final sharedBy = {
       for (final rq in questions)
         if (rq.isShared) ...rq.topics,
@@ -873,22 +941,28 @@ class _QuestionPage extends ConsumerWidget {
             ),
           ),
           for (final rq in questions)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: QuestionField(
-                key: ValueKey(rq.id),
-                question: rq.question,
-                options: engine.visibleOptions(rq.question, ctx),
-                value: ctx.answers[rq.question.variable],
-                isRequired: engine.isRequired(rq, ctx),
-                today: ctx.today,
-                onChanged: (v) => n.answer(rq.id, v),
-                voiceActive: voiceQuestion == rq.id,
-                onVoice: !voiceAvailable
-                    ? null
-                    : () => voiceQuestion == rq.id
-                        ? voice.stop()
-                        : voice.listenField(rq.id),
+            _RevealOnRequest(
+              request: missing?.id == rq.id ? missing!.seq : null,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: QuestionField(
+                  key: ValueKey(rq.id),
+                  showMissing: missing?.id == rq.id &&
+                      !rq.question
+                          .isAnswered(ctx.answers[rq.question.variable]),
+                  question: rq.question,
+                  options: engine.visibleOptions(rq.question, ctx),
+                  value: ctx.answers[rq.question.variable],
+                  isRequired: engine.isRequired(rq, ctx),
+                  today: ctx.today,
+                  onChanged: (v) => n.answer(rq.id, v),
+                  voiceActive: voiceQuestion == rq.id,
+                  onVoice: !voiceAvailable
+                      ? null
+                      : () => voiceQuestion == rq.id
+                          ? voice.stop()
+                          : voice.listenField(rq.id),
+                ),
               ),
             ),
           if (info?.footnote != null)

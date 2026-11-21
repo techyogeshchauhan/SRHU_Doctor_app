@@ -14,8 +14,6 @@ import '../../clinical_workflow/domain/source_reference.dart';
 import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../hypoglycemia/domain/hypo_rules.dart';
 import '../../hypoglycemia/domain/hypo_workflow.dart';
-import '../../jaundice/domain/jaundice_rules.dart';
-import '../../jaundice/domain/jaundice_workflow.dart';
 import '../../post_asphyxia/domain/post_asphyxia_workflow.dart';
 import '../../rd/domain/rd_rules.dart';
 import '../../rd/domain/rd_workflow.dart';
@@ -265,9 +263,9 @@ final triageSuggestionRules = <StwSuggestionRule>[
   const StwSuggestionRule(_m, 'prom18', _sepsis),
   const StwSuggestionRule(_m, 'foulLiquor', _sepsis,
       prefill: {sepsisMaternalRedKey: true}),
-  StwSuggestionRule(qTriageRhStatus, 'negative', _jaundice, prefill: {
-    jaundiceRiskKey: {JaundiceRisk.bloodGroup.name},
-  }),
+  // No pre-fill: an Rh-negative mother is a reason to check, not evidence
+  // of ABO/Rh incompatibility (that needs the baby's group and a DCT).
+  const StwSuggestionRule(qTriageRhStatus, 'negative', _jaundice),
   StwSuggestionRule(_m, 'gdm', _hypo, prefill: {
     hypoRiskKey: {HypoRisk.idm.name},
   }),
@@ -350,8 +348,6 @@ class StwSuggestion {
 bool _recorded(Object? answer, Object value) =>
     answer is Set ? answer.contains(value) : answer == value;
 
-String _fmt(num v) => v == v.roundToDouble() ? '${v.toInt()}' : '$v';
-
 /// STWs suggested by the history, the examination and Triage RR ≥60/min /
 /// the respiratory distress sign, in STW order.
 List<StwSuggestion> triageStwSuggestions(VariableReader r) {
@@ -378,7 +374,8 @@ List<StwSuggestion> triageStwSuggestions(VariableReader r) {
   // Already directed to the RD STW by the Triage page (see triage rules).
   final rr = r.valueOf(triageRespiratoryRateKey);
   if (r.valueOf(triageTachypneaKey) == true && rr is num) {
-    suggest(_rd, 'RR ${_fmt(rr)}/min (≥60/min)', {rdRrKey: rr.round()});
+    // The RR itself is pre-filled below, with any other RD suggestion.
+    suggest(_rd, 'RR ${formatTriageNumber(rr)}/min (≥60/min)');
   }
   final signs = r.valueOf(triageEmergencySignsKey);
   if (signs is Set && signs.contains('respiratoryDistress')) {

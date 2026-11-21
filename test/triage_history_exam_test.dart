@@ -152,6 +152,14 @@ void main() {
         ['Air entry: Reduced']);
   });
 
+  test('an Rh-negative mother suggests Jaundice without asserting '
+      'blood group incompatibility', () {
+    final jaundice =
+        _of({triageRhStatusKey: 'negative'}, NeonatalCondition.jaundice);
+    expect(jaundice.reasons, ['Maternal Rh status: Negative']);
+    expect(jaundice.prefill, isEmpty);
+  });
+
   test('Triage RR >=60 suggests RD and carries the RR into it', () {
     final rd = _of(
         {triageRespiratoryRateKey: 72}, NeonatalCondition.respiratoryDistress);

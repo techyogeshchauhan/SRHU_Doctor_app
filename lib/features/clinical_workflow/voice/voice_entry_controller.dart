@@ -113,8 +113,10 @@ class VoiceEntryController extends Notifier<VoiceEntryState> {
     return const VoiceEntryState();
   }
 
+  /// Before voice entry is first used the device's languages are unknown,
+  /// so the choice is kept and checked by [ensureReady].
   void setLanguage(VoiceLanguage language) {
-    if (state.languages.contains(language)) {
+    if (state.available == null || state.languages.contains(language)) {
       state = state.copyWith(language: language);
     }
   }
@@ -142,7 +144,17 @@ class VoiceEntryController extends Notifier<VoiceEntryState> {
       }
     }
     _listenIds.putIfAbsent(VoiceLanguage.english, () => 'en-IN');
-    state = state.copyWith(available: true, languages: _listenIds.keys.toSet());
+    final languages = _listenIds.keys.toSet();
+    final supported = languages.contains(state.language);
+    state = state.copyWith(
+      available: true,
+      languages: languages,
+      language: supported ? null : VoiceLanguage.english,
+      message: supported
+          ? state.message
+          : 'Hindi speech recognition is not available on this device; '
+              'using English.',
+    );
     return true;
   }
 

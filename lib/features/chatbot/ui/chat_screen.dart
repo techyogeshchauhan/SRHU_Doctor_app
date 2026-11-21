@@ -227,8 +227,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ),
                 ),
 
-                // Quick query chips (when not loading)
-                if (!state.isLoading) _buildQuickQueryChips(theme),
+                // Quick query chips once a conversation has started; the
+                // empty state already lists the same suggestions.
+                if (!state.isLoading && state.messages.isNotEmpty)
+                  _buildQuickQueryChips(theme),
 
                 // Bottom query input bar
                 _buildInputBar(theme, state.isLoading),
@@ -633,7 +635,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               ),
                               Expanded(
                                 child: Text(
-                                  '${chunk.document} - Page ${chunk.page}',
+                                  '${_sourceTitle(chunk.document)} · '
+                                  'Page ${chunk.page}',
                                   style: const TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
@@ -715,6 +718,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ),
       ),
     );
+  }
+
+  /// Readable STW name for a source PDF, not its file name.
+  static String _sourceTitle(String document) {
+    final c = _conditionOf(topicOfDocument(document));
+    if (c != null) return definitionOf(c).title;
+    return document
+        .replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '')
+        .replaceAll('_', ' ');
   }
 
   static NeonatalCondition? _conditionOf(StwTopic? topic) => switch (topic) {

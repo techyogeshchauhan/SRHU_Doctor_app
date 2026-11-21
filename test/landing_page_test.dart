@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:neonatal_stw/features/landing/ui/landing_screen.dart';
 import 'package:neonatal_stw/app.dart';
 
 import 'test_helpers.dart';
@@ -36,9 +37,7 @@ void main() {
         // 1. Landing Screen checks
         expect(find.text('Clinical guidance for newborn care'), findsOneWidget);
         expect(
-          find.text(
-            'Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows.',
-          ),
+          find.text(landingCoverageText),
           findsOneWidget,
         );
         final continueBtn = find.text('Continue');

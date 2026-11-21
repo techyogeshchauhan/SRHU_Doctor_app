@@ -193,4 +193,14 @@ void main() {
       );
     });
   });
+
+  test('a rule citing another STW box keeps its own STW as topic', () {
+    final finding = [
+      for (final b in map.boxes)
+        for (final c in b.children)
+          if (c.id == 'finding:triage.respiratoryDistressStw') c,
+    ].single;
+    expect(map.topicOfBox(finding.boxId!), NeonatalCondition.respiratoryDistress);
+    expect(finding.topic, NeonatalCondition.triage);
+  });
 }

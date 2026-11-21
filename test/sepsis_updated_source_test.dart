@@ -95,6 +95,29 @@ void main() {
     }
   });
 
+  test('the classification says which flags and criteria triggered it', () {
+    final two = walk({sepsis},
+        initial(yellow: {'lethargy', 'intolerance'}, age: null, ga: null));
+    expect(
+        two.ctx.findings.firstWhere((f) => f.id == 'sepsis.high').why,
+        ['Yellow flag: Lethargy', 'Yellow flag: Feed intolerance']);
+
+    final small = walk({sepsis},
+        initial(yellow: {'apnea'}, maternal: {'uti'}, ga: 31, bw: 1400));
+    expect(small.ctx.findings.firstWhere((f) => f.id == 'sepsis.high').why, [
+      'Yellow flag: New or increased apneic episodes',
+      'Yellow flag (maternal): Urinary tract infection',
+      'Gestation 31 weeks (≤32 weeks)',
+      'Birth weight 1400 g (<1500 g)',
+    ]);
+
+    final red = walk({sepsis}, initial(red: {'shock'}, maternalRed: true));
+    expect(red.ctx.findings.firstWhere((f) => f.id == 'sepsis.high').why, [
+      'Red flag: Shock',
+      'Red flag: foul-smelling liquor or chorioamnionitis (age <72 h)',
+    ]);
+  });
+
   test('each red flag triggers treatment, culture and stable-baby LP guidance',
       () {
     for (final o in qSepsisRed.options) {

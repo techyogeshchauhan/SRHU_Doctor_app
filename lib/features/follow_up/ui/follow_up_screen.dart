@@ -631,6 +631,29 @@ class _InfoTile extends StatelessWidget {
 // STAGE 2: ROP MCQ SECTION
 // ===========================================================================
 
+/// Scrolls the follow-up page back to the start of the current question.
+void _scrollToTop(BuildContext context) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!context.mounted) return;
+    final position = Scrollable.maybeOf(context)?.position;
+    if (position == null || position.pixels <= 0) return;
+    position.animateTo(0,
+        duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+  });
+}
+
+/// Scrolls just enough for the Back / Next buttons to be visible.
+void _revealNav(GlobalKey key) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final target = key.currentContext;
+    if (target == null || !target.mounted) return;
+    Scrollable.ensureVisible(target,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
+  });
+}
+
 class _McqSection extends ConsumerStatefulWidget {
   const _McqSection();
 
@@ -639,6 +662,7 @@ class _McqSection extends ConsumerStatefulWidget {
 }
 
 class _McqSectionState extends ConsumerState<_McqSection> {
+  final _navKey = GlobalKey();
   bool _highlightUnanswered = false;
 
   void _onAttemptIncompleteSubmit() {
@@ -677,6 +701,17 @@ class _McqSectionState extends ConsumerState<_McqSection> {
   Widget build(BuildContext context) {
     final state = ref.watch(followUpProvider);
     final controller = ref.read(followUpProvider.notifier);
+
+    // A new question starts at the top: otherwise the page keeps the
+    // previous scroll offset and the question text is off-screen.
+    ref.listen(followUpProvider.select((s) => s.currentMcqIndex), (prev, next) {
+      if (prev != next) _scrollToTop(context);
+    });
+    // Once an option is picked, bring Next into view on short screens.
+    ref.listen(followUpProvider.select((s) => s.selectedMcqOption),
+        (prev, next) {
+      if (prev == null && next != null) _revealNav(_navKey);
+    });
 
     final currentQuestion = state.currentMcq;
     final currentIndex = state.currentMcqIndex;
@@ -839,6 +874,7 @@ class _McqSectionState extends ConsumerState<_McqSection> {
 
         // Navigation Controls
         _QuestionNavigationButtons(
+          key: _navKey,
           currentIndex: currentIndex,
           total: total,
           hasSelectedAnswer: selectedOption != null,
@@ -1185,6 +1221,7 @@ class _CaseScenarioSection extends ConsumerStatefulWidget {
 }
 
 class _CaseScenarioSectionState extends ConsumerState<_CaseScenarioSection> {
+  final _navKey = GlobalKey();
   bool _highlightUnanswered = false;
 
   void _onAttemptIncompleteSubmit() {
@@ -1224,6 +1261,15 @@ class _CaseScenarioSectionState extends ConsumerState<_CaseScenarioSection> {
   Widget build(BuildContext context) {
     final state = ref.watch(followUpProvider);
     final controller = ref.read(followUpProvider.notifier);
+
+    ref.listen(followUpProvider.select((s) => s.currentCaseIndex),
+        (prev, next) {
+      if (prev != next) _scrollToTop(context);
+    });
+    ref.listen(followUpProvider.select((s) => s.selectedCaseOption),
+        (prev, next) {
+      if (prev == null && next != null) _revealNav(_navKey);
+    });
 
     final currentCase = state.currentCase;
     final currentIndex = state.currentCaseIndex;
@@ -1427,6 +1473,7 @@ class _CaseScenarioSectionState extends ConsumerState<_CaseScenarioSection> {
 
         // Navigation Controls
         _QuestionNavigationButtons(
+          key: _navKey,
           currentIndex: currentIndex,
           total: total,
           hasSelectedAnswer: selectedOption != null,
@@ -1942,6 +1989,7 @@ class _OptionSelectCard extends StatelessWidget {
 
 class _QuestionNavigationButtons extends StatelessWidget {
   const _QuestionNavigationButtons({
+    super.key,
     required this.currentIndex,
     required this.total,
     required this.hasSelectedAnswer,
