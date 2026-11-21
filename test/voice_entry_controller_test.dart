@@ -12,10 +12,12 @@ import 'assessment_test_utils.dart';
 /// Answers each listen with [reply] for the question being asked
 /// (null questionId = end of page).
 class FakeSpeech implements SpeechService {
-  FakeSpeech(this.reply, {this.available = true});
+  FakeSpeech(this.reply,
+      {this.available = true, this.ids = const {'en_IN', 'hi_IN'}});
 
   final String? Function(String? questionId, int call) reply;
   final bool available;
+  final Set<String> ids;
   late ProviderContainer container;
   final heardFor = <String?>[];
   final locales = <String>[];
@@ -24,7 +26,7 @@ class FakeSpeech implements SpeechService {
   Future<bool> init() async => available;
 
   @override
-  Future<Set<String>> localeIds() async => {'en_IN', 'hi_IN'};
+  Future<Set<String>> localeIds() async => ids;
 
   @override
   String? lastError;
@@ -169,6 +171,35 @@ void main() {
     expect(speech.locales, everyElement('hi_IN'));
     expect(answerOf(c, rdRrKey), 62);
     expect(tts.spoken.first, startsWith('यह मान सही नहीं लगता।'));
+  });
+
+  test('Hindi chosen before voice entry was first used is kept', () async {
+    final replies = ['नौ सौ', 'baasath'];
+    final speech = FakeSpeech((_, call) => replies[call - 1]);
+    final c = setUpRd(speech);
+    addTearDown(c.dispose);
+    final voice = c.read(voiceEntryProvider.notifier);
+    voice.setLanguage(VoiceLanguage.hindi);
+    expect(c.read(voiceEntryProvider).language, VoiceLanguage.hindi);
+
+    await voice.listenField(rdRrKey);
+
+    expect(speech.locales, everyElement('hi_IN'));
+    expect(c.read(voiceEntryProvider).language, VoiceLanguage.hindi);
+  });
+
+  test('Hindi chosen early on a device without Hindi falls back to English',
+      () async {
+    final speech = FakeSpeech((_, __) => '62', ids: const {'en_IN'});
+    final c = setUpRd(speech);
+    addTearDown(c.dispose);
+    final voice = c.read(voiceEntryProvider.notifier);
+    voice.setLanguage(VoiceLanguage.hindi);
+
+    await voice.ensureReady();
+
+    expect(c.read(voiceEntryProvider).language, VoiceLanguage.english);
+    expect(c.read(voiceEntryProvider).message, contains('using English'));
   });
 
   test('unavailable recogniser: nothing is asked', () async {

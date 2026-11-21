@@ -84,10 +84,9 @@ class _NextStwScreenState extends ConsumerState<NextStwScreen> {
       audit.log('module_entered', {'disease': code, 'via': 'next_step'});
       clearConditionData(ref);
       // Answers carried over from the Triage findings, to be confirmed.
-      ref.read(assessmentProvider.notifier).start(
+      ref.read(assessmentProvider.notifier).startFresh(
         {condition},
-        forceReset: true,
-        prefilled: suggested[condition]?.prefill ?? const {},
+        suggested[condition]?.prefill ?? const {},
       );
       setState(() => _completed.remove(condition));
       await context.push('/workflow', extra: {'returnToSelectedStws': true});

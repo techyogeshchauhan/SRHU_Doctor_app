@@ -26,6 +26,7 @@ class QuestionField extends StatelessWidget {
     required this.onChanged,
     this.onVoice,
     this.voiceActive = false,
+    this.showMissing = false,
   });
 
   final ClinicalQuestion question;
@@ -42,6 +43,9 @@ class QuestionField extends StatelessWidget {
 
   /// Voice entry is asking or listening for this question.
   final bool voiceActive;
+
+  /// Continue was tapped while this required question was unanswered.
+  final bool showMissing;
 
   @override
   Widget build(BuildContext context) {
@@ -236,17 +240,43 @@ class QuestionField extends StatelessWidget {
       });
     }
 
+    final missing = showMissing && !voiceActive;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      padding: voiceActive ? const EdgeInsets.all(8) : EdgeInsets.zero,
+      padding:
+          voiceActive || missing ? const EdgeInsets.all(8) : EdgeInsets.zero,
       decoration: BoxDecoration(
-        color: voiceActive ? const Color(0xFFEFF6FF) : null,
+        color: voiceActive
+            ? const Color(0xFFEFF6FF)
+            : missing
+                ? const Color(0xFFFEF2F2)
+                : null,
         borderRadius: BorderRadius.circular(10),
         border: voiceActive
             ? Border.all(color: AppTheme.primaryBlue, width: 1.5)
-            : null,
+            : missing
+                ? Border.all(color: const Color(0xFFDC2626), width: 1.5)
+                : null,
       ),
-      child: field,
+      child: missing
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                field,
+                const Padding(
+                  padding: EdgeInsets.only(top: 6),
+                  child: Text(
+                    'Required: answer this to continue',
+                    style: TextStyle(
+                      color: Color(0xFFB91C1C),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : field,
     );
   }
 }

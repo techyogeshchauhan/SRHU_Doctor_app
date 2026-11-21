@@ -410,11 +410,22 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
         if (h.kind == BubbleKind.topic) h
     ];
     final angle = <String, double>{};
+    // Ring wide enough that neighbouring STWs do not overlap (10 STWs need
+    // more room than the original two or three).
+    final topicGap = 2 * _radius(BubbleKind.topic) + _gap;
+    final ring = available.length < 2
+        ? 150.0
+        : math.max(
+            150.0, topicGap / (2 * math.sin(math.pi / available.length)));
     for (var i = 0; i < available.length; i++) {
       final a = -3 * math.pi / 4 + i * 2 * math.pi / available.length;
       angle[available[i].id] = a;
-      out[available[i].id] = Offset.fromDirection(a, 150);
+      out[available[i].id] = Offset.fromDirection(a, ring);
     }
+    final outer = ring +
+        _radius(BubbleKind.topic) +
+        _radius(BubbleKind.pendingTopic) +
+        2 * _gap;
     final pending = [
       for (final h in g.hubs)
         if (h.kind == BubbleKind.pendingTopic) h,
@@ -435,10 +446,34 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
     double? prev;
     for (final (id, a) in wanted) {
       final placed = prev == null ? a : math.max(a, prev + minGap);
-      out[id] = Offset.fromDirection(placed, 320);
+      out[id] = Offset.fromDirection(placed, math.max(320.0, outer));
       prev = placed;
     }
     return out;
+  }
+
+  /// Pushes overlapping circles apart (in place) until every pair is at
+  /// least [_gap] apart.
+  static void _separate(Map<String, Offset> pos, Map<String, double> radius) {
+    final ids = pos.keys.toList();
+    for (var pass = 0; pass < 80; pass++) {
+      var moved = false;
+      for (var i = 0; i < ids.length; i++) {
+        for (var j = i + 1; j < ids.length; j++) {
+          final a = ids[i], b = ids[j];
+          final d = pos[b]! - pos[a]!;
+          final dist = d.distance;
+          final need = radius[a]! + radius[b]! + _gap;
+          if (dist >= need - 0.01) continue;
+          final dir = dist < 0.001 ? const Offset(1, 0) : d / dist;
+          final shift = dir * ((need - dist) / 2);
+          pos[a] = pos[a]! - shift;
+          pos[b] = pos[b]! + shift;
+          moved = true;
+        }
+      }
+      if (!moved) return;
+    }
   }
 
   /// Horizontal and vertical stretch that fits the layout to a tall phone
@@ -463,8 +498,11 @@ class _BubbleGraphViewState extends State<BubbleGraphView>
         );
     final hub = _hub == null ? null : g.byId(_hub!);
     if (hub == null) {
+      final pos = {for (final h in g.hubs) h.id: fit(_hubBase[h.id]!)};
+      // The phone stretch squeezes the layout sideways; keep circles apart.
+      _separate(pos, {for (final h in g.hubs) h.id: _radius(h.kind)});
       for (final h in g.hubs) {
-        t[h.id] = _Pose(fit(_hubBase[h.id]!), 1, 1);
+        t[h.id] = _Pose(pos[h.id]!, 1, 1);
       }
       return t;
     }

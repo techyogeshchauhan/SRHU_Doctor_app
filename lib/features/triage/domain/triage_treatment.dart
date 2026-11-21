@@ -69,8 +69,6 @@ const _linkRd = StwLink(NeonatalCondition.respiratoryDistress,
 Set<String> _values(Object? v) =>
     v is Set ? {for (final x in v) x.toString()} : const {};
 
-String _fmt(num v) => v == v.roundToDouble() ? '${v.toInt()}' : '$v';
-
 /// The cards for the current answers, TABC first.
 List<TriageProtocolCard> triageTreatmentCards(VariableReader r) {
   final temperature = r.valueOf(triageTemperatureKey);
@@ -93,14 +91,16 @@ List<TriageProtocolCard> triageTreatmentCards(VariableReader r) {
   final ivDextrose = triageIvDextroseIndicated(r);
 
   final shockSigns = [if (shock) 'Shock'];
-  final tempText =
-      temperature is num ? 'Temperature ${_fmt(temperature)}°C' : '';
-  final hrText = hr is num ? 'HR ${_fmt(hr)}/min (>200/min)' : '';
-  final spo2Text = spo2 is num ? 'SpO₂ ${_fmt(spo2)}% (<91%)' : '';
+  final tempText = temperature is num
+      ? 'Temperature ${formatTriageNumber(temperature)}°C'
+      : '';
+  final hrText = hr is num ? 'HR ${formatTriageNumber(hr)}/min (>200/min)' : '';
+  final spo2Text =
+      spo2 is num ? 'SpO₂ ${formatTriageNumber(spo2)}% (<91%)' : '';
   // RR ≥60/min: the RD-linked cards are flagged (Respiratory Distress STW).
   final rr = r.valueOf(triageRespiratoryRateKey);
   final tachypnea = r.valueOf(triageTachypneaKey) == true;
-  final rrText = rr is num ? 'RR ${_fmt(rr)}/min (≥60/min)' : '';
+  final rrText = rr is num ? 'RR ${formatTriageNumber(rr)}/min (≥60/min)' : '';
 
   return [
     TriageProtocolCard(
@@ -204,7 +204,8 @@ List<TriageProtocolCard> triageTreatmentCards(VariableReader r) {
       id: 'hypoglycemia',
       title: 'Hypoglycemia',
       flaggedBecause: [
-        if (bg is num && lowBg) 'RBS ${_fmt(bg)} mg/dL (<45 mg/dL)',
+        if (bg is num && lowBg)
+          'RBS ${formatTriageNumber(bg)} mg/dL (<45 mg/dL)',
         if (lowBg && symptomatic) 'Symptomatic',
       ],
       actions: [

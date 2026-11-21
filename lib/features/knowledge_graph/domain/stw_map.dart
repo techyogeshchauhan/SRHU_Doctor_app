@@ -334,6 +334,15 @@ StwMap buildStwMap({
   final boxTopic = <String, NeonatalCondition>{};
   final boxText = <String, String>{};
   final roots = <MapNode>[];
+  // A rule may cite a box of another STW, so rules are matched to boxes
+  // across all workflows.
+  final rulesByBox = <String, List<ClinicalRule>>{};
+  for (final ww in workflows) {
+    for (final rule in ww.rules) {
+      final box = rule.source.pdfRegionId;
+      if (box != null) (rulesByBox[box] ??= []).add(rule);
+    }
+  }
 
   for (final w in workflows) {
     final file = fileOf[w.condition];
@@ -367,8 +376,7 @@ StwMap buildStwMap({
       final worded = <(String, SourceReference)>[];
       // Like questions, a rule may cite a box of another STW (e.g. Triage
       // citing the Respiratory Distress definition).
-      for (final rule in [for (final ww in workflows) ...ww.rules]) {
-        if (rule.source.pdfRegionId != r.id) continue;
+      for (final rule in rulesByBox[r.id] ?? const <ClinicalRule>[]) {
         final content = _fixedContent(rule);
         if (content == null) {
           worded.add((rule.id, rule.source));
@@ -378,7 +386,8 @@ StwMap buildStwMap({
             kind: MapKind.finding,
             label: content.title,
             subtitle: content.actions.firstOrNull,
-            topic: w.condition,
+            // The STW whose rule this is (Triage), not the box's (RD).
+            topic: rule.topic,
             boxId: r.id,
             source: rule.source,
             level: content.level,

@@ -5,8 +5,14 @@ import '../../../core/theme.dart';
 import '../../../core/widgets/app_branding.dart';
 import '../../../core/widgets/app_refresh_button.dart';
 import '../../../core/widgets/responsive.dart';
+import '../../condition_selection/domain/neonatal_condition.dart';
 import '../../triage/ui/triage_entry.dart';
 import 'institutional_partners_section.dart';
+
+/// What the app covers, counted from the STWs that are available.
+String get landingCoverageText =>
+    'Covers: Neonatal Emergency Triage and $availableDiseaseCount newborn-care '
+    'STWs, based on ICMR / DHR Standard Treatment Workflows.';
 
 /// Landing Screen shown on app launch.
 ///
@@ -14,7 +20,7 @@ import 'institutional_partners_section.dart';
 /// - Partner logos at the top in order ICMR (featured, larger), SRHU,
 ///   AIIMS Delhi, PGIMER, GMCH
 /// - "STW Neo" wordmark and headline "Clinical guidance for newborn care"
-/// - Subtitle: "Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows."
+/// - Subtitle: [landingCoverageText], counted from the available STWs.
 /// - Full-width "Continue" primary button (min 46-50 px, primary blue)
 /// - Responsive and compact layout fitting within the first screen without overflow
 /// - Tapping "Continue" starts the Triage workflow, the only STW opened by
@@ -124,7 +130,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen>
                             ),
                             SizedBox(height: isVeryShort ? 3 : 6),
                             Text(
-                              'Covers: Respiratory Distress in Neonates and Retinopathy of Prematurity (ROP), based on ICMR / DHR Standard Treatment Workflows.',
+                              landingCoverageText,
                               textAlign: TextAlign.center,
                               maxLines: isVeryShort ? 2 : 3,
                               overflow: TextOverflow.ellipsis,

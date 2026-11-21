@@ -60,60 +60,37 @@ class AssessmentController extends Notifier<AssessmentState> {
   /// - Or when explicitly requested via [forceReset].
   /// Normal navigation within an active screening (Back <-> Continue) preserves all answers.
   ///
-  /// A reset starts from [prefilled] (e.g. Triage findings carried into a
-  /// suggested STW). Pre-filled pages are not marked completed: the
-  /// clinician still sees and confirms them.
-  void start(
-    Set<NeonatalCondition> selected, {
-    bool forceReset = false,
-    Map<String, Object?> prefilled = const {},
-  }) {
+  /// To reset with answers already filled in, use [startFresh].
+  void start(Set<NeonatalCondition> selected, {bool forceReset = false}) {
     final prev = state.context;
     final isDifferentDisease =
         prev.selected.length != selected.length ||
         !prev.selected.containsAll(selected);
     final wasCompleted = state.isComplete;
-    final isReset = forceReset || isDifferentDisease || wasCompleted;
-    final syncRepo = ref.read(screeningSyncRepositoryProvider);
-
-    if (isReset) {
-      // A fresh assessment gets a new session and fresh screenings;
-      // unfinished ones are marked abandoned.
-      syncRepo.startAssessmentSession({for (final c in selected) diseaseCodeOf(c)});
-      final ctx = _engine.evaluate(
-        selected: selected,
-        answers: prefilled,
-        completed: const {},
-        today: ref.read(assessmentTodayProvider),
-      );
-      state = AssessmentState(
-        context: ctx,
-        history: const [],
-        cursor: null,
-        currentGroup: _engine.nextGroup(ctx),
-      );
-    } else {
-      _update(
-        selected: selected,
-        cursor: null,
-      );
+    if (forceReset || isDifferentDisease || wasCompleted) {
+      startFresh(selected);
+      return;
     }
-
+    _update(
+      selected: selected,
+      cursor: null,
+    );
     // Goal B: Asynchronously ensure clinical session & disease_screenings in background queue
+    final syncRepo = ref.read(screeningSyncRepositoryProvider);
     for (final c in selected) {
       syncRepo.startDiseaseScreening(diseaseCodeOf(c));
     }
   }
 
-  /// Starts a fresh assessment for [selected] with answers read from a case
-  /// history. Pre-filled answers are not marked completed: every page is
-  /// still shown with the values filled in for the clinician to confirm or
-  /// edit. Only topic codes and field names reach the audit trail, never
-  /// the case text or values.
-  void startFromCase(
-    Set<NeonatalCondition> selected,
-    Map<String, Object?> prefilled,
-  ) {
+  /// Always starts a fresh assessment for [selected]: a new session and
+  /// fresh screenings (unfinished ones are marked abandoned), beginning from
+  /// [prefilled] (e.g. Triage findings carried into a suggested STW).
+  /// Pre-filled pages are not marked completed: the clinician still sees
+  /// and confirms them.
+  void startFresh(
+    Set<NeonatalCondition> selected, [
+    Map<String, Object?> prefilled = const {},
+  ]) {
     final syncRepo = ref.read(screeningSyncRepositoryProvider);
     syncRepo
         .startAssessmentSession({for (final c in selected) diseaseCodeOf(c)});
@@ -129,13 +106,23 @@ class AssessmentController extends Notifier<AssessmentState> {
       cursor: null,
       currentGroup: _engine.nextGroup(ctx),
     );
-    ref.read(auditLogProvider).log('case_entry_started', {
-      'topics': [for (final c in selected) diseaseCodeOf(c)],
-      'fields': ctx.answers.keys.toList()..sort(),
-    });
     for (final c in selected) {
       syncRepo.startDiseaseScreening(diseaseCodeOf(c));
     }
+  }
+
+  /// Starts a fresh assessment for [selected] with answers read from a case
+  /// history (see [startFresh]). Only topic codes and field names reach the
+  /// audit trail, never the case text or values.
+  void startFromCase(
+    Set<NeonatalCondition> selected,
+    Map<String, Object?> prefilled,
+  ) {
+    startFresh(selected, prefilled);
+    ref.read(auditLogProvider).log('case_entry_started', {
+      'topics': [for (final c in selected) diseaseCodeOf(c)],
+      'fields': state.context.answers.keys.toList()..sort(),
+    });
   }
 
   /// Resets the current screening progress back to empty.

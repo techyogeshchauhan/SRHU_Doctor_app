@@ -372,5 +372,44 @@ void main() {
       expect(container.read(followUpProvider).mcqAnswers.isEmpty, isTrue);
       expect(container.read(followUpProvider).caseAnswers.isEmpty, isTrue);
     });
+
+    testWidgets(
+        'on a phone, answering reveals Next and the next question starts at '
+        'the top', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(360, 640));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: FollowUpScreen()),
+      ));
+      container.read(followUpProvider.notifier).startAssessment();
+      await tester.pumpAndSettle();
+
+      final position = tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position;
+      final next = find.widgetWithText(FilledButton, 'Next Question');
+      bool onScreen(Finder f) {
+        final r = tester.getRect(f);
+        return r.top >= 0 && r.bottom <= 640;
+      }
+
+      await tester.ensureVisible(
+          find.textContaining('Percentage of eligible preterm/LBW babies'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+          find.textContaining('Percentage of eligible preterm/LBW babies'));
+      await tester.pumpAndSettle();
+      expect(onScreen(next), isTrue);
+      expect(position.pixels, greaterThan(0));
+
+      await tester.tap(next);
+      await tester.pumpAndSettle();
+      expect(find.text('MCQ 2 OF 8'), findsOneWidget);
+      expect(position.pixels, 0);
+      expect(tester.takeException(), isNull);
+    });
   });
 }

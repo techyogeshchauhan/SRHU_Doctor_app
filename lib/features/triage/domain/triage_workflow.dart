@@ -5,8 +5,8 @@
 /// page 1, never chosen: any emergency sign or threshold classifies the
 /// neonate as EMERGENCY, otherwise a Priority threshold (temperature,
 /// weight, RR) classifies PRIORITY. Measurements may be left blank.
-/// "Baby is sick" (fast-track) skips history and measurements, leaving
-/// emergency signs before the examination page.
+/// "Baby is sick" (fast-track) skips the history; measurements (optional)
+/// and emergency signs stay before the examination page.
 library;
 
 import '../../clinical_workflow/domain/clinical_finding.dart';
@@ -137,8 +137,8 @@ const qTriageFastTrack = ClinicalQuestion(
   group: triageAssessmentGroup,
   question: 'Baby is sick – proceed directly to examination',
   type: QuestionType.boolean,
-  helper: 'Skips history and measurements. Select emergency signs, then '
-      'continue to examination.',
+  helper: 'Skips the history. Select emergency signs, enter any '
+      'measurements available, then continue to examination.',
   sources: [SourceReference.dataEntry('Skip history when the baby is sick')],
 );
 
@@ -299,7 +299,9 @@ List<String> _labels(ClinicalQuestion q, Set<String> values) => [
         if (values.contains(o.value.toString())) o.label,
     ];
 
-String _fmt(num v) => v == v.roundToDouble() ? '${v.toInt()}' : '$v';
+/// A measurement for Triage reason strings: `72`, not `72.0`; `36.4` as is.
+String formatTriageNumber(num v) =>
+    v == v.roundToDouble() ? '${v.toInt()}' : '$v';
 
 /// Readable reasons the neonate is EMERGENCY; empty when none applies.
 List<String> _emergencyTriggers(VariableReader r) {
@@ -309,15 +311,15 @@ List<String> _emergencyTriggers(VariableReader r) {
   final bg = r.valueOf(triageBloodGlucoseKey);
   return [
     if (temperature is num && temperature < triageHypothermiaEmergencyC)
-      'Temperature ${_fmt(temperature)}°C (<35.5°C)',
+      'Temperature ${formatTriageNumber(temperature)}°C (<35.5°C)',
     if (hr is num && hr > triageHeartRateEmergencyAbove)
-      'HR ${_fmt(hr)}/min (>200/min)',
+      'HR ${formatTriageNumber(hr)}/min (>200/min)',
     if (spo2 is num && spo2 < triageSpo2EmergencyBelow)
-      'SpO₂ ${_fmt(spo2)}% (<91%)',
+      'SpO₂ ${formatTriageNumber(spo2)}% (<91%)',
     ..._labels(
         qTriageEmergencySigns, _values(r.valueOf(triageEmergencySignsKey))),
     if (bg is num && bg < triageRbsEmergencyBelow)
-      'RBS ${_fmt(bg)} mg/dL (<45 mg/dL)',
+      'RBS ${formatTriageNumber(bg)} mg/dL (<45 mg/dL)',
   ];
 }
 
@@ -335,10 +337,11 @@ List<String> _priorityReasons(VariableReader r) {
       .contains('respiratoryDistress');
   return [
     if (temperature is num && temperature >= 35.5 && temperature <= 36.4)
-      'Temperature ${_fmt(temperature)}°C (35.5 to 36.4°C)',
-    if (weight is num && weight < 1800) 'Weight ${_fmt(weight)} g (<1800 g)',
+      'Temperature ${formatTriageNumber(temperature)}°C (35.5 to 36.4°C)',
+    if (weight is num && weight < 1800)
+      'Weight ${formatTriageNumber(weight)} g (<1800 g)',
     if (rr is num && _tachypnea(r) && !retractions)
-      'RR ${_fmt(rr)}/min (≥60/min): tachypnea without retractions or grunt',
+      'RR ${formatTriageNumber(rr)}/min (≥60/min): tachypnea without retractions or grunt',
   ];
 }
 
@@ -521,7 +524,9 @@ final triageRules = <ClinicalRule>[
       actions: const [
         'Treat as per the HYPOGLYCEMIA box (Refer to STW on neonatal hypoglycemia).',
       ],
-      why: ['RBS ${_fmt(r.valueOf(triageBloodGlucoseKey) as num)} mg/dL'],
+      why: [
+        'RBS ${formatTriageNumber(r.valueOf(triageBloodGlucoseKey) as num)} mg/dL'
+      ],
     ),
   ),
   ClinicalRule(
@@ -657,7 +662,9 @@ final triageRules = <ClinicalRule>[
         'Check ECG for arrhythmia.',
         'Check and correct hyperthermia; refer for further management.',
       ],
-      why: ['HR ${_fmt(r.valueOf(triageHeartRateKey) as num)}/min'],
+      why: [
+        'HR ${formatTriageNumber(r.valueOf(triageHeartRateKey) as num)}/min'
+      ],
     ),
   ),
   ClinicalRule(
@@ -741,7 +748,7 @@ final triageRules = <ClinicalRule>[
         ],
         why: [
           if (rr is num && rr >= rrThresholdPerMin)
-            'RR ${_fmt(rr)}/min (≥60/min)',
+            'RR ${formatTriageNumber(rr)}/min (≥60/min)',
           if (_values(r.valueOf(triageEmergencySignsKey))
               .contains('respiratoryDistress'))
             'Respiratory distress (retractions, grunt) recorded',
@@ -757,8 +764,9 @@ String triageDextroseBolusVolumeText(int weightG) =>
     '${_thousandths(2 * weightG)} mL of 10% dextrose (straight '
     'multiplication of the STW per-kg value; verify before giving)';
 
-/// "Baby is sick" skips history and measurements. Skipped
-/// questions do not apply, so the engine drops any answer already entered.
+/// "Baby is sick" skips the history only. Skipped questions do not apply,
+/// so the engine drops their answers; measurements stay, because Emergency
+/// triggers and treatment doses are computed from them.
 final _notFastTrack = Not(const Var(triageFastTrackKey).eq(true));
 
 final triageWorkflow = StwWorkflow(
@@ -773,17 +781,16 @@ final triageWorkflow = StwWorkflow(
     QuestionUse(qTriageMaternalHistory, when: _notFastTrack),
     QuestionUse(qTriageNewbornRisks, when: _notFastTrack),
     QuestionUse(qTriageNewbornHistory, when: _notFastTrack),
-    QuestionUse(qTriageWeight, when: _notFastTrack),
-    QuestionUse(qTriageGestation, when: _notFastTrack),
-    QuestionUse(qTriageTemperature, when: _notFastTrack),
-    QuestionUse(qTriageHeartRate, when: _notFastTrack),
-    QuestionUse(qTriageRespiratoryRate, when: _notFastTrack),
-    QuestionUse(qTriageSpo2, when: _notFastTrack),
-    QuestionUse(qTriageBloodGlucose, when: _notFastTrack),
+    const QuestionUse(qTriageWeight),
+    const QuestionUse(qTriageGestation),
+    const QuestionUse(qTriageTemperature),
+    const QuestionUse(qTriageHeartRate),
+    const QuestionUse(qTriageRespiratoryRate),
+    const QuestionUse(qTriageSpo2),
+    const QuestionUse(qTriageBloodGlucose),
     QuestionUse(
       qTriageHypoglycemiaSymptoms,
       when: AllOf([
-        _notFastTrack,
         _bg.ge(triageRbsIvBelow),
         _bg.lt(triageRbsEmergencyBelow),
       ]),

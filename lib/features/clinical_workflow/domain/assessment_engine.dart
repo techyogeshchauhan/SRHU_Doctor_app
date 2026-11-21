@@ -229,9 +229,19 @@ class AssessmentEngine {
   /// The page can be confirmed when every required question on it is
   /// answered.
   bool canConfirm(ClinicalAssessmentContext ctx, String group) =>
-      pageQuestions(ctx, group).every((rq) =>
-          !isRequired(rq, ctx) ||
-          rq.question.isAnswered(ctx.answers[rq.question.variable]));
+      firstMissingRequired(ctx, group) == null;
+
+  /// The first required question on [group] that is still unanswered, in
+  /// page order; null when the page can be confirmed.
+  ResolvedQuestion? firstMissingRequired(
+    ClinicalAssessmentContext ctx,
+    String group,
+  ) =>
+      pageQuestions(ctx, group)
+          .where((rq) =>
+              isRequired(rq, ctx) &&
+              !rq.question.isAnswered(ctx.answers[rq.question.variable]))
+          .firstOrNull;
 
   /// Marks every applicable question of [group] as completed, storing the
   /// "no / none" default for unanswered switches and checklists. Re-run

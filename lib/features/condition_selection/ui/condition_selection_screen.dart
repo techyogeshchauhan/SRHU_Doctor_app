@@ -333,7 +333,8 @@ class _ConditionSelectionScreenState
                   Semantics(
                     button: true,
                     label: selected.isNotEmpty
-                        ? 'Continue with ${selected.length} conditions selected'
+                        ? 'Continue with ${selected.length} '
+                            '${selected.length == 1 ? 'condition' : 'conditions'} selected'
                         : 'Continue',
                     child: FilledButton(
                       style: FilledButton.styleFrom(
